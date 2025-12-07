@@ -9,8 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Updated [`README.md`](../README.md) to remove errant statement about runtime support of features
 - Ensured tags created on merge to `main` rather than being a manual task of release creation
+
+## [0.1.1] - 2025-12-07
+
+### Fixed
+
+- Updated [`README.md`](../README.md) to remove errant statement about runtime support of features
 
 ## [0.1.0] - 2025-12-07
 
