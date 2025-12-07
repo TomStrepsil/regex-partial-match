@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Ensured tags created on merge to `main` rather than being a manual task of release creation
 
+### Changed
+
+- Moved to annotated git tags
+
 ## [0.1.1] - 2025-12-07
 
 ### Fixed
