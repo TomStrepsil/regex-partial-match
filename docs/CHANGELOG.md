@@ -9,9 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- move to a fine-grained PAT that should be able to write to the repo for `CHANGELOG.md` updates after release
+
+## [0.1.3] - 2025-12-07
+
+### Fixed
+
 - Use a personal access token to allow `CHANGELOG.md` updates after release, since branch protection overrides not available on GH plan
 
-## [0.1.2]
+## [0.1.2] - 2025-12-07
 
 ### Fixed
 
