@@ -50,8 +50,8 @@ jobs:
           VERSION=${{ steps.version.outputs.version }}
           DATE=$(date -u +"%Y-%m-%d")
 
-          # Replace [Unreleased] with [VERSION] - DATE
-          sed -i "s/## \[Unreleased\]/## [${VERSION}] - ${DATE}/" docs/CHANGELOG.md
+          # Replace [Unreleased] with [VERSION] - DATE and add new [Unreleased] section
+          sed -i "s/## \[Unreleased\]/## [Unreleased]\n\n## [${VERSION}] - ${DATE}/" docs/CHANGELOG.md
 
           echo "✅ Updated CHANGELOG.md with version ${VERSION} and date ${DATE}"
 
