@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Use a personal access token to allow `CHANGELOG.md` updates after release, since branch protection overrides not available on GH plan
+
+## [0.1.2]
+
+### Fixed
+
 - Ensured tags created on merge to `main` rather than being a manual task of release creation
 
 ### Changed
