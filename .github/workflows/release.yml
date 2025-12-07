@@ -15,6 +15,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
+        with:
+          token: ${{ secrets.RELEASE_PAT || github.token }}
 
       - name: Extract version from tag
         id: version
@@ -46,16 +48,24 @@ jobs:
           echo "✅ Version validation passed"
 
       - name: Update CHANGELOG with version and date
+        id: update_changelog
         run: |
           VERSION=${{ steps.version.outputs.version }}
           DATE=$(date -u +"%Y-%m-%d")
 
-          # Replace [Unreleased] with [VERSION] - DATE and add new [Unreleased] section
-          sed -i "s/## \[Unreleased\]/## [Unreleased]\n\n## [${VERSION}] - ${DATE}/" docs/CHANGELOG.md
-
-          echo "✅ Updated CHANGELOG.md with version ${VERSION} and date ${DATE}"
+          # Check if version already exists in changelog
+          if grep -q "## \[${VERSION}\] - " docs/CHANGELOG.md; then
+            echo "ℹ️ Version ${VERSION} already in CHANGELOG, skipping update"
+            echo "updated=false" >> $GITHUB_OUTPUT
+          else
+            # Replace [Unreleased] with [VERSION] - DATE and add new [Unreleased] section
+            sed -i "s/## \[Unreleased\]/## [Unreleased]\n\n## [${VERSION}] - ${DATE}/" docs/CHANGELOG.md
+            echo "✅ Updated CHANGELOG.md with version ${VERSION} and date ${DATE}"
+            echo "updated=true" >> $GITHUB_OUTPUT
+          fi
 
       - name: Commit CHANGELOG changes
+        if: steps.update_changelog.outputs.updated == 'true'
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
