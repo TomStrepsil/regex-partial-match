@@ -1,0 +1,77 @@
+{
+  "name": "regex-partial-match",
+  "version": "0.1.0",
+  "description": "A regular expression transform for partial matching",
+  "engines": {
+    "node": ">=23"
+  },
+  "keywords": [
+    "regexp",
+    "regular expressions",
+    "partial matcher"
+  ],
+  "license": "ISC",
+  "author": {
+    "name": "Tom Pereira",
+    "url": "https://github.com/TomStrepsil"
+  },
+  "bugs": {
+    "url": "https://github.com/TomStrepsil/regex-partial-match/issues"
+  },
+  "homepage": "https://github.com/TomStrepsil/regex-partial-match#readme",
+  "contributors": [
+    {
+      "name": "Lucas Trzesniewski",
+      "url": "https://github.com/ltrzesniewski"
+    }
+  ],
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": {
+      "import": "./lib/index.js",
+      "types": "./lib/index.d.ts"
+    },
+    "./extend": {
+      "import": "./lib/extend.js",
+      "types": "./lib/extend.d.ts"
+    }
+  },
+  "files": [
+    "lib"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TomStrepsil/regex-partial-match.git"
+  },
+  "sideEffects": false,
+  "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "prepare": "simple-git-hooks",
+    "prepublishOnly": "tsc -p tsconfig.build.json",
+    "test": "vitest run --config ./test/vitest.config.ts",
+    "test:watch": "vitest --config ./test/vitest.config.ts"
+  },
+  "simple-git-hooks": {
+    "pre-commit": "node_modules/.bin/lint-staged"
+  },
+  "lint-staged": {
+    "*.{ts,js}": [
+      "npm run lint:fix"
+    ]
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.17.0",
+    "eslint": "^9.17.0",
+    "jiti": "^2.6.1",
+    "lint-staged": "^15.2.11",
+    "simple-git-hooks": "^2.12.1",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.18.1",
+    "vitest": "^4.0.15"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.json",
+  "exclude": [
+    "node_modules",
+    "lib",
+    "**/*.test.ts",
+  ],
+  "include": ["src/**/*"],
+  "compilerOptions": {
+    "declaration": true,
+    "outDir": "./lib",
+    "target": "es5",
+  }
+}
