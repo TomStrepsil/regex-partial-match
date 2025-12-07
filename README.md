@@ -18,8 +18,6 @@ This library transforms regular expressions to best-effort support **partial mat
 npm install regex-partial-match
 ```
 
-If your runtime doesn't support these features, attempting to use patterns with them will throw a `SyntaxError`.
-
 ## Usage
 
 ### Basic Usage

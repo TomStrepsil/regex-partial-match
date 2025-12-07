@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Updated [`README.md`](../README.md) to remove errant statement about runtime support of features
+
 ## [0.1.0] - 2025-12-07
 
 ### Added
