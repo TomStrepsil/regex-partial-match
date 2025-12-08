@@ -112,7 +112,15 @@ Hence:
 /(?:x|$)/.test("a") === true; /* what's produced by the library */
 ```
 
-On this basis, `.test()` should be ignored, and a match of an empty string at the end of the input should be considered "no match".
+To mitigate, an start boundary anchor can prevent anything _but_ the empty string matching:
+
+```js
+/^(?:x|$)/.test("") === true;
+/^(?:x|$)/.test("a") === false;
+/^(?:x|$)/.test("x") === true;
+```
+
+On this basis, `.test()` should be used with caution, and a match of an empty string at the end of the input should instead be considered "no match".
 
 i.e.
 
