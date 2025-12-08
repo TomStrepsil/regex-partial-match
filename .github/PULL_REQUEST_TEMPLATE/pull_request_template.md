@@ -6,9 +6,9 @@ resolves #_ISSUE_ID_
 
 Brief summary of PR purpose and code changes.
 
-## [Scout rule](https://biratkirat.medium.com/step-8-the-boy-scout-rule-robert-c-martin-uncle-bob-9ac839778385)
+## Scout rule
 
-Any code cleaning performed, unrelated to the issue (optional).
+Any [code cleaning](https://biratkirat.medium.com/step-8-the-boy-scout-rule-robert-c-martin-uncle-bob-9ac839778385) performed, unrelated to the issue (optional).
 
 ## CheckList
 
