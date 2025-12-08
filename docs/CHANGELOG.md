@@ -9,13 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- fixed typo in main `README.md` describing prototype extension
+- Fixed typo in `CONTRIBUTING.md` with old nomenclature for `createPartialMatchRegex`
+- Updated import and function call in `src/extend.ts` to use the correct nomenclature for `createPartialMatchRegex`
+
+## [0.1.5]
+
+### Fixed
+
+- Fixed typo in main `README.md` describing prototype extension
 
 ## [0.1.4] - 2025-12-07
 
 ### Fixed
 
-- move to a fine-grained PAT that should be able to write to the repo for `CHANGELOG.md` updates after release
+- Move to a fine-grained PAT that should be able to write to the repo for `CHANGELOG.md` updates after release
 
 ## [0.1.3] - 2025-12-07
 

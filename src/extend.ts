@@ -1,4 +1,4 @@
-import toPartialMatch from "./index.ts";
+import createPartialMatchRegex from "./index.ts";
 
 declare global {
   interface RegExp {
@@ -7,5 +7,5 @@ declare global {
 }
 
 RegExp.prototype.toPartialMatchRegex = function () {
-  return toPartialMatch(this);
+  return createPartialMatchRegex(this);
 };
