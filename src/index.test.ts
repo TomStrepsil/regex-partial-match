@@ -199,6 +199,11 @@ describe("regexp-partial-match", () => {
         suffix: " including ranges"
       },
       {
+        input: /[.]suffix/,
+        chars: ["."],
+        suffix: " including literal dots"
+      },
+      {
         input: /[\u2000-\u2002]suffix/,
         chars: ["\u2000", "\u2001", "\u2002"],
         suffix: " including unicode ranges"

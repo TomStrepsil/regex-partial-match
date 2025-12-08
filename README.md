@@ -112,7 +112,7 @@ Hence:
 /(?:x|$)/.test("a") === true; /* what's produced by the library */
 ```
 
-To mitigate, an start boundary anchor can prevent anything _but_ the empty string matching:
+To mitigate, a start boundary anchor can prevent anything _but_ the empty string matching:
 
 ```js
 /^(?:x|$)/.test("") === true;
@@ -284,13 +284,13 @@ Algorithm created by [Lucas Trzesniewski](https://github.com/ltrzesniewski).
 
 Contributions are welcome! Please open an issue or pull request on [GitHub](https://github.com/TomStrepsil/regex-partial-match).
 
-## Related packages
+## Related projects
 
-- [`incr-regex-package`](https://www.npmjs.com/package/incr-regex-package)
-  - Incremental regex matcher
-- [`dfa`](https://github.com/foliojs/dfa)
-  - Compiles a regular expression like syntax to fast deterministic finite automata, which could be used to partial match?
-- [`refa`](https://github.com/RunDevelopment/refa)
-  - Can [convert regular expressions to an Abstract Syntax Tree](https://rundevelopment.github.io/refa/docs/latest/classes/JS.Parser.html), which might afford partial-match capability?
-- [`Regex+`](https://www.npmjs.com/package/regex)
-  - template literal, transforming native regular expressions
+| Project                                                                    | Description                                                                                                                                                                          |
+| -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [`incr-regex-package`](https://www.npmjs.com/package/incr-regex-package)   | Incremental regex matcher                                                                                                                                                            |
+| [`dfa`](https://github.com/foliojs/dfa)                                    | Compiles a regular expression like syntax to fast deterministic finite automata, which could be used to partial match?                                                               |
+| [`refa`](https://github.com/RunDevelopment/refa)                           | Can [convert regular expressions to an Abstract Syntax Tree](https://rundevelopment.github.io/refa/docs/latest/classes/JS.Parser.html), which might afford partial-match capability? |
+| [`@eslint-community/regexpp`](https://github.com/eslint-community/regexpp) | A regular expression parser for ECMAScript with AST generation and visitor implementation                                                                                            |
+| [`Regex+`](https://www.npmjs.com/package/regex)                            | template literal, transforming native regular expressions                                                                                                                            |
+| [`Awesome Regex`](https://github.com/slevithan/awesome-regex)              | Curated list of tools, tutorials, libraries, and other resources, covering all major regex flavours                                                                                  |
