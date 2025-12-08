@@ -125,8 +125,8 @@ On this basis, `.test()` should be used with caution, and a match of an empty st
 i.e.
 
 ```js
-/(?:x|$)/.exec("a") === ['', index: 1, input: "a", groups: undefined];
-"a".match(/(?:x|$)/) === ['', index: 1, input: "a", groups: undefined];
+/(?:x|$)/.exec("a"); // ['', index: 1, input: "a", groups: undefined];
+"a".match(/(?:x|$)/); // ['', index: 1, input: "a", groups: undefined];
 ```
 
 Since the library produces a native `RegExp` object, no attempt to proxy / translate this output to `null` has been attempted, but a helper could be produced in future, for clarity.
@@ -296,5 +296,5 @@ Contributions are welcome! Please open an issue or pull request on [GitHub](http
   - Compiles a regular expression like syntax to fast deterministic finite automata, which could be used to partial match?
 - [`refa`](https://github.com/RunDevelopment/refa)
   - Can [convert regular expressions to an Abstract Syntax Tree](https://rundevelopment.github.io/refa/docs/latest/classes/JS.Parser.html), which might afford partial-match capability?
-- [`regex+`](https://www.npmjs.com/package/regex)
+- [`Regex+`](https://www.npmjs.com/package/regex)
   - template literal, transforming native regular expressions
