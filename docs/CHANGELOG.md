@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Missing test for literal `.` in character class expressions
 - Some more "related projects" links to the `README.md`
+- Added default pull request template
 
 ## [0.1.8] - 2025-12-08
 
