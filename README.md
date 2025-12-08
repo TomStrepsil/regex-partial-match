@@ -103,17 +103,9 @@ The library is compiled to **ES5** for broad compatibility with older browsers a
 
 ### Backreferences
 
-**Backreferences with variable-length captures cannot be partially matched** due to ambiguity in how the pattern should be matched. While simple fixed-length backreferences like `/(abc)\1/` could theoretically be transformed (if accepting that the group indexes would be polluted, compared to the original), to become `/(?:(a)|$)(?:(b)|$)(?:(c)|$)(?:\1|$)(?:\2|$)(?:\3|$)/` variable-length patterns break down.
+**Backreferences cannot be partially matched because they are atomic.** A backreference like `\1` must match the complete captured text or fail entirely, and cannot be split into individual characters for partial matching like regular atoms can.
 
-For example, with `/(\w+) \1/` (matches "hello hello"):
-
-- A naive transformation `/(?:(\w+)|$)(?:( )|$)(?:\1|$)/` creates ambiguity
-- For input "hello h", the regex can match in multiple ways:
-  - Capture group 1 as "hello", skip the space with `$`, skip `\1` with `$` ✓
-  - Capture group 1 as "h", skip the space with `$`, match `\1` as "h" ✓ (at position 6)
-- The engine chooses the second interpretation, matching just "h" instead of recognizing "hello h" as a partial match
-
-The core issue: **the regex engine cannot determine which part of the input should be captured vs. which part should match the backreference** when dealing with variable-length patterns and incomplete input. Fixed-length patterns like `/(abc)\1/` avoid this ambiguity since each character position has a clear role.
+Fixed-length patterns like `/(abc)\1/` could theoretically become `/(?:(a)|$)(?:(b)|$)(?:(c)|$)(?:\1|$)(?:\2|$)(?:\3|$)/` (accepting polluted capture indexes as a side-effect), but this doesn't work for variable-length captures.
 
 ### Surrogate Pair Matching
 
