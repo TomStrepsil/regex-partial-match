@@ -137,7 +137,7 @@ Tests are located in `test/` directory. Follow these patterns:
 describe("feature name", () => {
   it("should do something specific", () => {
     const input = /pattern/;
-    const partial = toPartialMatch(input);
+    const partial = createPartialMatchRegex(input);
 
     expect(partial.test("partial")).toBe(true);
   });
