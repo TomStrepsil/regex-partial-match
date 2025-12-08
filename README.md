@@ -101,11 +101,53 @@ The library is compiled to **ES5** for broad compatibility with older browsers a
 
 ## Caveats
 
+### [`.test()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/test) behaviour and non-matching results from [`.exec()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/exec) and [`.match()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/match)
+
+The library produces an expression that always matches an empty string, at the end of the input.
+
+Hence:
+
+```js
+/x/.test("a") === false; /* what you'd expect */
+/(?:x|$)/.test("a") === true; /* what's produced by the library */
+```
+
+To mitigate, an start boundary anchor can prevent anything _but_ the empty string matching:
+
+```js
+/^(?:x|$)/.test("") === true;
+/^(?:x|$)/.test("a") === false;
+/^(?:x|$)/.test("x") === true;
+```
+
+On this basis, `.test()` should be used with caution, and a match of an empty string at the end of the input should instead be considered "no match".
+
+i.e.
+
+```js
+/(?:x|$)/.exec("a"); // ['', index: 1, input: "a", groups: undefined];
+"a".match(/(?:x|$)/); // ['', index: 1, input: "a", groups: undefined];
+```
+
+Since the library produces a native `RegExp` object, no attempt to proxy / translate this output to `null` has been attempted, but a helper could be produced in future, for clarity.
+
 ### Backreferences
 
 **Backreferences cannot be partially matched because they are atomic.** A backreference like `\1` must match the complete captured text or fail entirely, and cannot be split into individual characters for partial matching like regular atoms can.
 
 Fixed-length patterns like `/(abc)\1/` could theoretically become `/(?:(a)|$)(?:(b)|$)(?:(c)|$)(?:\1|$)(?:\2|$)(?:\3|$)/` (accepting polluted capture indexes as a side-effect), but this doesn't work for variable-length captures.
+
+### Positive Lookbehinds
+
+Whilst forming a match, a positive lookbehind must match in entirety, for the pattern to match. This is inherent in the concept of non-matching groups, since they are not match-worthy themselves, but just qualify matching atoms.
+
+e.g.
+
+```js
+/(?<=foo)bar/;
+```
+
+"f" through "foo" is not a match, but "foob" is.
 
 ### Surrogate Pair Matching
 
@@ -140,8 +182,6 @@ The global flag does not cause issues like the sticky flag, as partial patterns 
 ### Form Validation
 
 ```javascript
-import createPartialMatchRegex from "regex-partial-match";
-
 const emailPattern = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/i;
 const partial = createPartialMatchRegex(emailPattern);
 
@@ -175,8 +215,6 @@ getSuggestions("xyz"); // 'no suggestions'
 ### Stream Processing
 
 ```javascript
-import createPartialMatchRegex from "regex-partial-match";
-
 // Process streaming data with pattern matching at chunk boundaries
 const pattern = /\{"[^"]+":"[^"]+"\}/; // Match JSON objects
 const partial = createPartialMatchRegex(pattern);
@@ -254,3 +292,5 @@ Contributions are welcome! Please open an issue or pull request on [GitHub](http
   - Compiles a regular expression like syntax to fast deterministic finite automata, which could be used to partial match?
 - [`refa`](https://github.com/RunDevelopment/refa)
   - Can [convert regular expressions to an Abstract Syntax Tree](https://rundevelopment.github.io/refa/docs/latest/classes/JS.Parser.html), which might afford partial-match capability?
+- [`Regex+`](https://www.npmjs.com/package/regex)
+  - template literal, transforming native regular expressions

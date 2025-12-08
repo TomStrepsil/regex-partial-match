@@ -69,7 +69,7 @@ describe("regexp-partial-match", () => {
     });
 
     it("should support partial matching of control character escape expressions", () => {
-      const input = /\cJ\cMsuffix/;
+      const input = /\cj\cMsuffix/;
       const partial = createPartialMatchRegex(input);
       const string = "\n\rsuffix";
 
@@ -297,10 +297,10 @@ describe("regexp-partial-match", () => {
         suffix: " including null characters"
       },
       {
-        input: /[ab\cM\cJ]suffix/,
+        input: /[ab\cM\cj]suffix/,
         chars: ["a", "b", "\r", "\n"],
         suffix:
-          " including null control characters expressed using caret notation"
+          " including control character escapes expressed using caret notation"
       },
       {
         input: /[\x61\x62\x63]suffix/,
@@ -657,70 +657,92 @@ describe("regexp-partial-match", () => {
     it("should support partial matching of positive lookahead assertions", () => {
       const input = /foo(?=bar)/;
       const partial = createPartialMatchRegex(input);
-      const testStrings = ["f", "fo", "foo", "foobar"];
+      const string = "foobar";
 
-      for (const testString of testStrings) {
-        const result = partial.exec(testString);
-        expect(result).toMatchAt({ match: testString.slice(0, 3), index: 0 });
+      for (let i = 1; i < string.length; i++) {
+        const partialString = string.substring(0, i);
+        const result = partial.exec(partialString);
+        expect(result).toMatchAt({
+          match: partialString.slice(0, 3),
+          index: 0
+        });
       }
     });
 
     it("should support partial matching of negative lookahead assertions", () => {
       const input = /foo(?!bar)/;
       const partial = createPartialMatchRegex(input);
-      const testStrings = ["f", "fo", "foo", "foobaz"];
+      const string = "foobaz";
 
-      for (const testString of testStrings) {
-        const result = partial.exec(testString);
-        expect(result).toMatchAt({ match: testString.slice(0, 3), index: 0 });
+      for (let i = 1; i < string.length; i++) {
+        const partialString = string.substring(0, i);
+        const result = partial.exec(partialString);
+        expect(result).toMatchAt({
+          match: partialString.slice(0, 3),
+          index: 0
+        });
       }
 
       expect(partial.exec("foobar")).toNotMatch();
     });
 
-    it("should support partial matching of positive lookbehind assertions", () => {
+    it("should support partial matching of positive lookbehind assertions (with caveat that the lookbehind is not partially matched whilst forming)", () => {
       const input = /(?<=foo)bar/;
       const partial = createPartialMatchRegex(input);
-      const testStrings = ["foob", "fooba"];
+      const string = "fooba";
 
-      for (const testString of testStrings) {
-        const result = partial.exec(testString);
-        expect(result).toMatchAt({ match: testString.slice(3), index: 3 });
+      for (let i = 3; i < string.length; i++) {
+        const partialString = string.substring(0, i);
+        const result = partial.exec(partialString);
+        expect(result).toMatchAt({ match: partialString.slice(3), index: 3 });
       }
     });
 
     it("should support partial matching of negative lookbehind assertions", () => {
       const input = /(?<!foo)bar/;
       const partial = createPartialMatchRegex(input);
-      const testStrings = ["", "b", "ba", "bar"];
+      const string = "ba";
 
-      for (const testString of testStrings) {
-        const result = partial.exec(testString);
-        expect(result).toMatchAt({ match: testString, index: 0 });
+      for (let i = 1; i < string.length; i++) {
+        const partialString = string.substring(0, i);
+        const result = partial.exec(partialString);
+        expect(result).toMatchAt({ match: partialString, index: 0 });
       }
 
+      expect(partial.exec("fo")).toNotMatch();
+      expect(partial.exec("foo")).toNotMatch();
       expect(partial.exec("foob")).toNotMatch();
     });
 
-    it("should support partial matching of lookbehind assertions with lookahead assertions", () => {
+    it("should support partial matching of lookbehind assertions with lookahead assertions (with caveat that the lookbehind is not partially matched whilst forming)", () => {
       const input = /(?<=foo)bar(?=baz)/;
       const partial = createPartialMatchRegex(input);
-      const testStrings = ["foob", "fooba", "foobar", "foobarba"];
+      const string = "foobarba";
 
-      for (const testString of testStrings) {
-        const result = partial.exec(testString);
-        expect(result).toMatchAt({ match: testString.slice(3, 6), index: 3 });
+      for (let i = 3; i < string.length; i++) {
+        const partialString = string.substring(0, i);
+        const result = partial.exec(partialString);
+        expect(result).toMatchAt({
+          match: partialString.slice(3, 6),
+          index: 3
+        });
       }
     });
 
     it("should support partial matching of positive and negative lookahead assertions", () => {
       const input = /(?!.*#)(?=.*:)foo/;
       const partial = createPartialMatchRegex(input);
-      const testStrings = ["f", "fo", "foo", "foobar", "foob:"];
+      const testStrings = ["foobar", "foob:"];
 
-      for (const testString of testStrings) {
-        const result = partial.exec(testString);
-        expect(result).toMatchAt({ match: testString.slice(0, 3), index: 0 });
+      for (const string of testStrings) {
+        for (let i = 1; i < string.length; i++) {
+          const partialString = string.substring(0, i);
+          const result = partial.exec(partialString);
+          expect(result).toMatchAt({
+            match: partialString.slice(0, 3),
+            index: 0
+          });
+        }
       }
 
       expect(partial.exec("foob:#")).toNotMatch();
