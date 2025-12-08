@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Split the "ci" pipeline to separate `pull_request` and `push` (to `main`) events
+  - No need to test & lint twice, with new branch protection rules
+
+### Fixed
+
+- Typo in `README.md`
+
+### Added
+
+- Missing test for literal `.` in character class expressions
+- Some more "related projects" links to the `README.md`
+
+## [0.1.8] - 2025-12-08
+
 ### Added
 
 - `README.md` additions:
@@ -69,7 +85,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Updated [`README.md`](../README.md) to remove errant statement about runtime support of features
+- Updated `README.md` to remove errant statement about runtime support of features
 
 ## [0.1.0] - 2025-12-07
 
