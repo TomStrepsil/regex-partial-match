@@ -1,16 +1,30 @@
-import { defineConfig } from "eslint/config";
 import tseslint from "typescript-eslint";
+import markdown from "@eslint/markdown";
 
-export default defineConfig(
+export default [
   {
     ignores: ["lib/**", "node_modules/**"]
   },
-  tseslint.configs.strictTypeChecked,
   {
+    files: ["**/*.md"],
+    plugins: {
+      markdown
+    },
+    language: "markdown/commonmark",
+    rules: {
+      "markdown/no-html": "error"
+    }
+  },
+  ...tseslint.configs.strictTypeChecked.map((config) => ({
+    ...config,
+    files: ["**/*.ts"]
+  })),
+  {
+    files: ["**/*.ts"],
     languageOptions: {
       parserOptions: {
-        projectService: true
+        project: "./tsconfig.json"
       }
     }
   }
-);
+];
