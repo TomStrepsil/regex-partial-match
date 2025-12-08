@@ -20,6 +20,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improve lookaround tests
 - Typo of "null control characters" to "control character escapes"
 
+### Changed
+
+- Removed import statement for usage examples, for brevity / consistency
+
 ## [0.1.7] - 2025-12-08
 
 ### Changed

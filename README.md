@@ -182,8 +182,6 @@ The global flag does not cause issues like the sticky flag, as partial patterns 
 ### Form Validation
 
 ```javascript
-import createPartialMatchRegex from "regex-partial-match";
-
 const emailPattern = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/i;
 const partial = createPartialMatchRegex(emailPattern);
 
@@ -217,8 +215,6 @@ getSuggestions("xyz"); // 'no suggestions'
 ### Stream Processing
 
 ```javascript
-import createPartialMatchRegex from "regex-partial-match";
-
 // Process streaming data with pattern matching at chunk boundaries
 const pattern = /\{"[^"]+":"[^"]+"\}/; // Match JSON objects
 const partial = createPartialMatchRegex(pattern);
