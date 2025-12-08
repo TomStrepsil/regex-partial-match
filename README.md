@@ -39,7 +39,7 @@ partial.test("goodbye"); // false - cannot match
 ```javascript
 import "regex-partial-match/extend";
 
-const partial = /hello world/.createPartialMatchRegexRegex();
+const partial = /hello world/.toPartialMatchRegex();
 
 partial.test("hel"); // true
 ```
