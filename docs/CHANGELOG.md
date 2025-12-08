@@ -7,18 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `README.md` additions:
+  - Caveat for non-match output
+  - Caveat for positive lookbehinds
+  - Link to Regex+ package
+
+### Fixed
+
+- Clarify modal 32 equivalence of control character escapes in test
+- Improve lookaround tests
+- Typo of "null control characters" to "control character escapes"
+
+## [0.1.7] - 2025-12-08
+
 ### Changed
 
 - Simplified documentation on Backreference caveats
 
-## [0.1.6]
+## [0.1.6] - 2025-12-08
 
 ### Fixed
 
 - Fixed typo in `CONTRIBUTING.md` with old nomenclature for `createPartialMatchRegex`
 - Updated import and function call in `src/extend.ts` to use the correct nomenclature for `createPartialMatchRegex`
 
-## [0.1.5]
+## [0.1.5] - 2025-12-08
 
 ### Fixed
 
