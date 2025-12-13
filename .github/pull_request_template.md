@@ -21,7 +21,7 @@ _Any [code cleaning](https://biratkirat.medium.com/step-8-the-boy-scout-rule-rob
 ## CheckList
 
 - [ ] PR starts with [_ISSUE_ID_]
-- [ ] I have added an entry to the `[Unreleased]` section in `CHANGELOG.md`
+- [ ] I have added an entry to the `[Unreleased]` section in `docs/CHANGELOG.md`
 - [ ] I have performed a self-review of my own code
 - [ ] I have added tests that prove my fix is effective or that my feature works
 - [ ] New and existing unit tests pass locally with my changes
