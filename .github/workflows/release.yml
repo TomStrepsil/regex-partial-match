@@ -10,6 +10,20 @@ jobs:
       contents: write
 
     steps:
+      # Generate a GitHub App token for authenticated operations that bypass branch protection.
+      # This is necessary because the workflow commits CHANGELOG.md and package.json updates
+      # directly to the main branch, which may have branch protection rules enabled.
+      #
+      # Required GitHub App permissions:
+      #   - Contents: Read and write (to commit and push changes)
+      #   - Metadata: Read (automatically granted, required for basic repository access)
+      #
+      # Security considerations:
+      #   - The app should be scoped to this repository only
+      #   - APP_ID and APP_PRIVATE_KEY must be stored as repository secrets
+      #   - The app token is ephemeral and expires after the workflow completes
+      #   - Using a GitHub App is more secure than a personal access token as it provides
+      #     granular permissions and better audit logging
       - name: Generate GitHub App Token
         id: app-token
         uses: actions/create-github-app-token@v1
