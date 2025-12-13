@@ -135,4 +135,33 @@ const createPartialMatchRegex = (regex: RegExp): RegExp => {
   return new RegExp(process(), regex.flags);
 };
 
+/**
+ * Transforms a regular expression to support partial matching.
+ * 
+ * This function wraps each atomic element of the regex pattern in a non-capturing group
+ * with an alternation to end-of-input (`$`), allowing the pattern to match prefixes
+ * of the original pattern. This enables validation of incomplete input strings.
+ * 
+ * @param regex - The regular expression to transform for partial matching
+ * @returns A new RegExp that matches partial strings of the original pattern
+ * 
+ * @example
+ * ```typescript
+ * const pattern = /hello world/;
+ * const partial = createPartialMatchRegex(pattern);
+ * 
+ * partial.test('h');           // true - could match
+ * partial.test('hello');       // true - could match
+ * partial.test('hello world'); // true - full match
+ * partial.test('goodbye');     // false - cannot match
+ * ```
+ * 
+ * @remarks
+ * - The transformed regex will always match an empty string at the end of input
+ * - Backreferences cannot be partially matched as they are atomic
+ * - Use with a start anchor (`^`) to prevent false positives from empty string matches
+ * - The `y` (sticky) flag may not behave as expected in partial matching scenarios
+ * 
+ * @see {@link https://github.com/TomStrepsil/regex-partial-match#readme | Documentation}
+ */
 export default createPartialMatchRegex;

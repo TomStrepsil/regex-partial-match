@@ -32,49 +32,44 @@ jobs:
       - name: Run tests
         run: npm test
 
-  version-check:
-    name: Check Version and Changelog
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-
-      - name: Fetch main branch
-        run: git fetch origin main:refs/remotes/origin/main
-
-      - name: Check version bump
-        run: |
-          BASE_VERSION=$(git show origin/main:package.json | jq -r '.version')
-          CURRENT_VERSION=$(jq -r '.version' package.json)
-
-          echo "Base version: $BASE_VERSION"
-          echo "Current version: $CURRENT_VERSION"
-
-          if [ "$BASE_VERSION" = "$CURRENT_VERSION" ]; then
-            echo "❌ Error: package.json version must be updated"
-            exit 1
-          fi
-
-          echo "✅ Version updated from $BASE_VERSION to $CURRENT_VERSION"
-
-      - name: Check CHANGELOG update
-        run: |
-          if ! git diff origin/main...HEAD --name-only | grep -q "docs/CHANGELOG.md"; then
-            echo "❌ Error: docs/CHANGELOG.md must be updated"
-            exit 1
-          fi
-
-          echo "✅ docs/CHANGELOG.md has been updated"
-
-      - name: Validate Unreleased section exists
+      - name: Check for CHANGELOG entry
         run: |
           if ! grep -q "## \[Unreleased\]" docs/CHANGELOG.md; then
-            echo "❌ Error: docs/CHANGELOG.md must contain an [Unreleased] section"
-            echo "Please add a changelog entry under ## [Unreleased]"
+            echo "Error: CHANGELOG.md must have an [Unreleased] section"
             exit 1
           fi
 
-          echo "✅ [Unreleased] section found in CHANGELOG.md"
+          # Check if there are actual changes under [Unreleased]
+          UNRELEASED_CONTENT=$(sed -n '/## \[Unreleased\]/,/^## \[/p' docs/CHANGELOG.md)
+          if ! echo "$UNRELEASED_CONTENT" | grep -q "^### "; then
+            echo "Error: Please add an entry under [Unreleased] in CHANGELOG.md"
+            echo ""
+            echo "Expected format (see https://keepachangelog.com/en/1.1.0/):"
+            echo "## [Unreleased]"
+            echo ""
+            echo "### Added (or Changed, Deprecated, Removed, Fixed, Security)"
+            echo "- Your change description"
+            exit 1
+          fi
+          echo "✓ docs/CHANGELOG.md has entries under [Unreleased]"
+
+      - name: Check for semver selection
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          echo "Checking PR description for semver selection..."
+
+          # Check if at least one semver checkbox is selected
+          if ! echo "$PR_BODY" | grep -qE "\[x\] \*\*(MAJOR|MINOR|PATCH)\*\*"; then
+            echo "❌ Error: No semver checkbox selected in PR description"
+            echo ""
+            echo "Please select one of the following in your PR description:"
+            echo "  - [x] **PATCH** - Bug fixes and minor changes (backwards compatible)"
+            echo "  - [x] **MINOR** - New features (backwards compatible)"
+            echo "  - [x] **MAJOR** - Breaking changes (not backwards compatible)"
+            echo ""
+            echo "This is required for automated version management during releases."
+            exit 1
+          fi
+
+          echo "✓ Semver checkbox selected"
