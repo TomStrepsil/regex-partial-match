@@ -23,7 +23,8 @@ jobs:
       #   - APP_ID and APP_PRIVATE_KEY must be stored as repository secrets
       #   - The app token is ephemeral and expires after the workflow completes
       #   - Using a GitHub App is more secure than a personal access token as it provides
-      #     granular permissions and better audit logging
+      #     granular permissions and better audit logging (API calls are attributed to
+      #     the app with app-specific logs, making it easier to track automated actions)
       - name: Generate GitHub App Token
         id: app-token
         uses: actions/create-github-app-token@v1
