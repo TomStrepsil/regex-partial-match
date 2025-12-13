@@ -77,7 +77,8 @@ Such combinations have not been tested.
 - 👥 [Groups](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Capturing_group) (capturing and non-capturing) (`(?:abc)`, `(abc)`, `(?<named>abc)`)
 - 👀 [Lookahead assertions](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Lookahead_assertion) (`(?=...)`, `(?!...)`)
 - 👈 [Lookbehind assertions](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Lookbehind_assertion) (`(?<=...)`, `(?<!...)`)
-- ⚓ [Anchors](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Input_boundary_assertion) (`^`, `$`)
+- ⚓ [Input Boundaries](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Input_boundary_assertion) (`^`, `$`)
+- 🆒 [Word Boundaries](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Word_boundary_assertion) (`\b`, `\B`)
 - 🏴 [Flags](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/flags): `g`, `i`, `m`, `s`, `u`, `d`, `y` (See caveats for `y`)
 
 ## Unsupported Features
@@ -85,8 +86,8 @@ Such combinations have not been tested.
 The following regex features are **not currently supported**:
 
 - ⚠️ [Backreferences](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Backreference) (`\1`, `\k<name>`) - Can be included, but can't partially match. See [caveats](#caveats).
-- ❌ [Unicode sets (`v` flag)](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/unicodeSets) - ES2024+
-- ❌ [Modifiers](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Modifier) (`(?ims:...)`, `(?-ims:...)`) - ES2025+
+- ❌ [Unicode sets (`v` flag)](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/unicodeSets) - ES2024+. See [issue](https://github.com/TomStrepsil/regex-partial-match/issues/1).
+- ❌ [Modifiers](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Modifier) (`(?ims:...)`, `(?-ims:...)`) - ES2025+. See [issue](https://github.com/TomStrepsil/regex-partial-match/issues/2).
 
 ## Browser Compatibility
 
@@ -103,24 +104,24 @@ The library is compiled to **ES5** for broad compatibility with older browsers a
 
 ### [`.test()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/test) behaviour and non-matching results from [`.exec()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/exec) and [`.match()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/match)
 
-The library produces an expression that always matches an empty string, at the end of the input.
+The library produces an expression that always matches an empty string, at the end of the input.  Feasibly, this is the start of a new partial match.
 
 Hence:
 
 ```js
-/x/.test("a") === false; /* what you'd expect */
+/x/.test("a") === false; /* untransformed regex */
 /(?:x|$)/.test("a") === true; /* what's produced by the library */
 ```
 
-To mitigate, a start boundary anchor can prevent anything _but_ the empty string matching:
+To mitigate, a start boundary anchor can prevent anything _but_ an empty string matching:
 
 ```js
 /^(?:x|$)/.test("") === true;
-/^(?:x|$)/.test("a") === false;
 /^(?:x|$)/.test("x") === true;
+/^(?:x|$)/.test("a") === false;
 ```
 
-On this basis, `.test()` should be used with caution, and a match of an empty string at the end of the input should instead be considered "no match".
+On this basis, `.test()` should be used with caution, and a match of an empty string at the end of the input should instead be considered "no match", if validating that which came before.
 
 i.e.
 
@@ -129,7 +130,7 @@ i.e.
 "a".match(/(?:x|$)/); // ['', index: 1, input: "a", groups: undefined];
 ```
 
-Since the library produces a native `RegExp` object, no attempt to proxy / translate this output to `null` has been attempted, but a helper could be produced in future, for clarity.
+Since the library produces a native `RegExp` object, no attempt to proxy / translate this output to `null` has been attempted, but a helper could be produced in future, for clarity. See [issue](https://github.com/TomStrepsil/regex-partial-match/issues/14).
 
 ### Backreferences
 
@@ -151,7 +152,7 @@ e.g.
 
 ### Surrogate Pair Matching
 
-In unicode-aware mode (`u` flag), **only whole astral characters are supported**. Partial matching of individual surrogate pairs is not supported. For example, `/😀/u` will match the complete emoji character, but not the first surrogate pair in isolation. Hence, if partially matching a byte stream, be sure to pipe via a [`TextDecoder`](https://developer.mozilla.org/en-US/docs/Web/API/TextDecoder) first.
+In [unicode-aware mode](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/unicode) (`u` flag), **only whole astral characters are supported**. Partial matching of individual surrogate pairs is not supported. For example, `/😀/u` will match the complete emoji character, but not the first surrogate pair in isolation. Hence, if partially matching a byte stream, be sure to pipe via a [`TextDecoder`](https://developer.mozilla.org/en-US/docs/Web/API/TextDecoder) first.
 
 ### [Sticky](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/sticky) Flag (`y`)
 

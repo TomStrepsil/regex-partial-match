@@ -9,6 +9,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Moved to "semver selection" PR template
+- Release workflow is now a manual `workflow_dispatch` that creates a _draft release_, tagged appropriately based on prior PRs merged since last release and their semver selection
+- update `pull_request_template.md` to add semver checkboxes
+- `README.md` changes:
+  - split `Anchors` in `Supported Features` into input / word boundaries sections
+  - clarified `test()` behaviour, and added link to issue
+  - added link for unicode-aware mode
+- British spelling for `CODE_OF_CONDUCT.md`, and linted
+
+### Added
+
+- [`JSDoc`](https://jsdoc.app/) comments for public interface
+
+### Removed
+
+- 'Create Tag' workflow, this is now part of added release workflow
+
+## [0.1.9] - 2025-12-08
+
+### Changed
+
 - Split the "ci" pipeline to separate `pull_request` and `push` (to `main`) events
   - No need to test & lint twice, with new branch protection rules
 - Moved related packages to table format
