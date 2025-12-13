@@ -124,12 +124,6 @@ jobs:
           VERSION="${{ steps.npm_version.outputs.version }}"
           DATE=$(date +%Y-%m-%d)
 
-          # Verify CHANGELOG.md exists and has [Unreleased] section
-          if ! grep -q "## \[Unreleased\]" docs/CHANGELOG.md; then
-            echo "❌ Error: docs/CHANGELOG.md must have an [Unreleased] section"
-            exit 1
-          fi
-
           # Create a temporary file
           TEMP_FILE=$(mktemp)
 
