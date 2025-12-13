@@ -10,10 +10,18 @@ jobs:
       contents: write
 
     steps:
+      - name: Generate GitHub App Token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+
       - name: Checkout code
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
+          token: ${{ steps.app-token.outputs.token }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -44,6 +52,14 @@ jobs:
             echo "Latest tag: $LATEST_TAG"
             # Get all merged PRs since the last tag
             MERGE_COMMITS=$(git log ${LATEST_TAG}..HEAD --merges --pretty=format:"%H %s")
+          fi
+
+          # Check if there are any merge commits to process
+          if [ -z "$MERGE_COMMITS" ]; then
+            echo "⚠️  Warning: No merge commits found since $LATEST_TAG"
+            echo "No PRs have been merged since the last release."
+            echo "Defaulting to PATCH bump - please verify this is intentional."
+            echo ""
           fi
 
           # Initialize semver bump level (0=none, 1=patch, 2=minor, 3=major)
@@ -112,25 +128,56 @@ jobs:
           TEMP_FILE=$(mktemp)
 
           # Read the changelog and update it
+          # This awk script handles edge cases:
+          # - Empty [Unreleased] sections
+          # - [Unreleased] as the last section
+          # - Multiple consecutive ## headers
           awk -v version="$VERSION" -v date="$DATE" '
+          BEGIN { found_unreleased = 0 }
+
           /## \[Unreleased\]/ {
+            found_unreleased = 1
             print "## [Unreleased]"
             print ""
             print "## [" version "] - " date
             next
           }
+
+          # Skip empty lines immediately after [Unreleased] until we hit content or another ##
+          found_unreleased && /^$/ && !seen_content {
+            next
+          }
+
+          found_unreleased && /^## / {
+            seen_content = 1
+          }
+
+          found_unreleased && /./ {
+            seen_content = 1
+          }
+
           { print }
           ' docs/CHANGELOG.md > "$TEMP_FILE"
 
           # Replace the original file
           mv "$TEMP_FILE" docs/CHANGELOG.md
 
+          echo "✓ CHANGELOG.md updated: Added version $VERSION section"
+
       - name: Commit changelog and version bump
         run: |
+          # Verify we're on the main branch
+          CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+          if [ "$CURRENT_BRANCH" != "main" ]; then
+            echo "❌ Error: Release workflow must be run from main branch"
+            echo "Current branch: $CURRENT_BRANCH"
+            exit 1
+          fi
+
           git add docs/CHANGELOG.md package.json
           git add package-lock.json 2>/dev/null || true
           git commit -m "Release version ${{ steps.npm_version.outputs.version }}"
-          git push
+          git push origin main
 
       - name: Create and push tag
         run: |
