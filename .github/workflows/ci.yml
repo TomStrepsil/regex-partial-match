@@ -70,7 +70,7 @@ jobs:
 
           # Ensure a merge base exists
           if ! git merge-base --is-ancestor origin/${{ github.base_ref }} HEAD; then
-            echo "Error: No merge base found between PR branch and base branch. Try rebasing your branch on the latest main."
+            echo "Error: No merge base found between PR branch and base branch '${{ github.base_ref }}'. Try rebasing your branch on the latest ${{ github.base_ref }}."
             exit 1
           fi
 
