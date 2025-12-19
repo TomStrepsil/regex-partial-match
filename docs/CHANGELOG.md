@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added link from supported features to sticky flag caveat in `README.md`
 - Ensured latest PR body is fetched, so that checkboxes updated after raising a PR are recognised
+- Ensured new Unreleased section entry must be added for each PR, rather than Unreleased just having content
 
 ## [0.1.10] - 2025-12-14
 

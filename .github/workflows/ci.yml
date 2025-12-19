@@ -55,6 +55,11 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          sparse-checkout: |
+            docs/CHANGELOG.md
+          sparse-checkout-cone-mode: false
 
       - name: Check CHANGELOG for Unreleased entries
         run: |
@@ -63,22 +68,42 @@ jobs:
             exit 1
           fi
 
-          # Extract content between [Unreleased] and the next version section or end of file
-          # Match version sections starting with ## [ followed by a digit
-          UNRELEASED_CONTENT=$(sed -n '/## \[Unreleased\]/,/^## \[[0-9]/p' docs/CHANGELOG.md)
+          # Fetch base branch for comparison
+          git fetch origin ${{ github.base_ref }}:${{ github.base_ref }}
 
-          # Check if there are actual changes under [Unreleased]
-          if ! echo "$UNRELEASED_CONTENT" | grep -q "^### "; then
-            echo "Error: Please add an entry under [Unreleased] in docs/CHANGELOG.md"
-            echo ""
-            echo "Expected format (see https://keepachangelog.com/en/1.1.0/):"
-            echo "## [Unreleased]"
-            echo ""
-            echo "### Added (or Changed, Deprecated, Removed, Fixed, Security)"
-            echo "- Your change description"
+          # Ensure a merge base exists
+          if ! git merge-base --is-ancestor origin/${{ github.base_ref }} HEAD; then
+            echo "Error: No merge base found between PR branch and base branch '${{ github.base_ref }}'. Try rebasing your branch on the latest ${{ github.base_ref }}."
             exit 1
           fi
-          echo "✓ docs/CHANGELOG.md has entries under [Unreleased]"
+
+          # Get the diff for docs/CHANGELOG.md between PR and base
+          DIFF=$(git diff -U9999 origin/${{ github.base_ref }}..HEAD -- docs/CHANGELOG.md)
+
+          # Extract added lines under [Unreleased]
+          ADDED=$(echo "$DIFF" | awk '
+            BEGIN { unreleased=0 }
+            # Reset section state at each hunk header
+            /^@@/ { unreleased=0; next }
+            # Skip file header lines from diff metadata
+            /^\+\+\+/ { next }
+            /^---/ { next }
+            # When we see the Unreleased header as context or an added line, enter Unreleased section
+            /^[ +]## \[Unreleased\]/ { unreleased=1; next }
+            # When we see any other version section header (e.g., ## [1.2.3]), leave Unreleased section
+            /^[ +\-]## \[[0-9]/ { unreleased=0; next }
+            # Collect added lines that appear while we are in the Unreleased section
+            unreleased && /^\+/ { print substr($0,2) }
+          ')
+
+          # Check if any meaningful (non-whitespace) added lines exist under [Unreleased]
+          MEANINGFUL_ADDED=$(echo "$ADDED" | sed '/^[[:space:]]*$/d')
+          if [ -z "$MEANINGFUL_ADDED" ]; then
+            echo "❌ Error: This PR does not add any new entries under [Unreleased] in docs/CHANGELOG.md"
+            exit 1
+          fi
+
+          echo "✓ This PR adds new entries under [Unreleased] in docs/CHANGELOG.md"
 
       - name: Fetch latest PR body
         id: pr_body
