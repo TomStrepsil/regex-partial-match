@@ -87,8 +87,8 @@ jobs:
             /^---/ { next }
             # When we see the Unreleased header as context or an added line, enter Unreleased section
             /^[ +]## \[Unreleased\]/ { unreleased=1; next }
-            # When we see any other section header, leave Unreleased section
-            /^[ +\-]## \[/ { unreleased=0; next }
+            # When we see any other version section header (e.g., ## [1.2.3]), leave Unreleased section
+            /^[ +\-]## \[[0-9]/ { unreleased=0; next }
             # Collect added lines that appear while we are in the Unreleased section
             unreleased && /^\+/ { print substr($0,2) }
           ')
