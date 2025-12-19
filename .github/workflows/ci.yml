@@ -57,6 +57,9 @@ jobs:
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
+          sparse-checkout: |
+            docs/CHANGELOG.md
+          sparse-checkout-cone-mode: false
 
       - name: Check CHANGELOG for Unreleased entries
         run: |
@@ -77,6 +80,10 @@ jobs:
           # Get the diff for docs/CHANGELOG.md between PR and base
           DIFF=$(git diff origin/${{ github.base_ref }}..HEAD -- docs/CHANGELOG.md)
 
+          echo "--- DEBUG: git diff output ---"
+          echo "$DIFF"
+          echo "--- END DEBUG ---"
+
           # Extract added lines under [Unreleased]
           ADDED=$(echo "$DIFF" | awk '
             BEGIN { unreleased=0 }
@@ -92,6 +99,10 @@ jobs:
             # Collect added lines that appear while we are in the Unreleased section
             unreleased && /^\+/ { print substr($0,2) }
           ')
+
+          echo "--- DEBUG: Added lines under [Unreleased] ---"
+          echo "$ADDED"
+          echo "--- END DEBUG ---"
 
           # Check if any meaningful (non-whitespace) added lines exist under [Unreleased]
           MEANINGFUL_ADDED=$(echo "$ADDED" | sed '/^[[:space:]]*$/d')
