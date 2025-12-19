@@ -9,8 +9,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  lint-and-test:
-    name: Lint and Test
+  lint:
+    name: Lint
     runs-on: ubuntu-latest
 
     steps:
@@ -29,13 +29,37 @@ jobs:
       - name: Run linter
         run: npm run lint
 
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
       - name: Run tests
         run: npm test
 
-      - name: Check for CHANGELOG entry
+  changelog-and-semver-check:
+    name: CHANGELOG and Semver Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Check CHANGELOG for Unreleased entries
         run: |
           if ! grep -q "## \[Unreleased\]" docs/CHANGELOG.md; then
-            echo "Error: CHANGELOG.md must have an [Unreleased] section"
+            echo "Error: docs/CHANGELOG.md must have an [Unreleased] section"
             exit 1
           fi
 
@@ -56,10 +80,17 @@ jobs:
           fi
           echo "✓ docs/CHANGELOG.md has entries under [Unreleased]"
 
-      - name: Check for semver selection
-        env:
-          PR_BODY: ${{ github.event.pull_request.body }}
+      - name: Fetch latest PR body
+        id: pr_body
         run: |
+          gh pr view "$PR_URL" --json body -q ".body" > pr_body.txt
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ github.token }}
+
+      - name: Check for semver selection
+        run: |
+          PR_BODY=$(cat pr_body.txt)
           echo "Checking PR description for semver selection..."
 
           # Count how many semver checkboxes are selected
