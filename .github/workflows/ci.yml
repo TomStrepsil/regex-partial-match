@@ -55,9 +55,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-          ref: ${{ github.head_ref }}
 
       - name: Check CHANGELOG for Unreleased entries
         run: |
@@ -76,21 +73,27 @@ jobs:
           fi
 
           # Get the diff for docs/CHANGELOG.md between PR and base
-          DIFF=$(git diff origin/${{ github.base_ref }}...HEAD -- docs/CHANGELOG.md)
+          DIFF=$(git diff origin/${{ github.base_ref }}..HEAD -- docs/CHANGELOG.md)
 
           # Extract added lines under [Unreleased]
           ADDED=$(echo "$DIFF" | awk '
             BEGIN { unreleased=0 }
-            /^@@/ { unreleased=0 }
+            # Reset section state at each hunk header
+            /^@@/ { unreleased=0; next }
+            # Skip file header lines from diff metadata
             /^\+\+\+/ { next }
             /^---/ { next }
-            /^\+## \[Unreleased\]/ { unreleased=1; next }
-            /^\+## \[/ { unreleased=0 }
-            unreleased && /^\+/ && !/^\+\+\+/ { print substr($0,2) }
+            # When we see the Unreleased header in any diff line (context, added, or removed), enter Unreleased section
+            /^[ +\-]## \[Unreleased\]/ { unreleased=1; next }
+            # When we see any other section header, leave Unreleased section
+            /^[ +\-]## \[/ { unreleased=0 }
+            # Collect added lines that appear while we are in the Unreleased section
+            unreleased && /^\+/ { print substr($0,2) }
           ')
 
-          # Check if any added lines exist under [Unreleased]
-          if [ -z "$ADDED" ]; then
+          # Check if any meaningful (non-whitespace) added lines exist under [Unreleased]
+          MEANINGFUL_ADDED=$(echo "$ADDED" | sed '/^[[:space:]]*$/d')
+          if [ -z "$MEANINGFUL_ADDED" ]; then
             echo "❌ Error: This PR does not add any new entries under [Unreleased] in docs/CHANGELOG.md"
             exit 1
           fi
