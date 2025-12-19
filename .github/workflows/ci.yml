@@ -86,6 +86,7 @@ jobs:
           gh pr view "$PR_URL" --json body -q ".body" > pr_body.txt
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ github.token }}
 
       - name: Check for semver selection
         run: |
