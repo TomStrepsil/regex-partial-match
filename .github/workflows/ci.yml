@@ -61,7 +61,7 @@ jobs:
 
       - name: Check CHANGELOG for Unreleased entries
         run: |
-          if ! grep -q "## [Unreleased]" docs/CHANGELOG.md; then
+          if ! grep -q "## \[Unreleased\]" docs/CHANGELOG.md; then
             echo "Error: docs/CHANGELOG.md must have an [Unreleased] section"
             exit 1
           fi
