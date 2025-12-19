@@ -78,11 +78,7 @@ jobs:
           fi
 
           # Get the diff for docs/CHANGELOG.md between PR and base
-          DIFF=$(git diff origin/${{ github.base_ref }}..HEAD -- docs/CHANGELOG.md)
-
-          echo "--- DEBUG: git diff output ---"
-          echo "$DIFF"
-          echo "--- END DEBUG ---"
+          DIFF=$(git diff -U9999 origin/${{ github.base_ref }}..HEAD -- docs/CHANGELOG.md)
 
           # Extract added lines under [Unreleased]
           ADDED=$(echo "$DIFF" | awk '
@@ -99,10 +95,6 @@ jobs:
             # Collect added lines that appear while we are in the Unreleased section
             unreleased && /^\+/ { print substr($0,2) }
           ')
-
-          echo "--- DEBUG: Added lines under [Unreleased] ---"
-          echo "$ADDED"
-          echo "--- END DEBUG ---"
 
           # Check if any meaningful (non-whitespace) added lines exist under [Unreleased]
           MEANINGFUL_ADDED=$(echo "$ADDED" | sed '/^[[:space:]]*$/d')
