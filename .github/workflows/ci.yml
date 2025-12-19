@@ -63,22 +63,30 @@ jobs:
             exit 1
           fi
 
-          # Extract content between [Unreleased] and the next version section or end of file
-          # Match version sections starting with ## [ followed by a digit
-          UNRELEASED_CONTENT=$(sed -n '/## \[Unreleased\]/,/^## \[[0-9]/p' docs/CHANGELOG.md)
+          # Fetch base branch for comparison
+          git fetch origin ${{ github.base_ref }} --depth=1
 
-          # Check if there are actual changes under [Unreleased]
-          if ! echo "$UNRELEASED_CONTENT" | grep -q "^### "; then
-            echo "Error: Please add an entry under [Unreleased] in docs/CHANGELOG.md"
-            echo ""
-            echo "Expected format (see https://keepachangelog.com/en/1.1.0/):"
-            echo "## [Unreleased]"
-            echo ""
-            echo "### Added (or Changed, Deprecated, Removed, Fixed, Security)"
-            echo "- Your change description"
+          # Get the diff for docs/CHANGELOG.md between PR and base
+          DIFF=$(git diff origin/${{ github.base_ref }}...HEAD -- docs/CHANGELOG.md)
+
+          # Extract added lines under [Unreleased]
+          ADDED=$(echo "$DIFF" | awk '
+            BEGIN { unreleased=0 }
+            /^@@/ { unreleased=0 }
+            /^\+\+\+/ { next }
+            /^---/ { next }
+            /^\+## \[Unreleased\]/ { unreleased=1; next }
+            /^\+## \[/ { unreleased=0 }
+            unreleased && /^\+/ && !/^\+\+\+/ { print substr($0,2) }
+          ')
+
+          # Check if any added lines exist under [Unreleased]
+          if [ -z "$ADDED" ]; then
+            echo "❌ Error: This PR does not add any new entries under [Unreleased] in docs/CHANGELOG.md"
             exit 1
           fi
-          echo "✓ docs/CHANGELOG.md has entries under [Unreleased]"
+
+          echo "✓ This PR adds new entries under [Unreleased] in docs/CHANGELOG.md"
 
       - name: Fetch latest PR body
         id: pr_body
