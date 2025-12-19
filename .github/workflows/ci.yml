@@ -83,8 +83,8 @@ jobs:
             # Skip file header lines from diff metadata
             /^\+\+\+/ { next }
             /^---/ { next }
-            # When we see the Unreleased header in any diff line (context, added, or removed), enter Unreleased section
-            /^[ +\-]## \[Unreleased\]/ { unreleased=1; next }
+            # When we see the Unreleased header as context or an added line, enter Unreleased section
+            /^[ +]## \[Unreleased\]/ { unreleased=1; next }
             # When we see any other section header, leave Unreleased section
             /^[ +\-]## \[/ { unreleased=0 }
             # Collect added lines that appear while we are in the Unreleased section
