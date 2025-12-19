@@ -80,10 +80,16 @@ jobs:
           fi
           echo "✓ docs/CHANGELOG.md has entries under [Unreleased]"
 
-      - name: Check for semver selection
-        env:
-          PR_BODY: ${{ github.event.pull_request.body }}
+      - name: Fetch latest PR body
+        id: pr_body
         run: |
+          gh pr view "$PR_URL" --json body -q ".body" > pr_body.txt
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+
+      - name: Check for semver selection
+        run: |
+          PR_BODY=$(cat pr_body.txt)
           echo "Checking PR description for semver selection..."
 
           # Count how many semver checkboxes are selected
