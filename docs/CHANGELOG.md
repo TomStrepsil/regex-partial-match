@@ -7,7 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Updated [`actions/setup-node`](https://github.com/actions/setup-node) to version 6
+
+### Fixed
+
+- Moved `package.json` [engines](https://docs.npmjs.com/cli/v10/configuring-npm/package-json#engines) to [devEngines](https://docs.npmjs.com/cli/v10/configuring-npm/package-json#devengines), since Node 23+ only needed for RegExp features in tests, the library itself is compatible with all versions of Node
+
 ## [0.1.11] - 2025-12-19
+
 ### Fixed
 
 - Added link from supported features to sticky flag caveat in `README.md`

@@ -2,8 +2,14 @@
   "name": "regex-partial-match",
   "version": "0.1.11",
   "description": "A regular expression transform for partial matching",
-  "engines": {
-    "node": ">=23"
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": ">=23"
+    },
+    "packageManager": {
+      "name": "npm"
+    }
   },
   "keywords": [
     "regexp",
