@@ -35,12 +35,12 @@
   "main": "lib/index.js",
   "exports": {
     ".": {
-      "import": "./lib/index.js",
-      "types": "./lib/index.d.ts"
+      "types": "./lib/index.d.ts",
+      "default": "./lib/index.js"
     },
     "./extend": {
-      "import": "./lib/extend.js",
-      "types": "./lib/extend.d.ts"
+      "types": "./lib/extend.d.ts",
+      "default": "./lib/extend.js"
     }
   },
   "files": [
