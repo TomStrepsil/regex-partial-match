@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.13] - 2025-12-21
 ### Fixed
 
 - Added `default` to [`package.json#exports`](../package.json) to provide a fallback export condition for bundlers that do not support the `import` condition
