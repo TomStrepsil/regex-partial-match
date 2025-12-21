@@ -7,7 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Added `default` to [`package.json#exports`](../package.json) to ensure commonjs bundlers can import the package
+
 ## [0.1.12] - 2025-12-20
+
 ### Changed
 
 - Updated [`actions/setup-node`](https://github.com/actions/setup-node) to version 6
