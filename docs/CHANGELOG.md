@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Added `default` to [`package.json#exports`](../package.json) to ensure commonjs bundlers can import the package
+- Added `default` to [`package.json#exports`](../package.json) to provide a fallback export condition for bundlers that do not support the `import` condition
 
 ## [0.1.12] - 2025-12-20
 
