@@ -36,10 +36,12 @@
   "exports": {
     ".": {
       "types": "./lib/index.d.ts",
+      "import": "./lib/index.js",
       "default": "./lib/index.js"
     },
     "./extend": {
       "types": "./lib/extend.d.ts",
+      "import": "./lib/extend.js",
       "default": "./lib/extend.js"
     }
   },
