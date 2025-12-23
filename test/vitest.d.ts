@@ -9,9 +9,9 @@ declare module "vitest" {
   interface Assertion {
     toMatchAt(params: ToMatchAtParams): void;
     toNotMatch(): void;
-  }
-  interface AsymmetricMatchersContaining {
-    toMatchAt(params: ToMatchAtParams): void;
-    toNotMatch(): void;
+    toMatchPartially(params: ToMatchPartiallyParams): R;
+    toNotMatchPartially(
+      params: ToNotMatchPartiallyParams
+    ): R;
   }
 }

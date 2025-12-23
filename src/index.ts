@@ -1,8 +1,8 @@
-const characterClassGlobalRegex = /\[(?:\\.|.)*?\]/g;
 const occurrencesRegex = /\{\d+,?\d*\}/g;
 
 const createPartialMatchRegex = (regex: RegExp): RegExp => {
   const source = regex.source;
+  const isUnicode = regex.unicode || regex.unicodeSets;
 
   let i = 0;
 
@@ -32,7 +32,7 @@ const createPartialMatchRegex = (regex: RegExp): RegExp => {
               appendOptional(source.indexOf(">", i) - i + 1);
               break;
             case "u":
-              if (regex.unicode && source[i + 2] === "{") {
+              if (isUnicode && source[i + 2] === "{") {
                 appendOptional(source.indexOf("}", i) - i + 1);
               } else {
                 appendOptional(6);
@@ -40,7 +40,7 @@ const createPartialMatchRegex = (regex: RegExp): RegExp => {
               break;
             case "p":
             case "P":
-              if (regex.unicode) {
+              if (isUnicode) {
                 appendOptional(source.indexOf("}", i) - i + 1);
               } else {
                 appendOptional(2);
@@ -55,10 +55,24 @@ const createPartialMatchRegex = (regex: RegExp): RegExp => {
           }
           break;
         case "[": {
-          characterClassGlobalRegex.lastIndex = i;
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- must match, since otherwise an invalid regex
-          const [match] = characterClassGlobalRegex.exec(source)!;
-          appendOptional(match.length);
+          let depth = 1,
+            escaped = false,
+            j = i + 1;
+          while (depth) {
+            switch (source[j++]) {
+              case "\\":
+                escaped = !escaped;
+                continue;
+              case "[":
+                if (!escaped) depth++;
+                break;
+              case "]":
+                if (!escaped) depth--;
+                break;
+            }
+            escaped = false;
+          }
+          appendOptional(j - i);
           break;
         }
         case "|":
@@ -137,31 +151,31 @@ const createPartialMatchRegex = (regex: RegExp): RegExp => {
 
 /**
  * Transforms a regular expression to support partial matching.
- * 
+ *
  * This function wraps each atomic element of the regex pattern in a non-capturing group
  * with an alternation to end-of-input (`$`), allowing the pattern to match prefixes
  * of the original pattern. This enables validation of incomplete input strings.
- * 
+ *
  * @param regex - The regular expression to transform for partial matching
  * @returns A new RegExp that matches partial strings of the original pattern
- * 
+ *
  * @example
  * ```typescript
  * const pattern = /hello world/;
  * const partial = createPartialMatchRegex(pattern);
- * 
+ *
  * partial.test('h');           // true - could match
  * partial.test('hello');       // true - could match
  * partial.test('hello world'); // true - full match
  * partial.test('goodbye');     // false - cannot match
  * ```
- * 
+ *
  * @remarks
  * - The transformed regex will always match an empty string at the end of input
  * - Backreferences cannot be partially matched as they are atomic
  * - Use with a start anchor (`^`) to prevent false positives from empty string matches
  * - The `y` (sticky) flag may not behave as expected in partial matching scenarios
- * 
+ *
  * @see {@link https://github.com/TomStrepsil/regex-partial-match#readme | Documentation}
  */
 export default createPartialMatchRegex;
