@@ -54,134 +54,112 @@ describe("regexp-partial-match", () => {
       const result = partial.exec(string);
       expect(result).toMatchAt({ match: string, index: 0 });
     });
+
+    it("should support partial matching of grapheme clusters", () => {
+      const input = /ásuffix/u;
+      const partial = createPartialMatchRegex(input);
+      expect(partial).toMatchPartially({
+        characters: ["a", "́", ..."suffix".split("")]
+      });
+    });
   });
 
   // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Character_escape
   describe("character escape expressions", () => {
     it("should support partial matching of whitespace character escape expressions", () => {
       for (const character of ["\f", "\n", "\r", "\t", "\v"]) {
-        const input = new RegExp(character + "suffix");
+        const input = new RegExp(character + "+suffix");
         const partial = createPartialMatchRegex(input);
-
-        const result = partial.exec(character);
-        expect(result).toMatchAt({ match: character, index: 0 });
+        expect(partial).toMatchPartially({
+          characters: [character, ..."suffix".split("")]
+        });
       }
     });
 
     it("should support partial matching of control character escape expressions", () => {
       const input = /\cj\cMsuffix/;
       const partial = createPartialMatchRegex(input);
-      const string = "\n\rsuffix";
-
-      for (let i = 1; i < string.length; i++) {
-        const partialString = string.substring(0, i);
-        const result = partial.exec(partialString);
-        expect(result).toMatchAt({ match: partialString, index: 0 });
-      }
+      expect(partial).toMatchPartially({
+        characters: ["\n", "\r", ..."suffix".split("")]
+      });
     });
 
     it("should support partial matching of null character escape expressions", () => {
       const input = /\0suffix/;
       const partial = createPartialMatchRegex(input);
-      const string = "\0suffix";
-      for (let i = 1; i < string.length; i++) {
-        const partialString = string.substring(0, i);
-        const result = partial.exec(partialString);
-        expect(result).toMatchAt({ match: partialString, index: 0 });
-      }
+      expect(partial).toMatchPartially({
+        characters: ["\0", ..."suffix".split("")]
+      });
     });
 
     it("should support partial matching of hexadecimal character escape expressions", () => {
       const input = /\x61\x62\x63suffix/;
       const partial = createPartialMatchRegex(input);
-      const string = "abcsuffix";
-      for (let i = 1; i < string.length; i++) {
-        const partialString = string.substring(0, i);
-        const result = partial.exec(partialString);
-        expect(result).toMatchAt({ match: partialString, index: 0 });
-      }
+      expect(partial).toMatchPartially({
+        characters: ["a", "b", "c", ..."suffix".split("")]
+      });
     });
 
     it("should support partial matching of utf-16 character escape expressions", () => {
       const input = /\u0061\u0062\u0063suffix/;
       const partial = createPartialMatchRegex(input);
-      const string = "abcsuffix";
-      for (let i = 1; i < string.length; i++) {
-        const partialString = string.substring(0, i);
-        const result = partial.exec(partialString);
-        expect(result).toMatchAt({ match: partialString, index: 0 });
-      }
+      expect(partial).toMatchPartially({
+        characters: ["a", "b", "c", ..."suffix".split("")]
+      });
     });
 
     it("should support partial matching of unicode character escape expressions with braces", () => {
       const input = /\u{2622}suffix/u;
       const partial = createPartialMatchRegex(input);
-      const string = "☢suffix";
-      for (let i = 1; i < string.length; i++) {
-        const partialString = string.substring(0, i);
-        const result = partial.exec(partialString);
-        expect(result).toMatchAt({ match: partialString, index: 0 });
-      }
+      expect(partial).toMatchPartially({
+        characters: ["☢", ..."suffix".split("")]
+      });
     });
 
     it("should support partial matching of astral plane character escape expressions with braces (with caveat that surrogate pairs do not match independently in unicode mode)", () => {
       const input = /\u{1F600}suffix/u;
       const partial = createPartialMatchRegex(input);
-      const characters = ["😀", "s", "u", "f", "f", "i", "x"]; // "😀".length === 2
-      for (let i = 1; i < characters.length; i++) {
-        const partialString = characters.slice(0, i).join("");
-        const result = partial.exec(partialString);
-        expect(result).toMatchAt({ match: partialString, index: 0 });
-      }
+      expect(partial).toMatchPartially({
+        characters: ["😀", ..."suffix".split("")] // "😀".length === 2
+      });
     });
 
     it("should support partial matching of lone unicode property escape expressions", () => {
-      const input = /\p{Lowercase_Letter}suffix/u;
+      const input = /\p{Lowercase_Letter}+suffix/u;
       const partial = createPartialMatchRegex(input);
-      const letters = [...Array<undefined>(26)].map((_, i) =>
+      const characters = [...Array<undefined>(26)].map((_, i) =>
         String.fromCharCode(97 + i)
       );
-      for (const letter of letters) {
-        const testString = `${letter}suffix`;
-        const result = partial.exec(testString);
-        expect(result).toMatchAt({ match: testString, index: 0 });
-      }
+      expect(partial).toMatchPartially({
+        characters: [...characters, ..."suffix".split("")]
+      });
       expect(partial.exec("A")).toNotMatch();
     });
 
     it("should support partial matching of negated lone unicode property escape expressions", () => {
-      const input = /\P{Uppercase_Letter}suffix/u;
+      const input = /\P{Uppercase_Letter}+suffix/u;
       const partial = createPartialMatchRegex(input);
-      const letters = ["1", "a", "b", "c", "_", "-", "å", "ä", "ö"];
-      for (const letter of letters) {
-        const testString = `${letter}suffix`;
-        const result = partial.exec(testString);
-        expect(result).toMatchAt({ match: testString, index: 0 });
-      }
+      expect(partial).toMatchPartially({
+        characters: ["1", "a", "c", "-", "å", "ä", "ö", ..."suffix".split("")]
+      });
       expect(partial.exec("A")).toNotMatch();
     });
 
     it("should support partial matching of unicode property escape expressions with key/value", () => {
-      const input = /\p{General_Category=Letter}suffix/u;
+      const input = /\p{General_Category=Letter}+suffix/u;
       const partial = createPartialMatchRegex(input);
-      const letters = ["A", "b", "c", "å", "ä", "ö"];
-      for (const letter of letters) {
-        const testString = `${letter}suffix`;
-        const result = partial.exec(testString);
-        expect(result).toMatchAt({ match: testString, index: 0 });
-      }
+      expect(partial).toMatchPartially({
+        characters: ["A", "b", "c", "å", "ä", "ö", ..."suffix".split("")]
+      });
       expect(partial.exec("1")).toNotMatch();
     });
 
     it("should support partial matching of negated unicode property escape expressions with key/value", () => {
-      const input = /\P{General_Category=Letter}suffix/u;
+      const input = /\P{General_Category=Letter}+suffix/u;
       const partial = createPartialMatchRegex(input);
-      const letters = ["1", "_", "-", "!", "%"];
-      for (const letter of letters) {
-        const testString = `${letter}suffix`;
-        const result = partial.exec(testString);
-        expect(result).toMatchAt({ match: testString, index: 0 });
-      }
+      expect(partial).toMatchPartially({
+        characters: ["1", "_", "-", "!", "%", ..."suffix".split("")]
+      });
       expect(partial.exec("A")).toNotMatch();
     });
   });
@@ -523,6 +501,206 @@ describe("regexp-partial-match", () => {
         if (negativeCase) {
           expect(partial.exec(negativeCase)).toNotMatch();
         }
+      });
+    });
+  });
+
+  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/unicodeSets
+  describe("unicode sets (extending features)", () => {
+    it("should support partial matching of unicode set expressions", () => {
+      const input = /\p{Script=Hiragana}+suffix/v;
+      const partial = createPartialMatchRegex(input);
+      expect(partial).toMatchPartially({
+        characters: ["あ", "い", "う", ..."suffix".split("")]
+      });
+      expect(partial.exec("A")).toNotMatch();
+    });
+
+    it("should support partial matching of grapheme clusters / string properties (with caveat that individual code points do not match independently)", () => {
+      const input = /\p{RGI_Emoji_Flag_Sequence}suffix/v;
+      const partial = createPartialMatchRegex(input);
+      expect(partial).toMatchPartially({
+        characters: ["🇺🇳", ..."suffix".split("")] // "🇺🇳".length === 4
+      });
+      expect(partial.exec("A")).toNotMatch();
+    });
+
+    it("should support partial matching of negated unicode set expressions", () => {
+      const input = /\P{Script=Hiragana}+suffix/v;
+      const partial = createPartialMatchRegex(input);
+      expect(partial).toMatchPartially({
+        characters: ["A", "b", "1", "_", "å", "ä", "ö", ..."suffix".split("")]
+      });
+      expect(partial.exec("あ")).toNotMatch();
+    });
+
+    it("should support partial matching of subtraction in unicode set character class expressions", () => {
+      const input = /[\p{Script_Extensions=Greek}--π]+suffix/v;
+      const partial = createPartialMatchRegex(input);
+      expect(partial).toMatchPartially({
+        characters: ["α", "β", "γ", "δ", "ε", ..."suffix".split("")]
+      });
+      expect(partial.exec("π")).toNotMatch();
+    });
+
+    it("should support empty sets as a non-match in unicode set character class expressions", () => {
+      const input = /[[]]suffix/v;
+      const partial = createPartialMatchRegex(input);
+      const result = partial.exec("a");
+      expect(result).toNotMatch();
+    });
+
+    it("should support partial matching of negated empty sets in unicode set character class expressions", () => {
+      const input = /[^]+suffix/v;
+      const partial = createPartialMatchRegex(input);
+      expect(partial).toMatchPartially({
+        characters: ["A", "b", "1", "-", "ä", "π", "α", ..."suffix".split("")]
+      });
+    });
+
+    it("should support partial matching of intersection in unicode set character class expressions", () => {
+      const input = /[\p{Script_Extensions=Greek}&&[αβγδε]]+suffix/v;
+      const partial = createPartialMatchRegex(input);
+      expect(partial).toMatchPartially({
+        characters: ["α", "β", "γ", "δ", "ε", ..."suffix".split("")]
+      });
+    });
+
+    it("should support partial matching of negated subtraction in unicode set character class expressions", () => {
+      const input = /[^\p{Script_Extensions=Greek}--π]+suffix/v;
+      const partial = createPartialMatchRegex(input);
+      expect(partial).toMatchPartially({
+        characters: ["A", "b", "1", "_", "ä", "ö", "π", ..."suffix".split("")]
+      });
+      expect(partial.exec("α")).toNotMatch();
+    });
+
+    it("should support partial matching of nested subtraction in unicode set character class expressions", () => {
+      const input = /[\p{Script_Extensions=Greek}--[αβγ]]+suffix/v;
+      const partial = createPartialMatchRegex(input);
+      expect(partial).toMatchPartially({
+        characters: ["δ", "ε", "ζ", "η", "θ", ..."suffix".split("")]
+      });
+    });
+
+    it("should support partial matching of negated nested subtraction in unicode set character class expressions", () => {
+      const input = /[^\p{Script_Extensions=Greek}--[αβγ]]+suffix/v;
+      const partial = createPartialMatchRegex(input);
+      expect(partial).toMatchPartially({
+        characters: ["A", "b", "ä", "ö", "α", "γ", ..."suffix".split("")]
+      });
+      expect(partial.exec("δ")).toNotMatch();
+    });
+
+    it("should support partial matching of multiple nested subtraction in unicode set character class expressions", () => {
+      const input = /^[[a-z]--[[aeiou]--[eo]]]+suffix/v; // i.e., [[a-z]--[[aeiou]--[eo]]] = [[a-z]--[aiu]] = [b-hj-tv-z]
+      const partial = createPartialMatchRegex(input);
+      expect(partial).toMatchPartially({
+        characters: ["b", "c", "g", "h", "j", "k", ..."suffix".split("")]
+      });
+      expect(partial).toNotMatchPartially({
+        characters: ["a", "i", "u", ..."suffix".split("")]
+      });
+    });
+
+    it("should support partial matching of subtraction with unicode property escapes in unicode set character class expressions", () => {
+      const input = /^[\p{General_Category=Letter}--\p{Script=Greek}]+suffix/v;
+      const partial = createPartialMatchRegex(input);
+      expect(partial).toMatchPartially({
+        characters: ["A", "b", "c", "å", "ä", "ö", ..."suffix".split("")]
+      });
+      expect(partial).toNotMatchPartially({
+        characters: ["α", "β", "γ", "δ", "ε", ..."suffix".split("")]
+      });
+    });
+
+    it("should support partial matching of nested subtraction resulting in empty set in unicode set character class expressions", () => {
+      const input = /^[[a-z]--[[[aeiou]--[aeiou]]--[]]]+suffix/v; // i.e., [[a-z]--[[[aeiou]--[aeiou]]--[]]] = [[a-z]--[[]]] = [a-z]
+      const partial = createPartialMatchRegex(input);
+      expect(partial).toMatchPartially({
+        characters: ["a", "b", "c", "d", "e", "f", "g", ..."suffix".split("")]
+      });
+      expect(partial).toNotMatchPartially({
+        characters: ["[", "]", ..."suffix".split("")]
+      });
+    });
+
+    it("should support partial matching of subtraction in unicode set character class expressions with escaped brackets", () => {
+      const input = /^[[\[\]a-z]--[[\[]--[\[]]]suffix/v; // i.e., [[\[\]a-z]--[[\[]--[\[]]] = [[\[\]a-z]--[]] = [\[\]a-z]
+      const partial = createPartialMatchRegex(input);
+      for (const character of ["[", "]", "a", "b", "c", "d", "e", "f", "g"]) {
+        expect(partial).toMatchPartially({
+          characters: [character, ..."suffix".split("")]
+        });
+      }
+    });
+
+    it("should support partial matching of unicode property subtraction in uncode set character class expressions", () => {
+      const input = /^[[\p{Letter}]--[\p{Mark}]]+suffix/v;
+      const partial = createPartialMatchRegex(input);
+      expect(partial).toMatchPartially({
+        characters: ["A", "é", "Ω", "Ж", "中", ..."suffix".split("")]
+      });
+      expect(partial).toNotMatchPartially({
+        characters: ["́", "̀", "̂", "̃", "̄", ..."suffix".split("")]
+      });
+    });
+
+    it("should support partial matching of doubly-nested unicode property subtraction in uncode set character class expressions", () => {
+      const input = /^[[\p{Letter}]--[[\p{Script=Latin}]--[aeiou]]]+suffix/v;
+      const partial = createPartialMatchRegex(input);
+      expect(partial).toMatchPartially({
+        characters: ["a", "e", "Ω", "Ж", "中", ..."suffix".split("")]
+      });
+      expect(partial).toNotMatchPartially({
+        characters: ["b", "c", "z", ..."suffix".split("")]
+      });
+    });
+
+    it("should support partial matching of triply-nested unicode property subtraction with pathological overlapping subtraction in uncode set character class expressions", () => {
+      const input =
+        /^[[\p{Alphabetic}]--[[\p{Letter}]--[\p{Uppercase}]]]+suffix/v;
+      const partial = createPartialMatchRegex(input);
+      expect(partial).toMatchPartially({
+        characters: ["A", "Z", "Ω", "Ж", ..."suffix".split("")]
+      });
+      expect(partial).toNotMatchPartially({
+        characters: ["a", "z", "β", ..."suffix".split("")]
+      });
+    });
+
+    it("should support numeric properties with nested subtraction in uncode set character class expressions", () => {
+      const input = /^[[\p{Number}]--[[\p{Decimal_Number}]--[0-9]]]+suffix/v; //
+      const partial = createPartialMatchRegex(input);
+      expect(partial).toMatchPartially({
+        characters: ["Ⅷ", "Ⅸ", "Ⅰ", "½", "0", "9", ..."suffix".split("")]
+      });
+      expect(partial).toNotMatchPartially({
+        characters: ["६", "৭", "𑜹", ..."suffix".split("")]
+      });
+    });
+
+    it("should support partial matching of extended pictographic property with nested subtraction in uncode set character class expressions", () => {
+      const input =
+        /^[[\p{Extended_Pictographic}]--[[\p{Emoji}]--[😀😃😄]]]+suffix/v;
+      const partial = createPartialMatchRegex(input);
+      expect(partial).toMatchPartially({
+        characters: ["♡", "😀", ..."suffix".split("")]
+      });
+      expect(partial).toNotMatchPartially({
+        characters: ["💀", "💣", ..."suffix".split("")]
+      });
+    });
+
+    it("should support partial matching of deeply-nested unicode property subtraction in uncode set character class expressions", () => {
+      const input =
+        /^[[[[[[\p{Letter}]]]]--[[[[[aeiou]]]]--[[[ei]]]]]]+suffix/v; // i.e., [[[[[[\p{Letter}]]]]--[[[[[aeiou]]]]--[[[ei]]]]]] = [[[[[\p{Letter}]]]]--[[[aou]]]] = [[[ \p{Letter}]]--[aou]] = [\p{Letter}--[aou]]
+      const partial = createPartialMatchRegex(input);
+      expect(partial).toMatchPartially({
+        characters: ["A", "b", "f", "g", "h", "e", "i", ..."suffix".split("")]
+      });
+      expect(partial).toNotMatchPartially({
+        characters: ["a", "o", "u", ..."suffix".split("")]
       });
     });
   });

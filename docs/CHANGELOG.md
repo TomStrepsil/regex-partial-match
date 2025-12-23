@@ -7,7 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Support for [`unicodeSets`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/unicodeSets)
+- Missing test for grapheme clusters for unicode regexes
+- `toMatchPartially` and `toNotMatchPartially` test helpers
+
+### Fixed
+
+- Ensured newline after updating `CHANGELOG.md` in `release.yml`
+- Ensured release pipeline sees squash merges when ascertaining `CHANGELOG.md` updates
+
 ## [0.1.13] - 2025-12-21
+
 ### Fixed
 
 - Added `default` to [`package.json#exports`](../package.json) to provide a fallback export condition for bundlers that do not support the `import` condition
