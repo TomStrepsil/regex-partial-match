@@ -635,7 +635,7 @@ describe("regexp-partial-match", () => {
       }
     });
 
-    it("should support partial matching of unicode property subtraction in uncode set character class expressions", () => {
+    it("should support partial matching of unicode property subtraction in unicode set character class expressions", () => {
       const input = /^[[\p{Letter}]--[\p{Mark}]]+suffix/v;
       const partial = createPartialMatchRegex(input);
       expect(partial).toMatchPartially({
@@ -646,7 +646,7 @@ describe("regexp-partial-match", () => {
       });
     });
 
-    it("should support partial matching of doubly-nested unicode property subtraction in uncode set character class expressions", () => {
+    it("should support partial matching of doubly-nested unicode property subtraction in unicode set character class expressions", () => {
       const input = /^[[\p{Letter}]--[[\p{Script=Latin}]--[aeiou]]]+suffix/v;
       const partial = createPartialMatchRegex(input);
       expect(partial).toMatchPartially({
@@ -657,7 +657,7 @@ describe("regexp-partial-match", () => {
       });
     });
 
-    it("should support partial matching of triply-nested unicode property subtraction with pathological overlapping subtraction in uncode set character class expressions", () => {
+    it("should support partial matching of triply-nested unicode property subtraction with pathological overlapping subtraction in unicode set character class expressions", () => {
       const input =
         /^[[\p{Alphabetic}]--[[\p{Letter}]--[\p{Uppercase}]]]+suffix/v;
       const partial = createPartialMatchRegex(input);
@@ -669,7 +669,7 @@ describe("regexp-partial-match", () => {
       });
     });
 
-    it("should support numeric properties with nested subtraction in uncode set character class expressions", () => {
+    it("should support numeric properties with nested subtraction in unicode set character class expressions", () => {
       const input = /^[[\p{Number}]--[[\p{Decimal_Number}]--[0-9]]]+suffix/v; //
       const partial = createPartialMatchRegex(input);
       expect(partial).toMatchPartially({
@@ -680,7 +680,7 @@ describe("regexp-partial-match", () => {
       });
     });
 
-    it("should support partial matching of extended pictographic property with nested subtraction in uncode set character class expressions", () => {
+    it("should support partial matching of extended pictographic property with nested subtraction in unicode set character class expressions", () => {
       const input =
         /^[[\p{Extended_Pictographic}]--[[\p{Emoji}]--[😀😃😄]]]+suffix/v;
       const partial = createPartialMatchRegex(input);
@@ -692,7 +692,7 @@ describe("regexp-partial-match", () => {
       });
     });
 
-    it("should support partial matching of deeply-nested unicode property subtraction in uncode set character class expressions", () => {
+    it("should support partial matching of deeply-nested unicode property subtraction in unicode set character class expressions", () => {
       const input =
         /^[[[[[[\p{Letter}]]]]--[[[[[aeiou]]]]--[[[ei]]]]]]+suffix/v; // i.e., [[[[[[\p{Letter}]]]]--[[[[[aeiou]]]]--[[[ei]]]]]] = [[[[[\p{Letter}]]]]--[[[aou]]]] = [[[ \p{Letter}]]--[aou]] = [\p{Letter}--[aou]]
       const partial = createPartialMatchRegex(input);
