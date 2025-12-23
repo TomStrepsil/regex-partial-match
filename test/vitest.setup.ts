@@ -150,7 +150,7 @@ expect.extend({
 
       if (!isValidNonMatch) {
         failures.push(
-          `  Partial '${partialString}' (chars[0..${stringI}stringI}]): expected no match, got "${stringMatchedString}" at index ${stringMatchedIndex}`
+          `  Partial '${partialString}' (chars[0..${stringI}]): expected no match, got "${stringMatchedString}" at index ${stringMatchedIndex}`
         );
       }
     }
