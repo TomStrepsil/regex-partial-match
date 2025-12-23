@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Missing test for grapheme clusters for unicode regexes
 - `toMatchPartially` and `toNotMatchPartially` test helpers
 
-### Fixed
+### Fixed
 
 - Ensured newline after updating `CHANGELOG.md` in `release.yml`
 - Ensured release pipeline sees squash merges when ascertaining `CHANGELOG.md` updates
