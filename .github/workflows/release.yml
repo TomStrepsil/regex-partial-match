@@ -92,15 +92,15 @@ jobs:
               
               if [ -n "$PR_BODY" ]; then
                 # Check for semver selections in PR body (look for checked boxes)
-                if echo "$PR_BODY" | grep -q "\[x\] \*\*MAJOR\*\*"; then
+                if echo "$PR_BODY" | grep -q "\[[xX]\] \*\*MAJOR\*\*"; then
                   echo "Found MAJOR bump in PR #$PR_NUMBER"
                   MAX_BUMP=3
-                elif echo "$PR_BODY" | grep -q "\[x\] \*\*MINOR\*\*"; then
+                elif echo "$PR_BODY" | grep -q "\[[xX]\] \*\*MINOR\*\*"; then
                   echo "Found MINOR bump in PR #$PR_NUMBER"
                   if [ $MAX_BUMP -lt 2 ]; then
                     MAX_BUMP=2
                   fi
-                elif echo "$PR_BODY" | grep -q "\[x\] \*\*PATCH\*\*"; then
+                elif echo "$PR_BODY" | grep -q "\[[xX]\] \*\*PATCH\*\*"; then
                   echo "Found PATCH bump in PR #$PR_NUMBER"
                   if [ $MAX_BUMP -lt 1 ]; then
                     MAX_BUMP=1
