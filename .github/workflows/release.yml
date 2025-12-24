@@ -79,7 +79,7 @@ jobs:
             fi
             
             COMMIT_HASH=$(echo "$line" | awk '{print $1}')
-            COMMIT_MESSAGE=$(git log -1 --pretty=format:"%s" $COMMIT_HASH)
+            COMMIT_MESSAGE=$(echo "$line" | cut -d' ' -f2-)
             
             # Extract PR number from squash merge format: "Title (#123)"
             PR_NUMBER=$(echo "$COMMIT_MESSAGE" | grep -oE '\(#[0-9]+\)$' | grep -oE '[0-9]+')
