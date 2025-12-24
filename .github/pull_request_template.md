@@ -8,7 +8,7 @@ _Brief summary of PR purpose and code changes._
 
 ## Semantic Version Impact
 
-_Select ONE checkbox to indicate the semver impact of this change. Learn more at https://semver.org/_
+_Select ONE checkbox to indicate the semver impact of this change. Learn more at https://semver.org/. If multiple selected, major takes priority over minor over patch._
 
 - [ ] **PATCH** - Bug fixes and minor changes (backwards compatible)
 - [ ] **MINOR** - New features (backwards compatible)
