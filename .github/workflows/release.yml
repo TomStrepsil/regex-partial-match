@@ -94,16 +94,17 @@ jobs:
             echo "Checking PR #$PR_NUMBER for commit $COMMIT_HASH"
             
             # Fetch PR body using GitHub CLI
-            PR_BODY=$(gh pr view "$PR_NUMBER" --json body --jq '.body' 2>&1)
+            GH_OUTPUT=$(gh pr view "$PR_NUMBER" --json body --jq '.body' 2>&1)
             GH_EXIT_CODE=$?
-            if [ $GH_EXIT_CODE -ne 0 ] || [ -z "$PR_BODY" ]; then
+            if [ $GH_EXIT_CODE -ne 0 ] || [ -z "$GH_OUTPUT" ]; then
               echo "❌ Error: Could not fetch PR body for #$PR_NUMBER"
               echo "gh CLI error output:"
-              echo "$PR_BODY"
+              echo "$GH_OUTPUT"
               exit 1
             fi
             
             # Check for semver selections in PR body (look for checked boxes)
+            PR_BODY="$GH_OUTPUT"
             if echo "$PR_BODY" | grep -q "\[[xX]\] \*\*MAJOR\*\*"; then
               echo "Found MAJOR bump in PR #$PR_NUMBER"
               MAX_BUMP=3
