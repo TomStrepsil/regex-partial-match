@@ -84,40 +84,42 @@ jobs:
             # Extract PR number from squash merge format: "Title (#123)"
             PR_NUMBER=$(echo "$COMMIT_MESSAGE" | grep -oE '\(#[0-9]+\)$' | grep -oE '[0-9]+')
             
-            if [ -n "$PR_NUMBER" ]; then
-              echo "Checking PR #$PR_NUMBER for commit $COMMIT_HASH"
-              
-              # Fetch PR body using GitHub CLI
-              PR_BODY=$(gh pr view "$PR_NUMBER" --json body --jq '.body' 2>/dev/null || echo "")
-              
-              if [ -n "$PR_BODY" ]; then
-                # Check for semver selections in PR body (look for checked boxes)
-                if echo "$PR_BODY" | grep -q "\[[xX]\] \*\*MAJOR\*\*"; then
-                  echo "Found MAJOR bump in PR #$PR_NUMBER"
-                  MAX_BUMP=3
-                elif echo "$PR_BODY" | grep -q "\[[xX]\] \*\*MINOR\*\*"; then
-                  echo "Found MINOR bump in PR #$PR_NUMBER"
-                  if [ $MAX_BUMP -lt 2 ]; then
-                    MAX_BUMP=2
-                  fi
-                elif echo "$PR_BODY" | grep -q "\[[xX]\] \*\*PATCH\*\*"; then
-                  echo "Found PATCH bump in PR #$PR_NUMBER"
-                  if [ $MAX_BUMP -lt 1 ]; then
-                    MAX_BUMP=1
-                  fi
-                else
-                  echo "❌ Error: No version bump checkbox selected in PR #$PR_NUMBER"
-                  echo "Please select MAJOR, MINOR, or PATCH in the PR description"
-                  exit 1
-                fi
-              else
-                echo "❌ Error: Could not fetch PR body for #$PR_NUMBER"
-                exit 1
-              fi
-            else
+            if [ -z "$PR_NUMBER" ]; then
               echo "❌ Error: No PR number found in commit $COMMIT_HASH"
               echo "Commit message: $COMMIT_MESSAGE"
               echo "All commits must be from merged PRs with format 'Title (#123)'"
+              exit 1
+            fi
+            
+            echo "Checking PR #$PR_NUMBER for commit $COMMIT_HASH"
+            
+            # Fetch PR body using GitHub CLI
+            PR_BODY=$(gh pr view "$PR_NUMBER" --json body --jq '.body' 2>&1)
+            GH_EXIT_CODE=$?
+            if [ $GH_EXIT_CODE -ne 0 ] || [ -z "$PR_BODY" ]; then
+              echo "❌ Error: Could not fetch PR body for #$PR_NUMBER"
+              echo "gh CLI error output:"
+              echo "$PR_BODY"
+              exit 1
+            fi
+            
+            # Check for semver selections in PR body (look for checked boxes)
+            if echo "$PR_BODY" | grep -q "\[[xX]\] \*\*MAJOR\*\*"; then
+              echo "Found MAJOR bump in PR #$PR_NUMBER"
+              MAX_BUMP=3
+            elif echo "$PR_BODY" | grep -q "\[[xX]\] \*\*MINOR\*\*"; then
+              echo "Found MINOR bump in PR #$PR_NUMBER"
+              if [ $MAX_BUMP -lt 2 ]; then
+                MAX_BUMP=2
+              fi
+            elif echo "$PR_BODY" | grep -q "\[[xX]\] \*\*PATCH\*\*"; then
+              echo "Found PATCH bump in PR #$PR_NUMBER"
+              if [ $MAX_BUMP -lt 1 ]; then
+                MAX_BUMP=1
+              fi
+            else
+              echo "❌ Error: No version bump checkbox selected in PR #$PR_NUMBER"
+              echo "Please select MAJOR, MINOR, or PATCH in the PR description"
               exit 1
             fi
           done <<< "$COMMITS"
