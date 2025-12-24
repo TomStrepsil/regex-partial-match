@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Ensured newline after updating `CHANGELOG.md` in `release.yml`
 - Ensured release pipeline sees squash merges when ascertaining `CHANGELOG.md` updates
+- Ensured release pipeline looks for semver checkboxes in PR bodies, not editable squash commit bodies
+- Clarified that if inadvertently selecting more than one semver checkbox, the greatest severity takes precedence
 
 ## [0.1.13] - 2025-12-21
 
