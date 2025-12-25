@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add note to `README.md` that `unicodeSet` / `v` flag requires ES2024+ for browser support
+- Add note to `README.md` that `unicodeSets` / `v` flag requires ES2024+ for browser support
 
 ### Fixed
 
