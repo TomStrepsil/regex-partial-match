@@ -508,12 +508,12 @@ describe("regexp-partial-match", () => {
   // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/unicodeSets
   describe("unicode sets (extending features)", () => {
     it("should support partial matching of unicode set expressions", () => {
-      const input = /[\p{Script=Hiragana}]+suffix/v;
+      const input = /[\p{Alphabetic}]+suffix/v;
       const partial = createPartialMatchRegex(input);
       expect(partial).toMatchPartially({
-        characters: ["あ", "い", "う", ..."suffix".split("")]
+        characters: ["a", "b", "c", ..."suffix".split("")]
       });
-      expect(partial.exec("A")).toNotMatch();
+      expect(partial.exec("あ")).toNotMatch();
     });
 
     it("should support partial matching of grapheme clusters / string properties (with caveat that individual code points do not match independently)", () => {
