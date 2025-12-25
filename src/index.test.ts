@@ -588,7 +588,7 @@ describe("regexp-partial-match", () => {
       const input = /[[\p{Script_Extensions=Greek}][xyz]]+suffix/v;
       const partial = createPartialMatchRegex(input);
       expect(partial).toMatchPartially({
-        characters: ["α", "β", "δ", "ε", "x", "y", "z", ..."suffix".split("")]
+        characters: ["α", "γ", "δ", "ε", "x", "y", "z", ..."suffix".split("")]
       });
     });
 
