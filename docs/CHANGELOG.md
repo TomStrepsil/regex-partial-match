@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add note to `README.md` that `unicodeSet` / `v` flag requires ES2024+ for browser support
+
+### Fixed
+
+- Allow semver selection in ci workflow to support case-insensitive checkboxes, since that's what's valid in Github Flavoured Markdown
+- Add missing "Character Class Escapes" to supported features in `README.md`
+- Fixup some test cases for unicode sets
+  - character class wrapping escapes, since this differentiates from `u` flag
+  - missing tests for unions
+  - complement syntax
+
 ## [0.2.0] - 2025-12-24
 
 ### Added
