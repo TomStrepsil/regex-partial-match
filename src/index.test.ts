@@ -511,9 +511,9 @@ describe("regexp-partial-match", () => {
       const input = /[\p{Alphabetic}]+suffix/v;
       const partial = createPartialMatchRegex(input);
       expect(partial).toMatchPartially({
-        characters: ["a", "b", "c", ..."suffix".split("")]
+        characters: ["a", "あ", "c", ..."suffix".split("")]
       });
-      expect(partial.exec("あ")).toNotMatch();
+      expect(partial.exec("1")).toNotMatch();
     });
 
     it("should support partial matching of grapheme clusters / string properties (with caveat that individual code points do not match independently)", () => {
