@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Allow semver selection in ci workflow to support case-insensitive checkboxes, since that's what's valid in Github Flavoured Markdown
+- Allow semver selection in ci workflow to support case-insensitive checkboxes, since that's what's valid in GitHub Flavoured Markdown
 - Add missing "Character Class Escapes" to supported features in `README.md`
 - Fixup some test cases for unicode sets
   - character class wrapping escapes, since this differentiates from `u` flag
