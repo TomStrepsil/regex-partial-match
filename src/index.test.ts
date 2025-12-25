@@ -508,7 +508,7 @@ describe("regexp-partial-match", () => {
   // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/unicodeSets
   describe("unicode sets (extending features)", () => {
     it("should support partial matching of unicode set expressions", () => {
-      const input = /\p{Script=Hiragana}+suffix/v;
+      const input = /[\p{Script=Hiragana}]+suffix/v;
       const partial = createPartialMatchRegex(input);
       expect(partial).toMatchPartially({
         characters: ["あ", "い", "う", ..."suffix".split("")]
@@ -517,7 +517,7 @@ describe("regexp-partial-match", () => {
     });
 
     it("should support partial matching of grapheme clusters / string properties (with caveat that individual code points do not match independently)", () => {
-      const input = /\p{RGI_Emoji_Flag_Sequence}suffix/v;
+      const input = /[\p{RGI_Emoji_Flag_Sequence}]suffix/v;
       const partial = createPartialMatchRegex(input);
       expect(partial).toMatchPartially({
         characters: ["🇺🇳", ..."suffix".split("")] // "🇺🇳".length === 4
@@ -525,8 +525,17 @@ describe("regexp-partial-match", () => {
       expect(partial.exec("A")).toNotMatch();
     });
 
+    it("should support partial matching of unicode set expressions using key/value syntax", () => {
+      const input = /[\p{Script=Hiragana}]+suffix/v;
+      const partial = createPartialMatchRegex(input);
+      expect(partial).toMatchPartially({
+        characters: ["あ", "い", "う", ..."suffix".split("")]
+      });
+      expect(partial.exec("A")).toNotMatch();
+    });
+
     it("should support partial matching of negated unicode set expressions", () => {
-      const input = /\P{Script=Hiragana}+suffix/v;
+      const input = /[\P{Script=Hiragana}]+suffix/v;
       const partial = createPartialMatchRegex(input);
       expect(partial).toMatchPartially({
         characters: ["A", "b", "1", "_", "å", "ä", "ö", ..."suffix".split("")]
@@ -534,13 +543,13 @@ describe("regexp-partial-match", () => {
       expect(partial.exec("あ")).toNotMatch();
     });
 
-    it("should support partial matching of subtraction in unicode set character class expressions", () => {
-      const input = /[\p{Script_Extensions=Greek}--π]+suffix/v;
+    it("should support partial matching of negated unicode set expressions using complement syntax", () => {
+      const input = /[^\p{Script=Hiragana}]+suffix/v;
       const partial = createPartialMatchRegex(input);
       expect(partial).toMatchPartially({
-        characters: ["α", "β", "γ", "δ", "ε", ..."suffix".split("")]
+        characters: ["A", "b", "1", "_", "å", "ä", "ö", ..."suffix".split("")]
       });
-      expect(partial.exec("π")).toNotMatch();
+      expect(partial.exec("あ")).toNotMatch();
     });
 
     it("should support empty sets as a non-match in unicode set character class expressions", () => {
@@ -558,11 +567,28 @@ describe("regexp-partial-match", () => {
       });
     });
 
+    it("should support partial matching of subtraction in unicode set character class expressions", () => {
+      const input = /[\p{Script_Extensions=Greek}--π]+suffix/v;
+      const partial = createPartialMatchRegex(input);
+      expect(partial).toMatchPartially({
+        characters: ["α", "β", "γ", "δ", "ε", ..."suffix".split("")]
+      });
+      expect(partial.exec("π")).toNotMatch();
+    });
+
     it("should support partial matching of intersection in unicode set character class expressions", () => {
       const input = /[\p{Script_Extensions=Greek}&&[αβγδε]]+suffix/v;
       const partial = createPartialMatchRegex(input);
       expect(partial).toMatchPartially({
         characters: ["α", "β", "γ", "δ", "ε", ..."suffix".split("")]
+      });
+    });
+
+    it("should support partial matching of union in unicode set character class expressions", () => {
+      const input = /[[\p{Script_Extensions=Greek}][xyz]]+suffix/v;
+      const partial = createPartialMatchRegex(input);
+      expect(partial).toMatchPartially({
+        characters: ["α", "β", "δ", "ε", "x", "y", "z", ..."suffix".split("")]
       });
     });
 
