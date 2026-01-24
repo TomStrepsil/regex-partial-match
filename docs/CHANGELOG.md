@@ -9,7 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add note to `README.md` that `unicodeSets` / `v` flag requires ES2024+ for browser support
+- Note to `README.md` that `unicodeSets` / `v` flag requires ES2024+ for browser support
+- Test to cover [string literals in character classes](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Character_class#v-mode_character_class:~:text=a%20%22string%20literal%22%20in%20a%20character%20class) when used in `v` flag expressions, as a subtraction with disjunction
+- Documentation of caveats around "string properties" and partial matching
 
 ### Fixed
 

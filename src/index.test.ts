@@ -525,6 +525,16 @@ describe("regexp-partial-match", () => {
       expect(partial.exec("A")).toNotMatch();
     });
 
+    it("should support partial matching of grapheme clusters / string properties including string subtraction (with caveat that individual code points do not match independently)", () => {
+      const input = /[\p{RGI_Emoji_Flag_Sequence}--\q{🇺🇸|🇷🇺}]suffix/v;
+      const partial = createPartialMatchRegex(input);
+      expect(partial).toMatchPartially({
+        characters: ["🇺🇦", ..."suffix".split("")] // "🇺🇦".length === 4
+      });
+      expect(partial.exec("🇺🇸")).toNotMatch();
+      expect(partial.exec("🇷🇺")).toNotMatch();
+    });
+
     it("should support partial matching of unicode set expressions using key/value syntax", () => {
       const input = /[\p{Script=Hiragana}]+suffix/v;
       const partial = createPartialMatchRegex(input);
