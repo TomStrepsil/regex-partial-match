@@ -5,6 +5,15 @@ interface ToMatchAtParams {
   index: number;
 }
 
+interface ToMatchPartiallyParams {
+  characters: string[];
+  index?: number;
+}
+
+interface ToNotMatchPartiallyParams {
+  characters: string[];
+}
+
 declare module "vitest" {
   interface Assertion {
     toMatchAt(params: ToMatchAtParams): void;

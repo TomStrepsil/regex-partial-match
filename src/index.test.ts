@@ -9,7 +9,7 @@ describe("regexp-partial-match", () => {
       let partial = createPartialMatchRegex(input);
       expect(partial.flags).toEqual(input.flags);
 
-      input = /hello world/dgimsvy; // v = https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/unicodeSets
+      input = /hello world/dgimsvy;
       partial = createPartialMatchRegex(input);
       expect(partial.flags).toEqual(input.flags);
     });
@@ -738,6 +738,116 @@ describe("regexp-partial-match", () => {
       expect(partial).toNotMatchPartially({
         characters: ["a", "o", "u", ..."suffix".split("")]
       });
+    });
+  });
+
+  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Modifier
+  describe("modifiers", () => {
+    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/ignoreCase
+    it("should support partial matching of patterns with a case-insensitive modifier", () => {
+      const input = /(?i:abc)suffix/;
+      const partial = createPartialMatchRegex(input);
+      expect(partial).toMatchPartially({
+        characters: ["A", "b", "C", ..."suffix".split("")]
+      });
+      expect(partial.exec("ABCs")).toMatchAt({ match: "ABCs", index: 0 });
+      expect(partial.exec("ABCs")).not.toMatchAt({ match: "ABCS", index: 0 });
+    });
+
+    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/dotAll
+    it("should support partial matching of patterns with a dot-all modifier", () => {
+      const input = /(?s:a.c)suf.ix/;
+      const partial = createPartialMatchRegex(input);
+      expect(partial).toMatchPartially({
+        characters: ["a", "\n", "c", ..."suffix".split("")]
+      });
+      expect(partial.exec(`a
+csuffix`)).toMatchAt({
+        match: `a
+csuffix`,
+        index: 0
+      });
+      expect(partial.exec(`abcsuf
+ix`)).not.toMatchAt({
+        match: `abcsuf
+ix`,
+        index: 0
+      });
+    });
+
+    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/multiline
+    it("should support partial matching of patterns with a multiline modifier", () => {
+      const input = /(?m:^abc$)\nsuffix/;
+      const partial = createPartialMatchRegex(input);
+      expect(partial).toMatchPartially({
+        characters: ["a", "b", "c", "\n", ..."suffix".split("")]
+      });
+    });
+
+    it("should support partial matching of patterns with multiple modifiers", () => {
+      const input = /(?ism:^a.c$)\nsuffix/;
+      const partial = createPartialMatchRegex(input);
+      expect(partial).toMatchPartially({
+        characters: ["A", "\n", "C", "\n", ..."suffix".split("")]
+      });
+      expect(partial.exec(`ABC\nS`)).not.toMatchAt({ match: "ABC\nS", index: 0 }); // s not modified to case-insensitive
+      expect(createPartialMatchRegex(/(?ism:^abc$).suffix/).exec(`ABC\nS`)).not.toMatchAt({ match: "ABC\nS", index: 0 }); // . not modified to match newlines
+      expect(createPartialMatchRegex(/(?ism:^abc$)\n^suffix/).exec(`ABC\nS`)).not.toMatchAt({ match: "ABC\ns", index: 0 }); // ^ not modified to multiline
+    });
+
+    it("should support partial matching of patterns with a negating case insensitive modifier", () => {
+      const input = /(?-i:abc)suffix/i;
+      const partial = createPartialMatchRegex(input);
+      expect(partial).toMatchPartially({
+        characters: ["a", "b", "c", ..."SuFfIx".split("")]
+      });
+      expect(partial.exec("A")).toNotMatch();
+    });
+
+    it("should support partial matching of patterns with a negating dot-all modifier", () => {
+      const input = /(?-s:a.c)suffix/s;
+      const partial = createPartialMatchRegex(input);
+      expect(partial).toMatchPartially({
+        characters: ["a", "b", "c", ..."suffix".split("")]
+      });
+      expect(partial.exec(`a
+c`)).toNotMatch();
+    });
+
+    it("should prevent partial matching of patterns with a negating multiline modifier", () => {
+      const input = /\n(?-m:^abc$)\nsuffix/m;
+      const partial = createPartialMatchRegex(input);
+      expect(partial.exec(`\nabc\msuffix`)).toNotMatch();
+    });
+
+    it("should support partial matching of patterns with multiple negating modifiers", () => {
+      const input = /(?-ism:^a.c$)\nsuffix/;
+      const partial = createPartialMatchRegex(input);
+      expect(partial).toMatchPartially({
+        characters: ["a", ".", "c"]
+      });
+      expect(partial.exec(`abc\n`)).toNotMatch(); // multiline disabled
+      expect(partial.exec(`Abc`)).toNotMatch(); // case-insensitive disabled
+      expect(partial.exec(`a\nc`)).toNotMatch(); // dot-all disabled
+    });
+
+    it("should support partial matching of patterns with positive and negative modifiers combined", () => {
+      const input = /(?i-s:a.c)suffix/;
+      const partial = createPartialMatchRegex(input);
+      expect(partial).toMatchPartially({
+        characters: ["A", "b", "C", ..."suffix".split("")]
+      });
+      expect(partial.exec(`A\nC`)).toNotMatch(); // dot-all disabled
+    });
+
+    it("should support partial matching of patterns with multiple positive and negative modifiers combined", () => {
+      const input = /(?im-s:^a.c$)\nsuffix/;
+      const partial = createPartialMatchRegex(input);
+      expect(partial).toMatchPartially({
+        characters: ["A", "b", "C", "\n", ..."suffix".split("")]
+      });
+      expect(partial.exec(`ABC\nsuffix`)).toMatchAt({ match: "ABC\nsuffix", index: 0 });
+      expect(partial.exec(`A\nC`)).toNotMatch(); // dot-all disabled
     });
   });
 
