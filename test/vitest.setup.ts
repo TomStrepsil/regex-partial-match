@@ -1,18 +1,5 @@
 import { expect } from "vitest";
-
-interface ToMatchAtParams {
-  match: string;
-  index: number;
-}
-
-interface ToMatchPartiallyParams {
-  characters: string[];
-  index?: number;
-}
-
-interface ToNotMatchPartiallyParams {
-  characters: string[];
-}
+import type { ToMatchAtParams, ToMatchPartiallyParams, ToNotMatchPartiallyParams } from "./vitest.d.js";
 
 expect.extend({
   toMatchAt(

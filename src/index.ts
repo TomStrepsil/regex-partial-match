@@ -106,6 +106,15 @@ const createPartialMatchRegex = (regex: RegExp): RegExp => {
                 i += 3;
                 result += process() + ")";
                 break;
+              case "-":
+              case "i":
+              case "s":
+              case "m":
+                const temp = i + 2, temp2 = source.indexOf(":", temp);
+                result += "(?" + source.substring(temp, temp2) + ":";
+                i = temp2 + 1;
+                result += process() + ")";
+                break;
               case "!": {
                 const temp = i;
                 i += 3;
