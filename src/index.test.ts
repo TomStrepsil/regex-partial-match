@@ -817,7 +817,7 @@ c`)).toNotMatch();
     it("should prevent partial matching of patterns with a negating multiline modifier", () => {
       const input = /\n(?-m:^abc$)\nsuffix/m;
       const partial = createPartialMatchRegex(input);
-      expect(partial.exec(`\nabc\msuffix`)).toNotMatch();
+      expect(partial.exec(`\nabc\nsuffix`)).toNotMatch();
     });
 
     it("should support partial matching of patterns with multiple negating modifiers", () => {
