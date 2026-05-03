@@ -119,7 +119,7 @@ Hence:
 
 To mitigate, a start boundary anchor can prevent anything _but_ an empty string matching:
 
-```ts
+```js
 /^(?:x|$)/.test("") === true;
 /^(?:x|$)/.test("x") === true;
 /^(?:x|$)/.test("a") === false;

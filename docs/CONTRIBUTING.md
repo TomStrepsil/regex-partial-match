@@ -50,7 +50,7 @@ Wait for feedback before starting significant work to ensure your contribution a
 ### 1. Create a Branch
 
 ```bash
-git checkout -b <issue>_your-feature-name
+git checkout -b {issue}_your-feature-name
 ```
 
 Use descriptive branch names:
@@ -103,7 +103,7 @@ git merge upstream/main
 ### 7. Push to Your Fork
 
 ```bash
-git push origin issue_your-feature-name
+git push origin {issue}_your-feature-name
 ```
 
 ## Submitting a Pull Request

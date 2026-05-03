@@ -716,7 +716,7 @@ describe("regexp-partial-match", () => {
       });
     });
 
-    it("should support partial matching of emoji property with nested subtraction in unicode set character class expressions", () => {  
+    it("should support partial matching of emoji property with nested subtraction in unicode set character class expressions", () => {
       const input =
         /^[[\p{Emoji}]--[[\p{Emoji_Presentation}]--[😀😃😄]]]+suffix/v;
       const partial = createPartialMatchRegex(input);
