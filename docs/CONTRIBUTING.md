@@ -50,16 +50,14 @@ Wait for feedback before starting significant work to ensure your contribution a
 ### 1. Create a Branch
 
 ```bash
-git checkout -b feature/your-feature-name
-# or
-git checkout -b fix/your-bug-fix
+git checkout -b <issue>_your-feature-name
 ```
 
 Use descriptive branch names:
 
-- `feature/add-unicode-normalization`
-- `fix/handle-empty-patterns`
-- `docs/improve-readme-examples`
+- `123_add-unicode-normalization`
+- `456_handle-empty-patterns`
+- `789_improve-readme-examples`
 
 ### 2. Make Your Changes
 
@@ -105,7 +103,7 @@ git merge upstream/main
 ### 7. Push to Your Fork
 
 ```bash
-git push origin feature/your-feature-name
+git push origin issue_your-feature-name
 ```
 
 ## Submitting a Pull Request

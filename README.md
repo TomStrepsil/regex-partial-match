@@ -56,7 +56,7 @@ This allows the pattern to match prefixes of the original pattern, enabling vali
 
 Since the library accepts only valid regular expressions [^1], this enables the algorithm to make lots of unguarded assumptions about the source of the expression.
 
-The library has been stress-tested with various regular expression features in isolation, and some in likely combination, but obviously its an unbounded test space, and syntactically valid regular expressions nevertheless support contradictory patterns e.g.
+The library has been stress-tested with various regular expression features in isolation, and some in likely combination, but obviously it's an unbounded test space, and syntactically valid regular expressions nevertheless support contradictory patterns e.g.
 
 - `/\b\B/` - impossible to match both a word boundary and a non-word boundary
 - `/$^/` - end cannot come before start
@@ -119,7 +119,7 @@ Hence:
 
 To mitigate, a start boundary anchor can prevent anything _but_ an empty string matching:
 
-```js
+```ts
 /^(?:x|$)/.test("") === true;
 /^(?:x|$)/.test("x") === true;
 /^(?:x|$)/.test("a") === false;
