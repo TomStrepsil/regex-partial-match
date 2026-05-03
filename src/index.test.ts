@@ -716,12 +716,12 @@ describe("regexp-partial-match", () => {
       });
     });
 
-    it("should support partial matching of extended pictographic property with nested subtraction in unicode set character class expressions", () => {
+    it("should support partial matching of emoji property with nested subtraction in unicode set character class expressions", () => {  
       const input =
-        /^[[\p{Extended_Pictographic}]--[[\p{Emoji}]--[😀😃😄]]]+suffix/v;
+        /^[[\p{Emoji}]--[[\p{Emoji_Presentation}]--[😀😃😄]]]+suffix/v;
       const partial = createPartialMatchRegex(input);
       expect(partial).toMatchPartially({
-        characters: ["♡", "😀", ..."suffix".split("")]
+        characters: ["⚙", "✂", "😀", ..."suffix".split("")]
       });
       expect(partial).toNotMatchPartially({
         characters: ["💀", "💣", ..."suffix".split("")]
