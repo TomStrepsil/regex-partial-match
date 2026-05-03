@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Corrected test to remove `Extended_Pictographic`, the definition of which varies between runtimes
+  - Bun is "correct" / adheres to [Unicode 17](https://www.unicode.org/Public/17.0.0/ucd/emoji/emoji-data.txt), others approximate
+
 ## [0.3.0] - 2026-02-03
 
 ### Added
