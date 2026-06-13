@@ -1226,7 +1226,7 @@ c`)
   });
 
   // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Backreference
-  describe.only("backreferences", () => {
+  describe("backreferences", () => {
     [
       {
         name: "simple backreference, at end of string",
