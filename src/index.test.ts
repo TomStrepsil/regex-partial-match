@@ -761,14 +761,18 @@ describe("regexp-partial-match", () => {
       expect(partial).toMatchPartially({
         characters: ["a", "\n", "c", ..."suffix".split("")]
       });
-      expect(partial.exec(`a
-csuffix`)).toMatchAt({
+      expect(
+        partial.exec(`a
+csuffix`)
+      ).toMatchAt({
         match: `a
 csuffix`,
         index: 0
       });
-      expect(partial.exec(`abcsuf
-ix`)).not.toMatchAt({
+      expect(
+        partial.exec(`abcsuf
+ix`)
+      ).not.toMatchAt({
         match: `abcsuf
 ix`,
         index: 0
@@ -790,9 +794,16 @@ ix`,
       expect(partial).toMatchPartially({
         characters: ["A", "\n", "C", "\n", ..."suffix".split("")]
       });
-      expect(partial.exec(`ABC\nS`)).not.toMatchAt({ match: "ABC\nS", index: 0 }); // s not modified to case-insensitive
-      expect(createPartialMatchRegex(/(?ism:^abc$).suffix/).exec(`ABC\nS`)).not.toMatchAt({ match: "ABC\nS", index: 0 }); // . not modified to match newlines
-      expect(createPartialMatchRegex(/(?ism:^abc$)\n^suffix/).exec(`ABC\nS`)).not.toMatchAt({ match: "ABC\ns", index: 0 }); // ^ not modified to multiline
+      expect(partial.exec(`ABC\nS`)).not.toMatchAt({
+        match: "ABC\nS",
+        index: 0
+      }); // s not modified to case-insensitive
+      expect(
+        createPartialMatchRegex(/(?ism:^abc$).suffix/).exec(`ABC\nS`)
+      ).not.toMatchAt({ match: "ABC\nS", index: 0 }); // . not modified to match newlines
+      expect(
+        createPartialMatchRegex(/(?ism:^abc$)\n^suffix/).exec(`ABC\nS`)
+      ).not.toMatchAt({ match: "ABC\ns", index: 0 }); // ^ not modified to multiline
     });
 
     it("should support partial matching of patterns with a negating case insensitive modifier", () => {
@@ -810,8 +821,10 @@ ix`,
       expect(partial).toMatchPartially({
         characters: ["a", "b", "c", ..."suffix".split("")]
       });
-      expect(partial.exec(`a
-c`)).toNotMatch();
+      expect(
+        partial.exec(`a
+c`)
+      ).toNotMatch();
     });
 
     it("should prevent partial matching of patterns with a negating multiline modifier", () => {
@@ -846,7 +859,10 @@ c`)).toNotMatch();
       expect(partial).toMatchPartially({
         characters: ["A", "b", "C", "\n", ..."suffix".split("")]
       });
-      expect(partial.exec(`ABC\nsuffix`)).toMatchAt({ match: "ABC\nsuffix", index: 0 });
+      expect(partial.exec(`ABC\nsuffix`)).toMatchAt({
+        match: "ABC\nsuffix",
+        index: 0
+      });
       expect(partial.exec(`A\nC`)).toNotMatch(); // dot-all disabled
     });
   });
@@ -1206,6 +1222,69 @@ c`)).toNotMatch();
 
       expect(partial.exec("xfooy")).toMatchAt({ match: "foo", index: 1 });
       expect(partial.exec(" foo ")).toNotMatch();
+    });
+  });
+
+  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Backreference
+  describe("backreferences", () => {
+    [
+      {
+        name: "simple backreference, at end of string",
+        input: /(a)\1/,
+        testStrings: ["a", "aa"],
+        expected: (str: string) => ({ 0: str, 1: "a" })
+      },
+      {
+        name: "simple backreference, not at end of string",
+        input: /(a)\1b/,
+        testStrings: ["a", "aa", "aab"],
+        expected: (str: string) => ({ 0: str, 1: "a" })
+      },
+      {
+        name: "backreference with disjunction",
+        input: /(a|b)\1/,
+        testStrings: ["a", "aa", "b", "bb"],
+        expected: ([char]: string) => ({ 1: char })
+      },
+      {
+        name: "nested backreferences",
+        input: /((a))\2\1/,
+        testStrings: ["a", "aa", "aaa"],
+        expected: () => ({ 1: "a", 2: "a" })
+      },
+      {
+        name: "two-digit backreference",
+        input: /((((((((((a))))))))))\10/,
+        testStrings: ["a", "aa"],
+        expected: () => ({
+          10: "a"
+        })
+      },
+      {
+        name: "three-digit backreference",
+        input:
+          /((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((((a))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))))\100/,
+        testStrings: ["a", "aa"],
+        expected: () => ({
+          100: "a"
+        })
+      },
+      // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Named_backreference
+      {
+        name: "named backreference",
+        input: /(?<char>a)\k<char>/,
+        testStrings: ["a", "aa"],
+        expected: (str: string) => ({ 0: str, groups: { char: "a" } })
+      }
+    ].forEach(({ name, input, testStrings, expected }) => {
+      it(`should support pass-through of ${name} (despite not being able to partially match non-atomic captures, since matching is atomic)`, () => {
+        const partial = createPartialMatchRegex(input);
+        for (const testString of testStrings) {
+          const result = partial.exec(testString);
+          expect(result).toMatchAt({ match: testString, index: 0 });
+          expect(result).toMatchObject(expected(testString));
+        }
+      });
     });
   });
 });

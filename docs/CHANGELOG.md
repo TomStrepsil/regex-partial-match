@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Corrected test to remove `Extended_Pictographic`, the definition of which varies between runtimes
   - Bun is "correct" / adheres to [Unicode 17](https://www.unicode.org/Public/17.0.0/ucd/emoji/emoji-data.txt), others approximate
+- Support pass-through of multi-digit [numeric back-references](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Backreference)
 
 ## [0.3.0] - 2026-02-03
 
