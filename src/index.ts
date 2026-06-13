@@ -1,4 +1,5 @@
 const occurrencesRegex = /\{\d+,?\d*\}/g;
+const notNumbersRegex = /\D/g;
 
 const createPartialMatchRegex = (regex: RegExp): RegExp => {
   const source = regex.source;
@@ -48,6 +49,21 @@ const createPartialMatchRegex = (regex: RegExp): RegExp => {
               break;
             case "x":
               appendOptional(4);
+              break;
+            case "1":
+            case "2":
+            case "3":
+            case "4":
+            case "5":
+            case "6":
+            case "7":
+            case "8":
+            case "9":
+              notNumbersRegex.lastIndex = i + 1;
+              const nextNonDigit = notNumbersRegex.exec(source);
+              appendOptional(
+                (nextNonDigit ? nextNonDigit.index : source.length) - i
+              );
               break;
             default:
               appendOptional(2);
@@ -110,7 +126,8 @@ const createPartialMatchRegex = (regex: RegExp): RegExp => {
               case "i":
               case "s":
               case "m":
-                const temp = i + 2, temp2 = source.indexOf(":", temp);
+                const temp = i + 2,
+                  temp2 = source.indexOf(":", temp);
                 result += "(?" + source.substring(temp, temp2) + ":";
                 i = temp2 + 1;
                 result += process() + ")";
