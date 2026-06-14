@@ -23,7 +23,7 @@ jobs:
       - name: Publish to NPM
         run: |
           if [[ "${{ github.event.release.prerelease }}" == "true" ]]; then
-            npm publish --tag next
+            corepack npm publish --tag next
           else
-            npm publish
+            corepack npm publish
           fi

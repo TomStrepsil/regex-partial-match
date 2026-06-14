@@ -142,7 +142,7 @@ jobs:
         id: npm_version
         run: |
           # Use npm version to automatically bump the version
-          npm version ${{ steps.version.outputs.bump_type }} --no-git-tag-version
+          corepack npm version ${{ steps.version.outputs.bump_type }} --no-git-tag-version
 
           # Read the new version
           NEW_VERSION=$(node -p "require('./package.json').version")

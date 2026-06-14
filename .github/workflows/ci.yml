@@ -21,7 +21,7 @@ jobs:
         uses: ./.github/actions/setup-node
 
       - name: Run linter
-        run: npm run lint
+        run: corepack npm run lint
 
   test:
     name: Test
@@ -35,7 +35,7 @@ jobs:
         uses: ./.github/actions/setup-node
 
       - name: Run tests
-        run: npm test
+        run: corepack npm test
 
   changelog-and-semver-check:
     name: CHANGELOG and Semver Check

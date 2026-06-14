@@ -18,5 +18,5 @@ runs:
       shell: bash
 
     - name: Install dependencies
-      run: npm ci
+      run: corepack npm ci
       shell: bash
