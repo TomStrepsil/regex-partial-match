@@ -1,0 +1,24 @@
+name: Setup Node
+
+description: Setup Node & Install Dependencies
+
+runs:
+  using: "composite"
+  steps:
+    - name: Setup Node
+      uses: actions/setup-node@v6
+      with:
+        node-version-file: .nvmrc
+        package-manager-cache: false
+
+    - name: Extract and install npm version from package.json
+      id: get-npm-version
+      run: |
+        NPM_VER=$(jq -r '.devEngines.packageManager.version' package.json | cut -d'+' -f1)
+        echo "Extracted npm version from devEngines: $NPM_VER"
+        npm install -g npm@$NPM_VER
+      shell: bash
+
+    - name: Install dependencies
+      run: npm ci
+      shell: bash

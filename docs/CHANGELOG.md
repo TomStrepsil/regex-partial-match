@@ -9,8 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- pinned `package.json->devEngines->packageManager` to exact version, since corepack doesn't support semver, and added a deterministic hash as a security best practice
-- enabled [corepack](https://github.com/nodejs/corepack) in pipeline, to satisfy [`actions/setup-node`](https://github.com/actions/setup-node)
+- pinned `package.json->devEngines->packageManager` to exact version, since corepack doesn't support semver ranges, and added a deterministic hash as a security best practice
+- added a `setup-node` action to ensure npm version is honoured in pipeline
 
 ## [0.4.0] - 2026-06-13
 
