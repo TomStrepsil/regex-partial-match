@@ -14,9 +14,9 @@ runs:
     - name: Extract and install npm version from package.json
       id: get-npm-version
       run: |
-        NPM_VER=$(jq -r '.devEngines.packageManager.version' package.json | cut -d'+' -f1)
-        echo "Extracted npm version from devEngines: $NPM_VER"
-        npm install -g npm@$NPM_VER
+        NPM_SPEC=$(jq -r '.devEngines.packageManager | "\(.name)@\(.version)"' package.json)
+        TARBALL_PATH=$(corepack pack "$NPM_SPEC")
+        npm install -g "$TARBALL_PATH"
       shell: bash
 
     - name: Install dependencies
