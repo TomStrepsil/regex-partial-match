@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- pinned `package.json->devEngines->packageManager` to exact version, since corepack doesn't support semver, added added deterministic hash for security best practice
+- pinned `package.json->devEngines->packageManager` to exact version, since corepack doesn't support semver, and added a deterministic hash as a security best practice
 
 ## [0.4.0] - 2026-06-13
 
