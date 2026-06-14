@@ -10,6 +10,7 @@ runs:
       with:
         node-version-file: .nvmrc
         package-manager-cache: false
+        registry-url: "https://registry.npmjs.org"
 
     - name: Corepack
       run: |
