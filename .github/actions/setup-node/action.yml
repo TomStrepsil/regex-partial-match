@@ -11,13 +11,10 @@ runs:
         node-version-file: .nvmrc
         package-manager-cache: false
 
-    - name: Extract and install npm version from package.json
-      id: get-npm-version
+    - name: Corepack
       run: |
-        NPM_SPEC=$(jq -r '.devEngines.packageManager | "\(.name)@\(.version)"' package.json)
-        corepack pack "$NPM_SPEC"
-        corepack install -g corepack.tgz
-        rm corepack.tgz
+        corepack enable npm
+        corepack install
       shell: bash
 
     - name: Install dependencies
