@@ -15,8 +15,9 @@ runs:
       id: get-npm-version
       run: |
         NPM_SPEC=$(jq -r '.devEngines.packageManager | "\(.name)@\(.version)"' package.json)
-        TARBALL_PATH=$(corepack pack "$NPM_SPEC")
-        npm install -g "$TARBALL_PATH"
+        corepack pack "$NPM_SPEC"
+        corepack install -g corepack.tgz
+        rm corepack.tgz
       shell: bash
 
     - name: Install dependencies
