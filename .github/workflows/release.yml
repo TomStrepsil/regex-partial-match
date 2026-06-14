@@ -30,13 +30,8 @@ jobs:
           fetch-depth: 0
           token: ${{ steps.app-token.outputs.token }}
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version-file: ".nvmrc"
-
-      - name: Install dependencies
-        run: npm ci
+      - name: Setup Node
+        uses: ./.github/actions/setup-node
 
       - name: Configure Git
         run: |
@@ -147,7 +142,7 @@ jobs:
         id: npm_version
         run: |
           # Use npm version to automatically bump the version
-          npm version ${{ steps.version.outputs.bump_type }} --no-git-tag-version
+          corepack npm version ${{ steps.version.outputs.bump_type }} --no-git-tag-version
 
           # Read the new version
           NEW_VERSION=$(node -p "require('./package.json').version")
