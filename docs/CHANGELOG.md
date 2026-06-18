@@ -16,15 +16,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Breaking:** Removed `createPartialMatchRegex` method as default export
 - Moved to [`slice`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/slice) from [`substring`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/substring), marginally more compact and more commonly used
 - Updated `README.md` to clarify "How It Works", and consistent spelling of "behaviour" (🇬🇧)
-- **Breaking:** Removed `createPartialMatchRegexp` method as default export
 - Upgraded `actions/checkout` to [v7](https://github.com/actions/checkout/tree/v7)
 
 ### Added
 
-- `PartialMatchRegExp` class as default export, to ensure `.test()` doesn't always return true based on matching a non-terminal (`^`) end of pattern
-- Parity tests aligned with external partial-match reference implementations:
+- `PartialMatchRegExp` class as default export, to ensure `.test()` doesn't always return true based on matching the end-of-input sentinel (`$`)
   - **Apache Lucene** (`TestRegExp.java`): deep nesting / stack safety, quantifiers over empty-matching sub-expressions, Unicode case folding (σ/Σ, ῼ)
   - **JDK** (`java.util.regex` / `RegExTest.java`): `hitEnd()` semantic equivalence (non-empty exec result = prefix found), CRLF boundary in multiline mode (`caretAtEndTest`), progressive `find(pos)` via `lastIndex` (`wordSearchTest`)
 - `README.md` section "Compatibility with other partial-match implementations" mapping Lucene, RE2, and JDK concepts to this library's API, including a cross-reference parity table

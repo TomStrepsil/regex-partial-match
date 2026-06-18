@@ -1,6 +1,6 @@
 # Benchmarks
 
-Performance benchmarks for `regexp-partial-match`, built with [mitata](https://github.com/nicolo-ribaudo/mitata).
+Performance benchmarks for `regex-partial-match`, built with [mitata](https://github.com/nicolo-ribaudo/mitata).
 
 ## Running locally
 
