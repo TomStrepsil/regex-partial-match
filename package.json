@@ -33,12 +33,12 @@
     }
   ],
   "type": "module",
-  "main": "lib/index.js",
+  "main": "lib/partialMatchRegExp.js",
   "exports": {
     ".": {
-      "types": "./lib/index.d.ts",
-      "import": "./lib/index.js",
-      "default": "./lib/index.js"
+      "types": "./lib/partialMatchRegExp.d.ts",
+      "import": "./lib/partialMatchRegExp.js",
+      "default": "./lib/partialMatchRegExp.js"
     },
     "./extend": {
       "types": "./lib/extend.d.ts",
@@ -53,6 +53,9 @@
     "type": "git",
     "url": "git+https://github.com/TomStrepsil/regex-partial-match.git"
   },
+  "workspaces": [
+    "benchmarking"
+  ],
   "sideEffects": false,
   "scripts": {
     "lint": "eslint .",
@@ -80,8 +83,8 @@
     "jiti": "^2.6.1",
     "lint-staged": "^15.2.11",
     "simple-git-hooks": "^2.12.1",
-    "typescript": "^5.9.3",
-    "typescript-eslint": "^8.18.1",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.61.1",
     "vitest": "^4.0.15"
   }
 }

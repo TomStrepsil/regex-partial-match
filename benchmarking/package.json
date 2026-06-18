@@ -1,0 +1,14 @@
+{
+  "name": "regex-partial-match-benchmarks",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "bench": "tsx src/run.ts",
+    "bench:ci": "tsx src/run.ts --json | tsx scripts/to-action-format.ts > results.json"
+  },
+  "devDependencies": {
+    "@types/node": "^25.9.3",
+    "mitata": "^1.0.0",
+    "tsx": "^4.19.0"
+  }
+}

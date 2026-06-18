@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import createPartialMatchRegex from "./index.ts";
+import createPartialMatchRegex from "./createPartialMatchRegex.ts";
 
 describe("regexp-partial-match", () => {
   // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/flags
@@ -23,7 +23,7 @@ describe("regexp-partial-match", () => {
 
     it("should support partial matching of literal character expressions", () => {
       for (let i = 1; i < string.length; i++) {
-        const partialString = string.substring(0, i);
+        const partialString = string.slice(0, i);
         const result = partial.exec(partialString);
         expect(result).toMatchAt({ match: partialString, index: 0 });
       }
@@ -61,6 +61,40 @@ describe("regexp-partial-match", () => {
       expect(partial).toMatchPartially({
         characters: ["a", "́", ..."suffix".split("")]
       });
+    });
+  });
+
+  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Wildcard
+  describe("wildcard expressions", () => {
+    it("should support partial matching of wildcards", () => {
+      const input = /a.suffix/;
+      const partial = createPartialMatchRegex(input);
+      expect(partial).toMatchPartially({
+        characters: ["a", "x", ..."suffix".split("")]
+      });
+
+      expect(partial.exec("absuffix")).toMatchAt({ match: "absuffix", index: 0 });
+      expect(partial.exec("a\nsuffix")).toNotMatch();
+    });
+
+    it("should support partial matching of utf-16 code units with wildcards, in non-unicode mode", () => {
+      const input = /a..suffix/;
+      const partial = createPartialMatchRegex(input);
+      expect(partial).toMatchPartially({
+        characters: ["a", "😄", ..."suffix".split("")]
+      });
+
+      expect(partial.exec("a😄suffix")).toMatchAt({ match: "a😄suffix", index: 0 });
+    });
+
+    it("should support partial matching of unicode characters with wildcards, in unicode mode", () => {
+      const input = /a.suffix/u;
+      const partial = createPartialMatchRegex(input);
+      expect(partial).toMatchPartially({
+        characters: ["a", "😄", ..."suffix".split("")]
+      });
+
+      expect(partial.exec("a😄suffix")).toMatchAt({ match: "a😄suffix", index: 0 });
     });
   });
 
@@ -425,7 +459,7 @@ describe("regexp-partial-match", () => {
 
       for (const animal of animals) {
         for (let i = 1; i < animal.length; i++) {
-          const partialString = animal.substring(0, i);
+          const partialString = animal.slice(0, i);
           const result = partial.exec(partialString);
           expect(result).toMatchAt({ match: partialString, index: 0 });
         }
@@ -837,7 +871,7 @@ c`)
       const input = /(?-ism:^a.c$)\nsuffix/;
       const partial = createPartialMatchRegex(input);
       expect(partial).toMatchPartially({
-        characters: ["a", ".", "c"]
+        characters: ["a", "b", "c"]
       });
       expect(partial.exec(`abc\n`)).toNotMatch(); // multiline disabled
       expect(partial.exec(`Abc`)).toNotMatch(); // case-insensitive disabled
@@ -1005,7 +1039,7 @@ c`)
       const string = "foobar";
 
       for (let i = 1; i < string.length; i++) {
-        const partialString = string.substring(0, i);
+        const partialString = string.slice(0, i);
         const result = partial.exec(partialString);
         expect(result).toMatchAt({
           match: partialString.slice(0, 3),
@@ -1020,7 +1054,7 @@ c`)
       const string = "foobaz";
 
       for (let i = 1; i < string.length; i++) {
-        const partialString = string.substring(0, i);
+        const partialString = string.slice(0, i);
         const result = partial.exec(partialString);
         expect(result).toMatchAt({
           match: partialString.slice(0, 3),
@@ -1037,7 +1071,7 @@ c`)
       const string = "fooba";
 
       for (let i = 3; i < string.length; i++) {
-        const partialString = string.substring(0, i);
+        const partialString = string.slice(0, i);
         const result = partial.exec(partialString);
         expect(result).toMatchAt({ match: partialString.slice(3), index: 3 });
       }
@@ -1049,7 +1083,7 @@ c`)
       const string = "ba";
 
       for (let i = 1; i < string.length; i++) {
-        const partialString = string.substring(0, i);
+        const partialString = string.slice(0, i);
         const result = partial.exec(partialString);
         expect(result).toMatchAt({ match: partialString, index: 0 });
       }
@@ -1065,7 +1099,7 @@ c`)
       const string = "foobarba";
 
       for (let i = 3; i < string.length; i++) {
-        const partialString = string.substring(0, i);
+        const partialString = string.slice(0, i);
         const result = partial.exec(partialString);
         expect(result).toMatchAt({
           match: partialString.slice(3, 6),
@@ -1081,7 +1115,7 @@ c`)
 
       for (const string of testStrings) {
         for (let i = 1; i < string.length; i++) {
-          const partialString = string.substring(0, i);
+          const partialString = string.slice(0, i);
           const result = partial.exec(partialString);
           expect(result).toMatchAt({
             match: partialString.slice(0, 3),
@@ -1098,7 +1132,7 @@ c`)
       const partial = createPartialMatchRegex(input);
       const string = "abcsuffix";
       for (let i = 2; i < string.length; i++) {
-        const partialString = string.substring(0, i);
+        const partialString = string.slice(0, i);
         const result = partial.exec(partialString);
         expect(result).toMatchObject({
           0: partialString.slice(3),
@@ -1115,7 +1149,7 @@ c`)
 
       for (const string of testStrings) {
         for (let i = 1; i < string.length; i++) {
-          const partialString = string.substring(0, i);
+          const partialString = string.slice(0, i);
           const result = partial.exec(partialString);
           expect(result).toMatchAt({
             match: partialString.slice(0, string.indexOf(":")),
@@ -1134,7 +1168,7 @@ c`)
       const string = "foo";
 
       for (let i = 1; i < string.length; i++) {
-        const partialString = string.substring(0, i);
+        const partialString = string.slice(0, i);
         const result = partial.exec(partialString);
         expect(result).toMatchAt({ match: partialString, index: 0 });
       }
@@ -1148,7 +1182,7 @@ c`)
       const string = "foo";
 
       for (let i = 1; i < string.length; i++) {
-        const partialString = string.substring(0, i);
+        const partialString = string.slice(0, i);
         const result = partial.exec(partialString);
         expect(result).toMatchAt({ match: partialString, index: 0 });
       }
@@ -1163,7 +1197,7 @@ c`)
       const string = "foo\nfoo";
 
       for (let i = 1; i < string.length; i++) {
-        const partialString = string.substring(0, i);
+        const partialString = string.slice(0, i);
         const result = partial.exec(partialString);
         expect(result).toMatchAt({
           match: partialString.slice(0, 3), // always matches up to "foo", stripping newline, before wrapping to next line
@@ -1179,7 +1213,7 @@ c`)
       const string = "f\no\nf\no";
 
       for (let i = 1; i < string.length; i++) {
-        const partialString = string.substring(0, i);
+        const partialString = string.slice(0, i);
         const result = partial.exec(partialString);
         expect(result).toMatchAt({
           match: partialString.slice(0, 3), // always matches up to "foo", stripping newline, before wrapping to next line
@@ -1198,7 +1232,7 @@ c`)
       const string = "foo";
 
       for (let i = 1; i < string.length; i++) {
-        const partialString = string.substring(0, i);
+        const partialString = string.slice(0, i);
         const result = partial.exec(partialString);
         expect(result).toMatchAt({ match: partialString, index: 0 });
       }
@@ -1215,13 +1249,171 @@ c`)
       const string = "xfooy";
 
       for (let i = 1; i < string.length; i++) {
-        const partialString = string.substring(0, i);
+        const partialString = string.slice(0, i);
         const result = partial.exec(partialString);
         expect(result).toMatchAt({ match: partialString.slice(1), index: 1 });
       }
 
       expect(partial.exec("xfooy")).toMatchAt({ match: "foo", index: 1 });
       expect(partial.exec(" foo ")).toNotMatch();
+    });
+  });
+
+  describe("parity with reference implementations", () => {
+
+    // Apache Lucene TestRegExp.java — testRegExpNoStackOverflow
+    // Lucene verifies its automaton builder does not stack-overflow on very deeply nested patterns.
+    describe("deep nesting safety (Lucene-inspired)", () => {
+      it("should not throw on a high-count top-level alternation (wide pattern)", () => {
+        const width = 1000;
+        const pattern = new RegExp(Array(width).fill("(?:a)").join("|") + "|(?:b)");
+        const partial = createPartialMatchRegex(pattern);
+        expect(() => partial.exec("a")).not.toThrow();
+        expect(() => partial.exec("b")).not.toThrow();
+        expect(() => partial.exec("z")).not.toThrow();
+      });
+
+      it("should not throw on deeply nested non-capturing groups", () => {
+        const depth = 100;
+        const pattern = new RegExp("(?:".repeat(depth) + "a" + ")".repeat(depth) + "suffix");
+        const partial = createPartialMatchRegex(pattern);
+        expect(() => partial.exec("a")).not.toThrow();
+        expect(() => partial.exec("asuffix")).not.toThrow();
+      });
+    });
+
+    // Apache Lucene TestRegExp.java — testRepeatWithEmptyString
+    // Lucene tests quantifiers whose subpatterns can match an empty string (e.g. [^y]*{1,2}).
+    describe("quantifiers over empty-matching subpatterns (Lucene-inspired)", () => {
+      it("should support patterns where the quantified atom matches zero characters (a*suffix)", () => {
+        const partial = createPartialMatchRegex(/a*suffix/);
+        // zero repetitions of "a" — falls through directly to "suffix"
+        expect(partial.exec("s")).toMatchAt({ match: "s", index: 0 });
+        expect(partial.exec("suffix")).toMatchAt({ match: "suffix", index: 0 });
+        expect(partial.exec("asuffix")).toMatchAt({ match: "asuffix", index: 0 });
+        expect(partial.exec("aas")).toMatchAt({ match: "aas", index: 0 });
+      });
+
+      it("should support optional (?) quantifier where the atom matches zero characters", () => {
+        const partial = createPartialMatchRegex(/a?suffix/);
+        expect(partial.exec("s")).toMatchAt({ match: "s", index: 0 });
+        expect(partial.exec("as")).toMatchAt({ match: "as", index: 0 });
+        expect(partial.exec("suffix")).toMatchAt({ match: "suffix", index: 0 });
+        expect(partial.exec("asuffix")).toMatchAt({ match: "asuffix", index: 0 });
+      });
+
+      it("should support character class quantifier that can match empty (Lucene [^y]*{1,2} style)", () => {
+        const partial = createPartialMatchRegex(/^[^y]*suffix/);
+        expect(partial).toMatchPartially({ characters: ["a", "b", ..."suffix".split("")] });
+        expect(partial.exec("ysuffix")).toNotMatch(); // y excluded from class; ^ prevents skipping it
+      });
+    });
+
+    // Apache Lucene TestRegExp.java — testUnicodeAsciiInsensitiveFlags
+    // Lucene explicitly tests Unicode case folding (σ/Σ, ῼ, ﬗ) with case-insensitive flags.
+    describe("Unicode case folding (Lucene-inspired)", () => {
+      it("should support case-insensitive partial matching of Greek lowercase sigma (σ) against uppercase (Σ)", () => {
+        const partial = createPartialMatchRegex(/σsuffix/iu);
+        // Σ (U+03A3) is the uppercase of σ (U+03C3) under Unicode case folding
+        expect(partial.exec("Σs")).toMatchAt({ match: "Σs", index: 0 });
+        expect(partial.exec("σs")).toMatchAt({ match: "σs", index: 0 });
+        expect(partial).toMatchPartially({ characters: ["Σ", ..."suffix".split("")] });
+      });
+
+      it("should support case-insensitive partial matching of uppercase sigma (Σ) against lowercase (σ)", () => {
+        const partial = createPartialMatchRegex(/Σsuffix/iu);
+        expect(partial.exec("σs")).toMatchAt({ match: "σs", index: 0 });
+        expect(partial.exec("Σs")).toMatchAt({ match: "Σs", index: 0 });
+      });
+
+      it("should support case-insensitive partial matching of Greek capital letter omega with prosgegrammeni (ῼ)", () => {
+        const partial = createPartialMatchRegex(/ῼsuffix/iu);
+        expect(partial.exec("ῼ")).toMatchAt({ match: "ῼ", index: 0 });
+        expect(partial).toMatchPartially({ characters: ["ῼ", ..."suffix".split("")] });
+      });
+    });
+
+    // JDK RegExTest.java — hitEndTest
+    // Java's Matcher.hitEnd() returns true when the engine consumed all input before failing,
+    // meaning a longer string could potentially produce a match (i.e. the input is a valid prefix).
+    // In this library, a non-empty exec result is the equivalent of hitEnd()=true, and an empty
+    // (or null) result is the equivalent of hitEnd()=false.
+    describe("hitEnd() semantic equivalence (JDK-inspired)", () => {
+      it("returns non-empty prefix match when input is a prefix of the pattern (hitEnd=true equivalent)", () => {
+        // JDK: /^squidattack/.hitEnd("squid") === true — engine ran off end of input
+        const partial = createPartialMatchRegex(/^squidattack/);
+        expect(partial.exec("squid")?.[0]).toBe("squid");
+      });
+
+      it("returns null when input diverges from the pattern before end of input (hitEnd=false equivalent)", () => {
+        // JDK: /^squidattack/.hitEnd("squack") === false — engine diverged at 4th char
+        const partial = createPartialMatchRegex(/^squidattack/);
+        expect(partial.exec("squack")).toBeNull();
+      });
+
+      it("returns non-empty prefix when input is a prefix of a simple literal (JDK: /^abc/ on 'ab')", () => {
+        const partial = createPartialMatchRegex(/^abc/);
+        expect(partial.exec("ab")?.[0]).toBe("ab");
+      });
+
+      it("returns null when input diverges early (JDK: /^abc/ on 'ad')", () => {
+        const partial = createPartialMatchRegex(/^abc/);
+        expect(partial.exec("ad")).toBeNull();
+      });
+
+      it("returns non-empty partial match for a non-anchored pattern occurring mid-string (hitEnd=true via unanchored find)", () => {
+        // JDK: /catattack/ on "attackattackattackcatatta" — hitEnd=true (prefix found at end)
+        const partial = createPartialMatchRegex(/catattack/);
+        const m = partial.exec("attackattackattackcatatta");
+        expect(m).toMatchObject({ 0: "catatta", index: 18 });
+      });
+    });
+
+    // JDK RegExTest.java — caretAtEndTest
+    // Java tests that ^ with MULTILINE matches at the start of a new line after \r (bare CR).
+    describe("CRLF boundary in multiline mode (JDK caretAtEndTest-inspired)", () => {
+      it("should recognise ^ at position 0 and after bare CR in multiline mode", () => {
+        // Use "\rfoo" so the second line is non-empty and the engine can find a match there.
+        // For zero-length matches, lastIndex must be advanced manually — standard JS pattern.
+        const partial = createPartialMatchRegex(/^x?/gm);
+        const m1 = partial.exec("\rfoo");
+        expect(m1).toMatchObject({ index: 0 });
+        if (m1?.[0] === "") partial.lastIndex++; // advance past zero-length match
+        const m2 = partial.exec("\rfoo");
+        expect(m2).toMatchObject({ index: 1 }); // ^ matches at start of new line after \r
+      });
+
+      it("should match $ before bare CR in multiline mode", () => {
+        const partial = createPartialMatchRegex(/^foo$/m);
+        // \r is a line terminator in multiline mode, so "foo" is a complete line
+        expect(partial.exec("foo\r")).toMatchAt({ match: "foo", index: 0 });
+      });
+    });
+
+    // JDK RegExTest.java — wordSearchTest
+    // Java's Matcher.find(pos) advances through successive matches by position.
+    // The equivalent in JS is advancing lastIndex on a global-flag regex.
+    describe("progressive find() via lastIndex (JDK wordSearchTest-inspired)", () => {
+      it("should find successive word-prefixed partial matches by advancing lastIndex", () => {
+        // JDK wordSearchTest: /\b/ on "word1 word2 word3" with progressive find(pos) calls
+        const partial = createPartialMatchRegex(/\bwor/g);
+        const input = "word1 word2 word3";
+        const positions: number[] = [];
+        let m;
+        while ((m = partial.exec(input)) !== null && m[0] !== "") {
+          positions.push(m.index);
+        }
+        expect(positions).toEqual([0, 6, 12]);
+      });
+
+      it("should support find(position) equivalent by setting lastIndex before exec", () => {
+        const partial = createPartialMatchRegex(/\bwor/g);
+        const input = "word1 word2 word3";
+        // Start from position 6 (equivalent to JDK's find(6))
+        partial.lastIndex = 6;
+        const m = partial.exec(input);
+        expect(m).toMatchObject({ 0: "wor", index: 6 });
+      });
     });
   });
 

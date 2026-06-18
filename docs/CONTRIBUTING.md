@@ -25,7 +25,12 @@ Please be respectful and constructive in all interactions. We aim to maintain a 
    ```bash
    git remote add upstream https://github.com/TomStrepsil/regex-partial-match.git
    ```
-4. **Install dependencies**:
+4. **Enable corepack**:
+   ```bash
+   corepack enable npm
+   corepack install
+   ```
+5. **Install dependencies**:
    ```bash
    npm install
    ```
@@ -132,10 +137,11 @@ git push origin {issue}_your-feature-name
 Tests are located in `test/` directory. Follow these patterns:
 
 ```typescript
+import PartialMatchRegExp from "../src/partialMatchRegExp.ts";
+
 describe("feature name", () => {
   it("should do something specific", () => {
-    const input = /pattern/;
-    const partial = createPartialMatchRegex(input);
+    const partial = new PartialMatchRegExp(/pattern/);
 
     expect(partial.test("partial")).toBe(true);
   });

@@ -11,6 +11,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Pinned `package.json->devEngines->packageManager` to exact version, since corepack doesn't support semver ranges, and added a deterministic hash as a security best practice
 - Added a `setup-node` action to ensure npm version is honoured in pipeline
+- Fixed errant CHANGELOG version for v[0.1.8](#018---2025-12-08)
+- Added missing tests for wildcard expressions
+
+### Changed
+
+- Moved to [`slice`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/slice) from [`substring`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/substring), marginally more compact and more commonly used
+- Updated `README.md` to clarify "How It Works", and consistent spelling of "behaviour" (🇬🇧)
+- **Breaking:** Removed `createPartialMatchRegexp` method as default export
+
+### Added
+
+- `PartialMatchRegExp` class as default export, to ensure `.test()` doesn't always return true based on matching a non-terminal (`^`) end of pattern
+- Parity tests aligned with external partial-match reference implementations:
+  - **Apache Lucene** (`TestRegExp.java`): deep nesting / stack safety, quantifiers over empty-matching sub-expressions, Unicode case folding (σ/Σ, ῼ)
+  - **JDK** (`java.util.regex` / `RegExTest.java`): `hitEnd()` semantic equivalence (non-empty exec result = prefix found), CRLF boundary in multiline mode (`caretAtEndTest`), progressive `find(pos)` via `lastIndex` (`wordSearchTest`)
+- `README.md` section "Compatibility with other partial-match implementations" mapping Lucene, RE2, and JDK concepts to this library's API, including a cross-reference parity table
+- "benchmarking" workspace, validating `exec()` overhead
 
 ## [0.4.0] - 2026-06-13
 
@@ -147,7 +164,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Removed import statement for usage examples, for brevity / consistency
 
-## [0.1.7] - 2025-12-08
+## [0.1.8] - 2025-12-08
 
 ### Added
 

@@ -10,7 +10,7 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "lib": ["ES2024"],
+    "lib": ["ESNext"],
     "types": ["vitest/globals"],
   },
   "include": ["src/**/*", "test/**/*", "eslint.config.ts"],
