@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Moved to [`slice`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/slice) from [`substring`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/substring), marginally more compact and more commonly used
 - Updated `README.md` to clarify "How It Works", and consistent spelling of "behaviour" (🇬🇧)
 - **Breaking:** Removed `createPartialMatchRegexp` method as default export
+- Upgraded `actions/checkout` to [v7](https://github.com/actions/checkout/tree/v7)
 
 ### Added
 
