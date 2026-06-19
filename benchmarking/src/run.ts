@@ -9,10 +9,9 @@
  * The --json output is intended to be piped to scripts/to-action-format.ts
  * for the github-action-benchmark customSmallerIsBetter format.
  *
- * mitata JSON format note: run() returns an object whose shape varies between
- * minor versions. The converter handles the two common shapes:
- *   - array of benchmark results (v0.x)
- *   - { benchmarks: [...] } (v1.x)
+ * mitata v1.x json format: run() with { format: { json: {...} } } writes the
+ * result to stdout via console.log and returns it. The converter handles the
+ * { benchmarks: [...] } shape that mitata v1.x produces.
  */
 
 import "./dispatch-overhead.bench.ts";
@@ -22,14 +21,11 @@ import { run } from "mitata";
 
 const isJson = process.argv.includes("--json");
 
-const results = await run({
+// When --json: mitata's json format writes the result to stdout itself via
+// console.log. Do not also call process.stdout.write — that would produce two
+// concatenated JSON objects and break the downstream parser.
+// samples:false drops raw timing arrays from the output; we only need summary stats.
+await run({
   colors: !isJson,
-  // mitata v1.x: suppress table when outputting JSON
-  // If your version doesn't support this option, redirect stderr:
-  //   tsx src/run.ts --json 2>/dev/null | tsx scripts/to-action-format.ts
-  ...(isJson ? { format: "json" } : {}),
+  ...(isJson ? { format: { json: { samples: false } } } : {}),
 });
-
-if (isJson) {
-  process.stdout.write(JSON.stringify(results) + "\n");
-}

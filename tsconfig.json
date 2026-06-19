@@ -13,6 +13,6 @@
     "lib": ["ESNext"],
     "types": ["vitest/globals"],
   },
-  "include": ["src/**/*", "test/**/*", "eslint.config.ts"],
+  "include": ["src/**/*", "test/**/*", "eslint.config.ts", ".github/scripts/**/*.ts"],
   "exclude": ["node_modules", "lib"]
 }

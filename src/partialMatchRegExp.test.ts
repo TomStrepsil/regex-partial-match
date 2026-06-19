@@ -67,6 +67,13 @@ describe("PartialMatchRegExp", () => {
     expect(re.exec("abxyab")).toMatchObject({ 0: "ab", index: 4 });
     expect(re.lastIndex).toBe(6);
   });
+
+  it("g+y flags: constructor does not throw when both g and y are combined", () => {
+    const re = new PartialMatchRegExp(/ab/gy);
+    expect(re.global).toBe(true);
+    expect(re.sticky).toBe(true);
+    expect(re.exec("ab")).toMatchObject({ 0: "ab", index: 0 });
+  });
 });
 
 [
@@ -147,7 +154,16 @@ describe("PartialMatchRegExp", () => {
   // ── Quantifiers ───────────────────────────────────────────────────────────
   {
     pattern: /^\d{3}-\d{4}/,
-    expected: ["1", "12", "123", "123-", "123-4", "123-45", "123-456", "123-4567"],
+    expected: [
+      "1",
+      "12",
+      "123",
+      "123-",
+      "123-4",
+      "123-45",
+      "123-456",
+      "123-4567"
+    ],
     notExpected: ["xyz", "!"]
   },
   {
@@ -284,94 +300,117 @@ describe("PartialMatchRegExp", () => {
   });
 });
 
-describe("sentinel suppression — exec/test return null/false for non-matching inputs", () => {
-  it("test() returns false for a string that cannot match", () => {
-    const re = new PartialMatchRegExp(/^foo/);
-    expect(re.test("bar")).toBe(false);
-    expect(re.test("xyz")).toBe(false);
-    expect(re.test("foobar".slice(3))).toBe(false); // "bar"
+describe("sentinel suppression", () => {
+  describe("exec/test return null/false for non-matching inputs", () => {
+    it("test() returns false for a string that cannot match", () => {
+      const re = new PartialMatchRegExp(/^foo/);
+      expect(re.test("bar")).toBe(false);
+      expect(re.test("xyz")).toBe(false);
+      expect(re.test("foobar".slice(3))).toBe(false); // "bar"
+    });
+
+    it("exec() returns null for a string that cannot match", () => {
+      const re = new PartialMatchRegExp(/^foo/);
+      expect(re.exec("bar")).toBeNull();
+      expect(re.exec("xyz")).toBeNull();
+    });
+
+    it("valid prefixes are not suppressed", () => {
+      const re = new PartialMatchRegExp(/^foobar/);
+      expect(re.test("f")).toBe(true);
+      expect(re.test("fo")).toBe(true);
+      expect(re.test("foo")).toBe(true);
+      expect(re.test("foob")).toBe(true);
+      expect(re.test("fooba")).toBe(true);
+      expect(re.test("foobar")).toBe(true);
+    });
+
+    it("empty string returns false when the original pattern does not match empty", () => {
+      expect(new PartialMatchRegExp(/^foo/).test("")).toBe(false);
+      expect(new PartialMatchRegExp(/^[a-z]+/).test("")).toBe(false);
+    });
+
+    it("empty string returns true when the original pattern matches empty", () => {
+      expect(new PartialMatchRegExp(/^a*/).test("")).toBe(true);
+      expect(new PartialMatchRegExp(/^x?$/).test("")).toBe(true);
+      expect(new PartialMatchRegExp(/^$/).test("")).toBe(true);
+    });
+
+    it("string.match() returns null for non-matching input", () => {
+      const re = new PartialMatchRegExp(/^foo/);
+      expect("bar".match(re)).toBeNull();
+      expect("fo".match(re)).not.toBeNull();
+    });
+
+    it("global regex with non-zero lastIndex resets lastIndex to 0 after sentinel suppression", () => {
+      const re = new PartialMatchRegExp(/foo/g);
+      re.lastIndex = 1;
+      expect(re.exec("XXX")).toBeNull();
+      expect(re.lastIndex).toBe(0);
+    });
+
+    it("sticky regex resets lastIndex to 0 after sentinel suppression", () => {
+      const re = new PartialMatchRegExp(/foo/y);
+      re.lastIndex = 3;
+      expect(re.exec("XXX")).toBeNull();
+      expect(re.lastIndex).toBe(0);
+    });
+
+    it("global regex: test('') mirrors whether the original pattern matches empty", () => {
+      expect(new PartialMatchRegExp(/^a*/g).test("")).toBe(true);
+      expect(new PartialMatchRegExp(/^foo/g).test("")).toBe(false);
+    });
+
+    it("sticky regex: test('') mirrors whether the original pattern matches empty", () => {
+      expect(new PartialMatchRegExp(/^a*/y).test("")).toBe(true);
+      expect(new PartialMatchRegExp(/^foo/y).test("")).toBe(false);
+    });
   });
 
-  it("exec() returns null for a string that cannot match", () => {
-    const re = new PartialMatchRegExp(/^foo/);
-    expect(re.exec("bar")).toBeNull();
-    expect(re.exec("xyz")).toBeNull();
+  describe("with multiline flag — mid-string line-boundary sentinels", () => {
+    it("test() returns false when the only match is an empty sentinel at a mid-string line boundary", () => {
+      expect(new PartialMatchRegExp(/foo/m).test("abc\ndef")).toBe(false);
+    });
+
+    it("exec() returns null in the same case", () => {
+      expect(new PartialMatchRegExp(/foo/m).exec("abc\ndef")).toBeNull();
+    });
+
+    it("test() returns true when the original pattern genuinely matches at a mid-string line boundary", () => {
+      expect(new PartialMatchRegExp(/$/m).test("abc\n")).toBe(true);
+    });
+
+    it("exec() returns the match object when the original pattern genuinely matches at a mid-string line boundary", () => {
+      expect(new PartialMatchRegExp(/$/m).exec("abc\n")).toMatchObject({
+        0: "",
+        index: 3
+      });
+    });
   });
 
-  it("valid prefixes are not suppressed", () => {
-    const re = new PartialMatchRegExp(/^foobar/);
-    expect(re.test("f")).toBe(true);
-    expect(re.test("fo")).toBe(true);
-    expect(re.test("foo")).toBe(true);
-    expect(re.test("foob")).toBe(true);
-    expect(re.test("fooba")).toBe(true);
-    expect(re.test("foobar")).toBe(true);
-  });
+  describe("end-of-input matches — not suppressed when original matches there", () => {
+    it("/$/ already matches end of a non-empty string, so test returns true", () => {
+      expect(new PartialMatchRegExp(/$/).test("abc")).toBe(true);
+      expect(new PartialMatchRegExp(/$/).test("a")).toBe(true);
+    });
 
-  it("empty string returns false when the original pattern does not match empty", () => {
-    expect(new PartialMatchRegExp(/^foo/).test("")).toBe(false);
-    expect(new PartialMatchRegExp(/^[a-z]+/).test("")).toBe(false);
-  });
+    it("/$/ matches the empty string", () => {
+      expect(new PartialMatchRegExp(/$/).test("")).toBe(true);
+    });
 
-  it("empty string returns true when the original pattern matches empty", () => {
-    expect(new PartialMatchRegExp(/^a*/).test("")).toBe(true);
-    expect(new PartialMatchRegExp(/^x?$/).test("")).toBe(true);
-    expect(new PartialMatchRegExp(/^$/).test("")).toBe(true);
-  });
+    it("exec() returns the match object (not null) for /$/ on a non-empty string", () => {
+      const m = new PartialMatchRegExp(/$/).exec("abc");
+      expect(m).toMatchObject({ 0: "", index: 3 });
+    });
 
-  it("string.match() returns null for non-matching input", () => {
-    const re = new PartialMatchRegExp(/^foo/);
-    expect("bar".match(re)).toBeNull();
-    expect("fo".match(re)).not.toBeNull();
-  });
+    it("/^x*$/ returns true for complete matches like 'xx'", () => {
+      expect(new PartialMatchRegExp(/^x*$/).test("xx")).toBe(true);
+      expect(new PartialMatchRegExp(/^x*$/).test("")).toBe(true);
+    });
 
-  it("global regex with non-zero lastIndex resets lastIndex to 0 after sentinel suppression", () => {
-    const re = new PartialMatchRegExp(/foo/g);
-    re.lastIndex = 1;
-    expect(re.exec("XXX")).toBeNull();
-    expect(re.lastIndex).toBe(0);
-  });
-
-  it("sticky regex resets lastIndex to 0 after sentinel suppression", () => {
-    const re = new PartialMatchRegExp(/foo/y);
-    re.lastIndex = 3;
-    expect(re.exec("XXX")).toBeNull();
-    expect(re.lastIndex).toBe(0);
-  });
-
-  it("global regex: test('') mirrors whether the original pattern matches empty", () => {
-    expect(new PartialMatchRegExp(/^a*/g).test("")).toBe(true);
-    expect(new PartialMatchRegExp(/^foo/g).test("")).toBe(false);
-  });
-
-  it("sticky regex: test('') mirrors whether the original pattern matches empty", () => {
-    expect(new PartialMatchRegExp(/^a*/y).test("")).toBe(true);
-    expect(new PartialMatchRegExp(/^foo/y).test("")).toBe(false);
-  });
-});
-
-describe("end-of-input matches — not suppressed when original matches there", () => {
-  it("/$/ already matches end of a non-empty string, so test returns true", () => {
-    expect(new PartialMatchRegExp(/$/).test("abc")).toBe(true);
-    expect(new PartialMatchRegExp(/$/).test("a")).toBe(true);
-  });
-
-  it("/$/ matches the empty string", () => {
-    expect(new PartialMatchRegExp(/$/).test("")).toBe(true);
-  });
-
-  it("exec() returns the match object (not null) for /$/ on a non-empty string", () => {
-    const m = new PartialMatchRegExp(/$/).exec("abc");
-    expect(m).toMatchObject({ 0: "", index: 3 });
-  });
-
-  it("/^x*$/ returns true for complete matches like 'xx'", () => {
-    expect(new PartialMatchRegExp(/^x*$/).test("xx")).toBe(true);
-    expect(new PartialMatchRegExp(/^x*$/).test("")).toBe(true);
-  });
-
-  it("sentinels from patterns that cannot yet match at end-of-input are still suppressed", () => {
-    expect(new PartialMatchRegExp(/^abc/).test("xy")).toBe(false);
-    expect(new PartialMatchRegExp(/a$/).test("bc")).toBe(false);
+    it("sentinels from patterns that cannot yet match at end-of-input are still suppressed", () => {
+      expect(new PartialMatchRegExp(/^abc/).test("xy")).toBe(false);
+      expect(new PartialMatchRegExp(/a$/).test("bc")).toBe(false);
+    });
   });
 });

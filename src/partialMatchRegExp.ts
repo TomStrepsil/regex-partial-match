@@ -9,7 +9,7 @@ export class PartialMatchRegExp extends RegExp {
     this._partial = createPartialMatchRegex(this);
     this._originalSticky = new RegExp(
       this.source,
-      this.flags.replace(/[gy]/, "") + "y"
+      this.flags.replace(/[gy]/g, "") + "y"
     );
   }
 
@@ -17,7 +17,7 @@ export class PartialMatchRegExp extends RegExp {
     const partial = this._partial;
     partial.lastIndex = this.lastIndex;
     const match = partial.exec(input);
-    if (match?.index === input.length) {
+    if (match?.[0].length === 0) {
       const originalSticky = this._originalSticky;
       originalSticky.lastIndex = match.index;
       const originalMatch = originalSticky.exec(input);

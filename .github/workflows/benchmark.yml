@@ -24,8 +24,11 @@ jobs:
       - name: Setup Node
         uses: ./.github/actions/setup-node
 
-      - name: Run benchmarks (JSON output)
-        run: corepack npm run bench:ci --workspace=benchmarking
+      - name: Run benchmarks
+        run: corepack npm run bench --workspace=benchmarking -- --json > /tmp/bench-raw.json
+
+      - name: Convert to action format
+        run: cd benchmarking && npx tsx ../.github/scripts/mitata-to-action-format.ts < /tmp/bench-raw.json > results.json
 
       - name: Store / compare benchmark results
         uses: benchmark-action/github-action-benchmark@v1
