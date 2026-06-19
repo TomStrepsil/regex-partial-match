@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added a `setup-node` action to ensure npm version is honoured in pipeline
 - Fixed errant CHANGELOG version for v[0.1.8](#018---2025-12-08)
 - Added missing tests for wildcard expressions
+- Fixed test with UTF-16 code units to assert they match independently, properly
 
 ### Changed
 

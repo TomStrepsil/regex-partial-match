@@ -81,7 +81,7 @@ describe("regexp-partial-match", () => {
       const input = /a..suffix/;
       const partial = createPartialMatchRegex(input);
       expect(partial).toMatchPartially({
-        characters: ["a", "😄", ..."suffix".split("")]
+        characters: ["a", ..."😄".split(""), ..."suffix".split("")]
       });
 
       expect(partial.exec("a😄suffix")).toMatchAt({ match: "a😄suffix", index: 0 });
