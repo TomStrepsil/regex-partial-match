@@ -24,8 +24,7 @@ declare global {
      * ```
      *
      * @remarks
-     * - The transformed regex will always match an empty string at the end of input
-     * - Use with a start anchor (`^`) to prevent false positives from empty string matches
+     * - Backreferences cannot be partially matched as they are atomic
      * - The `y` (sticky) flag may not behave as expected in partial matching scenarios
      *
      * @see {@link https://github.com/TomStrepsil/regex-partial-match#readme | Documentation}
