@@ -16,7 +16,7 @@ Lucene's automaton-based regex dialect **cannot express backreferences** (finite
 
 | Lucene test method                 | Property tested                                                      | This library                                                      |
 | ---------------------------------- | -------------------------------------------------------------------- | ----------------------------------------------------------------- | 
-| `testSmoke`                        | Basic grouping — `a(b+\|c+)d`matches`abbbbbd`, `acd`; rejects `ad`   | ✅ Covered — quantifiers, groups, disjunctions                     |
+| `testSmoke`                        | Basic grouping — `a(b+\|c+)d` matches `abbbbbd`, `acd`; rejects `ad`   | ✅ Covered — quantifiers, groups, disjunctions                     |
 | `testUnicodeAsciiInsensitiveFlags` | Unicode case folding — `σ`/`Σ`, `ῼ`, `ﬗ`                            | ✅ Covered — `i` + `u` flags delegate to JS Unicode case folding  |
 | `testRepeatWithEmptyString`        | Quantifiers over empty-matching sub-expressions — `[^y]*{1,2}`       | ✅ Covered — `a*suffix`, `a?suffix`, `^[^y]*suffix`               |
 | `testRegExpNoStackOverflow`        | Deep nesting / stack safety — `(a)` × 50 000                         | ✅ Covered — wide alternation (× 1 000) and deeply nested groups (depth 100) |

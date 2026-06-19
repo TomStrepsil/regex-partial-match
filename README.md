@@ -64,7 +64,7 @@ The library has been stress-tested with various regular expression features in i
 Such combinations have not been tested.
 
 > [!NOTE]
-> See [Partial Match Parity](/docs/partial-match-parity.md) for full detail of how the library compares to reference implementations
+> See [Partial Match Parity](/docs/partial-match-parity.md) for full details on how the library compares to reference implementations
 
 ## Supported Features
 
