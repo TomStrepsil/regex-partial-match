@@ -55,7 +55,7 @@ The baseline is only updated on merges to `main` — PR runs read but do not wri
 
 ## Output format
 
-`../.github/scripts/to-action-format.ts` converts mitata's JSON output to the `github-action-benchmark` schema:
+`../.github/scripts/mitata-to-action-format.ts` converts mitata's JSON output to the `github-action-benchmark` schema:
 
 ```json
 [
@@ -69,4 +69,4 @@ The baseline is only updated on merges to `main` — PR runs read but do not wri
 ]
 ```
 
-All timings are normalised to nanoseconds per iteration from mitata's internal second representation.
+Mitata v1's JSON stats are already in nanoseconds per iteration; the converter passes them through as `ns/iter`.
