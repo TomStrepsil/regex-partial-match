@@ -11,11 +11,12 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  benchmark:
-    name: Run benchmarks
+  benchmark-pr:
+    name: Run benchmarks (PR)
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: read
       pull-requests: write
 
     steps:
@@ -37,7 +38,37 @@ jobs:
           tool: customSmallerIsBetter
           output-file-path: benchmarking/results.json
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          auto-push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+          auto-push: false
           comment-on-alert: true
+          alert-threshold: "150%"
+          fail-on-alert: false
+
+  benchmark-main:
+    name: Run benchmarks (main)
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup Node
+        uses: ./.github/actions/setup-node
+
+      - name: Run benchmarks
+        run: corepack npm run bench --workspace=benchmarking -- --json > /tmp/bench-raw.json
+
+      - name: Convert to action format
+        run: cd benchmarking && npx tsx ../.github/scripts/mitata-to-action-format.ts < /tmp/bench-raw.json > results.json
+
+      - name: Store / compare benchmark results
+        uses: benchmark-action/github-action-benchmark@v1
+        with:
+          name: regex-partial-match
+          tool: customSmallerIsBetter
+          output-file-path: benchmarking/results.json
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          auto-push: true
           alert-threshold: "150%"
           fail-on-alert: false
