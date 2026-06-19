@@ -134,7 +134,7 @@ git push origin {issue}_your-feature-name
 
 ### Writing Tests
 
-Tests are colocated next to the sourcecode in `/src`. Follow these patterns:
+Tests are colocated next to the source code in `src/`. Follow these patterns:
 
 ```typescript
 import PartialMatchRegExp from "../src/partialMatchRegExp.ts";
