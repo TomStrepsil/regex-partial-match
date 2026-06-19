@@ -71,135 +71,215 @@ describe("PartialMatchRegExp", () => {
 
 [
   // ── Literals ──────────────────────────────────────────────────────────────
-  { pattern: /^abc/, inputs: ["a", "ab", "abc", "xyz", "123", "!"] },
+  {
+    pattern: /^abc/,
+    expected: ["a", "ab", "abc"],
+    notExpected: ["xyz", "123", "!"]
+  },
   {
     pattern: /^hello world/,
-    inputs: ["h", "he", "hel", "hello", "hello ", "hello world", "goodbye"]
+    expected: ["h", "he", "hel", "hello", "hello ", "hello world"],
+    notExpected: ["goodbye"]
   },
   // ── Character escapes ─────────────────────────────────────────────────────
-  { pattern: /^\x61\x62\x63/, inputs: ["a", "ab", "abc", "xyz"] },
-  { pattern: /^\u0061\u0062/, inputs: ["a", "ab", "xyz"] },
-  { pattern: /^\u{1F600}/u, inputs: ["😀", "xyz"] },
+  {
+    pattern: /^\x61\x62\x63/,
+    expected: ["a", "ab", "abc"],
+    notExpected: ["xyz"]
+  },
+  {
+    pattern: /^\u0061\u0062/,
+    expected: ["a", "ab"],
+    notExpected: ["xyz"]
+  },
+  {
+    pattern: /^\u{1F600}/u,
+    expected: ["😀"],
+    notExpected: ["xyz"]
+  },
   {
     pattern: /^\p{Lowercase_Letter}+suffix/u,
-    inputs: ["a", "ab", "asuffix", "Asuffix", "1suffix"]
+    expected: ["a", "ab", "asuffix"],
+    notExpected: ["Asuffix", "1suffix"]
   },
-  { pattern: /^\cj\cMsuffix/, inputs: ["\n", "\n\r", "\n\rsuffix", "x"] },
+  {
+    pattern: /^\cj\cMsuffix/,
+    expected: ["\n", "\n\r", "\n\rsuffix"],
+    notExpected: ["x"]
+  },
   // ── Character classes ─────────────────────────────────────────────────────
-  { pattern: /^[a-z]+/, inputs: ["a", "ab", "A", "1"] },
+  {
+    pattern: /^[a-z]+/,
+    expected: ["a", "ab"],
+    notExpected: ["A", "1"]
+  },
   {
     pattern: /^[^abc]+suffix/,
-    inputs: ["x", "xy", "xysuffix", "asuffix", "bsuffix"]
+    expected: ["x", "xy", "xysuffix"],
+    notExpected: ["asuffix", "bsuffix"]
   },
-  { pattern: /^[ab\\]suffix/, inputs: ["a", "asuffix", "\\suffix", "csuffix"] },
+  {
+    pattern: /^[ab\\]suffix/,
+    expected: ["a", "asuffix", "\\suffix"],
+    notExpected: ["csuffix"]
+  },
   {
     pattern: /^[a-c]suffix/i,
-    inputs: ["A", "Asuffix", "Bsuffix", "Csuffix", "dsuffix"]
+    expected: ["A", "Asuffix", "Bsuffix", "Csuffix"],
+    notExpected: ["dsuffix"]
   },
   {
     pattern: /^[a-z]+\s\w+/,
-    inputs: ["a", "ab", " ", "ab ", "ab c", "ab cd", "!", "123"]
+    expected: ["a", "ab", "ab ", "ab c", "ab cd"],
+    notExpected: [" ", "!", "123"]
   },
   // ── Disjunction ───────────────────────────────────────────────────────────
   {
     pattern: /^foo|^bar/,
-    inputs: ["f", "fo", "foo", "b", "ba", "bar", "xyz", "123", "!"]
+    expected: ["f", "fo", "foo", "b", "ba", "bar"],
+    notExpected: ["xyz", "123", "!"]
   },
-  { pattern: /^cat|^dog/, inputs: ["c", "ca", "cat", "d", "do", "dog", "xyz"] },
+  {
+    pattern: /^cat|^dog/,
+    expected: ["c", "ca", "cat", "d", "do", "dog"],
+    notExpected: ["xyz"]
+  },
   // ── Quantifiers ───────────────────────────────────────────────────────────
   {
     pattern: /^\d{3}-\d{4}/,
-    inputs: [
-      "1",
-      "12",
-      "123",
-      "123-",
-      "123-4",
-      "123-45",
-      "123-456",
-      "123-4567",
-      "xyz",
-      "!"
-    ]
+    expected: ["1", "12", "123", "123-", "123-4", "123-45", "123-456", "123-4567"],
+    notExpected: ["xyz", "!"]
   },
-  { pattern: /^ab*c/, inputs: ["a", "ab", "abc", "abbc", "ac", "b", "axc"] },
-  { pattern: /^ab+c/, inputs: ["ab", "abc", "abbc", "a", "ac"] },
-  { pattern: /^ab?c/, inputs: ["a", "ab", "abc", "ac", "axc"] },
+  {
+    pattern: /^ab*c/,
+    expected: ["a", "ab", "abc", "abbc", "ac"],
+    notExpected: ["b", "axc"]
+  },
+  {
+    pattern: /^ab+c/,
+    expected: ["ab", "abc", "abbc", "a"],
+    notExpected: ["ac"]
+  },
+  {
+    pattern: /^ab?c/,
+    expected: ["a", "ab", "abc", "ac"],
+    notExpected: ["axc"]
+  },
   {
     pattern: /^ab{2,4}c/,
-    inputs: ["ab", "abb", "abbb", "abbbb", "abbbbc", "abc", "abbbbbbc"]
+    expected: ["ab", "abb", "abbb", "abbbb", "abbbbc"],
+    notExpected: ["abc", "abbbbbbc"]
   },
-  { pattern: /^ab*?c/, inputs: ["a", "ab", "abc", "abbc", "ac", "axc"] },
+  {
+    pattern: /^ab*?c/,
+    expected: ["a", "ab", "abc", "abbc", "ac"],
+    notExpected: ["axc"]
+  },
   // ── Unicode sets (v flag) ─────────────────────────────────────────────────
   {
     pattern: /^[\p{Alphabetic}]+suffix/v,
-    inputs: ["a", "aあ", "aあsuffix", "1suffix", "!suffix"]
+    expected: ["a", "aあ", "aあsuffix"],
+    notExpected: ["1suffix", "!suffix"]
   },
   // ── Modifiers ─────────────────────────────────────────────────────────────
   {
     pattern: /^(?i:abc)suffix/,
-    inputs: ["A", "AB", "ABC", "ABCsuffix", "abcsuffix", "xyz"]
+    expected: ["A", "AB", "ABC", "ABCsuffix", "abcsuffix"],
+    notExpected: ["xyz"]
   },
   {
     pattern: /^(?-i:abc)suffix/i,
-    inputs: ["a", "ab", "abcsuffix", "ABCsuffix", "xyz"]
+    expected: ["a", "ab", "abcsuffix"],
+    notExpected: ["ABCsuffix", "xyz"]
   },
   // ── Groups ────────────────────────────────────────────────────────────────
   {
     pattern: /^(foo)(bar)/,
-    inputs: ["f", "fo", "foo", "foob", "fooba", "foobar", "xyz"]
+    expected: ["f", "fo", "foo", "foob", "fooba", "foobar"],
+    notExpected: ["xyz"]
   },
   {
     pattern: /^(?:foo)(bar)/,
-    inputs: ["f", "fo", "foo", "foob", "foobar", "xyz"]
+    expected: ["f", "fo", "foo", "foob", "foobar"],
+    notExpected: ["xyz"]
   },
   {
     pattern: /^(?<tag>foo)bar/,
-    inputs: ["f", "fo", "foo", "foob", "foobar", "xyz"]
+    expected: ["f", "fo", "foo", "foob", "foobar"],
+    notExpected: ["xyz"]
   },
   {
     pattern: /^(ab(cd)e)f/,
-    inputs: ["a", "ab", "abc", "abcd", "abcde", "abcdef", "xyz"]
+    expected: ["a", "ab", "abc", "abcd", "abcde", "abcdef"],
+    notExpected: ["xyz"]
   },
   // ── Lookahead assertions ──────────────────────────────────────────────────
   {
     pattern: /^foo(?=bar)/,
-    inputs: ["f", "fo", "foo", "foob", "foobar", "fox"]
+    expected: ["f", "fo", "foo", "foob", "foobar"],
+    notExpected: ["fox"]
   },
   {
     pattern: /^foo(?!baz)/,
-    inputs: ["f", "fo", "foo", "foob", "foobaz", "foobar"]
+    expected: ["f", "fo", "foo", "foob", "foobar"],
+    notExpected: ["foobaz"]
   },
   // ── Lookbehind assertions ─────────────────────────────────────────────────
   {
     pattern: /(?<=foo)bar/,
-    inputs: ["b", "ba", "bar", "foob", "fooba", "foobar", "xbar"]
+    expected: ["foob", "fooba", "foobar"],
+    notExpected: ["b", "ba", "bar", "xbar"]
   },
   {
     pattern: /(?<!foo)bar/,
-    inputs: ["b", "ba", "bar", "foob", "foobar", "xbar"]
+    expected: ["b", "ba", "bar", "xbar"],
+    notExpected: ["foob", "foobar"]
   },
   // ── Boundary assertions ───────────────────────────────────────────────────
-  { pattern: /^foo$/, inputs: ["f", "fo", "foo", "foo ", "xfoo"] },
-  { pattern: /^\bfoo\b/, inputs: ["f", "fo", "foo", "foob", "xfoo"] },
-  { pattern: /^\Bfoo\B/, inputs: ["f", "fo", "foo", "xfooy", "xfoo"] },
+  {
+    pattern: /^foo$/,
+    expected: ["f", "fo", "foo"],
+    notExpected: ["foo ", "xfoo"]
+  },
+  {
+    pattern: /^\bfoo\b/,
+    expected: ["f", "fo", "foo"],
+    notExpected: ["foob", "xfoo"]
+  },
+  {
+    pattern: /^\Bfoo\B/,
+    expected: [],
+    notExpected: ["f", "fo", "foo", "xfooy", "xfoo"]
+  },
   // ── Multiline ─────────────────────────────────────────────────────────────
-  { pattern: /^foo$/m, inputs: ["f", "fo", "foo", "foo ", "foo\nbar"] }
-].forEach(({ pattern, inputs }) => {
-  it(`fast-path parity with createPartialMatchRegex: /${pattern.source}/${pattern.flags}`, () => {
-    const fast = new PartialMatchRegExp(pattern);
+  {
+    pattern: /^foo$/m,
+    expected: ["f", "fo", "foo", "foo\nbar"],
+    notExpected: ["foo "]
+  },
+  // ── End-of-input anchors ──────────────────────────────────────────────────
+  {
+    pattern: /$/,
+    expected: ["", "a", "abc"],
+    notExpected: []
+  },
+  {
+    pattern: /^x*$/,
+    expected: ["", "x", "xx"],
+    notExpected: ["y"]
+  }
+].forEach(({ pattern, expected, notExpected }) => {
+  it(`parity with createPartialMatchRegex: /${pattern.source}/${pattern.flags}`, () => {
+    const re = new PartialMatchRegExp(pattern);
     const ref = createPartialMatchRegex(pattern);
-    const originalMatchesEmpty = new RegExp(pattern.source, pattern.flags).test(
-      ""
-    );
-    for (const s of inputs) {
-      // PartialMatchRegExp suppresses sentinel matches (empty match at end-of-input)
-      // that createPartialMatchRegex exposes as ["", index: s.length, ...].
-      const m = ref.exec(s);
-      const expected =
-        m !== null &&
-        (m.index < s.length || (s.length === 0 && originalMatchesEmpty));
-      expect(fast.test(s)).toBe(expected);
+    for (const s of expected) {
+      expect(re.test(s), s).toBe(true);
+      expect(ref.exec(s)).not.toBeNull();
+    }
+    for (const s of notExpected) {
+      expect(re.test(s), s).toBe(false);
+      const refMatch = ref.exec(s);
+      expect(refMatch === null || refMatch.index === s.length).toBe(true);
     }
   });
 });
@@ -267,5 +347,31 @@ describe("sentinel suppression — exec/test return null/false for non-matching 
   it("sticky regex: test('') mirrors whether the original pattern matches empty", () => {
     expect(new PartialMatchRegExp(/^a*/y).test("")).toBe(true);
     expect(new PartialMatchRegExp(/^foo/y).test("")).toBe(false);
+  });
+});
+
+describe("end-of-input matches — not suppressed when original matches there", () => {
+  it("/$/ already matches end of a non-empty string, so test returns true", () => {
+    expect(new PartialMatchRegExp(/$/).test("abc")).toBe(true);
+    expect(new PartialMatchRegExp(/$/).test("a")).toBe(true);
+  });
+
+  it("/$/ matches the empty string", () => {
+    expect(new PartialMatchRegExp(/$/).test("")).toBe(true);
+  });
+
+  it("exec() returns the match object (not null) for /$/ on a non-empty string", () => {
+    const m = new PartialMatchRegExp(/$/).exec("abc");
+    expect(m).toMatchObject({ 0: "", index: 3 });
+  });
+
+  it("/^x*$/ returns true for complete matches like 'xx'", () => {
+    expect(new PartialMatchRegExp(/^x*$/).test("xx")).toBe(true);
+    expect(new PartialMatchRegExp(/^x*$/).test("")).toBe(true);
+  });
+
+  it("sentinels from patterns that cannot yet match at end-of-input are still suppressed", () => {
+    expect(new PartialMatchRegExp(/^abc/).test("xy")).toBe(false);
+    expect(new PartialMatchRegExp(/a$/).test("bc")).toBe(false);
   });
 });

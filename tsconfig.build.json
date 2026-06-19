@@ -7,8 +7,9 @@
   ],
   "include": ["src/**/*"],
   "compilerOptions": {
+    "rootDir": "./src",
     "declaration": true,
     "outDir": "./lib",
-    "target": "es5",
+    "target": "ES2015",
   }
 }

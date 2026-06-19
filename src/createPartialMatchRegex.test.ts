@@ -1260,7 +1260,6 @@ c`)
   });
 
   describe("parity with reference implementations", () => {
-
     // Apache Lucene TestRegExp.java — testRegExpNoStackOverflow
     // Lucene verifies its automaton builder does not stack-overflow on very deeply nested patterns.
     describe("deep nesting safety (Lucene-inspired)", () => {

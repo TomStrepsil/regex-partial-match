@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Breaking:** Raised minimum JavaScript environment from ES5 to ES2015 (ECMAScript 6) — the minimum version supporting native extension of built-in types such as `RegExp`, which `PartialMatchRegExp` relies on to override `exec()`
 - **Breaking:** Removed `createPartialMatchRegex` method as default export
 - Moved to [`slice`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/slice) from [`substring`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/substring), marginally more compact and more commonly used
 - Updated `README.md` to clarify "How It Works", and consistent spelling of "behaviour" (🇬🇧)

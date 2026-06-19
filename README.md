@@ -90,9 +90,9 @@ The following regex features are **not currently supported**:
 
 ## Browser Compatibility
 
-The library is compiled to **ES5** for broad compatibility with older browsers and JavaScript environments. However, certain regular expression features naturally require ES2015+ support:
+The library requires **ES2015** (ECMAScript 6) — the minimum JavaScript version that supports native extension of built-in types such as `RegExp`, which `PartialMatchRegExp` relies on to override `exec()`. Additionally, certain regular expression features require newer environments:
 
-- [**Unicode escapes**](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Unicode_character_class_escape) (`\u{...}`) - ES2015+
+- [**Unicode escapes**](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Unicode_character_class_escape) (`\u{...}`)
 - [**Unicode property escapes**](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Unicode_character_class_escape) (`\p{...}`, `\P{...}`) - ES2018+
 - [**Lookbehind assertions**](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Lookbehind_assertion) (`(?<=...)`, `(?<!...)`) - ES2018+
 - [**Named capturing groups**](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Named_capturing_group) (`(?<name>...)`) - ES2018+
@@ -105,7 +105,10 @@ The library is compiled to **ES5** for broad compatibility with older browsers a
 
 ### [`.test()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/test) and empty-input behaviour
 
-The partial transform produces a pattern that can match an empty string at the end of input (via the `|$` sentinel). `PartialMatchRegExp` suppresses these sentinel matches — an empty match at `index === input.length` is treated as `null`, so `test()` and `exec()` behave as expected for non-matching strings:
+The partial transform produces a pattern that can match an empty string at the end of input (via the `|$` sentinel). `PartialMatchRegExp` suppresses these sentinel matches — but only when the original pattern would not itself match at that position. This means:
+
+- inputs that the pattern genuinely matches (including patterns that match at end-of-input like `/$/`) return `true`
+- inputs where the sentinel fired only because the pattern ran off the end return `false`
 
 ```js
 const re = new PartialMatchRegExp(/^foo/);
@@ -113,6 +116,8 @@ re.test("bar"); // false — cannot match
 re.test("fo");  // true  — valid prefix
 re.test("foo"); // true  — full match
 re.test("");    // false — pattern does not accept empty string
+
+new PartialMatchRegExp(/$/).test("abc"); // true — $ genuinely matches end-of-input
 ```
 
 `test("")` reflects whether the original pattern matches the empty string. Patterns like `/^a*/` or `/^$/` do accept `""`, so `test("")` returns `true` for those. Patterns that require at least one character return `false`.
@@ -287,7 +292,7 @@ Contributions are welcome! Please open an issue or pull request on [GitHub](http
 
 Several widely-used regex libraries offer native partial-match support. This section maps their concepts and test cases to this library's behaviour.
 
-> **Provenance note:** The parity tests added in `src/index.test.ts` ("parity with reference implementations") vary in how directly they reflect each source:
+> **Provenance note:** The parity tests added in `src/createPartialMatchRegex.test.ts` ("parity with reference implementations") vary in how directly they reflect each source:
 > - **JDK** — test cases are explicit: the `hitEndTest`, `caretAtEndTest`, and `wordSearchTest` methods in `RegExTest.java` name specific patterns and inputs (e.g. `/^squidattack/` on `"squid"` / `"squack"`, `/^x?/m` on `"\r"`, `/\b/` on `"word1 word2 word3"`), which are reproduced directly.
 > - **Lucene** — test cases are derived: `TestRegExp.java` describes what each test method exercises (patterns like `[^y]*{1,2}`, `"(a)|".repeat(50000)`, and character sets σ/Σ/ῼ/ﬗ), but the specific assertions in the test suite here are our own translations of those properties.
 > - **RE2** — test cases are conceptual only: `tester.cc` and `exhaustive_tester.cc` implement a parametric consistency framework (NFA/DFA/backtracking agreement), not a fixed set of `(pattern, input, expected)` tuples. The RE2 rows below document semantic alignment rather than quoting specific test cases.
