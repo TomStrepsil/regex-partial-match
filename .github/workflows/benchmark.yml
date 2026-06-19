@@ -26,7 +26,7 @@ jobs:
         uses: ./.github/actions/setup-node
 
       - name: Run benchmarks
-        run: corepack npm run bench --workspace=benchmarking -- --json > /tmp/bench-raw.json
+        run: corepack npm run bench --workspace=benchmarking --silent -- --json > /tmp/bench-raw.json
 
       - name: Convert to action format
         run: cd benchmarking && npx tsx ../.github/scripts/mitata-to-action-format.ts < /tmp/bench-raw.json > results.json
@@ -57,7 +57,7 @@ jobs:
         uses: ./.github/actions/setup-node
 
       - name: Run benchmarks
-        run: corepack npm run bench --workspace=benchmarking -- --json > /tmp/bench-raw.json
+        run: corepack npm run bench --workspace=benchmarking --silent -- --json > /tmp/bench-raw.json
 
       - name: Convert to action format
         run: cd benchmarking && npx tsx ../.github/scripts/mitata-to-action-format.ts < /tmp/bench-raw.json > results.json
