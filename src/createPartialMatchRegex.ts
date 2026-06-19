@@ -7,7 +7,7 @@ const createPartialMatchRegex = (regex: RegExp): RegExp => {
 
   let i = 0;
 
-  function extractslice(length: number): string {
+  function extractSlice(length: number): string {
     return source.slice(i, (i += length));
   }
 
@@ -15,11 +15,11 @@ const createPartialMatchRegex = (regex: RegExp): RegExp => {
     let result = "";
 
     function appendOptional(length: number) {
-      result += "(?:" + extractslice(length) + "|$)";
+      result += "(?:" + extractSlice(length) + "|$)";
     }
 
     function appendRaw(length: number) {
-      result += extractslice(length);
+      result += extractSlice(length);
     }
 
     while (i < source.length) {
