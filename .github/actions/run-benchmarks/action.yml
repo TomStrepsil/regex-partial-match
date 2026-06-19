@@ -19,7 +19,7 @@ runs:
       shell: bash
 
     - name: Convert to action format
-      run: cd benchmarking && npx tsx ../.github/scripts/mitata-to-action-format.ts < /tmp/bench-raw.json > results.json
+      run: npx tsx .github/scripts/mitata-to-action-format.ts < /tmp/bench-raw.json > /tmp/bench-results.json
       shell: bash
 
     - name: Store / compare benchmark results
@@ -27,7 +27,7 @@ runs:
       with:
         name: regex-partial-match
         tool: customSmallerIsBetter
-        output-file-path: benchmarking/results.json
+        output-file-path: /tmp/bench-results.json
         github-token: ${{ inputs.github-token }}
         auto-push: ${{ inputs.auto-push }}
         comment-on-alert: ${{ inputs.comment-on-alert }}
