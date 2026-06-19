@@ -41,11 +41,13 @@ interface ActionEntry {
   extra: string;
 }
 
-const chunks: string[] = [];
+process.stdin.setEncoding("utf8");
+
+let input = "";
 for await (const chunk of process.stdin) {
-  chunks.push(chunk as string);
+  input += chunk;
 }
-const raw: unknown = JSON.parse(chunks.join(""));
+const raw: unknown = JSON.parse(input);
 
 const benchmarks: MitataBenchmark[] = Array.isArray(raw)
   ? (raw as MitataBenchmark[])
