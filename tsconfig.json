@@ -3,6 +3,7 @@
     "rewriteRelativeImportExtensions": true,
     "target": "ES2024",
     "module": "ESNext",
+    "moduleDetection": "force",
     "moduleResolution": "bundler",
     "declaration": true,
     "outDir": "./lib",
@@ -10,9 +11,9 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "lib": ["ES2024"],
+    "lib": ["ESNext"],
     "types": ["vitest/globals"],
   },
-  "include": ["src/**/*", "test/**/*", "eslint.config.ts"],
+  "include": ["src/**/*", "test/**/*", "eslint.config.ts", ".github/scripts/**/*.ts"],
   "exclude": ["node_modules", "lib"]
 }

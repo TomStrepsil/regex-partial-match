@@ -7,19 +7,19 @@ const createPartialMatchRegex = (regex: RegExp): RegExp => {
 
   let i = 0;
 
-  function extractSubstring(length: number): string {
-    return source.substring(i, (i += length));
+  function extractSlice(length: number): string {
+    return source.slice(i, (i += length));
   }
 
   function process() {
     let result = "";
 
     function appendOptional(length: number) {
-      result += "(?:" + extractSubstring(length) + "|$)";
+      result += "(?:" + extractSlice(length) + "|$)";
     }
 
     function appendRaw(length: number) {
-      result += extractSubstring(length);
+      result += extractSlice(length);
     }
 
     while (i < source.length) {
@@ -128,7 +128,7 @@ const createPartialMatchRegex = (regex: RegExp): RegExp => {
               case "m":
                 const temp = i + 2,
                   temp2 = source.indexOf(":", temp);
-                result += "(?" + source.substring(temp, temp2) + ":";
+                result += "(?" + source.slice(temp, temp2) + ":";
                 i = temp2 + 1;
                 result += process() + ")";
                 break;
@@ -136,7 +136,7 @@ const createPartialMatchRegex = (regex: RegExp): RegExp => {
                 const temp = i;
                 i += 3;
                 process();
-                result += source.substring(temp, i);
+                result += source.slice(temp, i);
                 break;
               }
               case "<":
@@ -146,7 +146,7 @@ const createPartialMatchRegex = (regex: RegExp): RegExp => {
                     const temp = i;
                     i += 4;
                     process();
-                    result += source.substring(temp, i);
+                    result += source.slice(temp, i);
                     break;
                   }
                   default:
