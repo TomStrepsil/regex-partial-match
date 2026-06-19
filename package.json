@@ -85,7 +85,7 @@
     "lint-staged": "^15.2.11",
     "simple-git-hooks": "^2.12.1",
     "typescript": "^6.0.3",
-    "@typescript-eslint/eslint-plugin": "^8.61.1",
+    "typescript-eslint": "^8.61.1",
     "vitest": "^4.0.15"
   }
 }
