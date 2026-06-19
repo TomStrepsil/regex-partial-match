@@ -40,7 +40,7 @@ const plainPartialDate = createPartialMatchRegex(datePattern);
 const classPartialDate = new PartialMatchRegExp(datePattern);
 
 group("keystroke simulation — phone number (18 chars)", () => {
-  bench("native exec per keystroke (always null)", () => {
+  bench("native RegExp.test per keystroke (fails until full input)", () => {
     for (const s of phonePrefixes) nativePhone.test(s);
   });
   bench("plain partial RegExp.test per keystroke", () => {
@@ -52,7 +52,7 @@ group("keystroke simulation — phone number (18 chars)", () => {
 });
 
 group("keystroke simulation — ISO date (10 chars)", () => {
-  bench("native exec per keystroke (always null)", () => {
+  bench("native RegExp.test per keystroke (fails until full input)", () => {
     for (const s of datePrefixes) nativeDate.test(s);
   });
   bench("plain partial RegExp.test per keystroke", () => {

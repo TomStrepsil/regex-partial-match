@@ -368,7 +368,7 @@ The JDK **does** support backreferences, and `RegExTest.java` includes `backRefT
 | Unanchored substring match | ✅ | ✅ | ✅ (`find()`) | ✅ (no anchor) |
 | hitEnd() / prefix-only match | — | — | ✅ | ✅ (non-empty exec result) |
 | requireEnd() | — | — | ✅ | ⚠️ Not exposed |
-| Backreference partial matching | ❌ unsupported dialect | ❌ excluded by design | ⚠️ full match only (`backRefTest`) | ✅ (`PartialMatchRegExp` class) |
+| Backreference partial matching | ❌ unsupported dialect | ❌ excluded by design | ⚠️ full match only (`backRefTest`) | ❌ cannot partially match (atomic) |
 | Multi-engine consistency | — | ✅ | — | N/A |
 
 ## Related projects
