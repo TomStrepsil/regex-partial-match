@@ -1,30 +1,39 @@
 /**
- * Converts mitata JSON output to the github-action-benchmark
+ * Converts mitata v1.x JSON output to the github-action-benchmark
  * customSmallerIsBetter format. Called by the benchmark workflow:
  *
- *   npm run bench --workspace=benchmarking -- --json \
- *     | npx tsx .github/scripts/to-action-format.ts > benchmarking/results.json
+ *   npm run bench --workspace=benchmarking --silent -- --json \
+ *     | npx tsx .github/scripts/mitata-to-action-format.ts > benchmarking/results.json
  *
- * Input (stdin): mitata run() result — { benchmarks: [...] } (v1.x)
+ * Input (stdin): mitata run() result — { benchmarks: [...], layout: [...] }
  * Output (stdout): JSON array of:
  *   { name: string, value: number, unit: "ns/iter", range: string, extra: string }
+ *
+ * v1.x notes:
+ *   - Stats are at benchmarks[].runs[0].stats (not top-level on the benchmark)
+ *   - Values are already in nanoseconds
+ *   - No stddev field; (p75 - p25) / 2 is used as spread
+ *   - group is a numeric index into the layout array, not a group name string
  */
-
-const SEC_TO_NS = 1e9;
 
 interface MitataStats {
   avg: number;
   min: number;
   max: number;
+  p25: number;
   p75: number;
   p99: number;
-  stddev: number;
 }
 
 interface MitataBenchmark {
-  name: string;
-  group?: string;
-  stats?: MitataStats;
+  alias: string;
+  group?: number;
+  runs: Array<{ stats: MitataStats }>;
+}
+
+interface MitataOutput {
+  benchmarks: MitataBenchmark[];
+  layout: Array<{ name: string | null }>;
 }
 
 interface ActionEntry {
@@ -39,26 +48,25 @@ process.stdin.setEncoding("utf8");
 
 let input = "";
 for await (const chunk of process.stdin) {
-  input += chunk;
+  input += String(chunk);
 }
-const raw: unknown = JSON.parse(input);
+const { benchmarks, layout } = JSON.parse(input) as MitataOutput;
 
-const benchmarks: MitataBenchmark[] = Array.isArray(raw)
-  ? (raw as MitataBenchmark[])
-  : ((raw as { benchmarks?: MitataBenchmark[] }).benchmarks ?? []);
+const fmt = (v: number) => v.toFixed(2);
 
 const output: ActionEntry[] = benchmarks
-  .filter((b): b is MitataBenchmark & { stats: MitataStats } => b.stats != null)
+  .filter((b) => b.runs.length > 0)
   .map((b) => {
-    const label = b.group ? `${b.group} — ${b.name}` : b.name;
-    const toNs = (s: number) => +(s * SEC_TO_NS).toFixed(2);
-    const ns = (s: number) => toNs(s).toString();
+    const stats = b.runs[0].stats;
+    const groupName = b.group !== undefined ? layout[b.group].name : null;
+    const label = groupName !== null ? `${groupName} — ${b.alias}` : b.alias;
+    const spread = (stats.p75 - stats.p25) / 2;
     return {
       name: label,
-      value: toNs(b.stats.avg),
+      value: +fmt(stats.avg),
       unit: "ns/iter",
-      range: `± ${ns(b.stats.stddev)}`,
-      extra: `min: ${ns(b.stats.min)}ns  p75: ${ns(b.stats.p75)}ns  p99: ${ns(b.stats.p99)}ns`,
+      range: `± ${fmt(spread)}`,
+      extra: `min: ${fmt(stats.min)}ns  p75: ${fmt(stats.p75)}ns  p99: ${fmt(stats.p99)}ns`,
     };
   });
 

@@ -7,9 +7,6 @@ Performance benchmarks for `regex-partial-match`, built with [mitata](https://gi
 ```sh
 # Pretty-print results to terminal
 npm run bench --workspace=benchmarking
-
-# JSON output (used by CI)
-npm run bench:ci --workspace=benchmarking
 ```
 
 ## Scenarios
@@ -58,7 +55,7 @@ The baseline is only updated on merges to `main` — PR runs read but do not wri
 
 ## Output format
 
-`scripts/to-action-format.ts` converts mitata's JSON output to the `github-action-benchmark` schema:
+`../.github/scripts/to-action-format.ts` converts mitata's JSON output to the `github-action-benchmark` schema:
 
 ```json
 [

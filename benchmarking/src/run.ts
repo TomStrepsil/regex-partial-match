@@ -6,7 +6,7 @@
  *   tsx src/run.ts              — pretty-print results to terminal
  *   tsx src/run.ts --json       — output mitata JSON to stdout (no table)
  *
- * The --json output is intended to be piped to scripts/to-action-format.ts
+ * The --json output is intended to be piped to ../.github/scripts/mitata-to-action-format.ts
  * for the github-action-benchmark customSmallerIsBetter format.
  *
  * mitata v1.x json format: run() with { format: { json: {...} } } writes the

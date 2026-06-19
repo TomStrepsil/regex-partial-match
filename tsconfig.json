@@ -3,6 +3,7 @@
     "rewriteRelativeImportExtensions": true,
     "target": "ES2024",
     "module": "ESNext",
+    "moduleDetection": "force",
     "moduleResolution": "bundler",
     "declaration": true,
     "outDir": "./lib",

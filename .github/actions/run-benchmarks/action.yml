@@ -1,0 +1,35 @@
+name: Run benchmarks
+
+description: Run mitata benchmarks and store/compare results via github-action-benchmark
+
+inputs:
+  github-token:
+    required: true
+  auto-push:
+    required: true
+  comment-on-alert:
+    required: false
+    default: "false"
+
+runs:
+  using: composite
+  steps:
+    - name: Run benchmarks
+      run: corepack npm run bench --workspace=benchmarking --silent -- --json > /tmp/bench-raw.json
+      shell: bash
+
+    - name: Convert to action format
+      run: cd benchmarking && npx tsx ../.github/scripts/mitata-to-action-format.ts < /tmp/bench-raw.json > results.json
+      shell: bash
+
+    - name: Store / compare benchmark results
+      uses: benchmark-action/github-action-benchmark@v1
+      with:
+        name: regex-partial-match
+        tool: customSmallerIsBetter
+        output-file-path: benchmarking/results.json
+        github-token: ${{ inputs.github-token }}
+        auto-push: ${{ inputs.auto-push }}
+        comment-on-alert: ${{ inputs.comment-on-alert }}
+        alert-threshold: "150%"
+        fail-on-alert: false
