@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added missing tests for wildcard expressions
 - Fixed test with UTF-16 code units to assert they match independently, properly
 - Corrected documentation on `y` and `g` flags
+- Bug related to occurrences quantifiers being mismatched where prior braces appear verbatim
 
 ### Changed
 
