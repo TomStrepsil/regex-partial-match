@@ -55,6 +55,15 @@ describe("regexp-partial-match", () => {
       expect(result).toMatchAt({ match: string, index: 0 });
     });
 
+    it("should partially match an open brace when an occurrences quantifier appears later", () => {
+      const input = /a{b}c{1}/;
+      const partial = createPartialMatchRegex(input);
+      expect(partial.exec("a{")).toMatchAt({
+        match: "a{",
+        index: 0
+      });
+    });
+
     it("should support partial matching of grapheme clusters", () => {
       const input = /ásuffix/u;
       const partial = createPartialMatchRegex(input);
@@ -73,7 +82,10 @@ describe("regexp-partial-match", () => {
         characters: ["a", "x", ..."suffix".split("")]
       });
 
-      expect(partial.exec("absuffix")).toMatchAt({ match: "absuffix", index: 0 });
+      expect(partial.exec("absuffix")).toMatchAt({
+        match: "absuffix",
+        index: 0
+      });
       expect(partial.exec("a\nsuffix")).toNotMatch();
     });
 
@@ -84,7 +96,10 @@ describe("regexp-partial-match", () => {
         characters: ["a", ..."😄".split(""), ..."suffix".split("")]
       });
 
-      expect(partial.exec("a😄suffix")).toMatchAt({ match: "a😄suffix", index: 0 });
+      expect(partial.exec("a😄suffix")).toMatchAt({
+        match: "a😄suffix",
+        index: 0
+      });
     });
 
     it("should support partial matching of unicode characters with wildcards, in unicode mode", () => {
@@ -94,7 +109,10 @@ describe("regexp-partial-match", () => {
         characters: ["a", "😄", ..."suffix".split("")]
       });
 
-      expect(partial.exec("a😄suffix")).toMatchAt({ match: "a😄suffix", index: 0 });
+      expect(partial.exec("a😄suffix")).toMatchAt({
+        match: "a😄suffix",
+        index: 0
+      });
     });
   });
 
@@ -502,10 +520,22 @@ describe("regexp-partial-match", () => {
         negativeCase: "abc"
       },
       {
+        name: "exactly-n quantifiers with prior opening braces",
+        input: /a{c{1}d/,
+        testStrings: ["a", "a{", "a{c", "a{cd"],
+        negativeCase: "a{ccd"
+      },
+      {
         name: "more-than-n greedy quantifiers",
         input: /ab{2,}c/,
         testStrings: ["ab", "abb", "abbbc"],
         negativeCase: "abc"
+      },
+      {
+        name: "more-than-n greedy quantifiers with prior opening braces",
+        input: /a{c{2,}d/,
+        testStrings: ["a", "a{", "a{c", "a{cc", "a{ccc"],
+        negativeCase: "a{cd"
       },
       {
         name: "more-than-n non-greedy quantifiers",
@@ -514,16 +544,34 @@ describe("regexp-partial-match", () => {
         negativeCase: "abc"
       },
       {
+        name: "more-than-n non-greedy quantifiers with prior opening braces",
+        input: /a{c{2,}?d/,
+        testStrings: ["a", "a{", "a{c", "a{cc", "a{ccd"],
+        negativeCase: "a{cd"
+      },
+      {
         name: "between-n-and-m greedy quantifiers",
         input: /a.{2,4}b/,
         testStrings: ["a", "aX", "aXX", "aXXX", "aXXXX", "aXXXXb"],
         negativeCase: "aXXXXXb"
       },
       {
+        name: "between-n-and-m greedy quantifiers with prior opening braces",
+        input: /a{c{1,2}d/,
+        testStrings: ["a", "a{", "a{c", "a{cc", "a{ccd"],
+        negativeCase: "a{ccc"
+      },
+      {
         name: "between-n-and-m non-greedy quantifiers",
         input: /a.{2,4}?b/,
         testStrings: ["a", "aX", "aXX", "aXXX", "aXXXX", "aXXXXb"],
         negativeCase: "aXXXXXb"
+      },
+      {
+        name: "between-n-and-m non-greedy quantifiers with prior opening braces",
+        input: /a{c{1,2}?d/,
+        testStrings: ["a", "a{", "a{c", "a{cc", "a{ccd"],
+        negativeCase: "a{cccd"
       }
     ].forEach(({ name, input, testStrings, negativeCase }) => {
       it(`should support partial matching of patterns with ${name}`, () => {
@@ -1265,7 +1313,9 @@ c`)
     describe("deep nesting safety (Lucene-inspired)", () => {
       it("should not throw on a high-count top-level alternation (wide pattern)", () => {
         const width = 1000;
-        const pattern = new RegExp(Array(width).fill("(?:a)").join("|") + "|(?:b)");
+        const pattern = new RegExp(
+          Array(width).fill("(?:a)").join("|") + "|(?:b)"
+        );
         const partial = createPartialMatchRegex(pattern);
         expect(() => partial.exec("a")).not.toThrow();
         expect(() => partial.exec("b")).not.toThrow();
@@ -1274,7 +1324,9 @@ c`)
 
       it("should not throw on deeply nested non-capturing groups", () => {
         const depth = 100;
-        const pattern = new RegExp("(?:".repeat(depth) + "a" + ")".repeat(depth) + "suffix");
+        const pattern = new RegExp(
+          "(?:".repeat(depth) + "a" + ")".repeat(depth) + "suffix"
+        );
         const partial = createPartialMatchRegex(pattern);
         expect(() => partial.exec("a")).not.toThrow();
         expect(() => partial.exec("asuffix")).not.toThrow();
@@ -1289,7 +1341,10 @@ c`)
         // zero repetitions of "a" — falls through directly to "suffix"
         expect(partial.exec("s")).toMatchAt({ match: "s", index: 0 });
         expect(partial.exec("suffix")).toMatchAt({ match: "suffix", index: 0 });
-        expect(partial.exec("asuffix")).toMatchAt({ match: "asuffix", index: 0 });
+        expect(partial.exec("asuffix")).toMatchAt({
+          match: "asuffix",
+          index: 0
+        });
         expect(partial.exec("aas")).toMatchAt({ match: "aas", index: 0 });
       });
 
@@ -1298,12 +1353,17 @@ c`)
         expect(partial.exec("s")).toMatchAt({ match: "s", index: 0 });
         expect(partial.exec("as")).toMatchAt({ match: "as", index: 0 });
         expect(partial.exec("suffix")).toMatchAt({ match: "suffix", index: 0 });
-        expect(partial.exec("asuffix")).toMatchAt({ match: "asuffix", index: 0 });
+        expect(partial.exec("asuffix")).toMatchAt({
+          match: "asuffix",
+          index: 0
+        });
       });
 
       it("should support character class quantifier that can match empty (Lucene [^y]*{1,2} style)", () => {
         const partial = createPartialMatchRegex(/^[^y]*suffix/);
-        expect(partial).toMatchPartially({ characters: ["a", "b", ..."suffix".split("")] });
+        expect(partial).toMatchPartially({
+          characters: ["a", "b", ..."suffix".split("")]
+        });
         expect(partial.exec("ysuffix")).toNotMatch(); // y excluded from class; ^ prevents skipping it
       });
     });
@@ -1316,7 +1376,9 @@ c`)
         // Σ (U+03A3) is the uppercase of σ (U+03C3) under Unicode case folding
         expect(partial.exec("Σs")).toMatchAt({ match: "Σs", index: 0 });
         expect(partial.exec("σs")).toMatchAt({ match: "σs", index: 0 });
-        expect(partial).toMatchPartially({ characters: ["Σ", ..."suffix".split("")] });
+        expect(partial).toMatchPartially({
+          characters: ["Σ", ..."suffix".split("")]
+        });
       });
 
       it("should support case-insensitive partial matching of uppercase sigma (Σ) against lowercase (σ)", () => {
@@ -1328,7 +1390,9 @@ c`)
       it("should support case-insensitive partial matching of Greek capital letter omega with prosgegrammeni (ῼ)", () => {
         const partial = createPartialMatchRegex(/ῼsuffix/iu);
         expect(partial.exec("ῼ")).toMatchAt({ match: "ῼ", index: 0 });
-        expect(partial).toMatchPartially({ characters: ["ῼ", ..."suffix".split("")] });
+        expect(partial).toMatchPartially({
+          characters: ["ῼ", ..."suffix".split("")]
+        });
       });
     });
 

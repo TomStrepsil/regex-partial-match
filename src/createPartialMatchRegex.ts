@@ -1,4 +1,4 @@
-const occurrencesRegex = /\{\d+,?\d*\}/g;
+const occurrencesRegex = /\{\d+,?\d*\}/y;
 const notNumbersRegex = /\D/g;
 
 const createPartialMatchRegex = (regex: RegExp): RegExp => {
