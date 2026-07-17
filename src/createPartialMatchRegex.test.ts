@@ -533,9 +533,9 @@ describe("regexp-partial-match", () => {
       },
       {
         name: "more-than-n greedy quantifiers with prior opening braces",
-        input: /a{c{1,}/,
-        testStrings: ["a", "a{", "a{c", "a{cc"],
-        negativeCases: ["a{cd"]
+        input: /a{c{2,}d/,
+        testStrings: ["a", "a{", "a{c", "a{cc", "a{ccc"],
+        negativeCase: "a{cd"
       },
       {
         name: "more-than-n non-greedy quantifiers",
@@ -545,9 +545,9 @@ describe("regexp-partial-match", () => {
       },
       {
         name: "more-than-n non-greedy quantifiers with prior opening braces",
-        input: /a{c{1,}?/,
-        testStrings: ["a", "a{", "a{c"],
-        negativeCases: ["a{cc"]
+        input: /a{c{2,}?d/,
+        testStrings: ["a", "a{", "a{c", "a{cc", "a{ccd"],
+        negativeCase: "a{cd"
       },
       {
         name: "between-n-and-m greedy quantifiers",
@@ -559,7 +559,7 @@ describe("regexp-partial-match", () => {
         name: "between-n-and-m greedy quantifiers with prior opening braces",
         input: /a{c{1,2}d/,
         testStrings: ["a", "a{", "a{c", "a{cc", "a{ccd"],
-        negativeCases: ["a{ccc"]
+        negativeCase: "a{ccc"
       },
       {
         name: "between-n-and-m non-greedy quantifiers",
@@ -571,7 +571,7 @@ describe("regexp-partial-match", () => {
         name: "between-n-and-m non-greedy quantifiers with prior opening braces",
         input: /a{c{1,2}?d/,
         testStrings: ["a", "a{", "a{c", "a{cc", "a{ccd"],
-        negativeCases: ["a{ccc"]
+        negativeCase: "a{cccd"
       }
     ].forEach(({ name, input, testStrings, negativeCase }) => {
       it(`should support partial matching of patterns with ${name}`, () => {
