@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1781906470568,
+  "lastUpdate": 1784293730519,
   "repoUrl": "https://github.com/TomStrepsil/regex-partial-match",
   "entries": {
     "regex-partial-match": [
@@ -272,6 +272,142 @@ window.BENCHMARK_DATA = {
             "range": "± 4.86",
             "unit": "ns/iter",
             "extra": "min: 722.51ns  p75: 740.23ns  p99: 777.55ns"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "10725179+TomStrepsil@users.noreply.github.com",
+            "name": "Tom Pereira",
+            "username": "TomStrepsil"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "5a34d912bb4b3f24046a8819c07dabd98eea6248",
+          "message": "[43] Fix brace misinterpretation in quantifier matching (#44)\n\n* Fix brace misinterpretation\n* Linter reformatting",
+          "timestamp": "2026-07-17T14:08:16+01:00",
+          "tree_id": "c79ca9bce6bd6063250dc2ce8695bcbd2e4bea00",
+          "url": "https://github.com/TomStrepsil/regex-partial-match/commit/5a34d912bb4b3f24046a8819c07dabd98eea6248"
+        },
+        "date": 1784293730104,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "dispatch overhead — full match input — native RegExp.exec",
+            "value": 42.65,
+            "range": "± 0.39",
+            "unit": "ns/iter",
+            "extra": "min: 39.46ns  p75: 41.39ns  p99: 82.55ns"
+          },
+          {
+            "name": "dispatch overhead — full match input — plain partial RegExp (no class wrapper)",
+            "value": 84.22,
+            "range": "± 1.54",
+            "unit": "ns/iter",
+            "extra": "min: 79.46ns  p75: 83.06ns  p99: 124.38ns"
+          },
+          {
+            "name": "dispatch overhead — full match input — PartialMatchRegExp.exec",
+            "value": 85.58,
+            "range": "± 1.46",
+            "unit": "ns/iter",
+            "extra": "min: 82.07ns  p75: 85.51ns  p99: 120.16ns"
+          },
+          {
+            "name": "dispatch overhead — partial input (returns null on native) — native RegExp.exec",
+            "value": 34.67,
+            "range": "± 0.13",
+            "unit": "ns/iter",
+            "extra": "min: 33.39ns  p75: 33.88ns  p99: 58.65ns"
+          },
+          {
+            "name": "dispatch overhead — partial input (returns null on native) — plain partial RegExp (no class wrapper)",
+            "value": 69.88,
+            "range": "± 1.28",
+            "unit": "ns/iter",
+            "extra": "min: 67.34ns  p75: 70.70ns  p99: 98.46ns"
+          },
+          {
+            "name": "dispatch overhead — partial input (returns null on native) — PartialMatchRegExp.exec",
+            "value": 75.54,
+            "range": "± 1.38",
+            "unit": "ns/iter",
+            "extra": "min: 70.06ns  p75: 73.72ns  p99: 117.88ns"
+          },
+          {
+            "name": "hot loop — manual global exec (~700 matches) — native RegExp (global exec loop)",
+            "value": 51818.19,
+            "range": "± 416",
+            "unit": "ns/iter",
+            "extra": "min: 49192.00ns  p75: 50635.00ns  p99: 80371.00ns"
+          },
+          {
+            "name": "hot loop — manual global exec (~700 matches) — PartialMatchRegExp (global exec loop)",
+            "value": 73246.27,
+            "range": "± 691",
+            "unit": "ns/iter",
+            "extra": "min: 68792.00ns  p75: 72299.00ns  p99: 97137.00ns"
+          },
+          {
+            "name": "hot loop — String.prototype.matchAll (~700 matches) — native matchAll",
+            "value": 58420.9,
+            "range": "± 431",
+            "unit": "ns/iter",
+            "extra": "min: 55056.00ns  p75: 57200.00ns  p99: 89272.00ns"
+          },
+          {
+            "name": "hot loop — String.prototype.matchAll (~700 matches) — PartialMatchRegExp matchAll",
+            "value": 186108,
+            "range": "± 1333",
+            "unit": "ns/iter",
+            "extra": "min: 176259.00ns  p75: 183163.00ns  p99: 321762.00ns"
+          },
+          {
+            "name": "keystroke simulation — phone number (18 chars) — native RegExp.test per keystroke (fails until full input)",
+            "value": 368,
+            "range": "± 1.19",
+            "unit": "ns/iter",
+            "extra": "min: 362.95ns  p75: 367.86ns  p99: 382.45ns"
+          },
+          {
+            "name": "keystroke simulation — phone number (18 chars) — plain partial RegExp.test per keystroke",
+            "value": 1369.5,
+            "range": "± 4.06",
+            "unit": "ns/iter",
+            "extra": "min: 1337.13ns  p75: 1373.99ns  p99: 1394.57ns"
+          },
+          {
+            "name": "keystroke simulation — phone number (18 chars) — PartialMatchRegExp.test per keystroke",
+            "value": 1976.9,
+            "range": "± 11.46",
+            "unit": "ns/iter",
+            "extra": "min: 1948.66ns  p75: 1986.94ns  p99: 2021.66ns"
+          },
+          {
+            "name": "keystroke simulation — ISO date (10 chars) — native RegExp.test per keystroke (fails until full input)",
+            "value": 215.81,
+            "range": "± 0.87",
+            "unit": "ns/iter",
+            "extra": "min: 203.58ns  p75: 214.68ns  p99: 244.00ns"
+          },
+          {
+            "name": "keystroke simulation — ISO date (10 chars) — plain partial RegExp.test per keystroke",
+            "value": 399.94,
+            "range": "± 5.13",
+            "unit": "ns/iter",
+            "extra": "min: 384.45ns  p75: 402.18ns  p99: 419.17ns"
+          },
+          {
+            "name": "keystroke simulation — ISO date (10 chars) — PartialMatchRegExp.test per keystroke",
+            "value": 764.8,
+            "range": "± 3.05",
+            "unit": "ns/iter",
+            "extra": "min: 751.68ns  p75: 763.90ns  p99: 810.84ns"
           }
         ]
       }
