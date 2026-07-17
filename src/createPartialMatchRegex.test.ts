@@ -521,9 +521,9 @@ describe("regexp-partial-match", () => {
       },
       {
         name: "exactly-n quantifiers with prior opening braces",
-        input: /a{c{1}/,
-        testStrings: ["a", "a{", "a{c"],
-        negativeCases: ["a{cc"]
+        input: /a{c{1}d/,
+        testStrings: ["a", "a{", "a{c", "a{cd"],
+        negativeCase: "a{ccd"
       },
       {
         name: "more-than-n greedy quantifiers",
