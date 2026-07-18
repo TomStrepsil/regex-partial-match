@@ -23,9 +23,10 @@ npm install regex-partial-match
 ### Basic Usage
 
 ```javascript
-import PartialMatchRegExp from "regex-partial-match";
+import createPartialMatchRegex from "regex-partial-match";
 
-const partial = new PartialMatchRegExp(/hello world/);
+const pattern = /^hello world/;
+const partial = createPartialMatchRegex(pattern);
 
 partial.test("h"); // true - could match
 partial.test("hello"); // true - could match
@@ -38,7 +39,7 @@ partial.test("goodbye"); // false - cannot match
 ```javascript
 import "regex-partial-match/extend";
 
-const partial = /hello world/.toPartialMatchRegex(); // returns a PartialMatchRegExp
+const partial = /^hello world/.toPartialMatchRegex();
 
 partial.test("hel"); // true
 ```
@@ -93,7 +94,7 @@ The following regex features are **not currently supported**:
 
 ## Browser Compatibility
 
-The library requires **ES2015** (ECMAScript 6) — the minimum JavaScript version that supports native extension of built-in types such as `RegExp`, which `PartialMatchRegExp` relies on to override `exec()`. Additionally, certain regular expression features require newer environments:
+The library is compiled to **ES2015** (ECMAScript 6). Certain regular expression features naturally require newer environments:
 
 - [**Unicode property escapes**](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Unicode_character_class_escape) (`\p{...}`, `\P{...}`) - ES2018+
 - [**Lookbehind assertions**](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Lookbehind_assertion) (`(?<=...)`, `(?<!...)`) - ES2018+
@@ -136,9 +137,9 @@ In [unicode-aware mode](https://developer.mozilla.org/en-US/docs/Web/JavaScript/
 The sticky flag is fully supported for its intended use case: **scanning within a single fixed string**. Partial matches are found only at `lastIndex`; the engine does not scan forward, and `lastIndex` advances on success or resets to `0` on failure — exactly as native sticky regexes behave.
 
 ```javascript
-import PartialMatchRegExp from "regex-partial-match";
+import createPartialMatchRegex from "regex-partial-match";
 
-const partial = new PartialMatchRegExp(/hello/y);
+const partial = createPartialMatchRegex(/hello/y);
 
 partial.lastIndex = 2;
 partial.test("xyhello"); // true  — partial match at position 2
@@ -150,7 +151,7 @@ partial.test("xyhel");   // true  — partial prefix "hel" at position 2
 **Limitation — progressive input validation:** Because a successful match advances `lastIndex`, testing a sequence of growing strings against the same instance does not work as expected:
 
 ```javascript
-const partial = new PartialMatchRegExp(/hello/y);
+const partial = createPartialMatchRegex(/hello/y);
 
 partial.test("h");   // true,  lastIndex → 1
 partial.test("he");  // false — sticky requires a match at position 1 of "he",
@@ -158,7 +159,7 @@ partial.test("he");  // false — sticky requires a match at position 1 of "he",
 partial.test("hel"); // true (lastIndex was reset to 0 by the previous failure)
 ```
 
-There is no way for the subclass to distinguish "scanning forward in the same string" from "testing a new, longer string", so this cannot be fixed in code. For progressive input validation, use a regex **without** the `y` flag and always test against the full input so far.
+There is no way to distinguish "scanning forward in the same string" from "testing a new, longer string", so this cannot be fixed in code. For progressive input validation, use a regex **without** the `y` flag and always test against the full input so far.
 
 The `gy` flag combination is also fully supported: `exec()`/`test()` behave as sticky, while `match()`, `matchAll()`, `replace()`, and `replaceAll()` iterate via `exec()` as global — matching [the language specification](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/sticky).
 
@@ -175,11 +176,10 @@ In [`v` mode](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/
 ### Form Validation
 
 ```javascript
-import PartialMatchRegExp from "regex-partial-match";
+import createPartialMatchRegex from "regex-partial-match";
 
-const partial = new PartialMatchRegExp(
-  /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/i
-);
+const emailPattern = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/i;
+const partial = createPartialMatchRegex(emailPattern);
 
 function validateEmail(input) {
   return partial.test(input) ? "valid" : "invalid";
@@ -195,9 +195,10 @@ validateEmail("@@invalid"); // 'invalid' - cannot match
 ### Autocomplete
 
 ```javascript
-import PartialMatchRegExp from "regex-partial-match";
+import createPartialMatchRegex from "regex-partial-match";
 
-const partial = new PartialMatchRegExp(/^(help|quit|save|load)/);
+const commandPattern = /^(help|quit|save|load)/;
+const partial = createPartialMatchRegex(commandPattern);
 
 function getSuggestions(input) {
   return partial.test(input) ? "valid prefix" : "no suggestions";
@@ -214,7 +215,7 @@ getSuggestions("xyz"); // 'no suggestions'
 ```javascript
 // Process streaming data with pattern matching at chunk boundaries
 const pattern = /\{"[^"]+":"[^"]+"\}/; // Match JSON objects
-const partial = new PartialMatchRegExp(pattern);
+const partial = createPartialMatchRegex(pattern);
 let buffer = "";
 
 function processChunk(chunk) {
@@ -247,27 +248,27 @@ Useful for parsing log files, network streams, or any chunked data where records
 
 ## API
 
-### `PartialMatchRegExp`
+### `createPartialMatchRegex(regex: RegExp): RegExp`
 
-A `RegExp` subclass that supports partial matching. The default export of the package.
+Transforms a regular expression to support partial matching.
 
-```js
-import PartialMatchRegExp from "regex-partial-match";
+Available via the default entry point of the package.
 
-const re = new PartialMatchRegExp(/^(ab)+/);
-// or
-const re = new PartialMatchRegExp("^(ab)+", "i");
-```
+**Parameters:**
 
-Accepts the same constructor arguments as `RegExp`. For any string `s` that is a valid prefix of a string that would produce a complete match, `exec(s)` returns a non-null result whose captures are as consistent as possible with what the original `RegExp` would return on the completed input; for non-matching inputs it returns `null`.
+- `regex` - The regular expression to transform
 
-### `RegExp.prototype.toPartialMatchRegex(): PartialMatchRegExp`
+**Returns:**
+
+- A new `RegExp` that matches partial strings
+
+### `RegExp.prototype.toPartialMatchRegex(): RegExp`
 
 When using `import 'regex-partial-match/extend'`, this method is added to `RegExp.prototype`.
 
 **Returns:**
 
-- A new `PartialMatchRegExp` created from the `RegExp` instance the method was called on.
+- A new `RegExp` that matches partial strings, created from the `RegExp` instance the method was called on.
 
 ## License
 

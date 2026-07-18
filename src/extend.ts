@@ -1,4 +1,4 @@
-import PartialMatchRegExp from "./partialMatchRegExp.ts";
+import createPartialMatchRegex from "./createPartialMatchRegex.ts";
 
 declare global {
   interface RegExp {
@@ -9,7 +9,7 @@ declare global {
      * with an alternation to end-of-input (`$`), allowing the pattern to match prefixes
      * of the original pattern. This enables validation of incomplete input strings.
      *
-     * @returns A new PartialMatchRegExp that matches partial strings of the original pattern
+     * @returns A new RegExp that matches partial strings of the original pattern
      *
      * @example
      * ```typescript
@@ -24,15 +24,17 @@ declare global {
      * ```
      *
      * @remarks
+     * - The transformed regex will always match an empty string at the end of input
      * - Backreferences cannot be partially matched as they are atomic
+     * - Use with a start anchor (`^`) to prevent false positives from empty string matches
      * - The `y` (sticky) flag may not behave as expected in partial matching scenarios
      *
      * @see {@link https://github.com/TomStrepsil/regex-partial-match#readme | Documentation}
      */
-    toPartialMatchRegex(): PartialMatchRegExp;
+    toPartialMatchRegex(): RegExp;
   }
 }
 
 RegExp.prototype.toPartialMatchRegex = function () {
-  return new PartialMatchRegExp(this);
+  return createPartialMatchRegex(this);
 };

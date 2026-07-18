@@ -137,11 +137,12 @@ git push origin {issue}_your-feature-name
 Tests are colocated next to the source code in `src/`. Follow these patterns:
 
 ```typescript
-import PartialMatchRegExp from "../src/partialMatchRegExp.ts";
+import createPartialMatchRegex from "../src/createPartialMatchRegex.ts";
 
 describe("feature name", () => {
   it("should do something specific", () => {
-    const partial = new PartialMatchRegExp(/pattern/);
+    const input = /pattern/;
+    const partial = createPartialMatchRegex(input);
 
     expect(partial.test("partial")).toBe(true);
   });

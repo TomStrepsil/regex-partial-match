@@ -13,6 +13,54 @@ describe("regexp-partial-match", () => {
       partial = createPartialMatchRegex(input);
       expect(partial.flags).toEqual(input.flags);
     });
+
+    it("should advance lastIndex past the match when the sticky flag is set", () => {
+      const partial = createPartialMatchRegex(/ab/y);
+      expect(partial.exec("abcd")).toMatchAt({ match: "ab", index: 0 });
+      expect(partial.lastIndex).toBe(2);
+    });
+
+    it("should respect an externally set lastIndex when the global flag is set", () => {
+      const partial = createPartialMatchRegex(/ab/g);
+      partial.lastIndex = 0;
+      expect(partial.exec("abxyab")).toMatchAt({ match: "ab", index: 0 });
+      expect(partial.lastIndex).toBe(2);
+    });
+
+    it("should respect an externally set lastIndex when the sticky flag is set", () => {
+      const partial = createPartialMatchRegex(/ab/y);
+      partial.lastIndex = 4;
+      expect(partial.exec("abxyab")).toMatchAt({ match: "ab", index: 4 });
+      expect(partial.lastIndex).toBe(6);
+    });
+
+    it("should support combining the global and sticky flags", () => {
+      const partial = createPartialMatchRegex(/ab/gy);
+      expect(partial.global).toBe(true);
+      expect(partial.sticky).toBe(true);
+      expect(partial.exec("ab")).toMatchAt({ match: "ab", index: 0 });
+    });
+  });
+
+  describe("validation via test()", () => {
+    it("should return false from test() for a string that is not a viable prefix", () => {
+      const partial = createPartialMatchRegex(/^foo/);
+      expect(partial.test("bar")).toBe(false);
+      expect(partial.test("xyz")).toBe(false);
+    });
+
+    it("should return true from test() for a viable prefix of the pattern", () => {
+      const partial = createPartialMatchRegex(/^foobar/);
+      expect(partial.test("f")).toBe(true);
+      expect(partial.test("foo")).toBe(true);
+      expect(partial.test("foobar")).toBe(true);
+    });
+
+    it("should return true from test('') when the original pattern matches empty", () => {
+      expect(createPartialMatchRegex(/^a*/).test("")).toBe(true);
+      expect(createPartialMatchRegex(/^x?$/).test("")).toBe(true);
+      expect(createPartialMatchRegex(/^$/).test("")).toBe(true);
+    });
   });
 
   // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Literal_character
@@ -1279,6 +1327,18 @@ c`)
       }
 
       expect(partial.exec("foo ")).toNotMatch(); // N.B. test passes without "appendRaw" case for "$", since `(?:$|$)` is equivalent to `$` - but the latter is more succinct
+    });
+
+    it("should support a bare end-of-input assertion, matching at the end of any string", () => {
+      const partial = createPartialMatchRegex(/$/);
+      expect(partial.exec("abc")).toMatchAt({ match: "", index: 3 });
+      expect(partial.exec("a")).toMatchAt({ match: "", index: 1 });
+      expect(partial.exec("")).toMatchAt({ match: "", index: 0 });
+    });
+
+    it("should support a bare end-of-input assertion at a line boundary in multiline mode", () => {
+      const partial = createPartialMatchRegex(/$/m);
+      expect(partial.exec("abc\n")).toMatchAt({ match: "", index: 3 });
     });
 
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/multiline
