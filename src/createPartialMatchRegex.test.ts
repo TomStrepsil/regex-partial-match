@@ -244,6 +244,11 @@ describe("regexp-partial-match", () => {
         suffix: " including escaped square brackets"
       },
       {
+        input: /[a[b]suffix/,
+        chars: ["a", "[", "b"],
+        suffix: " including literal opening brackets, outside unicodeSets mode"
+      },
+      {
         input: /[ab\\]suffix/,
         chars: ["a", "b", "\\"],
         suffix: " including escaped backslashes"
@@ -465,6 +470,17 @@ describe("regexp-partial-match", () => {
       const input = /[a-c]suffix/;
       const partial = createPartialMatchRegex(input);
       expect(partial.exec("dsuf")).toNotMatch();
+    });
+
+    it("should end the class at the first unescaped closing bracket outside unicodeSets mode, treating subsequent brackets as literal characters", () => {
+      const input = /[a[b]c]/;
+      const partial = createPartialMatchRegex(input);
+      expect(partial).toMatchPartially({
+        characters: ["a", "c", "]"]
+      });
+      expect(partial.exec("ac]")).toMatchAt({ match: "ac]", index: 0 });
+      expect(partial.exec("bc]")).toMatchAt({ match: "bc]", index: 0 });
+      expect(partial.exec("[c]")).toMatchAt({ match: "[c]", index: 0 });
     });
   });
 
