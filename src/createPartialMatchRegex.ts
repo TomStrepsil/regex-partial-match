@@ -30,7 +30,9 @@ const createPartialMatchRegex = (regex: RegExp): RegExp => {
               appendOptional(3);
               break;
             case "k":
-              appendOptional(source.indexOf(">", i) - i + 1);
+              const referenceEnd =
+                source[i + 2] === "<" ? source.indexOf(">", i) : -1;
+              appendOptional(referenceEnd === -1 ? 2 : referenceEnd - i + 1);
               break;
             case "u":
               if (isUnicode && source[i + 2] === "{") {
