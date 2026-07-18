@@ -167,7 +167,9 @@ const createPartialMatchRegex = (regex: RegExp): RegExp => {
           ++i;
           return result;
         default:
-          appendOptional(1);
+          appendOptional(
+            isUnicode && (source.codePointAt(i) ?? 0) > 0xffff ? 2 : 1
+          );
           break;
       }
     }
