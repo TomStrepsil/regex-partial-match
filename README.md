@@ -106,6 +106,37 @@ The library is compiled to **ES2015** (ECMAScript 6). Certain regular expression
 
 ## Caveats
 
+### [`.test()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/test) behaviour and non-matching results from [`.exec()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/exec) and [`.match()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/match)
+
+The library produces an expression that always matches an empty string, at the end of the input. Feasibly, this is the start of a new partial match.
+
+Hence:
+
+```js
+/x/.test("a") === false; /* untransformed regex */
+/(?:x|$)/.test("a") === true; /* what's produced by the library */
+```
+
+To mitigate, a start boundary anchor can prevent anything _but_ an empty string matching:
+
+```js
+/^(?:x|$)/.test("") === true;
+/^(?:x|$)/.test("x") === true;
+/^(?:x|$)/.test("a") === false;
+```
+
+On this basis, `.test()` should be used with caution, and a match of an empty string at the end of the input should instead be considered "no match", if validating that which came before.
+
+i.e.
+
+```js
+/(?:x|$)/.exec("a"); // ['', index: 1, input: "a", groups: undefined];
+"a".match(/(?:x|$)/); // ['', index: 1, input: "a", groups: undefined];
+```
+
+> [!NOTE]
+> An attempt to achieve a more ergonomic `test()` / `exec()` output [was attempted](https://github.com/TomStrepsil/regex-partial-match/pull/51), but proved a complex problem space.
+
 ### Backreferences
 
 **Backreferences cannot be partially matched because they are atomic.** A backreference like `\1` must match the complete captured text or fail entirely, and cannot be split into individual characters for partial matching like regular atoms can.
