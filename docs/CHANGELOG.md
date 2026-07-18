@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Corrected documentation on `y` and `g` flags
 - Fixed occurrences-quantifier probing so literal braces are not misinterpreted when a later quantifier appears
 - Fixed fatal out-of-memory crash when constructing from patterns containing `\k` without a closing `>`, which is a literal `k` per [Annex B](https://tc39.es/ecma262/#sec-regular-expressions-patterns) semantics, and ensured a `\k` not immediately followed by `<` is treated as that literal escape rather than fused with pattern text up to any later `>`
+- Fixed character class scanning outside `v` (unicodeSets) mode to treat `[` as a literal character, ending the class at the first unescaped `]` instead of extending past the class boundary
 
 ### Changed
 

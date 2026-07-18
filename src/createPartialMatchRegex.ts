@@ -82,7 +82,7 @@ const createPartialMatchRegex = (regex: RegExp): RegExp => {
                 escaped = !escaped;
                 continue;
               case "[":
-                if (!escaped) depth++;
+                if (!escaped && regex.unicodeSets) depth++;
                 break;
               case "]":
                 if (!escaped) depth--;
