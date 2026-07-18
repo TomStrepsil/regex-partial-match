@@ -45,13 +45,15 @@ partial.test("hel"); // true
 
 ## How It Works
 
-The library transforms a regular expression by wrapping each [atomic element](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions#atoms) in a [non-capturing group](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Non-capturing_group) with a [disjunction](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Disjunction) to [end-of-input](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Input_boundary_assertion) (`$`):
+The library transforms a regular expression by wrapping each [atomic element](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions#atoms) in a [non-capturing group](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Non-capturing_group) with a disjunction to a true-end-of-input sentinel (`$(?![\s\S])`):
 
 ```javascript
-/abc/ → /(?:a|$)(?:b|$)(?:c|$)/
+/abc/ → /(?:a|$(?![\s\S]))(?:b|$(?![\s\S]))(?:c|$(?![\s\S]))/
 ```
 
 This allows the pattern to match prefixes of the original pattern, enabling validation of incomplete input.
+
+The sentinel uses `$(?![\s\S])` rather than a bare `$` so that the alternation fires only at the genuine end of the string. A bare `$` matches before a terminal `\n` even without the `m` flag, and before every `\n` with the `m` flag — both cases would produce spurious mid-string matches. The negative lookahead `(?![\s\S])` suppresses those in all modes.
 
 Since the library accepts only valid regular expressions [^1], this enables the algorithm to make lots of unguarded assumptions about the source of the expression.
 
@@ -78,9 +80,9 @@ Such combinations have not been tested.
 - 🔀 [Disjunction](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Disjunction) (`a|b`)
 - 👥 [Groups](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Capturing_group) (capturing and non-capturing) (`(?:abc)`, `(abc)`, `(?<named>abc)`)
 - 👉 [Lookahead assertions](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Lookahead_assertion) (`(?=...)`, `(?!...)`)
-- 👈 [Lookbehind assertions](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Lookbehind_assertion) (`(?<=...)`, `(?<!...)`)
+- 👈 [Lookbehind assertions](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Lookbehind_assertion) (`(?<=...)`, `(?<!...)`) (See caveats for [positive](#positive-lookbehinds) and [negative](#negative-lookbehinds) lookbehinds)
 - ⚓ [Input Boundaries](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Input_boundary_assertion) (`^`, `$`)
-- 🆒 [Word Boundaries](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Word_boundary_assertion) (`\b`, `\B`)
+- 🆒 [Word Boundaries](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Word_boundary_assertion) (`\b`, `\B`) (See [caveats](#word-boundaries-b-b) for `\B`)
 - 🏴 [Flags](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/flags): `g`, `i`, `m`, `s`, `u`, `d`, `y` (See [caveats](#sticky-flag-y) for `y`)
 - 🎚️ [Modifiers](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Modifier) (`(?ims:...)`, `(?-ims:...)`, `(?im-s:...)`)
 
@@ -117,19 +119,105 @@ In a pattern with no named capturing groups, [Annex B](https://tc39.es/ecma262/#
 
 ### Positive Lookbehinds
 
-Whilst forming a match, a positive lookbehind must match in entirety, for the pattern to match. This is inherent in the concept of non-matching groups, since they are not match-worthy themselves, but just qualify matching atoms.
-
-e.g.
+A positive lookbehind must be satisfied in full before the match position can advance. The lookbehind content is not partially matched whilst it is forming.
 
 ```js
-/(?<=foo)bar/;
+const partial = new PartialMatchRegExp(/(?<=foo)bar/);
+
+partial.exec("f");    // null  — lookbehind needs all three chars of "foo"
+partial.exec("fo");   // null  — still forming
+partial.exec("foo");  // { 0: "", index: 3 } — lookbehind satisfied; awaiting "bar"
+partial.exec("foob"); // { 0: "b", index: 3 } — content matching has begun
 ```
 
-"f" through "foo" is not a match, but "foob" is.
+### Negative Lookbehinds
+
+A negative lookbehind is evaluated eagerly against whatever content precedes the match position — it is never "partially" satisfied, since there's nothing to partially match against a negation. This means it behaves like a normal (non-partial) lookbehind check at every step:
+
+```js
+const partial = new PartialMatchRegExp(/(?<!foo)bar/);
+
+partial.exec("b");    // { 0: "b", index: 0 } — no "foo" precedes, so the negative lookbehind holds
+partial.exec("fo");   // null — "fo" could still become "foo", so the assertion can't yet be ruled out
+partial.exec("foo");  // null — "foo" precedes; negative lookbehind fails
+partial.exec("foob"); // null — same reason, now with "bar" underway
+```
+
+### Assertions in alternation branches
+
+Whether an assertion was satisfied by real input is decided along the first alternation branch able to reach the end of input. A satisfied assertion in a *later* branch is not seen, so its empty match is not kept:
+
+```js
+const partial = new PartialMatchRegExp(/zz|(?<=f)b/);
+
+partial.exec("f");  // null — (?<=f) was satisfied, but the earlier zz branch reached end of input first
+partial.exec("fb"); // { 0: "b", index: 1 } — content matching has begun, so the assertion no longer decides
+```
+
+### Word Boundaries (`\b`, `\B`)
+
+`\b` fires as soon as its position is reached, since it only depends on the character immediately before it and the atom about to be matched — both already known:
+
+```js
+new PartialMatchRegExp(/\bfoo\b/).exec("f"); // { 0: "f", index: 0 } — \b confirmed immediately
+```
+
+`\B`, however, additionally depends on the character *after* the boundary — which may not have been typed yet. If nothing has been typed beyond the position where `\B` would apply, `exec()` cannot yet tell whether more input will confirm or contradict it, and conservatively returns `null` rather than assuming a match:
+
+```js
+const partial = new PartialMatchRegExp(/\Bfoo\B/);
+
+partial.exec("x");    // null — \B not yet confirmed; depends on the character that follows "x"
+partial.exec("xf");   // { 0: "f", index: 1 } — \B confirmed: "x" and "f" are both word characters
+partial.exec("xfoo"); // { 0: "foo", index: 1 } — fully confirmed and matched
+```
 
 ### Surrogate Pair Matching
 
 In [unicode-aware mode](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/unicode) (`u` flag), **only whole astral characters are supported**. Partial matching of individual surrogate pairs is not supported. For example, `/😀/u` will match the complete emoji character, but not the first surrogate pair in isolation. Hence, if partially matching a byte stream, be sure to pipe via a [`TextDecoder`](https://developer.mozilla.org/en-US/docs/Web/API/TextDecoder) first.
+
+### End-of-input sentinel returns
+
+Because every atom is wrapped as `(?:atom|$(?![\s\S]))`, the underlying transform can produce an empty match at the end of input for almost any pattern, even on input unrelated to it. `PartialMatchRegExp` suppresses this artefact so `exec()`/`test()` stay ergonomic: an empty end-of-input match is only ever returned when it is **genuine** — either
+
+- the original pattern actually matches the empty string at that position (e.g. `/$/`, or `/^x*$/` on `""`), or
+- a positive lookbehind has already been satisfied by real input, and the engine is now waiting for the content that follows it.
+
+Everything else collapses to `null`:
+
+```js
+const partial = new PartialMatchRegExp(/foo/);
+
+partial.exec("bar"); // null — no "f", "fo", or "foo" found anywhere
+partial.test("bar"); // false
+```
+
+```js
+const lookbehind = new PartialMatchRegExp(/(?<=foo)bar/);
+
+lookbehind.exec("foo"); // { 0: "", index: 3 } — lookbehind satisfied; "bar" not yet started
+lookbehind.exec("xxx"); // null — lookbehind never fires
+```
+
+```js
+const endAnchor = new PartialMatchRegExp(/$/);
+
+endAnchor.exec("abc"); // { 0: "", index: 3 } — the original pattern genuinely matches here
+```
+
+Note that unanchored patterns still match anywhere in the string, per normal `RegExp` semantics — use a start anchor (`^`) if you need the match to begin at a specific position.
+
+#### Global regexes and `lastIndex`
+
+The same rule applies when a global regex is advanced to a non-zero `lastIndex`: if nothing genuine is found before the end of the string, `exec()` returns `null` and resets `lastIndex` to `0`, exactly as a native global regex would on failure:
+
+```js
+const re = new PartialMatchRegExp(/foo/g);
+re.lastIndex = 1;
+
+re.exec("XXX"); // null — nothing genuine between position 1 and the end
+re.lastIndex;    // 0
+```
 
 ### [Sticky](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/sticky) Flag (`y`)
 
@@ -259,7 +347,9 @@ const re = new PartialMatchRegExp(/^(ab)+/);
 const re = new PartialMatchRegExp("^(ab)+", "i");
 ```
 
-Accepts the same constructor arguments as `RegExp`. For any string `s` that is a valid prefix of a string that would produce a complete match, `exec(s)` returns a non-null result whose captures are as consistent as possible with what the original `RegExp` would return on the completed input; for non-matching inputs it returns `null`.
+Accepts the same constructor arguments as `RegExp`. For any string `s` that is a valid prefix of a string that would produce a complete match, `exec(s)` returns a non-null result whose captures are as consistent as possible with what the original `RegExp` would return on the completed input.
+
+`exec(s)` returns `null` when no prefix of the pattern has been found in the input. It may instead return an empty-string match `{ 0: "", index: s.length }` at the end of input when that empty match is genuine — see [End-of-input sentinel returns](#end-of-input-sentinel-returns).
 
 ### `RegExp.prototype.toPartialMatchRegex(): PartialMatchRegExp`
 

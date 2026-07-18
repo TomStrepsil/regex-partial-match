@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
-import { PartialMatchRegExp } from "./partialMatchRegExp.ts";
+import PartialMatchRegExp from "./partialMatchRegExp.ts";
 
 describe("RegExp.prototype.toPartialMatchRegex", () => {
   beforeAll(async () => {
