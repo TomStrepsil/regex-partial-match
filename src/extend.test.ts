@@ -21,6 +21,6 @@ describe("RegExp.prototype.toPartialMatchRegex", () => {
   it("should produce a partial matching regex", () => {
     const partial = /foo/.toPartialMatchRegex();
     expect(partial.exec("fo")).toMatchAt({ match: "fo", index: 0 });
-    expect(partial.exec("bar")).toMatchAt({ match: "", index: 0 });
+    expect(partial.exec("bar")).toMatchAt({ match: "", index: 3 });
   });
 });
