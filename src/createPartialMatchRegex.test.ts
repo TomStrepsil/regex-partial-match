@@ -71,6 +71,33 @@ describe("regexp-partial-match", () => {
         characters: ["a", "́", ..."suffix".split("")]
       });
     });
+
+    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Literal_character
+    describe("astral plane characters", () => {
+      it("should support partial matching of literal astral plane characters in unicode mode (with caveat that surrogate pairs do not match independently)", () => {
+        const input = /😀suffix/u;
+        const partial = createPartialMatchRegex(input);
+        expect(partial).toMatchPartially({
+          characters: ["😀", ..."suffix".split("")] // "😀".length === 2
+        });
+      });
+
+      it("should support partial matching of literal astral plane characters in unicodeSets mode (with caveat that surrogate pairs do not match independently)", () => {
+        const input = /😀suffix/v;
+        const partial = createPartialMatchRegex(input);
+        expect(partial).toMatchPartially({
+          characters: ["😀", ..."suffix".split("")]
+        });
+      });
+
+      it("should support partial matching of individual surrogate code units of literal astral plane characters, in non-unicode mode", () => {
+        const input = /😀suffix/;
+        const partial = createPartialMatchRegex(input);
+        expect(partial).toMatchPartially({
+          characters: [..."😀".split(""), ..."suffix".split("")]
+        });
+      });
+    });
   });
 
   // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Wildcard
