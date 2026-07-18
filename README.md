@@ -135,7 +135,7 @@ i.e.
 ```
 
 > [!NOTE]
-> An attempt to achieve a more ergonomic `test()` / `exec()` output [was attempted](https://github.com/TomStrepsil/regex-partial-match/pull/51), but proved a complex problem space.
+> An attempt to achieve a more ergonomic `test()` / `exec()` output [was made](https://github.com/TomStrepsil/regex-partial-match/pull/51), but proved a complex problem space.
 
 ### Backreferences
 
