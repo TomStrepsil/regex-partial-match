@@ -1,5 +1,5 @@
 /**
- * Scenario 2: keystroke simulation
+ * Scenario 1: keystroke simulation
  *
  * Models a user typing character-by-character into a validated input field.
  * Each prefix is exec'd once — this is the primary real-world use case for

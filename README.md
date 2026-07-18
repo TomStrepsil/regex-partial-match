@@ -25,7 +25,7 @@ npm install regex-partial-match
 ```javascript
 import createPartialMatchRegex from "regex-partial-match";
 
-const pattern = /hello world/;
+const pattern = /^hello world/;
 const partial = createPartialMatchRegex(pattern);
 
 partial.test("h"); // true - could match
@@ -39,7 +39,7 @@ partial.test("goodbye"); // false - cannot match
 ```javascript
 import "regex-partial-match/extend";
 
-const partial = /hello world/.toPartialMatchRegex();
+const partial = /^hello world/.toPartialMatchRegex();
 
 partial.test("hel"); // true
 ```
