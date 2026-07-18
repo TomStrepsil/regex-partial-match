@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated `README.md` to clarify "How It Works", and consistent spelling of "behaviour" (🇬🇧)
 - Upgraded `actions/checkout` to [v7](https://github.com/actions/checkout/tree/v7)
 - Upgraded `actions/github-script` to [v9](https://github.com/actions/github-script/tree/v9)
+- Updated caveat re: `test()` pointing to the abandoned attempt to mitigate
 
 ### Added
 
