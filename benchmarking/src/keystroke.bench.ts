@@ -6,8 +6,8 @@
  * partial matching.
  *
  * Compares:
- *   - native exec (no partial, returns null for incomplete input)
- *   - createPartialMatchRegex result
+ *   - native test() (no partial, returns null for incomplete input)
+ *   - createPartialMatchRegex test() result
  *
  * Two patterns exercise different prefix lengths:
  *   - phone number: 18 chars (+1 (555) 123-4567)
