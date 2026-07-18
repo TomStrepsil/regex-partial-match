@@ -12,7 +12,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Pinned `package.json->devEngines->packageManager` to exact version, since corepack doesn't support semver ranges, and added a deterministic hash as a security best practice
 - Added a `setup-node` action to ensure npm version is honoured in pipeline
 - Fixed errant CHANGELOG version for v[0.1.8](#018---2025-12-08)
-- Added missing tests for wildcard expressions
 - Fixed test with UTF-16 code units to assert they match independently, properly
 - Corrected documentation on `y` and `g` flags
 - Fixed occurrences-quantifier probing so literal braces are not misinterpreted when a later quantifier appears
@@ -35,6 +34,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **JDK** (`java.util.regex` / `RegExTest.java`): `hitEnd()` semantic equivalence (non-empty exec result = prefix found), CRLF boundary in multiline mode (`caretAtEndTest`), progressive `find(pos)` via `lastIndex` (`wordSearchTest`)
 - `docs/partial-match-parity.md` mapping Lucene, RE2, and JDK concepts to this library's API, including a cross-reference parity table
 - "benchmarking" workspace, validating `exec()` overhead
+- PCRE2 equivalency tests & documentation
+- Added missing tests for wildcard expressions
 
 ## [0.4.0] - 2026-06-13
 

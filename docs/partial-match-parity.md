@@ -6,6 +6,7 @@ The parity tests added in `src/createPartialMatchRegex.test.ts` ("parity with re
 
 - **JDK** — test cases are explicit: the `hitEndTest`, `caretAtEndTest`, and `wordSearchTest` methods in `RegExTest.java` name specific patterns and inputs (e.g. `/^squidattack/` on `"squid"` / `"squack"`, `/^x?/m` on `"\r"`, `/\b/` on `"word1 word2 word3"`), which are reproduced directly.
 - **Lucene** — test cases are derived: `TestRegExp.java` describes what each test method exercises (patterns like `[^y]*{1,2}`, `"(a)|".repeat(50000)`, and character sets σ/Σ/ῼ/ﬗ), but the specific assertions in the test suite here are our own translations of those properties.
+- **PCRE2** — test cases are explicit: `testdata/testinput7`, `testinput15`, and `testinput17` use subject modifiers (`\=ps`, `\=ph`) and corresponding expected outputs in `testoutput*` to validate concrete partial-match behaviours, while `testinput18`/`testoutput18` document POSIX-interface caveats.
 - **RE2** — test cases are conceptual only: `tester.cc` and `exhaustive_tester.cc` implement a parametric consistency framework (NFA/DFA/backtracking agreement), not a fixed set of `(pattern, input, expected)` tuples. The RE2 rows below document semantic alignment rather than quoting specific test cases.
 
 ## Apache Lucene (`TestRegExp.java`)
@@ -22,6 +23,31 @@ Lucene's automaton-based regex dialect **cannot express backreferences** (finite
 | `testRegExpNoStackOverflow`        | Deep nesting / stack safety — `(a)` × 50 000                         | ✅ Covered — wide alternation (× 1 000) and deeply nested groups (depth 100) |
 | `testCoreJavaParity`               | 2 000 random expressions validated against `java.util.regex.Pattern` | ✅ Covered structurally — every prefix of every pattern is tested |
 | Backreferences                     | Not in scope — unsupported by the automaton dialect                  | See [Backreferences caveat](../README.md#backreferences) in README |
+
+## PCRE2 (`testdata/testinput7`, `testinput15`, `testinput17`, `testinput18`)
+
+PCRE2 partial matching is exercised directly in `testdata` with subject modifiers:
+
+- `\=ps` (partial soft)
+- `\=ph` (partial hard)
+
+The expected output files (`testoutput7`, `testoutput15`, `testoutput17`, `testoutput18`) contain explicit outcomes such as `Partial match: ...`, JIT annotations, and POSIX-interface ignore messages.
+
+| PCRE2 testdata source                                  | Specific case                                                                 | This library                                                                                      |
+| ------------------------------------------------------ | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| `testinput7` / `testoutput7`                           | `/abcd*/utf` on `xxxxabcd\=ps` vs `xxxxabcd\=ph`                            | ⚠️ No soft/hard split; single partial mode via transformed regex                                 |
+| `testinput7` / `testoutput7`                           | `/.{2,3}/newline=crlf,utf` on `\r\=ps`, `\r\=ph`                          | ✅ Covered for JS newline semantics; same prefix behavior goal                                     |
+| `testinput15` / `testoutput15`                         | `/(?<=abc)123/` on `xyzabc12\=ps` and `xyzabc12\=ph`                       | ✅ Covered — lookbehind + prefix continuation                                                      |
+| `testinput15` / `testoutput15`                         | `/(?<=123)(*MARK:xx)abc/mark` on `xxxx123a\=ph` / `\=ps`                    | ⚠️ Partial prefix covered; PCRE2 `(*MARK)` metadata has no JS equivalent                          |
+| `testinput15` / `testoutput15`                         | `/\babc\b/` on `+++ab\=ps` / `+++ab\=ph`                                  | ✅ Covered — boundary-sensitive prefix behavior                                                     |
+| `testinput17` / `testoutput17` (JIT-only test set)     | `/abcd/jitfast` on `ab\=ps` / `ab\=ph` -> partial in both modes             | ✅ Prefix behavior aligns; JIT mode toggles are PCRE2-specific and not applicable in JS runtimes |
+| `testinput18` / `testoutput18` (POSIX interface)        | `/abc/` with `abc\=partial_hard` -> `Ignored with POSIX interface: partial_hard` | N/A — this library has no POSIX wrapper layer; no equivalent ignore path                          |
+
+PCRE2-specific features that are intentionally out of scope for parity here:
+
+- Engine control and diagnostics (`jit`, `jitfast`, match/depth/heap limits).
+- PCRE2-only opcodes and metadata (`(*MARK)`, `allusedtext` left/right context output).
+- POSIX wrapper behavior in `pcre2posix` (`partial_hard` ignored by interface).
 
 ## Google RE2 (`tester.cc`, `exhaustive_tester.cc`)
 
@@ -65,19 +91,19 @@ The JDK **does** support backreferences, and `RegExTest.java` includes `backRefT
 
 ## Summary
 
-| Feature                                  |         Lucene         |          RE2          |                JDK                 |        This library        |
-| ---------------------------------------- | :--------------------: | :-------------------: | :--------------------------------: | :------------------------: |
-| Literal prefix matching                  |           ✅           |          ✅           |                 ✅                 |             ✅             |
-| Character classes                        |           ✅           |          ✅           |                 ✅                 |             ✅             |
-| Quantifiers (including zero-match)       |           ✅           |          ✅           |                 ✅                 |             ✅             |
-| Disjunctions                             |           ✅           |          ✅           |                 ✅                 |             ✅             |
-| Groups (capturing, non-capturing, named) |           ✅           |          ✅           |                 ✅                 |             ✅             |
-| Lookahead / lookbehind                   |           —            |          ✅           |                 ✅                 |             ✅             |
-| Unicode case folding                     |           ✅           |          ✅           |                 ✅                 |     ✅ (`i`+`u` flags)     |
-| Deep nesting / stack safety              |           ✅           |          ✅           |                 ✅                 |             ✅             |
-| Anchored full match                      |           ✅           |          ✅           |          ✅ (`matches()`)          |         ✅ (`^…$`)         |
-| Unanchored substring match               |           ✅           |          ✅           |           ✅ (`find()`)            |       ✅ (no anchor)       |
-| hitEnd() / prefix-only match             |           —            |           —           |                 ✅                 | ✅ (non-empty exec result) |
-| requireEnd()                             |           —            |           —           |                 ✅                 |       ⚠️ Not exposed       |
-| Backreference partial matching           | ❌ unsupported dialect | ❌ excluded by design | ⚠️ full match only (`backRefTest`) |     ⚠️ full match only     |
-| Multi-engine consistency                 |           —            |          ✅           |                 —                  |            N/A             |
+| Feature                                  |         Lucene         |          RE2          |                  PCRE2                  |                JDK                 |        This library        |
+| ---------------------------------------- | :--------------------: | :-------------------: | :-------------------------------------: | :--------------------------------: | :------------------------: |
+| Literal prefix matching                  |           ✅           |          ✅           |                   ✅                    |                 ✅                 |             ✅             |
+| Character classes                        |           ✅           |          ✅           |                   ✅                    |                 ✅                 |             ✅             |
+| Quantifiers (including zero-match)       |           ✅           |          ✅           |                   ✅                    |                 ✅                 |             ✅             |
+| Disjunctions                             |           ✅           |          ✅           |                   ✅                    |                 ✅                 |             ✅             |
+| Groups (capturing, non-capturing, named) |           ✅           |          ✅           |                   ✅                    |                 ✅                 |             ✅             |
+| Lookahead / lookbehind                   |           —            |          ✅           |                   ✅                    |                 ✅                 |             ✅             |
+| Unicode case folding                     |           ✅           |          ✅           |                   ✅                    |                 ✅                 |     ✅ (`i`+`u` flags)     |
+| Deep nesting / stack safety              |           ✅           |          ✅           |                   ✅                    |                 ✅                 |             ✅             |
+| Anchored full match                      |           ✅           |          ✅           |                   ✅                    |          ✅ (`matches()`)          |         ✅ (`^…$`)         |
+| Unanchored substring match               |           ✅           |          ✅           |                   ✅                    |           ✅ (`find()`)            |       ✅ (no anchor)       |
+| hitEnd() / prefix-only match             |           —            |           —           | ✅ (`\=ps` / `\=ph` subject modifiers) |                 ✅                 | ✅ (non-empty exec result) |
+| requireEnd()                             |           —            |           —           |                    —                    |                 ✅                 |       ⚠️ Not exposed       |
+| Backreference partial matching           | ❌ unsupported dialect | ❌ excluded by design |            ⚠️ Not a focus in testdata            | ⚠️ full match only (`backRefTest`) |     ⚠️ full match only     |
+| Multi-engine consistency                 |           —            |          ✅           |                    —                    |                 —                  |            N/A             |

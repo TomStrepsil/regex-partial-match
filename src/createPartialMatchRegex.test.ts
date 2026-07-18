@@ -1581,6 +1581,179 @@ c`)
         expect(m).toMatchObject({ 0: "wor", index: 6 });
       });
     });
+
+    // PCRE2 testdata/testinput7, testinput15, testinput17, testinput18
+    // Many cases map directly; others (JIT controls, POSIX wrapper, allusedtext metadata)
+    // are engine/interface-specific and therefore mapped conceptually.
+    describe("PCRE2 testdata parity (ECMAScript-compatible subset)", () => {
+      it("should support /abcd*/ style prefix matching (PCRE2 \\=ps / \\=ph inspired)", () => {
+        const partial = createPartialMatchRegex(/abcd*/);
+        expect(partial.exec("xxxxab")).toMatchAt({ match: "ab", index: 4 });
+        expect(partial.exec("xxxxabc")).toMatchAt({ match: "abc", index: 4 });
+        expect(partial.exec("xxxxabcd")).toMatchAt({
+          match: "abcd",
+          index: 4
+        });
+      });
+
+      it("should support case-insensitive /abcd*/ behavior with uppercase input (PCRE2 /i inspired)", () => {
+        const partial = createPartialMatchRegex(/abcd*/i);
+        expect(partial.exec("XXXXAB")).toMatchAt({ match: "AB", index: 4 });
+        expect(partial.exec("XXXXABCD")).toMatchAt({
+          match: "ABCD",
+          index: 4
+        });
+      });
+
+      it("should support /abc\\d*/ prefixes (PCRE2 inspired)", () => {
+        const partial = createPartialMatchRegex(/abc\d*/);
+        expect(partial.exec("xxxxab")).toMatchAt({ match: "ab", index: 4 });
+        expect(partial.exec("xxxxabc1")).toMatchAt({
+          match: "abc1",
+          index: 4
+        });
+      });
+
+      it("should support /abc[de]*/ prefixes (PCRE2 inspired)", () => {
+        const partial = createPartialMatchRegex(/abc[de]*/);
+        expect(partial.exec("xxxxab")).toMatchAt({ match: "ab", index: 4 });
+        expect(partial.exec("xxxxabcde")).toMatchAt({
+          match: "abcde",
+          index: 4
+        });
+      });
+
+      it("should support \\bthe cat\\b with both complete and partial prefixes (PCRE2 inspired)", () => {
+        const partial = createPartialMatchRegex(/\bthe cat\b/);
+        expect(partial.exec("the cat")).toMatchAt({ match: "the cat", index: 0 });
+        expect(partial.exec("the ca")).toMatchAt({ match: "the ca", index: 0 });
+      });
+
+      it("should support CR subjects for wildcard quantifier prefixes in dotAll mode (PCRE2 newline-mode inspired)", () => {
+        const partial = createPartialMatchRegex(/.{2,3}/s);
+        expect(partial.exec("\r")).toMatchAt({ match: "\r", index: 0 });
+        expect(partial.exec("\r\r")).toMatchAt({ match: "\r\r", index: 0 });
+        expect(partial.exec("\r\r\r")).toMatchAt({ match: "\r\r\r", index: 0 });
+      });
+
+      it("should support CR subjects for single wildcard in dotAll mode (PCRE2 /./ newline-mode inspired)", () => {
+        const partial = createPartialMatchRegex(/./s);
+        expect(partial.exec("\r")).toMatchAt({ match: "\r", index: 0 });
+      });
+
+      it("should support CR subjects for non-greedy wildcard quantifier prefixes in dotAll mode (PCRE2 /.{2,3}?/ inspired)", () => {
+        const partial = createPartialMatchRegex(/.{2,3}?/s);
+        expect(partial.exec("\r")).toMatchAt({ match: "\r", index: 0 });
+        expect(partial.exec("\r\r")).toMatchAt({ match: "\r\r", index: 0 });
+        expect(partial.exec("\r\r\r")).toMatchAt({ match: "\r\r", index: 0 });
+      });
+
+      it("should support lookbehind-based partial continuation (PCRE2 /(?<=abc)123/ inspired)", () => {
+        const partial = createPartialMatchRegex(/(?<=abc)123/);
+        expect(partial.exec("xyzabc12")).toMatchAt({ match: "12", index: 6 });
+        expect(partial.exec("xyzabc123")).toMatchAt({
+          match: "123",
+          index: 6
+        });
+      });
+
+      it("should support boundary-sensitive partial continuation (PCRE2 /\\babc\\b/ inspired)", () => {
+        const partial = createPartialMatchRegex(/\babc\b/);
+        expect(partial.exec("+++ab")).toMatchAt({ match: "ab", index: 3 });
+        expect(partial.exec("+++abc+++")).toMatchAt({ match: "abc", index: 3 });
+      });
+
+      it("should support nested lookbehind with trailing wildcard (PCRE2 /(?<=(?<=a)b)c.*/ inspired)", () => {
+        const partial = createPartialMatchRegex(/(?<=(?<=a)b)c.*/);
+        expect(partial.exec("abc")).toMatchAt({ match: "c", index: 2 });
+        expect(partial.exec("abcXYZ")).toMatchAt({
+          match: "cXYZ",
+          index: 2
+        });
+        expect(partial.exec("xbc")).toNotMatch();
+      });
+
+      it("should support fixed-width lookbehind with trailing wildcard (PCRE2 /(?<=ab)c.*/ inspired)", () => {
+        const partial = createPartialMatchRegex(/(?<=ab)c.*/);
+        expect(partial.exec("abc")).toMatchAt({ match: "c", index: 2 });
+        expect(partial.exec("abcXYZ")).toMatchAt({
+          match: "cXYZ",
+          index: 2
+        });
+        expect(partial.exec("xbc")).toNotMatch();
+      });
+
+      it("should support inline lookbehind assertion near the split point (PCRE2 /abc(?<=bc)def/ inspired)", () => {
+        const partial = createPartialMatchRegex(/abc(?<=bc)def/);
+        // PCRE2 allusedtext output may include left context; JS match arrays expose consumed text only.
+        expect(partial.exec("xxxabcd")).toMatchAt({ match: "abcd", index: 3 });
+        expect(partial.exec("xxxabcdef")).toMatchAt({
+          match: "abcdef",
+          index: 3
+        });
+      });
+
+      it("should support lookbehind-gated continuation where only consumed text is returned (PCRE2 /(?<=ab)cdef/ inspired)", () => {
+        const partial = createPartialMatchRegex(/(?<=ab)cdef/);
+        expect(partial.exec("xxabcd")).toMatchAt({ match: "cd", index: 4 });
+        expect(partial.exec("xxabcdef")).toMatchAt({
+          match: "cdef",
+          index: 4
+        });
+      });
+
+      it("should support lookbehind-gated continuation for /(?<=abc)def/ (PCRE2 inspired)", () => {
+        const partial = createPartialMatchRegex(/(?<=abc)def/);
+        expect(partial.exec("abc")).toMatchAt({ match: "", index: 3 });
+        expect(partial.exec("abcde")).toMatchAt({ match: "de", index: 3 });
+        expect(partial.exec("abcdef")).toMatchAt({
+          match: "def",
+          index: 3
+        });
+      });
+
+      it("should support lookbehind-gated continuation for /(?<=123)abc/ (PCRE2 MARK-adjacent inspired)", () => {
+        const partial = createPartialMatchRegex(/(?<=123)abc/);
+        expect(partial.exec("xxxx123a")).toMatchAt({ match: "a", index: 7 });
+        expect(partial.exec("xxxx123abc")).toMatchAt({
+          match: "abc",
+          index: 7
+        });
+      });
+
+      it("should support deeply nested lookbehind chains (PCRE2 /(?<=(?<=(?<=a)b)c)./ inspired)", () => {
+        const partial = createPartialMatchRegex(/(?<=(?<=(?<=a)b)c)./);
+        expect(partial.exec("123abcXYZ")).toMatchAt({ match: "X", index: 6 });
+      });
+
+      it("should support captures inside nested lookbehind (PCRE2 /(?<=ab(cd(?<=...)))./ inspired)", () => {
+        const partial = createPartialMatchRegex(/(?<=ab(cd(?<=...)))./);
+        const match = partial.exec("abcdX");
+        expect(match).toMatchAt({ match: "X", index: 4 });
+        expect(match).toMatchObject({ 1: "cd" });
+      });
+
+      it("should support alternate nesting layout for captures in lookbehind (PCRE2 /(?<=ab((?<=...)cd))./ inspired)", () => {
+        const partial = createPartialMatchRegex(/(?<=ab((?<=...)cd))./);
+        const match = partial.exec("ZabcdX");
+        expect(match).toMatchAt({ match: "X", index: 5 });
+        expect(match).toMatchObject({ 1: "cd" });
+      });
+
+      it("should cover /abcd/ partial behavior independently of engine mode (PCRE2 JIT/interpretive inspired)", () => {
+        const partial = createPartialMatchRegex(/abcd/);
+        expect(partial.exec("ab")).toMatchAt({ match: "ab", index: 0 });
+        expect(partial.exec("abcd")).toMatchAt({ match: "abcd", index: 0 });
+        expect(partial.exec("xyz")).toNotMatch();
+      });
+
+      it("should document that PCRE2 POSIX partial_hard behavior has no JS equivalent", () => {
+        // PCRE2 testinput18/testoutput18: partial_hard is ignored by the POSIX wrapper.
+        // This library has no POSIX API layer, so behavior is a normal partial regex.
+        const partial = createPartialMatchRegex(/abc/);
+        expect(partial.exec("ab")).toMatchAt({ match: "ab", index: 0 });
+      });
+    });
   });
 
   // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Backreference
