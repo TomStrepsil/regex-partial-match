@@ -1541,5 +1541,27 @@ c`)
         }
       });
     });
+
+    // https://tc39.es/ecma262/#sec-regular-expressions-patterns
+    describe("Annex B literal \\k escapes", () => {
+      it("should tolerate \\k escapes with no named group reference to complete them", () => {
+        const partial = createPartialMatchRegex(new RegExp("\\k"));
+        expect(partial.exec("k")).toMatchAt({ match: "k", index: 0 });
+      });
+
+      it("should support partial matching of \\k escapes followed by an unterminated reference opening", () => {
+        const partial = createPartialMatchRegex(new RegExp("\\k<suffix"));
+        expect(partial).toMatchPartially({
+          characters: ["k", "<", ..."suffix".split("")]
+        });
+      });
+
+      it("should support partial matching of \\k escapes when a closing angle bracket appears later in the pattern", () => {
+        const partial = createPartialMatchRegex(new RegExp("\\ka>b"));
+        expect(partial).toMatchPartially({
+          characters: ["k", "a", ">", "b"]
+        });
+      });
+    });
   });
 });

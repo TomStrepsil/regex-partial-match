@@ -111,6 +111,8 @@ The library requires **ES2015** (ECMAScript 6) — the minimum JavaScript versio
 
 Fixed-length patterns like `/(abc)\1/` could theoretically become `/(?:(a)|$)(?:(b)|$)(?:(c)|$)(?:\1|$)(?:\2|$)(?:\3|$)/` (accepting polluted capture indexes as a side-effect), but this doesn't work for variable-length captures.
 
+In a pattern with no named capturing groups, [Annex B](https://tc39.es/ecma262/#sec-regular-expressions-patterns) tolerates `\k<a>` as the literal characters `k<a>`, but this is still treated as if it were a named backreference and matched atomically — `"k"` and `"k<"` will not partially match. A `\k` not immediately followed by a well-formed `<name>` reference is treated as the literal `k` and partially matches as usual.
+
 [^1]: To remain lightweight, no runtime type validation is applied, so non-typescript consumers will be reliant on underlying errors thrown, if used incorrectly.
 
 ### Positive Lookbehinds
