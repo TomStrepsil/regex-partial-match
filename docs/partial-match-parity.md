@@ -21,7 +21,7 @@ Lucene's automaton-based regex dialect **cannot express backreferences** (finite
 | `testRepeatWithEmptyString`        | Quantifiers over empty-matching sub-expressions — `[^y]*{1,2}`       | ✅ Covered — `a*suffix`, `a?suffix`, `^[^y]*suffix`               |
 | `testRegExpNoStackOverflow`        | Deep nesting / stack safety — `(a)` × 50 000                         | ✅ Covered — wide alternation (× 1 000) and deeply nested groups (depth 100) |
 | `testCoreJavaParity`               | 2 000 random expressions validated against `java.util.regex.Pattern` | ✅ Covered structurally — every prefix of every pattern is tested |
-| Backreferences                     | Not in scope — unsupported by the automaton dialect                  | See `PartialMatchRegExp` below                                    |
+| Backreferences                     | Not in scope — unsupported by the automaton dialect                  | See [Backreferences caveat](/README.md#backreferences) below      |
 
 ## Google RE2 (`tester.cc`, `exhaustive_tester.cc`)
 

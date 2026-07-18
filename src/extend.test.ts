@@ -1,5 +1,4 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
-import { PartialMatchRegExp } from "./partialMatchRegExp.ts";
 
 describe("RegExp.prototype.toPartialMatchRegex", () => {
   beforeAll(async () => {
@@ -14,15 +13,14 @@ describe("RegExp.prototype.toPartialMatchRegex", () => {
     expect(typeof /foo/.toPartialMatchRegex).toBe("function");
   });
 
-  it("should return a PartialMatchRegExp instance", () => {
+  it("should return a RegExp instance", () => {
     const partial = /foo/.toPartialMatchRegex();
-    expect(partial).toBeInstanceOf(PartialMatchRegExp);
     expect(partial).toBeInstanceOf(RegExp);
   });
 
   it("should produce a partial matching regex", () => {
     const partial = /foo/.toPartialMatchRegex();
-    expect(partial.exec("fo")?.[0]).toBe("fo");
-    expect(partial.exec("bar")).toBeNull();
+    expect(partial.exec("fo")?.[0]).not.toEqual("");
+    expect(partial.exec("bar")?.[0]).toEqual("");
   });
 });

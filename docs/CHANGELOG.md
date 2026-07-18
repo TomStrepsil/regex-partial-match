@@ -22,8 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **Breaking:** Raised minimum JavaScript environment from ES5 to ES2015 (ECMAScript 6) — the minimum version supporting native extension of built-in types such as `RegExp`, which `PartialMatchRegExp` relies on to override `exec()`
-- **Breaking:** Removed `createPartialMatchRegex` method as default export
+- **Breaking:** Raised minimum JavaScript environment from ES5 to ES2015 (ECMAScript 6) — TypeScript 6 deprecated the `ES5` build target (removed entirely in TypeScript 7)
 - Moved to [`slice`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/slice) from [`substring`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/substring), marginally more compact and more commonly used
 - Updated `README.md` to clarify "How It Works", and consistent spelling of "behaviour" (🇬🇧)
 - Upgraded `actions/checkout` to [v7](https://github.com/actions/checkout/tree/v7)
@@ -31,10 +30,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- `PartialMatchRegExp` class as default export, to ensure `.test()` doesn't always return true based on matching the end-of-input sentinel (`$`)
+- Parity tests against reference implementations
   - **Apache Lucene** (`TestRegExp.java`): deep nesting / stack safety, quantifiers over empty-matching sub-expressions, Unicode case folding (σ/Σ, ῼ)
   - **JDK** (`java.util.regex` / `RegExTest.java`): `hitEnd()` semantic equivalence (non-empty exec result = prefix found), CRLF boundary in multiline mode (`caretAtEndTest`), progressive `find(pos)` via `lastIndex` (`wordSearchTest`)
-- `README.md` section "Compatibility with other partial-match implementations" mapping Lucene, RE2, and JDK concepts to this library's API, including a cross-reference parity table
+- `docs/partial-match-parity.md` mapping Lucene, RE2, and JDK concepts to this library's API, including a cross-reference parity table
 - "benchmarking" workspace, validating `exec()` overhead
 
 ## [0.4.0] - 2026-06-13

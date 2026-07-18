@@ -32,4 +32,4 @@ runs:
         auto-push: ${{ inputs.auto-push }}
         comment-on-alert: ${{ inputs.comment-on-alert }}
         alert-threshold: "150%"
-        fail-on-alert: false
+        fail-on-alert: true

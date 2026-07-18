@@ -33,12 +33,12 @@
     }
   ],
   "type": "module",
-  "main": "lib/partialMatchRegExp.js",
+  "main": "lib/createPartialMatchRegex.js",
   "exports": {
     ".": {
-      "types": "./lib/partialMatchRegExp.d.ts",
-      "import": "./lib/partialMatchRegExp.js",
-      "default": "./lib/partialMatchRegExp.js"
+      "types": "./lib/createPartialMatchRegex.d.ts",
+      "import": "./lib/createPartialMatchRegex.js",
+      "default": "./lib/createPartialMatchRegex.js"
     },
     "./extend": {
       "types": "./lib/extend.d.ts",
