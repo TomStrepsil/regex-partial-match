@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1784415476901,
+  "lastUpdate": 1784453974190,
   "repoUrl": "https://github.com/TomStrepsil/regex-partial-match",
   "entries": {
     "regex-partial-match": [
@@ -920,6 +920,58 @@ window.BENCHMARK_DATA = {
             "range": "± 4.27",
             "unit": "ns/iter",
             "extra": "min: 389.81ns  p75: 403.07ns  p99: 427.53ns"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "10725179+TomStrepsil@users.noreply.github.com",
+            "name": "Tom Pereira",
+            "username": "TomStrepsil"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "e3c57bfeb829ebaa24652869aab1224aa464e93a",
+          "message": "[55] add documentation back (#56)\n\n* add re: test/exec documentation back",
+          "timestamp": "2026-07-19T10:39:12+01:00",
+          "tree_id": "1c237a5ea6e2dd91624baa827896984b81c34a4a",
+          "url": "https://github.com/TomStrepsil/regex-partial-match/commit/e3c57bfeb829ebaa24652869aab1224aa464e93a"
+        },
+        "date": 1784453973950,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "keystroke simulation — phone number (18 chars) — native RegExp.test per keystroke (fails until full input)",
+            "value": 361.73,
+            "range": "± 1.02",
+            "unit": "ns/iter",
+            "extra": "min: 357.83ns  p75: 361.80ns  p99: 378.73ns"
+          },
+          {
+            "name": "keystroke simulation — phone number (18 chars) — partial RegExp.test per keystroke",
+            "value": 1401.28,
+            "range": "± 6.17",
+            "unit": "ns/iter",
+            "extra": "min: 1385.62ns  p75: 1405.56ns  p99: 1440.08ns"
+          },
+          {
+            "name": "keystroke simulation — ISO date (10 chars) — native RegExp.test per keystroke (fails until full input)",
+            "value": 215.79,
+            "range": "± 3.06",
+            "unit": "ns/iter",
+            "extra": "min: 209.18ns  p75: 218.34ns  p99: 234.10ns"
+          },
+          {
+            "name": "keystroke simulation — ISO date (10 chars) — partial RegExp.test per keystroke",
+            "value": 407.42,
+            "range": "± 5.01",
+            "unit": "ns/iter",
+            "extra": "min: 389.79ns  p75: 409.87ns  p99: 428.97ns"
           }
         ]
       }
