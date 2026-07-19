@@ -126,12 +126,13 @@ To mitigate, a start anchor (`^`) can prevent the engine from scanning forward t
 /^(?:x|$)/.test("a") === false;
 ```
 
-N.B. The "end of input" match will be the start each line in [multiline mode](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/multiline):
-
-```js
-/^(?:x|$)/m.test("x") === true;
-/^(?:x|$)/m.test("a\n") === true; /* '^' matches '\n' */
-```
+> [!CAUTION]
+> In [multiline mode](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/multiline), `^` matches at the start of the string and immediately after each `\n`, so the transformed regex can also match the empty-string `$` alternative on an empty line (including the trailing empty line when the input ends with `\n`):
+>
+> ```js
+> /^(?:x|$)/m.test("x") === true;
+> /^(?:x|$)/m.test("a\n") === true; /* '^' matches after '\n' (start of next line) */
+> ```
 
 The [`y` flag](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/sticky) prevents matching ahead from the [`lastIndex`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/lastIndex):
 
