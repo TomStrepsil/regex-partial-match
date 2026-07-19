@@ -18,7 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed fatal out-of-memory crash when constructing from patterns containing `\k` without a closing `>`, which is a literal `k` per [Annex B](https://tc39.es/ecma262/#sec-regular-expressions-patterns) semantics, and ensured a `\k` not immediately followed by `<` is treated as that literal escape rather than fused with pattern text up to any later `>`
 - Fixed character class scanning outside `v` (unicodeSets) mode to treat `[` as a literal character, ending the class at the first unescaped `]` instead of extending past the class boundary
 - Fixed literal astral plane characters in unicode-aware patterns (`u`/`v` flags) being split into lone-surrogate atoms that could never match, so `README.md`'s stated behaviour of matching whole astral characters now holds for literals as well as `\u{...}` escapes
-- Move to `|$(?![\\s\\S]))` from `|$)` as the alternation to end of input, to better cater for multiline scenarios
+- Move to `|$(?![\s\S]))` from `|$)` as the alternation to end of input, to better cater for multiline scenarios
 
 ### Changed
 
