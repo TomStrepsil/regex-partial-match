@@ -106,6 +106,56 @@ The library is compiled to **ES2015** (ECMAScript 6). Certain regular expression
 
 ## Caveats
 
+### [`.test()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/test) behaviour and non-matching results from [`.exec()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/exec) and [`.match()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/match)
+
+For unanchored patterns (no `^` and not using the `y` flag), the library produces an expression that always matches an empty string at the end of the input (and, per `$` semantics, also immediately before a trailing line terminator).  Feasibly, this is the start of a new partial match.
+
+Hence:
+
+```js
+/x/.test("a") === false; /* untransformed regex */
+/(?:x|$)/.test("a") === true; /* createPartialMatchRegex(/x/) */
+```
+
+To mitigate, a start anchor (`^`) can prevent the engine from scanning forward to match the empty-string `$` alternative at the end of the input:
+
+```js
+/* createPartialMatchRegex(/^x/) → /^(?:x|$)/ */
+/^(?:x|$)/.test("") === true;
+/^(?:x|$)/.test("x") === true;
+/^(?:x|$)/.test("a") === false;
+```
+
+> [!CAUTION]
+> In [multiline mode](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/multiline), `^` matches at the start of the string and immediately after each `\n`, so the transformed regex can also match the empty-string `$` alternative on an empty line (including the trailing empty line when the input ends with `\n`):
+>
+> ```js
+> /^(?:x|$)/m.test("x") === true;
+> /^(?:x|$)/m.test("a\n") === true; /* '^' matches after '\n' (start of next line) */
+> ```
+
+The [`y` flag](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/sticky) prevents matching ahead from the [`lastIndex`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/lastIndex) (defaulting to `0` for a new `RegExp`):
+
+```js
+/(?:x|$)/y.test("x") === true;
+/(?:x|$)/y.test("a") === false;
+```
+
+> [!CAUTION]
+> See [caveats](#sticky-flag-y) re: resetting `lastIndex` when incrementally matching
+
+On this basis, `.test()` should be used with caution, and a match of an empty string at the end of the input should instead be considered "no match", if validating that which came before.
+
+e.g.
+
+```js
+/(?:x|$)/.exec("a"); // ['', index: 1, input: "a", groups: undefined];
+"a".match(/(?:x|$)/); // ['', index: 1, input: "a", groups: undefined];
+```
+
+> [!NOTE]
+> A more ergonomic `test()` / `exec()` output [was explored](https://github.com/TomStrepsil/regex-partial-match/pull/51), but proved a complex problem space.
+
 ### Backreferences
 
 **Backreferences cannot be partially matched because they are atomic.** A backreference like `\1` must match the complete captured text or fail entirely, and cannot be split into individual characters for partial matching like regular atoms can.
