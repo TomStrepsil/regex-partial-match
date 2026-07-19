@@ -1351,10 +1351,6 @@ c`)
       });
 
       it("should not treat a coincidental line boundary as end-of-input when the pattern has no assertion there", () => {
-        // Regression test: the fallback alternation used to mean "or end-of-input" via a bare `$`,
-        // which inherits the `m` flag from the whole generated regex. That let it match at *any*
-        // line boundary, not just the true end of input, so inserting a "\n" where the pattern
-        // still expected literal characters was wrongly accepted as a valid partial match.
         const partial = createPartialMatchRegex(/^foobar/m);
         expect(partial.exec("foo\nbaz")).toNotMatch();
         expect(partial.exec("foo")).toMatchAt({ match: "foo", index: 0 });
