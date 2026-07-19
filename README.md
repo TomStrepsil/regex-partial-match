@@ -146,7 +146,7 @@ The [`y` flag](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference
 
 On this basis, `.test()` should be used with caution, and a match of an empty string at the end of the input should instead be considered "no match", if validating that which came before.
 
-i.e.
+e.g.
 
 ```js
 /(?:x|$)/.exec("a"); // ['', index: 1, input: "a", groups: undefined];
