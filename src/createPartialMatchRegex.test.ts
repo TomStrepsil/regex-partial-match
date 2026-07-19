@@ -1382,7 +1382,7 @@ c`)
           const partialString = string.slice(0, i);
           const result = partial.exec(partialString);
           expect(result).toMatchAt({
-            match: partialString.slice(0, 3), // always matches up to "f\no", stripping newline, before wrapping to next line
+            match: partialString.slice(0, 3), // matches a prefix of the first 3 chars ("f\no") without consuming the trailing line terminator
             index: 0
           });
           partial.lastIndex = 0;
