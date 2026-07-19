@@ -134,12 +134,15 @@ To mitigate, a start anchor (`^`) can prevent the engine from scanning forward t
 > /^(?:x|$)/m.test("a\n") === true; /* '^' matches after '\n' (start of next line) */
 > ```
 
-The [`y` flag](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/sticky) prevents matching ahead from the [`lastIndex`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/lastIndex):
+The [`y` flag](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/sticky) prevents matching ahead from the [`lastIndex`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/lastIndex) (defaulting to `0` for a new Regex):
 
 ```js
 /(?:x|$)/y.test("x") === true;
 /(?:x|$)/y.test("a") === false;
 ```
+
+> [!CAUTION]
+> See [caveats](#sticky-flag-y) re: resetting `lastIndex` when incrementally matching
 
 On this basis, `.test()` should be used with caution, and a match of an empty string at the end of the input should instead be considered "no match", if validating that which came before.
 
