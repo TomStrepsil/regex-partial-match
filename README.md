@@ -108,21 +108,36 @@ The library is compiled to **ES2015** (ECMAScript 6). Certain regular expression
 
 ### [`.test()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/test) behaviour and non-matching results from [`.exec()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/exec) and [`.match()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/match)
 
-The library produces an expression that always matches an empty string, at the end of the input. Feasibly, this is the start of a new partial match.
+For unanchored patterns (no `^` and not using the `y` flag), the library produces an expression that always matches an empty string, at the end of the input.  Feasibly, this is the start of a new partial match.
 
 Hence:
 
 ```js
 /x/.test("a") === false; /* untransformed regex */
-/(?:x|$)/.test("a") === true; /* what's produced by the library */
+/(?:x|$)/.test("a") === true; /* createPartialMatchRegex(/x/) */
 ```
 
-To mitigate, a start boundary anchor can prevent anything _but_ an empty string matching:
+To mitigate, a start anchor (`^`) can prevent the engine from scanning forward to match the empty-string `$` alternative at the end of the input:
 
 ```js
+/* createPartialMatchRegex(/^x/) → /^(?:x|$)/ */
 /^(?:x|$)/.test("") === true;
 /^(?:x|$)/.test("x") === true;
 /^(?:x|$)/.test("a") === false;
+```
+
+N.B. The "end of input" match will be the start each line in [multiline mode](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/multiline):
+
+```js
+/^(?:x|$)/m.test("x") === true;
+/^(?:x|$)/m.test("a\n") === true; /* '^' matches '\n' */
+```
+
+The [`y` flag](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/sticky) prevents matching ahead from the [`lastIndex`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/lastIndex):
+
+```js
+/(?:x|$)/y.test("x") === true;
+/(?:x|$)/y.test("a") === false;
 ```
 
 On this basis, `.test()` should be used with caution, and a match of an empty string at the end of the input should instead be considered "no match", if validating that which came before.
@@ -135,7 +150,7 @@ i.e.
 ```
 
 > [!NOTE]
-> An attempt to achieve a more ergonomic `test()` / `exec()` output [was made](https://github.com/TomStrepsil/regex-partial-match/pull/51), but proved a complex problem space.
+> A more ergonomic `test()` / `exec()` output [was explored](https://github.com/TomStrepsil/regex-partial-match/pull/51), but proved a complex problem space.
 
 ### Backreferences
 
