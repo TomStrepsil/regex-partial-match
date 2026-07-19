@@ -134,7 +134,7 @@ To mitigate, a start anchor (`^`) can prevent the engine from scanning forward t
 > /^(?:x|$)/m.test("a\n") === true; /* '^' matches after '\n' (start of next line) */
 > ```
 
-The [`y` flag](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/sticky) prevents matching ahead from the [`lastIndex`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/lastIndex) (defaulting to `0` for a new Regex):
+The [`y` flag](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/sticky) prevents matching ahead from the [`lastIndex`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/lastIndex) (defaulting to `0` for a new `RegExp`):
 
 ```js
 /(?:x|$)/y.test("x") === true;
