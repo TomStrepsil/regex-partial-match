@@ -108,7 +108,7 @@ The library is compiled to **ES2015** (ECMAScript 6). Certain regular expression
 
 ### [`.test()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/test) behaviour and non-matching results from [`.exec()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/exec) and [`.match()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/match)
 
-For unanchored patterns (no `^` and not using the `y` flag), the library produces an expression that always matches an empty string, at the end of the input.  Feasibly, this is the start of a new partial match.
+For unanchored patterns (no `^` and not using the `y` flag), the library produces an expression that always matches an empty string at the end of the input (and, per `$` semantics, also immediately before a trailing line terminator).  Feasibly, this is the start of a new partial match.
 
 Hence:
 
