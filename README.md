@@ -172,7 +172,7 @@ In a pattern with no named capturing groups, [Annex B](https://tc39.es/ecma262/#
 
      A shorter option, `(?-m:$)` — disabling multiline locally so `$` means strict end-of-input on its own — also sidesteps the bug and saves a few bytes per atom. However, modifier groups are new enough that support isn't universal, and feature-detecting them would add a fallback branch our test suite can't exercise honestly, since every engine that can realistically be tested against already supports them.
 
-[^2]: 
+[^2]:
      To remain lightweight, no runtime type validation is applied, so non-TypeScript consumers will be reliant on underlying errors thrown if used incorrectly.
 
 ### Positive Lookbehinds
