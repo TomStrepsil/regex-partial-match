@@ -1,5 +1,6 @@
 const occurrencesRegex = /\{\d+,?\d*\}/y;
 const notNumbersRegex = /\D/g;
+const alternationToEndOfInput = "|$(?![\\s\\S]))";
 
 const createPartialMatchRegex = (regex: RegExp): RegExp => {
   const source = regex.source;
@@ -15,7 +16,7 @@ const createPartialMatchRegex = (regex: RegExp): RegExp => {
     let result = "";
 
     function appendOptional(length: number) {
-      result += "(?:" + extractSlice(length) + "|$)";
+      result += "(?:" + extractSlice(length) + alternationToEndOfInput;
     }
 
     function appendRaw(length: number) {
@@ -117,7 +118,7 @@ const createPartialMatchRegex = (regex: RegExp): RegExp => {
               case ":":
                 result += "(?:";
                 i += 3;
-                result += process() + "|$)";
+                result += process() + alternationToEndOfInput;
                 break;
               case "=":
                 result += "(?=";
@@ -153,14 +154,14 @@ const createPartialMatchRegex = (regex: RegExp): RegExp => {
                   }
                   default:
                     appendRaw(source.indexOf(">", i) - i + 1);
-                    result += process() + "|$)";
+                    result += process() + alternationToEndOfInput;
                     break;
                 }
                 break;
             }
           } else {
             appendRaw(1);
-            result += process() + "|$)";
+            result += process() + alternationToEndOfInput;
           }
           break;
         case ")":
