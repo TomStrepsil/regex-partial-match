@@ -961,6 +961,13 @@ ix`,
       });
     });
 
+    it("should not treat a coincidental line boundary as end-of-input inside a multiline modifier group, even without a top-level multiline flag", () => {
+      const input = /(?m:^foobar)/;
+      const partial = createPartialMatchRegex(input);
+      expect(partial.exec("foo\nbaz")).toNotMatch();
+      expect(partial.exec("foobar")).toMatchAt({ match: "foobar", index: 0 });
+    });
+
     it("should support partial matching of patterns with multiple modifiers", () => {
       const input = /(?ism:^a.c$)\nsuffix/;
       const partial = createPartialMatchRegex(input);
@@ -1336,42 +1343,51 @@ c`)
       expect(partial.exec("")).toMatchAt({ match: "", index: 0 });
     });
 
-    it("should support a bare end-of-input assertion at a line boundary in multiline mode", () => {
-      const partial = createPartialMatchRegex(/$/m);
-      expect(partial.exec("abc\n")).toMatchAt({ match: "", index: 3 });
-    });
-
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/multiline
-    it("should support partial matching of lines in multiline mode", () => {
-      const input = /^foo$/gm;
-      const partial = createPartialMatchRegex(input);
-      const string = "foo\nfoo";
+    describe("multiline mode", () => {
+      it("should support a bare end-of-input assertion at a line boundary in multiline mode", () => {
+        const partial = createPartialMatchRegex(/$/m);
+        expect(partial.exec("abc\n")).toMatchAt({ match: "", index: 3 });
+      });
 
-      for (let i = 1; i < string.length; i++) {
-        const partialString = string.slice(0, i);
-        const result = partial.exec(partialString);
-        expect(result).toMatchAt({
-          match: partialString.slice(0, 3), // always matches up to "foo", stripping newline, before wrapping to next line
-          index: 0
-        });
-        partial.lastIndex = 0;
-      }
-    });
+      it("should not treat a coincidental line boundary as end-of-input when the pattern has no assertion there", () => {
+        const partial = createPartialMatchRegex(/^foobar/m);
+        expect(partial.exec("foo\nbaz")).toNotMatch();
+        expect(partial.exec("foo")).toMatchAt({ match: "foo", index: 0 });
+        expect(partial.exec("foobar")).toMatchAt({ match: "foobar", index: 0 });
+      });
 
-    it("should support partial matching of lines in multiline mode with dotAll flag", () => {
-      const input = /^f.o$/gms;
-      const partial = createPartialMatchRegex(input);
-      const string = "f\no\nf\no";
+      it("should support partial matching of lines in multiline mode", () => {
+        const input = /^foo$/gm;
+        const partial = createPartialMatchRegex(input);
+        const string = "foo\nfoo";
 
-      for (let i = 1; i < string.length; i++) {
-        const partialString = string.slice(0, i);
-        const result = partial.exec(partialString);
-        expect(result).toMatchAt({
-          match: partialString.slice(0, 3), // always matches up to "foo", stripping newline, before wrapping to next line
-          index: 0
-        });
-        partial.lastIndex = 0;
-      }
+        for (let i = 1; i < string.length; i++) {
+          const partialString = string.slice(0, i);
+          const result = partial.exec(partialString);
+          expect(result).toMatchAt({
+            match: partialString.slice(0, 3), // always matches up to "foo", stripping newline, before wrapping to next line
+            index: 0
+          });
+          partial.lastIndex = 0;
+        }
+      });
+
+      it("should support partial matching of lines in multiline mode with dotAll flag", () => {
+        const input = /^f.o$/gms;
+        const partial = createPartialMatchRegex(input);
+        const string = "f\no\nf\no";
+
+        for (let i = 1; i < string.length; i++) {
+          const partialString = string.slice(0, i);
+          const result = partial.exec(partialString);
+          expect(result).toMatchAt({
+            match: partialString.slice(0, 3), // always matches up to "foo", stripping newline, before wrapping to next line
+            index: 0
+          });
+          partial.lastIndex = 0;
+        }
+      });
     });
   });
 
@@ -1625,7 +1641,10 @@ c`)
 
       it("should support \\bthe cat\\b with both complete and partial prefixes (PCRE2 inspired)", () => {
         const partial = createPartialMatchRegex(/\bthe cat\b/);
-        expect(partial.exec("the cat")).toMatchAt({ match: "the cat", index: 0 });
+        expect(partial.exec("the cat")).toMatchAt({
+          match: "the cat",
+          index: 0
+        });
         expect(partial.exec("the ca")).toMatchAt({ match: "the ca", index: 0 });
       });
 

@@ -46,13 +46,20 @@ partial.test("hel"); // true
 
 ## How It Works
 
-The library transforms a regular expression by wrapping each [atomic element](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions#atoms) in a [non-capturing group](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Non-capturing_group) with a [disjunction](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Disjunction) to [end-of-input](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Input_boundary_assertion) (`$`):
+The library transforms a regular expression by wrapping each [atomic element](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions#atoms) in a [non-capturing group](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Non-capturing_group) with a [disjunction](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Disjunction) to a true-end-of-input sentinel (`$(?![\s\S])`):
 
 ```javascript
-/abc/ → /(?:a|$)(?:b|$)(?:c|$)/
+/abc/ → /(?:a|$(?![\s\S]))(?:b|$(?![\s\S]))(?:c|$(?![\s\S]))/
 ```
 
 This allows the pattern to match prefixes of the original pattern, enabling validation of incomplete input.
+
+> [!NOTE]
+> A bare `$` alone isn't sufficient here: under the `m` (multiline) flag — including one turned on locally via a `(?m:...)` [modifier](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Modifier) — `$` also matches immediately before *any* line terminator, not just the true end of input. That would let a `"\n"` the source pattern never allowed for be silently accepted as if the input had simply run out, e.g. `createPartialMatchRegex(/^foobar/m)` would wrongly accept `"foo\nbaz"`. Appending `(?![\s\S])` narrows the disjunction down to strict end-of-input, regardless of multiline state.
+>
+> See [chromium issue 536420076](https://issues.chromium.org/u/2/issues/536420076) for the underlying V8 bug that requires `$` to precede `(?![\s\S])` rather than using the lookahead alone.
+>
+> A shorter option, `(?-m:$)` — disabling multiline locally so `$` means strict end-of-input on its own — also sidesteps the bug and saves a few bytes per atom. However, modifier groups are new enough that support isn't universal, and feature-detecting them would add a fallback branch our test suite can't exercise honestly, since every engine that can realistically be tested against already supports them.
 
 Since the library accepts only valid regular expressions [^1], this enables the algorithm to make lots of unguarded assumptions about the source of the expression.
 
@@ -108,49 +115,50 @@ The library is compiled to **ES2015** (ECMAScript 6). Certain regular expression
 
 ### [`.test()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/test) behaviour and non-matching results from [`.exec()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/exec) and [`.match()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/match)
 
-For unanchored patterns (no `^` and not using the `y` flag), the library produces an expression that always matches an empty string at the end of the input (and, per `$` semantics, also immediately before a trailing line terminator).  Feasibly, this is the start of a new partial match.
+For unanchored patterns (no `^` and not using the `y` flag), the library produces an expression that always matches an empty string at the true end of the input — see [How It Works](#how-it-works). Feasibly, this is the start of a new partial match.
 
 Hence:
 
 ```js
 /x/.test("a") === false; /* untransformed regex */
-/(?:x|$)/.test("a") === true; /* createPartialMatchRegex(/x/) */
+/(?:x|$(?![\s\S]))/.test("a") === true; /* createPartialMatchRegex(/x/) */
 ```
 
-To mitigate, a start anchor (`^`) can prevent the engine from scanning forward to match the empty-string `$` alternative at the end of the input:
+To mitigate, a start anchor (`^`) can prevent the engine from scanning forward to match the empty-string fallback at the end of the input:
 
 ```js
-/* createPartialMatchRegex(/^x/) → /^(?:x|$)/ */
-/^(?:x|$)/.test("") === true;
-/^(?:x|$)/.test("x") === true;
-/^(?:x|$)/.test("a") === false;
+/* createPartialMatchRegex(/^x/) → /^(?:x|$(?![\s\S]))/ */
+/^(?:x|$(?![\s\S]))/.test("") === true;
+/^(?:x|$(?![\s\S]))/.test("x") === true;
+/^(?:x|$(?![\s\S]))/.test("a") === false;
 ```
 
 > [!CAUTION]
-> In [multiline mode](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/multiline), `^` matches at the start of the string and immediately after each `\n`, so the transformed regex can also match the empty-string `$` alternative on an empty line (including the trailing empty line when the input ends with `\n`):
+> In [multiline mode](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/multiline), `^` still matches at the start of the string and immediately after each `\n`, so the transformed regex can attempt the empty-string fallback at the start of any line — but, since the fallback requires strict end-of-input, it only succeeds if that line start is *also* genuinely where the input ends:
 >
 > ```js
-> /^(?:x|$)/m.test("x") === true;
-> /^(?:x|$)/m.test("a\n") === true; /* '^' matches after '\n' (start of next line) */
+> /^(?:x|$(?![\s\S]))/m.test("x") === true;
+> /^(?:x|$(?![\s\S]))/m.test("a\n") === true;  /* '^' matches after '\n', and input truly ends there */
+> /^(?:x|$(?![\s\S]))/m.test("a\nb") === false; /* '^' matches after '\n', but "b" remains — not genuine end-of-input */
 > ```
 
 The [`y` flag](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/sticky) prevents matching ahead from the [`lastIndex`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/lastIndex) (defaulting to `0` for a new `RegExp`):
 
 ```js
-/(?:x|$)/y.test("x") === true;
-/(?:x|$)/y.test("a") === false;
+/(?:x|$(?![\s\S]))/y.test("x") === true;
+/(?:x|$(?![\s\S]))/y.test("a") === false;
 ```
 
 > [!CAUTION]
 > See [caveats](#sticky-flag-y) re: resetting `lastIndex` when incrementally matching
 
-On this basis, `.test()` should be used with caution, and a match of an empty string at the end of the input should instead be considered "no match", if validating that which came before.
+On this basis, `.test()` should be used with caution, and a match of an empty string at the true end of the input should instead be considered "no match", if validating that which came before.
 
 e.g.
 
 ```js
-/(?:x|$)/.exec("a"); // ['', index: 1, input: "a", groups: undefined];
-"a".match(/(?:x|$)/); // ['', index: 1, input: "a", groups: undefined];
+/(?:x|$(?![\s\S]))/.exec("a"); // ['', index: 1, input: "a", groups: undefined];
+"a".match(/(?:x|$(?![\s\S]))/); // ['', index: 1, input: "a", groups: undefined];
 ```
 
 > [!NOTE]
@@ -160,7 +168,7 @@ e.g.
 
 **Backreferences cannot be partially matched because they are atomic.** A backreference like `\1` must match the complete captured text or fail entirely, and cannot be split into individual characters for partial matching like regular atoms can.
 
-Fixed-length patterns like `/(abc)\1/` could theoretically become `/(?:(a)|$)(?:(b)|$)(?:(c)|$)(?:\1|$)(?:\2|$)(?:\3|$)/` (accepting polluted capture indexes as a side-effect), but this doesn't work for variable-length captures.
+Fixed-length patterns like `/(abc)\1/` could theoretically become `/(?:(a)|$(?![\s\S]))(?:(b)|$(?![\s\S]))(?:(c)|$(?![\s\S]))(?:\1|$(?![\s\S]))(?:\2|$(?![\s\S]))(?:\3|$(?![\s\S]))/` (accepting polluted capture indexes as a side-effect), but this doesn't work for variable-length captures.
 
 In a pattern with no named capturing groups, [Annex B](https://tc39.es/ecma262/#sec-regular-expressions-patterns) tolerates `\k<a>` as the literal characters `k<a>`, but this is still treated as if it were a named backreference and matched atomically — `"k"` and `"k<"` will not partially match. A `\k` not immediately followed by a well-formed `<name>` reference is treated as the literal `k` and partially matches as usual.
 
