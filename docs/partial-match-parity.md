@@ -2,7 +2,7 @@
 
 Several widely-used regex libraries offer native partial-match support. This document maps their concepts and test cases to this library's behaviour.
 
-The parity tests added in `src/createPartialMatchRegex.test.ts` ("parity with reference implementations") vary in how directly they reflect each source:
+The parity tests added in `src/partialMatchRegExp.test.ts` ("parity with reference implementations") vary in how directly they reflect each source:
 
 - **JDK** — test cases are explicit: the `hitEndTest`, `caretAtEndTest`, and `wordSearchTest` methods in `RegExTest.java` name specific patterns and inputs (e.g. `/^squidattack/` on `"squid"` / `"squack"`, `/^x?/m` on `"\r"`, `/\b/` on `"word1 word2 word3"`), which are reproduced directly.
 - **Lucene** — test cases are derived: `TestRegExp.java` describes what each test method exercises (patterns like `[^y]*{1,2}`, `"(a)|".repeat(50000)`, and character sets σ/Σ/ῼ/ﬗ), but the specific assertions in the test suite here are our own translations of those properties.
@@ -22,7 +22,7 @@ Lucene's automaton-based regex dialect **cannot express backreferences** (finite
 | `testRepeatWithEmptyString`        | Quantifiers over empty-matching sub-expressions — `[^y]*{1,2}`       | ✅ Covered — `a*suffix`, `a?suffix`, `^[^y]*suffix`               |
 | `testRegExpNoStackOverflow`        | Deep nesting / stack safety — `(a)` × 50 000                         | ✅ Covered — wide alternation (× 1 000) and deeply nested groups (depth 100) |
 | `testCoreJavaParity`               | 2 000 random expressions validated against `java.util.regex.Pattern` | ✅ Covered structurally — every prefix of every pattern is tested |
-| Backreferences                     | Not in scope — unsupported by the automaton dialect                  | See [Backreferences caveat](../README.md#backreferences) in README |
+| Backreferences                     | Not in scope — unsupported by the automaton dialect                  | ✅ Partial matching supported (capture scan + expansion) — see [Backreferences caveat](../README.md#backreferences) in README |
 
 ## PCRE2 (`testdata/testinput7`, `testinput15`, `testinput17`, `testinput18`)
 
@@ -62,14 +62,14 @@ RE2 **explicitly excludes backreferences by design**. From `re2.h`: _"backrefere
 | `ANCHOR_BOTH` — full-string match                    | ✅ Use `^…$` anchors                                                                    |
 | First-match (NFA) vs longest-match (POSIX) semantics | ✅ ECMAScript / NFA first-match — `(a\|aa)\1` on `"aaaa"` yields `m[1]="a"`, not `"aa"` |
 | Capturing groups across anchoring modes              | ✅ Covered — see groups tests                                                           |
-| Backreferences                                       | ⚠️ full match only                                                                      |
+| Backreferences                                       | ✅ Partial matching supported (RE2 excludes them entirely by design)                    |
 | Multi-engine consistency                             | N/A — JS has a single engine per runtime                                                |
 
 ## OpenJDK (`java.util.regex` — `RegExTest.java`)
 
 Java expresses partial matching through `Matcher.hitEnd()`, `Matcher.lookingAt()`, and `Matcher.find()`. Parity tests are **explicit**: the specific patterns and strings below are taken directly from named test methods in `RegExTest.java`.
 
-The JDK **does** support backreferences, and `RegExTest.java` includes `backRefTest()` (~line 2520) and `ciBackRefTest()` (~line 2568) for numeric backreferences with `find()`. However, **neither method combines backreferences with `hitEnd()` or any other partial-match concept** — they test full-match correctness only. There are no JDK tests for the behaviour of `hitEnd()` on patterns containing backreferences.
+The JDK **does** support backreferences, and `RegExTest.java` includes `backRefTest()` (~line 2520) and `ciBackRefTest()` (~line 2568) for numeric backreferences with `find()`. However, **neither method combines backreferences with `hitEnd()` or any other partial-match concept** — they test full-match correctness only. There are no JDK tests for the behaviour of `hitEnd()` on patterns containing backreferences, so this library's own partial-matching support for backreferences (see [Backreferences caveat](../README.md#backreferences)) has no directly analogous JDK test to compare against.
 
 | JDK test method / concept        | Specific case                                                  | This library equivalent                                                                      |
 | -------------------------------- | -------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
@@ -80,8 +80,8 @@ The JDK **does** support backreferences, and `RegExTest.java` includes `backRefT
 | `hitEndTest`                     | `/catattack/` on `"attackattackattackcatatta"` → `hitEnd=true` | `exec(...)[0] !== ""`                                                                        |
 | `caretAtEndTest` (lines 506–513) | `/^x?/m` on `"\r"` — successive `find()` calls                 | First match at index 0; second (after manual `lastIndex++`) at index 1                       |
 | `wordSearchTest` (lines 483–503) | `/\b/` on `"word1 word2 word3"` with progressive `find(pos)`   | `\bwor` with `g` flag and progressive `lastIndex` — finds matches at 0, 6, 12                |
-| `backRefTest` (~line 2520)       | `(a*)bc\1`, `(abc)(def)\1` — full match via `find()`           | Full match only; no partial-match equivalent in the JDK test                                 |
-| `ciBackRefTest` (~line 2568)     | Same patterns with `(?i)` case-insensitive flag                | Full match only; no partial-match equivalent in the JDK test                                 |
+| `backRefTest` (~line 2520)       | `(a*)bc\1`, `(abc)(def)\1` — full match via `find()`           | JDK test is full-match only; this library additionally supports partial-matching these patterns — see [Backreferences caveat](../README.md#backreferences) |
+| `ciBackRefTest` (~line 2568)     | Same patterns with `(?i)` case-insensitive flag                | JDK test is full-match only; this library additionally supports partial-matching these patterns — see [Backreferences caveat](../README.md#backreferences) |
 | `Matcher.hitEnd()`               | Semantic: did the engine exhaust input?                        | `exec(input)[0] !== ""` — non-empty result means valid prefix                                |
 | `Matcher.lookingAt()`            | Prefix match from start                                        | `exec` with `^` anchor                                                                       |
 | `Matcher.matches()`              | Full-string match                                              | `exec` with `^…$` anchors                                                                    |
@@ -105,5 +105,5 @@ The JDK **does** support backreferences, and `RegExTest.java` includes `backRefT
 | Unanchored substring match               |           ✅           |          ✅           |                   ✅                    |           ✅ (`find()`)            |       ✅ (no anchor)       |
 | hitEnd() / prefix-only match             |           —            |           —           | ✅ (`\=ps` / `\=ph` subject modifiers) |                 ✅                 | ✅ (non-empty exec result) |
 | requireEnd()                             |           —            |           —           |                    —                    |                 ✅                 |       ⚠️ Not exposed       |
-| Backreference partial matching           | ❌ unsupported dialect | ❌ excluded by design |            ⚠️ Not a focus in testdata            | ⚠️ full match only (`backRefTest`) |     ⚠️ full match only     |
+| Backreference partial matching           | ❌ unsupported dialect | ❌ excluded by design |            ⚠️ Not a focus in testdata            | ⚠️ full match only (`backRefTest`) |             ✅             |
 | Multi-engine consistency                 |           —            |          ✅           |                    —                    |                 —                  |            N/A             |

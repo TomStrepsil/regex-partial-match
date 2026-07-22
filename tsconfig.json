@@ -12,6 +12,7 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "lib": ["ESNext"],
+    "libReplacement": true,
     "types": ["vitest/globals"],
   },
   "include": ["src/**/*", "test/**/*", "eslint.config.ts", ".github/scripts/**/*.ts"],

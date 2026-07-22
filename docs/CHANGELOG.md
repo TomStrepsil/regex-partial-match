@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Pinned `package.json->devEngines->packageManager` to exact version, since corepack doesn't support semver ranges, and added a deterministic hash as a security best practice
 - Added a `setup-node` action to ensure npm version is honoured in pipeline
 - Fixed errant CHANGELOG version for v[0.1.8](#018---2025-12-08)
+- Added missing tests for wildcard expressions
 - Fixed test with UTF-16 code units to assert they match independently, properly
 - Fixed documentation for `y` and `g` flags
 - Fixed occurrences-quantifier probing so literal braces are not misinterpreted when a later quantifier appears
@@ -22,22 +23,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- **Breaking:** Raised minimum JavaScript environment from ES5 to ES2015 (ECMAScript 6) — TypeScript 6 deprecated the `ES5` build target (removed entirely in TypeScript 7)
+- **Breaking:** Raised minimum JavaScript environment from ES5 to ES2015 (ECMAScript 6) — the minimum version supporting native extension of built-in types such as `RegExp`, which `PartialMatchRegExp` relies on to override `exec()`
+- **Breaking:** Removed `createPartialMatchRegex` method as default export
+- Disabled ESLint's `@typescript-eslint/no-non-null-assertion` rule for test files (`**/*.test.ts` and `test/**/*.ts`)
 - Moved to [`slice`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/slice) from [`substring`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/substring), marginally more compact and more commonly used
 - Updated `README.md` to clarify "How It Works", and consistent spelling of "behaviour" (🇬🇧)
 - Upgraded `actions/checkout` to [v7](https://github.com/actions/checkout/tree/v7)
 - Upgraded `actions/github-script` to [v9](https://github.com/actions/github-script/tree/v9)
 - Updated caveat re: `test()` pointing to the abandoned attempt to mitigate
+- `docs/CONTRIBUTING.md` now explicitly permits ["scout rule"](https://biratkirat.medium.com/step-8-the-boy-scout-rule-robert-c-martin-uncle-bob-9ac839778385) cleanups alongside a PR's main concern, provided they're described in the PR summary (matches the pull request template's own Scout rule section), and its style guidance changed from "add comments for complex logic" to "prefer code over comments"
 
 ### Added
 
 - Parity tests against reference implementations
   - **Apache Lucene** (`TestRegExp.java`): deep nesting / stack safety, quantifiers over empty-matching sub-expressions, Unicode case folding (σ/Σ, ῼ)
   - **JDK** (`java.util.regex` / `RegExTest.java`): `hitEnd()` semantic equivalence (non-empty exec result = prefix found), CRLF boundary in multiline mode (`caretAtEndTest`), progressive `find(pos)` via `lastIndex` (`wordSearchTest`)
-- `docs/partial-match-parity.md` mapping Lucene, RE2, and JDK concepts to this library's API, including a cross-reference parity table
-- "benchmarking" workspace, validating `exec()` overhead
-- PCRE2 equivalency tests & documentation
-- Added missing tests for wildcard expressions
+  - **PCRE2** (`testdata/testinput7`, `testinput15`, `testinput17`, `testinput18`): partial-match subject modifiers (`\=ps`/`\=ph`) mapped to prefix behaviour — lookbehind + prefix continuation, CRLF newline semantics, word-boundary-sensitive prefixes
+  - **Google RE2** (`tester.cc`, `exhaustive_tester.cc`): no fixed test cases to quote, so parity assessed conceptually — `UNANCHORED`/`ANCHOR_START`/`ANCHOR_BOTH` mapped to anchor usage, first-match (NFA) semantics validated against `(a|aa)\1`
+- `docs/partial-match-parity.md` mapping Lucene, RE2, PCRE2 and JDK concepts to this library's API, including a cross-reference parity table
+- **Breaking:** `PartialMatchRegExp` class as default export
+- `PartialMatchRegExp` constructor accepts a pattern source string plus an optional flags string, in addition to a `RegExp` instance — matching the native `RegExp` constructor's own overloads
+- Support for partial matching of [backreferences](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Backreference) (`\1`, `\k<name>`) — see [docs/backreferences.md](./backreferences.md) for the architecture and the [Backreferences caveat](../README.md#backreferences) for known limitations
+- "benchmarking" workspace, validating `exec()` overhead, with dispatch-overhead, hot-loop (`matchAll` override-check cost), and backreference slow-path scenarios added alongside the original keystroke simulation
+- `types/` folder to fix incorrect types in the standard library 
 
 ## [0.4.0] - 2026-06-13
 

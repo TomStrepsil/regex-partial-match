@@ -125,6 +125,7 @@ git push origin {issue}_your-feature-name
 ### Pull Request Guidelines
 
 - **One concern per PR** - Keep PRs focused on a single feature or fix
+  - ["scout rule"](https://biratkirat.medium.com/step-8-the-boy-scout-rule-robert-c-martin-uncle-bob-9ac839778385) fixes / refactors are acceptable, but should be fully described in the PR summary
 - **Include tests** - All new functionality should have test coverage
 - **Update documentation** - Add or update docs for changed functionality
 - **Keep it small** - Smaller PRs are easier to review and merge
@@ -137,12 +138,11 @@ git push origin {issue}_your-feature-name
 Tests are colocated next to the source code in `src/`. Follow these patterns:
 
 ```typescript
-import createPartialMatchRegex from "../src/createPartialMatchRegex.ts";
+import PartialMatchRegExp from "./partialMatchRegExp.ts";
 
 describe("feature name", () => {
   it("should do something specific", () => {
-    const input = /pattern/;
-    const partial = createPartialMatchRegex(input);
+    const partial = new PartialMatchRegExp(/pattern/);
 
     expect(partial.test("partial")).toBe(true);
   });
@@ -161,7 +161,7 @@ describe("feature name", () => {
 - TypeScript with strict mode
 - Follow existing patterns in the codebase
 - Use descriptive variable names
-- Add comments for complex logic
+- Prefer code over comments
 - Run `npm run lint` to check style
 
 ## Documentation

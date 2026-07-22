@@ -33,12 +33,12 @@
     }
   ],
   "type": "module",
-  "main": "lib/createPartialMatchRegex.js",
+  "main": "lib/partialMatchRegExp.js",
   "exports": {
     ".": {
-      "types": "./lib/createPartialMatchRegex.d.ts",
-      "import": "./lib/createPartialMatchRegex.js",
-      "default": "./lib/createPartialMatchRegex.js"
+      "types": "./lib/partialMatchRegExp.d.ts",
+      "import": "./lib/partialMatchRegExp.js",
+      "default": "./lib/partialMatchRegExp.js"
     },
     "./extend": {
       "types": "./lib/extend.d.ts",
@@ -77,6 +77,8 @@
     "registry": "https://registry.npmjs.org"
   },
   "devDependencies": {
+    "@typescript/lib-es2018": "file:types/lib-es2018",
+    "@typescript/lib-es2022": "file:types/lib-es2022",
     "@eslint/js": "^9.17.0",
     "@eslint/markdown": "^7.5.1",
     "@types/node": "^25.9.3",
@@ -85,7 +87,7 @@
     "lint-staged": "^15.2.11",
     "simple-git-hooks": "^2.12.1",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.61.1",
+    "typescript-eslint": "^8.18.1",
     "vitest": "^4.0.15"
   }
 }

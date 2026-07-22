@@ -23,10 +23,10 @@ npm install regex-partial-match
 ### Basic Usage
 
 ```javascript
-import createPartialMatchRegex from "regex-partial-match";
+import PartialMatchRegExp from "regex-partial-match";
 
 const pattern = /^hello world/;
-const partial = createPartialMatchRegex(pattern);
+const partial = new PartialMatchRegExp(pattern);
 
 partial.test("h"); // true - could match
 partial.test("hello"); // true - could match
@@ -53,6 +53,10 @@ The library transforms a regular expression by wrapping each [atomic element](ht
 ```
 
 This allows the pattern to match prefixes of the original pattern, enabling validation of incomplete input.
+
+### Patterns with backreferences
+
+Backreferences cannot be handled by the `|$(?![\s\S])` transform alone because they are atomic — `\1` must match the entire captured string or fail, and its length is only known at runtime. `PartialMatchRegExp` uses a three-step algorithm: attempt a full match first, then run a capture scan to discover what each group captured, then build a per-character partial expansion of the backreference. See [docs/backreferences.md](./docs/backreferences.md) for the full algorithm, including the prefer-longer post-processing that preserves correct captures for groups inside quantifiers.
 
 Since the library accepts only valid regular expressions [^2], this enables the algorithm to make lots of unguarded assumptions about the source of the expression.
 
@@ -89,7 +93,6 @@ Such combinations have not been tested.
 
 The following regex features are **not currently supported**:
 
-- ⚠️ [Backreferences](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Backreference) (`\1`, `\k<name>`) - Can be included, but can't partially match. See [caveats](#caveats).
 - ⚠️ [Character class substrings](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Character_class#matching_strings) (`\q{abc}`) - When used independently, rather than to modify, can be included, but can't partially match. See [caveats](#caveats).
 
 ## Browser Compatibility
@@ -114,13 +117,13 @@ Hence:
 
 ```js
 /x/.test("a") === false; /* untransformed regex */
-/(?:x|$(?![\s\S]))/.test("a") === true; /* createPartialMatchRegex(/x/) */
+/(?:x|$(?![\s\S]))/.test("a") === true; /* new PartialMatchRegExp(/x/), internally */
 ```
 
 To mitigate, a start anchor (`^`) can prevent the engine from scanning forward to match the empty-string fallback at the end of the input:
 
 ```js
-/* createPartialMatchRegex(/^x/) → /^(?:x|$(?![\s\S]))/ */
+/* new PartialMatchRegExp(/^x/) matches as if it were /^(?:x|$(?![\s\S]))/ */
 /^(?:x|$(?![\s\S]))/.test("") === true;
 /^(?:x|$(?![\s\S]))/.test("x") === true;
 /^(?:x|$(?![\s\S]))/.test("a") === false;
@@ -159,14 +162,18 @@ e.g.
 
 ### Backreferences
 
-**Backreferences cannot be partially matched because they are atomic.** A backreference like `\1` must match the complete captured text or fail entirely, and cannot be split into individual characters for partial matching like regular atoms can.
+`PartialMatchRegExp` supports partial matching of backreferences (`\1`, `\k<name>`) — see [Patterns with backreferences](#patterns-with-backreferences) above and [docs/backreferences.md](./docs/backreferences.md) for the algorithm. A backreference is inherently atomic — `\1` must match the complete captured text or fail — but the library resolves what each group captured from a partial input and expands the backreference into per-character partial form so matching can still proceed character-by-character in the common case.
 
-Fixed-length patterns like `/(abc)\1/` could theoretically become `/(?:(a)|$(?![\s\S]))(?:(b)|$(?![\s\S]))(?:(c)|$(?![\s\S]))(?:\1|$(?![\s\S]))(?:\2|$(?![\s\S]))(?:\3|$(?![\s\S]))/` (accepting polluted capture indexes as a side-effect), but this doesn't work for variable-length captures.
+The following cases remain atomic (full native value or exactly at true end of input, no mid-value partial matching):
 
-In a pattern with no named capturing groups, [Annex B](https://tc39.es/ecma262/#sec-regular-expressions-patterns) tolerates `\k<a>` as the literal characters `k<a>`, but this is still treated as if it were a named backreference and matched atomically — `"k"` and `"k<"` will not partially match. A `\k` not immediately followed by a well-formed `<name>` reference is treated as the literal `k` and partially matches as usual.
+- **Backreferences inside lookbehinds and negative lookarounds.** These are verbatim contexts — the value a lookbehind or negative lookahead requires must be fully present or fully absent, so there's no partial-prefix position to expand into.
+- **`\k<name>` with no named capturing groups in the pattern.** [Annex B](https://tc39.es/ecma262/#sec-regular-expressions-patterns) tolerates this as the literal characters `k<a>`, but it's still treated as if it were a named backreference and matched atomically — `"k"` and `"k<"` will not partially match. A `\k` not immediately followed by a well-formed `<name>` reference is treated as the literal `k` and partially matches as usual.
+- **A backreference whose captured value can't be determined from a partial input.** This only affects the backreference site itself; it's strictly better than rejecting the input outright, and never accepts anything unsound.
+
+See also the [prefix-ambiguous top-level alternation](#prefix-ambiguous-top-level-alternation) caveat below — a related edge case where the internal capture scan resolves the wrong branch first.
 
 [^1]:
-     A bare `$` alone isn't sufficient here: under the `m` (multiline) flag — including one turned on locally via a `(?m:...)` [modifier](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Modifier) — `$` also matches immediately before *any* line terminator, not just the true end of input. That would let a `"\n"` the source pattern never allowed for be silently accepted as if the input had simply run out, e.g. `createPartialMatchRegex(/^foobar/m)` would wrongly accept `"foo\nbaz"`. Appending `(?![\s\S])` narrows the disjunction down to strict end-of-input, regardless of multiline state.
+     A bare `$` alone isn't sufficient here: under the `m` (multiline) flag — including one turned on locally via a `(?m:...)` [modifier](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Modifier) — `$` also matches immediately before *any* line terminator, not just the true end of input. That would let a `"\n"` the source pattern never allowed for be silently accepted as if the input had simply run out, e.g. `new PartialMatchRegExp(/^foobar/m)` would wrongly accept `"foo\nbaz"`. Appending `(?![\s\S])` narrows the disjunction down to strict end-of-input, regardless of multiline state.
 
      See [chromium issue 536420076](https://issues.chromium.org/u/2/issues/536420076) for the underlying V8 bug that requires `$` to precede `(?![\s\S])` rather than using the lookahead alone.
 
@@ -196,21 +203,21 @@ In [unicode-aware mode](https://developer.mozilla.org/en-US/docs/Web/JavaScript/
 The sticky flag is fully supported for its intended use case: **scanning within a single fixed string**. Partial matches are found only at `lastIndex`; the engine does not scan forward, and `lastIndex` advances on success or resets to `0` on failure — exactly as native sticky regexes behave.
 
 ```javascript
-import createPartialMatchRegex from "regex-partial-match";
+import PartialMatchRegExp from "regex-partial-match";
 
-const partial = createPartialMatchRegex(/hello/y);
+const partial = new PartialMatchRegExp(/hello/y);
 
 partial.lastIndex = 2;
 partial.test("xyhello"); // true  — partial match at position 2
 partial.test("xyworld"); // false — no match at position 2, no forward scan
 partial.lastIndex = 2;
-partial.test("xyhel");   // true  — partial prefix "hel" at position 2
+partial.test("xyhel"); // true  — partial prefix "hel" at position 2
 ```
 
 **Limitation — progressive input validation:** Because a successful match advances `lastIndex`, testing a sequence of growing strings against the same instance does not work as expected:
 
 ```javascript
-const partial = createPartialMatchRegex(/hello/y);
+const partial = new PartialMatchRegExp(/hello/y);
 
 partial.test("h");   // true,  lastIndex → 1
 partial.test("he");  // false — sticky requires a match at position 1 of "he",
@@ -230,15 +237,27 @@ Hence, `[\p{RGI_Emoji_Flag_Sequence}]` will match `🇺🇳` as a whole, but not
 
 In [`v` mode](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/unicodeSets) expressions, where `[\q{abc}]` syntax is used in isolation (rather than its canonical use-case as a subtraction/intersection of another character class), this will also only match entirely or not at all. i.e. `abc` can match, but not partially.
 
+### Prefix-ambiguous top-level alternation
+
+When a pattern uses top-level alternation where one branch is a strict prefix of another (e.g. `^(ab)\1|^(abc)\2`), the internal capture scan may select the shorter branch — because it uses `(?:[\s\S]*?)` which accepts zero characters — causing the final partial regex to fail for inputs that are valid prefixes of the longer branch. In such cases `exec` returns `null` even though the input is a valid partial match:
+
+```javascript
+const partial = new PartialMatchRegExp(/^(ab)\1|^(abc)\2/);
+
+partial.test("abca"); // false — but "abca" is a valid prefix of "abcabc" via the second branch
+```
+
+See [docs/backreferences.md](./docs/backreferences.md) for why this happens (the internal capture scan resolving the wrong alternative first).
+
 ## Examples
 
 ### Form Validation
 
 ```javascript
-import createPartialMatchRegex from "regex-partial-match";
+import PartialMatchRegExp from "regex-partial-match";
 
 const emailPattern = /^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/i;
-const partial = createPartialMatchRegex(emailPattern);
+const partial = new PartialMatchRegExp(emailPattern);
 
 function validateEmail(input) {
   return partial.test(input) ? "valid" : "invalid";
@@ -254,10 +273,10 @@ validateEmail("@@invalid"); // 'invalid' - cannot match
 ### Autocomplete
 
 ```javascript
-import createPartialMatchRegex from "regex-partial-match";
+import PartialMatchRegExp from "regex-partial-match";
 
 const commandPattern = /^(help|quit|save|load)/;
-const partial = createPartialMatchRegex(commandPattern);
+const partial = new PartialMatchRegExp(commandPattern);
 
 function getSuggestions(input) {
   return partial.test(input) ? "valid prefix" : "no suggestions";
@@ -272,9 +291,11 @@ getSuggestions("xyz"); // 'no suggestions'
 ### Stream Processing
 
 ```javascript
+import PartialMatchRegExp from "regex-partial-match";
+
 // Process streaming data with pattern matching at chunk boundaries
 const pattern = /\{"[^"]+":"[^"]+"\}/; // Match JSON objects
-const partial = createPartialMatchRegex(pattern);
+const partial = new PartialMatchRegExp(pattern);
 let buffer = "";
 
 function processChunk(chunk) {
@@ -307,27 +328,28 @@ Useful for parsing log files, network streams, or any chunked data where records
 
 ## API
 
-### `createPartialMatchRegex(regex: RegExp): RegExp`
+### `new PartialMatchRegExp(pattern: RegExp | string, flags?: string)`
 
-Transforms a regular expression to support partial matching.
+Extends `RegExp`. An instance behaves like a normal `RegExp` — `instanceof RegExp` is `true`, and `.test()`, `.exec()`, `.match()`, `.matchAll()`, `.replace()`, etc. all work as expected — but also matches any input string that is a valid prefix of the original pattern, in addition to full matches.
 
 Available via the default entry point of the package.
 
 **Parameters:**
 
-- `regex` - The regular expression to transform
+- `pattern` - A `RegExp` instance, or a pattern source string (as accepted by the `RegExp` constructor)
+- `flags` - A flags string, used only when `pattern` is a string (as accepted by the `RegExp` constructor)
 
 **Returns:**
 
-- A new `RegExp` that matches partial strings
+- A `PartialMatchRegExp` instance that matches partial strings of the original pattern
 
-### `RegExp.prototype.toPartialMatchRegex(): RegExp`
+### `RegExp.prototype.toPartialMatchRegex(): PartialMatchRegExp`
 
 When using `import 'regex-partial-match/extend'`, this method is added to `RegExp.prototype`.
 
 **Returns:**
 
-- A new `RegExp` that matches partial strings, created from the `RegExp` instance the method was called on.
+- A new `PartialMatchRegExp` that matches partial strings, created from the `RegExp` instance the method was called on.
 
 ## License
 
