@@ -27,7 +27,7 @@ Both paths share the same contract as the rest of the library:
 
 - An input is accepted if it is a viable prefix of a full match under ECMAScript semantics.
 - Unanchored patterns always match an empty string at true end of input; anchor with `^` to reject non-prefixes (see [Caveats](../README.md#caveats)).
-- Alternation is ordered (first-match), group numbering and `undefined`-vs-`""` distinctions match the original `RegExp`, and backreferences to non-participating groups match the empty string per ECMA-262.
+- Alternation is ordered (first-match), group numbering and `undefined`-vs-`""` distinctions match the original `RegExp`, and backreferences to non-participating groups match the empty string per [ECMA-262 Backreference Matcher](https://tc39.es/ecma262/#sec-backreference-matcher) ("the backreference always succeeds" when the referenced group is `undefined`).
 
 ## Architecture: one walk, many renderings
 
