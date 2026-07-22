@@ -46,7 +46,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for partial matching of [backreferences](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Backreference) (`\1`, `\k<name>`) — see [docs/backreferences.md](./backreferences.md) for the architecture and the [Backreferences caveat](../README.md#backreferences) for known limitations
 - "benchmarking" workspace, validating `exec()` overhead, with dispatch-overhead, hot-loop (`matchAll` override-check cost), and backreference slow-path scenarios added alongside the original keystroke simulation
 - `types/` folder to fix incorrect types in the standard library 
-- emojis to documentation titles
+- Emojis to documentation titles
 
 ## [0.4.0] - 2026-06-13
 
