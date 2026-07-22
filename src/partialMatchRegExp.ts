@@ -26,7 +26,7 @@ import { compilePartial, type DynamicPath } from "./compilePartial.ts";
  *
  * @see {@link https://github.com/TomStrepsil/regex-partial-match#readme | Documentation}
  */
-export class PartialMatchRegExp extends RegExp {
+class PartialMatchRegExp extends RegExp {
   #static: RegExp | null;
   #dynamic: DynamicPath | null;
 
