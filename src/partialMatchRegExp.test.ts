@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { PartialMatchRegExp } from "./partialMatchRegExp.ts";
+import PartialMatchRegExp from "./partialMatchRegExp.ts";
 
 describe("PartialMatchRegExp", () => {
   it("is an instance of RegExp", () => {
