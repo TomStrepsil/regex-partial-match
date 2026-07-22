@@ -1397,7 +1397,7 @@ c`)
         }
       });
 
-      it("an unanchored pattern matches wherever its literal text occurs, unaffected by line boundaries", () => {
+      it("should support matching an unanchored pattern wherever its literal text occurs, unaffected by line boundaries", () => {
         const pattern = new PartialMatchRegExp(/foo/m);
         expect(pattern.test("f")).toBe(true);
         expect(pattern.test("fo")).toBe(true);
