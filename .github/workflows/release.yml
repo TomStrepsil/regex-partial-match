@@ -124,11 +124,23 @@ jobs:
                 MAX_BUMP=1
               fi
             else
-              echo "❌ Error: No version bump checkbox selected in PR #$PR_NUMBER"
-              echo "Please select MAJOR, MINOR, or PATCH in the PR description"
-              exit 1
+              PR_AUTHOR=$(gh pr view "$PR_NUMBER" --json author --jq '.author.login' 2>/dev/null)
+              if [ "$PR_AUTHOR" = "dependabot[bot]" ]; then
+                echo "Ignoring dependabot PR #$PR_NUMBER (no semver checkbox expected)"
+                continue
+              else
+                echo "❌ Error: No version bump checkbox selected in PR #$PR_NUMBER"
+                echo "Please select MAJOR, MINOR, or PATCH in the PR description"
+                exit 1
+              fi
             fi
           done <<< "$COMMITS"
+
+          if [ "$MAX_BUMP" -eq 0 ]; then
+            echo "❌ Error: Only dependabot commits found since $LATEST_TAG"
+            echo "No user-facing changes have been made since the last release."
+            exit 1
+          fi
 
           # Determine bump type
           case $MAX_BUMP in
