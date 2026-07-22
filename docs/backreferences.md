@@ -1,6 +1,6 @@
 # Partial matching with backreferences
 
-## The problem
+## 🧩 The problem
 
 The `|$(?![\s\S])` transform that powers `compilePartial` (see [How It Works](../README.md#how-it-works)) cannot be applied to backreferences (`\1`, `\k<name>`) because a backreference is inherently **atomic**: it must match the entire captured string or fail entirely. The length of `\1` is only known at runtime, after group 1 has matched, so there is no source-level position at which to insert the alternation.
 
@@ -16,7 +16,7 @@ re.exec("abcab");   // partial — m[0]="abcab",   m[1]="abc"
 re.exec("abcabc");  // full match — m[0]="abcabc", m[1]="abc"
 ```
 
-## Two exec paths
+## 🔀 Two exec paths
 
 Patterns are classified once, at construction, by `compilePartial(regex): CompiledPartial`:
 
@@ -29,7 +29,7 @@ Both paths share the same contract as the rest of the library:
 - Unanchored patterns always match an empty string at true end of input; anchor with `^` to reject non-prefixes (see [Caveats](../README.md#caveats)).
 - Alternation is ordered (first-match), group numbering and `undefined`-vs-`""` distinctions match the original `RegExp`, and backreferences to non-participating groups match the empty string per [ECMA-262 Backreference Matcher](https://tc39.es/ecma262/#sec-backreference-matcher) ("the backreference always succeeds" when the referenced group is `undefined`).
 
-## Architecture: one walk, many renderings
+## 🏗️ Architecture: one walk, many renderings
 
 `compilePartial.ts`'s internal `walk(regex)` walks a pattern's source exactly once, building a `Part[]` (`type Part = string | Backreference`; `type Backreference = NumericBackreference | NamedBackreference`, each carrying `start`/`end` — the token's span in the original source — plus either a numeric or a named `ref`). This same `parts` array, and the `groupCount` counted alongside it, back every derived regex the library needs for that pattern — the plain partial transform, and, for backreference patterns, the capture scans and the per-exec expansion. Keeping every rendering derived from one walk means they all agree about what counts as a backreference versus a literal character, an annex-B octal escape, or text inside a character class — a single shared source of truth rather than several independent parsers that have to agree by convention.
 
@@ -53,7 +53,7 @@ Every derived source is a rendering of `parts` (or, for the static fallback afte
 | original capture scan (`originalCaptureScan`) | n/a — splice spans out of `regex.source` | `(?:[\s\S]*?)` |
 | expanded partial (`expand(capture)`, per exec) | as-is | per-atom expansion of the captured value, or `(?:\N\|$(?![\s\S]))` when the capture is `undefined` |
 
-## exec() pipeline (dynamic path)
+## ⚙️ exec() pipeline (dynamic path)
 
 A pattern with genuine backreferences never builds or uses the static `#static` regex at all — the `DynamicPath`'s three derived sources (`originalCaptureScan`, `preScan`, `expand`) fully subsume it. (The static path's own native backreference resolution already reproduces `super.exec` exactly for every input where a native match exists at any position, full or otherwise — the wrapping's `|$(?![\s\S])` branches are strictly additive, always lower-priority than the literal branch in each atom, so nothing is lost by skipping straight past it. The gap only appears where native has nothing to find, which is exactly the static path's own blind spot too: an input ending *inside* a backreference's required text, which is atomic and can't partially consume by construction.)
 

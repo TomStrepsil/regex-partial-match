@@ -2,11 +2,11 @@
 
 Thank you for your interest in contributing! This document provides guidelines and instructions for contributing to this project.
 
-## Code of Conduct
+## 🤝 Code of Conduct
 
 Please be respectful and constructive in all interactions. We aim to maintain a welcoming environment for all contributors. See [Code of Conduct](./CODE_OF_CONDUCT.md)
 
-## Getting Started
+## 🏁 Getting Started
 
 ### Prerequisites
 
@@ -35,7 +35,7 @@ Please be respectful and constructive in all interactions. We aim to maintain a 
    npm install
    ```
 
-## Before You Start
+## 🔎 Before You Start
 
 ### Check for Existing Issues
 
@@ -50,7 +50,7 @@ Before starting work, please:
 
 Wait for feedback before starting significant work to ensure your contribution aligns with the project's goals.
 
-## Development Workflow
+## 🔄 Development Workflow
 
 ### 1. Create a Branch
 
@@ -111,7 +111,7 @@ git merge upstream/main
 git push origin {issue}_your-feature-name
 ```
 
-## Submitting a Pull Request
+## 📬 Submitting a Pull Request
 
 1. **Push your branch** to your fork on GitHub
 2. **Open a pull request** from your branch to `TomStrepsil/regex-partial-match:main`
@@ -131,7 +131,7 @@ git push origin {issue}_your-feature-name
 - **Keep it small** - Smaller PRs are easier to review and merge
 - **Be responsive** - Address review feedback promptly
 
-## Testing Guidelines
+## 🧪 Testing Guidelines
 
 ### Writing Tests
 
@@ -156,7 +156,7 @@ describe("feature name", () => {
 - Ensure edge cases are covered
 - Run tests with `npm test`
 
-## Code Style
+## 🎨 Code Style
 
 - TypeScript with strict mode
 - Follow existing patterns in the codebase
@@ -164,7 +164,7 @@ describe("feature name", () => {
 - Prefer code over comments
 - Run `npm run lint` to check style
 
-## Documentation
+## 📚 Documentation
 
 When adding new features:
 
@@ -172,16 +172,16 @@ When adding new features:
 2. **Update TypeScript types** for public APIs
 3. **Include JSDoc comments** for exported functions
 
-## Getting Help
+## 🆘 Getting Help
 
 - **Questions?** Open a [discussion](https://github.com/TomStrepsil/regex-partial-match/discussions) or issue
 - **Stuck?** Comment on your PR or issue for help
 - **Found a bug?** Open an issue with reproduction steps
 
-## Recognition
+## 🏆 Recognition
 
 All contributors will be recognized in the project. Your contributions are valued and appreciated!
 
-## License
+## 📜 License
 
 By contributing, you agree that your contributions will be licensed under the ISC License.

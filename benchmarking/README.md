@@ -2,14 +2,14 @@
 
 Performance benchmarks for `regex-partial-match`, built with [mitata](https://github.com/nicolo-ribaudo/mitata).
 
-## Running locally
+## 🏃 Running locally
 
 ```sh
 # Pretty-print results to terminal
 npm run bench --workspace=benchmarking
 ```
 
-## Scenarios
+## 🎯 Scenarios
 
 ### 1. Dispatch overhead (`dispatch-overhead.bench.ts`)
 
@@ -58,7 +58,7 @@ Two patterns are used to cover different positions within a backreference:
 
 Each pattern is measured at three stages — full match (native fast path), partial input before the backreference atom is reached, and partial input mid-backreference — plus an accumulated keystroke simulation that sums the cost over all prefixes.
 
-## CI integration
+## 🤖 CI integration
 
 The workflow at [`.github/workflows/benchmark.yml`](../.github/workflows/benchmark.yml) runs on every push to `main` and on pull requests targeting `main`.
 
@@ -66,7 +66,7 @@ Results are stored and compared by [`benchmark-action/github-action-benchmark`](
 
 The baseline is only updated on merges to `main` — PR runs read but do not write the baseline.
 
-## Output format
+## 📊 Output format
 
 `../.github/scripts/mitata-to-action-format.ts` converts mitata's JSON output to the `github-action-benchmark` schema:
 

@@ -2,23 +2,23 @@
 
 A zero-dependency regular expression transform for partial matching, enabling validation of incomplete input strings against regex patterns.
 
-## Problem statement
+## 🧩 Problem statement
 
 Unlike C/C++ (via [PCRE/PCRE2](https://www.pcre.org/original/doc/html/pcrepartial.html), [RE2](https://github.com/google/re2?tab=readme-ov-file#matching-interface), [Boost.Regex](https://www.boost.org/doc/libs/1_34_1/libs/regex/doc/partial_matches.html)), Python ([via third party regex module](https://pypi.org/project/regex/#:~:text=Added%20partial%20matches)) or Java (via [`hitEnd`](https://docs.oracle.com/javase/8/docs/api/java/util/regex/Matcher.html#hitEnd--)), Javascript has no canonical / innate partial-matching for regular expressions.
 
-## Overview
+## 📖 Overview
 
 This library transforms regular expressions to best-effort support **partial matching**, allowing you to test if an incomplete string could potentially match the full pattern. This is particularly useful for real-time input validation, autocomplete systems, progressive form validation, stream chunk matching, etc.
 
 **Based on an algorithm created by [Lucas Trzesniewski](https://github.com/ltrzesniewski)**, re-created for NPM via ISC license, with permission.
 
-## Installation
+## 📦 Installation
 
 ```bash
 npm install regex-partial-match
 ```
 
-## Usage
+## 🚀 Usage
 
 ### Basic Usage
 
@@ -44,7 +44,7 @@ const partial = /^hello world/.toPartialMatchRegex();
 partial.test("hel"); // true
 ```
 
-## How It Works
+## ⚙️ How It Works
 
 The library transforms a regular expression by wrapping each [atomic element](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions#atoms) in a [non-capturing group](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Non-capturing_group) with a [disjunction](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Disjunction) to a true-end-of-input sentinel (`$(?![\s\S])`[^1]):
 
@@ -71,7 +71,7 @@ Such combinations have not been tested.
 > [!NOTE]
 > See [Partial Match Parity](/docs/partial-match-parity.md) for full details on how the library compares to reference implementations
 
-## Supported Features
+## ✅ Supported Features
 
 - 🔤 [Literal characters](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Literal_character)
 - 🔣 [Character escapes](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Character_escape) (`\n`, `\t`, `\x61`, `\u0061`, `\u{1F600}`)
@@ -90,13 +90,13 @@ Such combinations have not been tested.
 - 🏴 [Flags](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/flags): `g`, `i`, `m`, `s`, `u`, `d`, `y` (See [caveats](#sticky-flag-y) for `y`)
 - 🎚️ [Modifiers](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Modifier) (`(?ims:...)`, `(?-ims:...)`, `(?im-s:...)`)
 
-## Unsupported Features
+## 🚫 Unsupported Features
 
 The following regex features are **not currently supported**:
 
 - ⚠️ [Character class substrings](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Character_class#matching_strings) (`\q{abc}`) - When used independently, rather than to modify, can be included, but can't partially match. See [caveats](#caveats).
 
-## Browser Compatibility
+## 🌐 Browser Compatibility
 
 The library is compiled to **ES2015** (ECMAScript 6). Certain regular expression features naturally require newer environments:
 
@@ -108,7 +108,7 @@ The library is compiled to **ES2015** (ECMAScript 6). Certain regular expression
 - [**`v` (unicodeSets) flag**](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/unicodeSets) - ES2024+
 - [**Modifiers**](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Modifier) (`(?ims:...)`, `(?-ims:...)`, `(?i-ms:...)`) - ES2025+
 
-## Caveats
+## ⚠️ Caveats
 
 ### [`.test()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/test) behaviour and non-matching results from [`.exec()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/exec) and [`.match()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/match)
 
@@ -250,7 +250,7 @@ partial.test("abca"); // false — but "abca" is a valid prefix of "abcabc" via 
 
 See [docs/backreferences.md](./docs/backreferences.md) for why this happens (the internal capture scan resolving the wrong alternative first).
 
-## Examples
+## 💡 Examples
 
 ### Form Validation
 
@@ -327,7 +327,7 @@ processChunk("invalid{"); // [] - discarded, buffer: ''
 
 Useful for parsing log files, network streams, or any chunked data where records may be split across boundaries.
 
-## API
+## 🔌 API
 
 ### `new PartialMatchRegExp(pattern: RegExp | string, flags?: string)`
 
@@ -352,19 +352,19 @@ When using `import 'regex-partial-match/extend'`, this method is added to `RegEx
 
 - A new `PartialMatchRegExp` that matches partial strings, created from the `RegExp` instance the method was called on.
 
-## License
+## 📜 License
 
 ISC License - see [LICENSE](./LICENSE) file for details.
 
-## Credits
+## 🙌 Credits
 
 Algorithm created by [Lucas Trzesniewski](https://github.com/ltrzesniewski).
 
-## Contributing
+## 🤝 Contributing
 
 Contributions are welcome! Please open an issue or pull request on [GitHub](https://github.com/TomStrepsil/regex-partial-match).
 
-## Related projects
+## 🔗 Related projects
 
 | Project                                                                                     | Description                                                                                                                                                                          |
 | ------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |

@@ -4,7 +4,7 @@ This directory contains local replacements for two TypeScript built-in lib files
 
 TypeScript 4.5+ supports this via its `@typescript/lib-*` substitution mechanism: when `libReplacement` is enabled in `tsconfig.json`, TypeScript resolves each lib file as a module (`@typescript/<lib-name>/<subpath>`) using Node10 module resolution before falling back to its own built-in. Packages here are wired in as `file:` devDependencies in `package.json`.
 
-## `lib-es2018` — named capture groups
+## 🏷️ `lib-es2018` — named capture groups
 
 **Fixes:** `RegExpMatchArray.groups` and `RegExpExecArray.groups`
 
@@ -29,7 +29,7 @@ const match = /(?<year>\d{4})-(?<month>\d{2})?/.exec('2024-');
 match!.groups!['month'] // runtime: undefined — but typed as string without the fix
 ```
 
-## `lib-es2022` — named capture group indices
+## 🔢 `lib-es2022` — named capture group indices
 
 **Fixes:** `RegExpIndicesArray.groups`
 

@@ -9,7 +9,7 @@ The parity tests added in `src/partialMatchRegExp.test.ts` ("parity with referen
 - **PCRE2** — test cases are explicit: `testdata/testinput7`, `testinput15`, and `testinput17` use subject modifiers (`\=ps`, `\=ph`) and corresponding expected outputs in `testoutput*` to validate concrete partial-match behaviours, while `testinput18`/`testoutput18` document POSIX-interface caveats.
 - **RE2** — test cases are conceptual only: `tester.cc` and `exhaustive_tester.cc` implement a parametric consistency framework (NFA/DFA/backtracking agreement), not a fixed set of `(pattern, input, expected)` tuples. The RE2 rows below document semantic alignment rather than quoting specific test cases.
 
-## Apache Lucene (`TestRegExp.java`)
+## 🔍 Apache Lucene (`TestRegExp.java`)
 
 Lucene implements partial matching via a deterministic finite automaton (DFA). Parity tests are **derived** from the described behaviour of each test method — not direct quotations of Lucene assertions.
 
@@ -24,7 +24,7 @@ Lucene's automaton-based regex dialect **cannot express backreferences** (finite
 | `testCoreJavaParity`               | 2 000 random expressions validated against `java.util.regex.Pattern` | ✅ Covered structurally — every prefix of every pattern is tested |
 | Backreferences                     | Not in scope — unsupported by the automaton dialect                  | ✅ Partial matching supported (capture scan + expansion) — see [Backreferences caveat](../README.md#backreferences) in README |
 
-## PCRE2 (`testdata/testinput7`, `testinput15`, `testinput17`, `testinput18`)
+## 🐪 PCRE2 (`testdata/testinput7`, `testinput15`, `testinput17`, `testinput18`)
 
 PCRE2 partial matching is exercised directly in `testdata` with subject modifiers:
 
@@ -49,7 +49,7 @@ PCRE2-specific features that are intentionally out of scope for parity here:
 - PCRE2-only opcodes and metadata (`(*MARK)`, `allusedtext` left/right context output).
 - POSIX wrapper behavior in `pcre2posix` (`partial_hard` ignored by interface).
 
-## Google RE2 (`tester.cc`, `exhaustive_tester.cc`)
+## 🔷 Google RE2 (`tester.cc`, `exhaustive_tester.cc`)
 
 RE2 exposes partial matching via `UNANCHORED` mode (match anywhere in the string) versus `ANCHOR_BOTH` (full-string match). `tester.cc` and `exhaustive_tester.cc` implement a parametric testing framework that validates NFA, DFA, and backtracking engines against each other across exhaustively-generated patterns — there are **no fixed `(pattern, input, expected)` test cases to quote**. Parity is therefore assessed **conceptually** against RE2's semantics.
 
@@ -65,7 +65,7 @@ RE2 **explicitly excludes backreferences by design**. From `re2.h`: _"backrefere
 | Backreferences                                       | ✅ Partial matching supported (RE2 excludes them entirely by design)                    |
 | Multi-engine consistency                             | N/A — JS has a single engine per runtime                                                |
 
-## OpenJDK (`java.util.regex` — `RegExTest.java`)
+## ☕ OpenJDK (`java.util.regex` — `RegExTest.java`)
 
 Java expresses partial matching through `Matcher.hitEnd()`, `Matcher.lookingAt()`, and `Matcher.find()`. Parity tests are **explicit**: the specific patterns and strings below are taken directly from named test methods in `RegExTest.java`.
 
@@ -89,7 +89,7 @@ The JDK **does** support backreferences, and `RegExTest.java` includes `backRefT
 | `Matcher.find(pos)`              | Match from a given position                                    | Set `lastIndex` before calling `exec`                                                        |
 | `Matcher.requireEnd()`           | More input could invalidate a current match                    | No direct equivalent; patterns ending with `$` or `\b` exhibit this — not explicitly exposed |
 
-## Summary
+## 📊 Summary
 
 | Feature                                  |         Lucene         |          RE2          |                  PCRE2                  |                JDK                 |        This library        |
 | ---------------------------------------- | :--------------------: | :-------------------: | :-------------------------------------: | :--------------------------------: | :------------------------: |
