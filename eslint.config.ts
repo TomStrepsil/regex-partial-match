@@ -3,7 +3,7 @@ import markdown from "@eslint/markdown";
 
 export default [
   {
-    ignores: ["lib/**", "node_modules/**"]
+    ignores: ["lib/**", "node_modules/**", "types/**"]
   },
   {
     files: ["**/*.md"],
@@ -25,6 +25,12 @@ export default [
       parserOptions: {
         project: ["./tsconfig.json", "./benchmarking/tsconfig.json"]
       }
+    }
+  },
+  {
+    files: ["**/*.test.ts", "test/**/*.ts"],
+    rules: {
+      "@typescript-eslint/no-non-null-assertion": "off"
     }
   }
 ];

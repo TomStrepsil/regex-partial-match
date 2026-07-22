@@ -1,41 +1,74 @@
 import { describe, it, expect } from "vitest";
-import createPartialMatchRegex from "./createPartialMatchRegex.ts";
+import { PartialMatchRegExp } from "./partialMatchRegExp.ts";
 
-describe("regexp-partial-match", () => {
+describe("PartialMatchRegExp", () => {
+  it("is an instance of RegExp", () => {
+    expect(new PartialMatchRegExp(/abc/)).toBeInstanceOf(RegExp);
+  });
+
+  it("passes flags through from a RegExp argument", () => {
+    expect(new PartialMatchRegExp(/abc/d).hasIndices).toBe(true);
+    expect(new PartialMatchRegExp(/abc/g).global).toBe(true);
+    expect(new PartialMatchRegExp(/abc/i).ignoreCase).toBe(true);
+    expect(new PartialMatchRegExp(/abc/m).multiline).toBe(true);
+    expect(new PartialMatchRegExp(/abc/s).dotAll).toBe(true);
+    expect(new PartialMatchRegExp(/abc/u).unicode).toBe(true);
+    expect(new PartialMatchRegExp(/abc/v).unicodeSets).toBe(true);
+    expect(new PartialMatchRegExp(/abc/y).sticky).toBe(true);
+    expect(new PartialMatchRegExp(/abc/gi).global).toBe(true);
+    expect(new PartialMatchRegExp(/abc/gi).ignoreCase).toBe(true);
+    expect(new PartialMatchRegExp(/abc/i, "m").ignoreCase).toBe(false);
+    expect(new PartialMatchRegExp(/abc/i, "m").multiline).toBe(true);
+  });
+
+  it("applies the flags argument when pattern is a string", () => {
+    expect(new PartialMatchRegExp("abc").ignoreCase).toBe(false);
+    expect(new PartialMatchRegExp("abc", "d").hasIndices).toBe(true);
+    expect(new PartialMatchRegExp("abc", "i").ignoreCase).toBe(true);
+    expect(new PartialMatchRegExp("abc", "m").multiline).toBe(true);
+    expect(new PartialMatchRegExp("abc", "s").dotAll).toBe(true);
+    expect(new PartialMatchRegExp("abc", "u").unicode).toBe(true);
+    expect(new PartialMatchRegExp("abc", "v").unicodeSets).toBe(true);
+    expect(new PartialMatchRegExp("abc", "y").sticky).toBe(true);
+    expect(new PartialMatchRegExp("abc", "g").global).toBe(true);
+    expect(new PartialMatchRegExp("abc", "gi").global).toBe(true);
+    expect(new PartialMatchRegExp("abc", "gi").ignoreCase).toBe(true);
+  });
+
   // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/flags
   describe("supporting flags", () => {
     it("should preserve the flags of the original regex", () => {
       let input = /hello world/dgimsuy;
-      let partial = createPartialMatchRegex(input);
+      let partial = new PartialMatchRegExp(input);
       expect(partial.flags).toEqual(input.flags);
 
       input = /hello world/dgimsvy;
-      partial = createPartialMatchRegex(input);
+      partial = new PartialMatchRegExp(input);
       expect(partial.flags).toEqual(input.flags);
     });
 
     it("should advance lastIndex past the match when the sticky flag is set", () => {
-      const partial = createPartialMatchRegex(/ab/y);
+      const partial = new PartialMatchRegExp(/ab/y);
       expect(partial.exec("abcd")).toMatchAt({ match: "ab", index: 0 });
       expect(partial.lastIndex).toBe(2);
     });
 
     it("should respect an externally set lastIndex when the global flag is set", () => {
-      const partial = createPartialMatchRegex(/ab/g);
+      const partial = new PartialMatchRegExp(/ab/g);
       partial.lastIndex = 0;
       expect(partial.exec("abxyab")).toMatchAt({ match: "ab", index: 0 });
       expect(partial.lastIndex).toBe(2);
     });
 
     it("should respect an externally set lastIndex when the sticky flag is set", () => {
-      const partial = createPartialMatchRegex(/ab/y);
+      const partial = new PartialMatchRegExp(/ab/y);
       partial.lastIndex = 4;
       expect(partial.exec("abxyab")).toMatchAt({ match: "ab", index: 4 });
       expect(partial.lastIndex).toBe(6);
     });
 
     it("should support combining the global and sticky flags", () => {
-      const partial = createPartialMatchRegex(/ab/gy);
+      const partial = new PartialMatchRegExp(/ab/gy);
       expect(partial.global).toBe(true);
       expect(partial.sticky).toBe(true);
       expect(partial.exec("ab")).toMatchAt({ match: "ab", index: 0 });
@@ -44,22 +77,22 @@ describe("regexp-partial-match", () => {
 
   describe("validation via test()", () => {
     it("should return false from test() for a string that is not a viable prefix", () => {
-      const partial = createPartialMatchRegex(/^foo/);
+      const partial = new PartialMatchRegExp(/^foo/);
       expect(partial.test("bar")).toBe(false);
       expect(partial.test("xyz")).toBe(false);
     });
 
     it("should return true from test() for a viable prefix of the pattern", () => {
-      const partial = createPartialMatchRegex(/^foobar/);
+      const partial = new PartialMatchRegExp(/^foobar/);
       expect(partial.test("f")).toBe(true);
       expect(partial.test("foo")).toBe(true);
       expect(partial.test("foobar")).toBe(true);
     });
 
     it("should return true from test('') when the original pattern matches empty", () => {
-      expect(createPartialMatchRegex(/^a*/).test("")).toBe(true);
-      expect(createPartialMatchRegex(/^x?$/).test("")).toBe(true);
-      expect(createPartialMatchRegex(/^$/).test("")).toBe(true);
+      expect(new PartialMatchRegExp(/^a*/).test("")).toBe(true);
+      expect(new PartialMatchRegExp(/^x?$/).test("")).toBe(true);
+      expect(new PartialMatchRegExp(/^$/).test("")).toBe(true);
     });
   });
 
@@ -67,14 +100,10 @@ describe("regexp-partial-match", () => {
   describe("literal character expressions", () => {
     const string = "hello world";
     const input = new RegExp(string);
-    const partial = createPartialMatchRegex(input);
+    const partial = new PartialMatchRegExp(input);
 
     it("should support partial matching of literal character expressions", () => {
-      for (let i = 1; i < string.length; i++) {
-        const partialString = string.slice(0, i);
-        const result = partial.exec(partialString);
-        expect(result).toMatchAt({ match: partialString, index: 0 });
-      }
+      expect(partial).toMatchPartially({ characters: string.split("") });
     });
 
     it("should support a complete match", () => {
@@ -98,14 +127,14 @@ describe("regexp-partial-match", () => {
 
     it("should support open brace that does not form part of an occurrences quantifier", () => {
       const string = "hello{world";
-      const partial = createPartialMatchRegex(new RegExp(string));
+      const partial = new PartialMatchRegExp(new RegExp(string));
       const result = partial.exec(string);
       expect(result).toMatchAt({ match: string, index: 0 });
     });
 
     it("should partially match an open brace when an occurrences quantifier appears later", () => {
       const input = /a{b}c{1}/;
-      const partial = createPartialMatchRegex(input);
+      const partial = new PartialMatchRegExp(input);
       expect(partial.exec("a{")).toMatchAt({
         match: "a{",
         index: 0
@@ -114,7 +143,7 @@ describe("regexp-partial-match", () => {
 
     it("should support partial matching of grapheme clusters", () => {
       const input = /ásuffix/u;
-      const partial = createPartialMatchRegex(input);
+      const partial = new PartialMatchRegExp(input);
       expect(partial).toMatchPartially({
         characters: ["a", "́", ..."suffix".split("")]
       });
@@ -124,7 +153,7 @@ describe("regexp-partial-match", () => {
     describe("astral plane characters", () => {
       it("should support partial matching of literal astral plane characters in unicode mode (with caveat that surrogate pairs do not match independently)", () => {
         const input = /😀suffix/u;
-        const partial = createPartialMatchRegex(input);
+        const partial = new PartialMatchRegExp(input);
         expect(partial).toMatchPartially({
           characters: ["😀", ..."suffix".split("")] // "😀".length === 2
         });
@@ -132,7 +161,7 @@ describe("regexp-partial-match", () => {
 
       it("should support partial matching of literal astral plane characters in unicodeSets mode (with caveat that surrogate pairs do not match independently)", () => {
         const input = /😀suffix/v;
-        const partial = createPartialMatchRegex(input);
+        const partial = new PartialMatchRegExp(input);
         expect(partial).toMatchPartially({
           characters: ["😀", ..."suffix".split("")]
         });
@@ -140,7 +169,7 @@ describe("regexp-partial-match", () => {
 
       it("should support partial matching of individual surrogate code units of literal astral plane characters, in non-unicode mode", () => {
         const input = /😀suffix/;
-        const partial = createPartialMatchRegex(input);
+        const partial = new PartialMatchRegExp(input);
         expect(partial).toMatchPartially({
           characters: [..."😀".split(""), ..."suffix".split("")]
         });
@@ -152,7 +181,7 @@ describe("regexp-partial-match", () => {
   describe("wildcard expressions", () => {
     it("should support partial matching of wildcards", () => {
       const input = /a.suffix/;
-      const partial = createPartialMatchRegex(input);
+      const partial = new PartialMatchRegExp(input);
       expect(partial).toMatchPartially({
         characters: ["a", "x", ..."suffix".split("")]
       });
@@ -166,7 +195,7 @@ describe("regexp-partial-match", () => {
 
     it("should support partial matching of utf-16 code units with wildcards, in non-unicode mode", () => {
       const input = /a..suffix/;
-      const partial = createPartialMatchRegex(input);
+      const partial = new PartialMatchRegExp(input);
       expect(partial).toMatchPartially({
         characters: ["a", ..."😄".split(""), ..."suffix".split("")]
       });
@@ -179,7 +208,7 @@ describe("regexp-partial-match", () => {
 
     it("should support partial matching of unicode characters with wildcards, in unicode mode", () => {
       const input = /a.suffix/u;
-      const partial = createPartialMatchRegex(input);
+      const partial = new PartialMatchRegExp(input);
       expect(partial).toMatchPartially({
         characters: ["a", "😄", ..."suffix".split("")]
       });
@@ -196,7 +225,7 @@ describe("regexp-partial-match", () => {
     it("should support partial matching of whitespace character escape expressions", () => {
       for (const character of ["\f", "\n", "\r", "\t", "\v"]) {
         const input = new RegExp(character + "+suffix");
-        const partial = createPartialMatchRegex(input);
+        const partial = new PartialMatchRegExp(input);
         expect(partial).toMatchPartially({
           characters: [character, ..."suffix".split("")]
         });
@@ -205,7 +234,7 @@ describe("regexp-partial-match", () => {
 
     it("should support partial matching of control character escape expressions", () => {
       const input = /\cj\cMsuffix/;
-      const partial = createPartialMatchRegex(input);
+      const partial = new PartialMatchRegExp(input);
       expect(partial).toMatchPartially({
         characters: ["\n", "\r", ..."suffix".split("")]
       });
@@ -213,7 +242,7 @@ describe("regexp-partial-match", () => {
 
     it("should support partial matching of null character escape expressions", () => {
       const input = /\0suffix/;
-      const partial = createPartialMatchRegex(input);
+      const partial = new PartialMatchRegExp(input);
       expect(partial).toMatchPartially({
         characters: ["\0", ..."suffix".split("")]
       });
@@ -221,7 +250,7 @@ describe("regexp-partial-match", () => {
 
     it("should support partial matching of hexadecimal character escape expressions", () => {
       const input = /\x61\x62\x63suffix/;
-      const partial = createPartialMatchRegex(input);
+      const partial = new PartialMatchRegExp(input);
       expect(partial).toMatchPartially({
         characters: ["a", "b", "c", ..."suffix".split("")]
       });
@@ -229,7 +258,7 @@ describe("regexp-partial-match", () => {
 
     it("should support partial matching of utf-16 character escape expressions", () => {
       const input = /\u0061\u0062\u0063suffix/;
-      const partial = createPartialMatchRegex(input);
+      const partial = new PartialMatchRegExp(input);
       expect(partial).toMatchPartially({
         characters: ["a", "b", "c", ..."suffix".split("")]
       });
@@ -237,7 +266,7 @@ describe("regexp-partial-match", () => {
 
     it("should support partial matching of unicode character escape expressions with braces", () => {
       const input = /\u{2622}suffix/u;
-      const partial = createPartialMatchRegex(input);
+      const partial = new PartialMatchRegExp(input);
       expect(partial).toMatchPartially({
         characters: ["☢", ..."suffix".split("")]
       });
@@ -245,7 +274,7 @@ describe("regexp-partial-match", () => {
 
     it("should support partial matching of astral plane character escape expressions with braces (with caveat that surrogate pairs do not match independently in unicode mode)", () => {
       const input = /\u{1F600}suffix/u;
-      const partial = createPartialMatchRegex(input);
+      const partial = new PartialMatchRegExp(input);
       expect(partial).toMatchPartially({
         characters: ["😀", ..."suffix".split("")] // "😀".length === 2
       });
@@ -253,7 +282,7 @@ describe("regexp-partial-match", () => {
 
     it("should support partial matching of lone unicode property escape expressions", () => {
       const input = /\p{Lowercase_Letter}+suffix/u;
-      const partial = createPartialMatchRegex(input);
+      const partial = new PartialMatchRegExp(input);
       const characters = [...Array<undefined>(26)].map((_, i) =>
         String.fromCharCode(97 + i)
       );
@@ -265,7 +294,7 @@ describe("regexp-partial-match", () => {
 
     it("should support partial matching of negated lone unicode property escape expressions", () => {
       const input = /\P{Uppercase_Letter}+suffix/u;
-      const partial = createPartialMatchRegex(input);
+      const partial = new PartialMatchRegExp(input);
       expect(partial).toMatchPartially({
         characters: ["1", "a", "c", "-", "å", "ä", "ö", ..."suffix".split("")]
       });
@@ -274,7 +303,7 @@ describe("regexp-partial-match", () => {
 
     it("should support partial matching of unicode property escape expressions with key/value", () => {
       const input = /\p{General_Category=Letter}+suffix/u;
-      const partial = createPartialMatchRegex(input);
+      const partial = new PartialMatchRegExp(input);
       expect(partial).toMatchPartially({
         characters: ["A", "b", "c", "å", "ä", "ö", ..."suffix".split("")]
       });
@@ -283,7 +312,7 @@ describe("regexp-partial-match", () => {
 
     it("should support partial matching of negated unicode property escape expressions with key/value", () => {
       const input = /\P{General_Category=Letter}+suffix/u;
-      const partial = createPartialMatchRegex(input);
+      const partial = new PartialMatchRegExp(input);
       expect(partial).toMatchPartially({
         characters: ["1", "_", "-", "!", "%", ..."suffix".split("")]
       });
@@ -533,7 +562,7 @@ describe("regexp-partial-match", () => {
       it(`should support partial matching of character class expressions${
         suffix ?? ""
       }`, () => {
-        const partial = createPartialMatchRegex(input);
+        const partial = new PartialMatchRegExp(input);
         for (const char of chars) {
           const result = partial.exec(char + "suf");
           expect(result).toMatchAt({ match: char + "suf", index: 0 });
@@ -543,13 +572,13 @@ describe("regexp-partial-match", () => {
 
     it("should not match with characters outside of the class expression", () => {
       const input = /[a-c]suffix/;
-      const partial = createPartialMatchRegex(input);
+      const partial = new PartialMatchRegExp(input);
       expect(partial.exec("dsuf")).toNotMatch();
     });
 
     it("should end the class at the first unescaped closing bracket outside unicodeSets mode, treating subsequent brackets as literal characters", () => {
       const input = /[a[b]c]/;
-      const partial = createPartialMatchRegex(input);
+      const partial = new PartialMatchRegExp(input);
       expect(partial).toMatchPartially({
         characters: ["a", "c", "]"]
       });
@@ -563,16 +592,10 @@ describe("regexp-partial-match", () => {
   describe("disjunctions", () => {
     it("should support partial matching of disjunctions", () => {
       const input = /cat|dog/;
-      const partial = createPartialMatchRegex(input);
-      const animals = ["cat", "dog"];
+      const partial = new PartialMatchRegExp(input);
 
-      for (const animal of animals) {
-        for (let i = 1; i < animal.length; i++) {
-          const partialString = animal.slice(0, i);
-          const result = partial.exec(partialString);
-          expect(result).toMatchAt({ match: partialString, index: 0 });
-        }
-      }
+      expect(partial).toMatchPartially({ characters: "cat".split("") });
+      expect(partial).toMatchPartially({ characters: "dog".split("") });
     });
   });
 
@@ -666,7 +689,7 @@ describe("regexp-partial-match", () => {
       }
     ].forEach(({ name, input, testStrings, negativeCase }) => {
       it(`should support partial matching of patterns with ${name}`, () => {
-        const partial = createPartialMatchRegex(input);
+        const partial = new PartialMatchRegExp(input);
         for (const testString of testStrings) {
           const result = partial.exec(testString);
           expect(result).toMatchAt({ match: testString, index: 0 });
@@ -682,7 +705,7 @@ describe("regexp-partial-match", () => {
   describe("unicode sets (extending features)", () => {
     it("should support partial matching of unicode set expressions", () => {
       const input = /[\p{Alphabetic}]+suffix/v;
-      const partial = createPartialMatchRegex(input);
+      const partial = new PartialMatchRegExp(input);
       expect(partial).toMatchPartially({
         characters: ["a", "あ", "c", ..."suffix".split("")]
       });
@@ -691,7 +714,7 @@ describe("regexp-partial-match", () => {
 
     it("should support partial matching of grapheme clusters / string properties (with caveat that individual code points do not match independently)", () => {
       const input = /[\p{RGI_Emoji_Flag_Sequence}]suffix/v;
-      const partial = createPartialMatchRegex(input);
+      const partial = new PartialMatchRegExp(input);
       expect(partial).toMatchPartially({
         characters: ["🇺🇳", ..."suffix".split("")] // "🇺🇳".length === 4
       });
@@ -700,7 +723,7 @@ describe("regexp-partial-match", () => {
 
     it("should support partial matching of grapheme clusters / string properties including string subtraction (with caveat that individual code points do not match independently)", () => {
       const input = /[\p{RGI_Emoji_Flag_Sequence}--\q{🇺🇸|🇷🇺}]suffix/v;
-      const partial = createPartialMatchRegex(input);
+      const partial = new PartialMatchRegExp(input);
       expect(partial).toMatchPartially({
         characters: ["🇺🇦", ..."suffix".split("")] // "🇺🇦".length === 4
       });
@@ -710,7 +733,7 @@ describe("regexp-partial-match", () => {
 
     it("should support partial matching of unicode set expressions using key/value syntax", () => {
       const input = /[\p{Script=Hiragana}]+suffix/v;
-      const partial = createPartialMatchRegex(input);
+      const partial = new PartialMatchRegExp(input);
       expect(partial).toMatchPartially({
         characters: ["あ", "い", "う", ..."suffix".split("")]
       });
@@ -719,7 +742,7 @@ describe("regexp-partial-match", () => {
 
     it("should support partial matching of negated unicode set expressions", () => {
       const input = /[\P{Script=Hiragana}]+suffix/v;
-      const partial = createPartialMatchRegex(input);
+      const partial = new PartialMatchRegExp(input);
       expect(partial).toMatchPartially({
         characters: ["A", "b", "1", "_", "å", "ä", "ö", ..."suffix".split("")]
       });
@@ -728,7 +751,7 @@ describe("regexp-partial-match", () => {
 
     it("should support partial matching of negated unicode set expressions using complement syntax", () => {
       const input = /[^\p{Script=Hiragana}]+suffix/v;
-      const partial = createPartialMatchRegex(input);
+      const partial = new PartialMatchRegExp(input);
       expect(partial).toMatchPartially({
         characters: ["A", "b", "1", "_", "å", "ä", "ö", ..."suffix".split("")]
       });
@@ -737,14 +760,14 @@ describe("regexp-partial-match", () => {
 
     it("should support empty sets as a non-match in unicode set character class expressions", () => {
       const input = /[[]]suffix/v;
-      const partial = createPartialMatchRegex(input);
+      const partial = new PartialMatchRegExp(input);
       const result = partial.exec("a");
       expect(result).toNotMatch();
     });
 
     it("should support partial matching of negated empty sets in unicode set character class expressions", () => {
       const input = /[^]+suffix/v;
-      const partial = createPartialMatchRegex(input);
+      const partial = new PartialMatchRegExp(input);
       expect(partial).toMatchPartially({
         characters: ["A", "b", "1", "-", "ä", "π", "α", ..."suffix".split("")]
       });
@@ -752,7 +775,7 @@ describe("regexp-partial-match", () => {
 
     it("should support partial matching of subtraction in unicode set character class expressions", () => {
       const input = /[\p{Script_Extensions=Greek}--π]+suffix/v;
-      const partial = createPartialMatchRegex(input);
+      const partial = new PartialMatchRegExp(input);
       expect(partial).toMatchPartially({
         characters: ["α", "β", "γ", "δ", "ε", ..."suffix".split("")]
       });
@@ -761,7 +784,7 @@ describe("regexp-partial-match", () => {
 
     it("should support partial matching of intersection in unicode set character class expressions", () => {
       const input = /[\p{Script_Extensions=Greek}&&[αβγδε]]+suffix/v;
-      const partial = createPartialMatchRegex(input);
+      const partial = new PartialMatchRegExp(input);
       expect(partial).toMatchPartially({
         characters: ["α", "β", "γ", "δ", "ε", ..."suffix".split("")]
       });
@@ -769,7 +792,7 @@ describe("regexp-partial-match", () => {
 
     it("should support partial matching of union in unicode set character class expressions", () => {
       const input = /[[\p{Script_Extensions=Greek}][xyz]]+suffix/v;
-      const partial = createPartialMatchRegex(input);
+      const partial = new PartialMatchRegExp(input);
       expect(partial).toMatchPartially({
         characters: ["α", "γ", "δ", "ε", "x", "y", "z", ..."suffix".split("")]
       });
@@ -777,7 +800,7 @@ describe("regexp-partial-match", () => {
 
     it("should support partial matching of negated subtraction in unicode set character class expressions", () => {
       const input = /[^\p{Script_Extensions=Greek}--π]+suffix/v;
-      const partial = createPartialMatchRegex(input);
+      const partial = new PartialMatchRegExp(input);
       expect(partial).toMatchPartially({
         characters: ["A", "b", "1", "_", "ä", "ö", "π", ..."suffix".split("")]
       });
@@ -786,7 +809,7 @@ describe("regexp-partial-match", () => {
 
     it("should support partial matching of nested subtraction in unicode set character class expressions", () => {
       const input = /[\p{Script_Extensions=Greek}--[αβγ]]+suffix/v;
-      const partial = createPartialMatchRegex(input);
+      const partial = new PartialMatchRegExp(input);
       expect(partial).toMatchPartially({
         characters: ["δ", "ε", "ζ", "η", "θ", ..."suffix".split("")]
       });
@@ -794,7 +817,7 @@ describe("regexp-partial-match", () => {
 
     it("should support partial matching of negated nested subtraction in unicode set character class expressions", () => {
       const input = /[^\p{Script_Extensions=Greek}--[αβγ]]+suffix/v;
-      const partial = createPartialMatchRegex(input);
+      const partial = new PartialMatchRegExp(input);
       expect(partial).toMatchPartially({
         characters: ["A", "b", "ä", "ö", "α", "γ", ..."suffix".split("")]
       });
@@ -803,7 +826,7 @@ describe("regexp-partial-match", () => {
 
     it("should support partial matching of multiple nested subtraction in unicode set character class expressions", () => {
       const input = /^[[a-z]--[[aeiou]--[eo]]]+suffix/v; // i.e., [[a-z]--[[aeiou]--[eo]]] = [[a-z]--[aiu]] = [b-hj-tv-z]
-      const partial = createPartialMatchRegex(input);
+      const partial = new PartialMatchRegExp(input);
       expect(partial).toMatchPartially({
         characters: ["b", "c", "g", "h", "j", "k", ..."suffix".split("")]
       });
@@ -814,7 +837,7 @@ describe("regexp-partial-match", () => {
 
     it("should support partial matching of subtraction with property escapes in unicode set character class expressions", () => {
       const input = /^[\p{General_Category=Letter}--\p{Script=Greek}]+suffix/v;
-      const partial = createPartialMatchRegex(input);
+      const partial = new PartialMatchRegExp(input);
       expect(partial).toMatchPartially({
         characters: ["A", "b", "c", "å", "ä", "ö", ..."suffix".split("")]
       });
@@ -825,7 +848,7 @@ describe("regexp-partial-match", () => {
 
     it("should support partial matching of nested subtraction resulting in empty set in unicode set character class expressions", () => {
       const input = /^[[a-z]--[[[aeiou]--[aeiou]]--[]]]+suffix/v; // i.e., [[a-z]--[[[aeiou]--[aeiou]]--[]]] = [[a-z]--[[]]] = [a-z]
-      const partial = createPartialMatchRegex(input);
+      const partial = new PartialMatchRegExp(input);
       expect(partial).toMatchPartially({
         characters: ["a", "b", "c", "d", "e", "f", "g", ..."suffix".split("")]
       });
@@ -836,7 +859,7 @@ describe("regexp-partial-match", () => {
 
     it("should support partial matching of subtraction in unicode set character class expressions with escaped brackets", () => {
       const input = /^[[\[\]a-z]--[[\[]--[\[]]]suffix/v; // i.e., [[\[\]a-z]--[[\[]--[\[]]] = [[\[\]a-z]--[]] = [\[\]a-z]
-      const partial = createPartialMatchRegex(input);
+      const partial = new PartialMatchRegExp(input);
       for (const character of ["[", "]", "a", "b", "c", "d", "e", "f", "g"]) {
         expect(partial).toMatchPartially({
           characters: [character, ..."suffix".split("")]
@@ -846,7 +869,7 @@ describe("regexp-partial-match", () => {
 
     it("should support partial matching of property subtraction in unicode set character class expressions", () => {
       const input = /^[[\p{Letter}]--[\p{Mark}]]+suffix/v;
-      const partial = createPartialMatchRegex(input);
+      const partial = new PartialMatchRegExp(input);
       expect(partial).toMatchPartially({
         characters: ["A", "é", "Ω", "Ж", "中", ..."suffix".split("")]
       });
@@ -857,7 +880,7 @@ describe("regexp-partial-match", () => {
 
     it("should support partial matching of doubly-nested property subtraction in unicode set character class expressions", () => {
       const input = /^[[\p{Letter}]--[[\p{Script=Latin}]--[aeiou]]]+suffix/v;
-      const partial = createPartialMatchRegex(input);
+      const partial = new PartialMatchRegExp(input);
       expect(partial).toMatchPartially({
         characters: ["a", "e", "Ω", "Ж", "中", ..."suffix".split("")]
       });
@@ -869,7 +892,7 @@ describe("regexp-partial-match", () => {
     it("should support partial matching of triply-nested property subtraction with pathological overlapping subtraction in unicode set character class expressions", () => {
       const input =
         /^[[\p{Alphabetic}]--[[\p{Letter}]--[\p{Uppercase}]]]+suffix/v;
-      const partial = createPartialMatchRegex(input);
+      const partial = new PartialMatchRegExp(input);
       expect(partial).toMatchPartially({
         characters: ["A", "Z", "Ω", "Ж", ..."suffix".split("")]
       });
@@ -880,7 +903,7 @@ describe("regexp-partial-match", () => {
 
     it("should support numeric properties with nested subtraction in unicode set character class expressions", () => {
       const input = /^[[\p{Number}]--[[\p{Decimal_Number}]--[0-9]]]+suffix/v; //
-      const partial = createPartialMatchRegex(input);
+      const partial = new PartialMatchRegExp(input);
       expect(partial).toMatchPartially({
         characters: ["Ⅷ", "Ⅸ", "Ⅰ", "½", "0", "9", ..."suffix".split("")]
       });
@@ -892,7 +915,7 @@ describe("regexp-partial-match", () => {
     it("should support partial matching of emoji property with nested subtraction in unicode set character class expressions", () => {
       const input =
         /^[[\p{Emoji}]--[[\p{Emoji_Presentation}]--[😀😃😄]]]+suffix/v;
-      const partial = createPartialMatchRegex(input);
+      const partial = new PartialMatchRegExp(input);
       expect(partial).toMatchPartially({
         characters: ["⚙", "✂", "😀", ..."suffix".split("")]
       });
@@ -904,7 +927,7 @@ describe("regexp-partial-match", () => {
     it("should support partial matching of deeply-nested property subtraction in unicode set character class expressions", () => {
       const input =
         /^[[[[[[\p{Letter}]]]]--[[[[[aeiou]]]]--[[[ei]]]]]]+suffix/v; // i.e., [[[[[[\p{Letter}]]]]--[[[[[aeiou]]]]--[[[ei]]]]]] = [[[[[\p{Letter}]]]]--[[[aou]]]] = [[[ \p{Letter}]]--[aou]] = [\p{Letter}--[aou]]
-      const partial = createPartialMatchRegex(input);
+      const partial = new PartialMatchRegExp(input);
       expect(partial).toMatchPartially({
         characters: ["A", "b", "f", "g", "h", "e", "i", ..."suffix".split("")]
       });
@@ -919,7 +942,7 @@ describe("regexp-partial-match", () => {
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/ignoreCase
     it("should support partial matching of patterns with a case-insensitive modifier", () => {
       const input = /(?i:abc)suffix/;
-      const partial = createPartialMatchRegex(input);
+      const partial = new PartialMatchRegExp(input);
       expect(partial).toMatchPartially({
         characters: ["A", "b", "C", ..."suffix".split("")]
       });
@@ -930,7 +953,7 @@ describe("regexp-partial-match", () => {
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/dotAll
     it("should support partial matching of patterns with a dot-all modifier", () => {
       const input = /(?s:a.c)suf.ix/;
-      const partial = createPartialMatchRegex(input);
+      const partial = new PartialMatchRegExp(input);
       expect(partial).toMatchPartially({
         characters: ["a", "\n", "c", ..."suffix".split("")]
       });
@@ -955,7 +978,7 @@ ix`,
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/multiline
     it("should support partial matching of patterns with a multiline modifier", () => {
       const input = /(?m:^abc$)\nsuffix/;
-      const partial = createPartialMatchRegex(input);
+      const partial = new PartialMatchRegExp(input);
       expect(partial).toMatchPartially({
         characters: ["a", "b", "c", "\n", ..."suffix".split("")]
       });
@@ -963,14 +986,14 @@ ix`,
 
     it("should not treat a coincidental line boundary as end-of-input inside a multiline modifier group, even without a top-level multiline flag", () => {
       const input = /(?m:^foobar)/;
-      const partial = createPartialMatchRegex(input);
+      const partial = new PartialMatchRegExp(input);
       expect(partial.exec("foo\nbaz")).toNotMatch();
       expect(partial.exec("foobar")).toMatchAt({ match: "foobar", index: 0 });
     });
 
     it("should support partial matching of patterns with multiple modifiers", () => {
       const input = /(?ism:^a.c$)\nsuffix/;
-      const partial = createPartialMatchRegex(input);
+      const partial = new PartialMatchRegExp(input);
       expect(partial).toMatchPartially({
         characters: ["A", "\n", "C", "\n", ..."suffix".split("")]
       });
@@ -979,16 +1002,16 @@ ix`,
         index: 0
       }); // s not modified to case-insensitive
       expect(
-        createPartialMatchRegex(/(?ism:^abc$).suffix/).exec(`ABC\nS`)
+        new PartialMatchRegExp(/(?ism:^abc$).suffix/).exec(`ABC\nS`)
       ).not.toMatchAt({ match: "ABC\nS", index: 0 }); // . not modified to match newlines
       expect(
-        createPartialMatchRegex(/(?ism:^abc$)\n^suffix/).exec(`ABC\nS`)
+        new PartialMatchRegExp(/(?ism:^abc$)\n^suffix/).exec(`ABC\nS`)
       ).not.toMatchAt({ match: "ABC\ns", index: 0 }); // ^ not modified to multiline
     });
 
     it("should support partial matching of patterns with a negating case insensitive modifier", () => {
       const input = /(?-i:abc)suffix/i;
-      const partial = createPartialMatchRegex(input);
+      const partial = new PartialMatchRegExp(input);
       expect(partial).toMatchPartially({
         characters: ["a", "b", "c", ..."SuFfIx".split("")]
       });
@@ -997,7 +1020,7 @@ ix`,
 
     it("should support partial matching of patterns with a negating dot-all modifier", () => {
       const input = /(?-s:a.c)suffix/s;
-      const partial = createPartialMatchRegex(input);
+      const partial = new PartialMatchRegExp(input);
       expect(partial).toMatchPartially({
         characters: ["a", "b", "c", ..."suffix".split("")]
       });
@@ -1009,13 +1032,13 @@ c`)
 
     it("should prevent partial matching of patterns with a negating multiline modifier", () => {
       const input = /\n(?-m:^abc$)\nsuffix/m;
-      const partial = createPartialMatchRegex(input);
+      const partial = new PartialMatchRegExp(input);
       expect(partial.exec(`\nabc\nsuffix`)).toNotMatch();
     });
 
     it("should support partial matching of patterns with multiple negating modifiers", () => {
       const input = /(?-ism:^a.c$)\nsuffix/;
-      const partial = createPartialMatchRegex(input);
+      const partial = new PartialMatchRegExp(input);
       expect(partial).toMatchPartially({
         characters: ["a", "b", "c"]
       });
@@ -1026,7 +1049,7 @@ c`)
 
     it("should support partial matching of patterns with positive and negative modifiers combined", () => {
       const input = /(?i-s:a.c)suffix/;
-      const partial = createPartialMatchRegex(input);
+      const partial = new PartialMatchRegExp(input);
       expect(partial).toMatchPartially({
         characters: ["A", "b", "C", ..."suffix".split("")]
       });
@@ -1035,7 +1058,7 @@ c`)
 
     it("should support partial matching of patterns with multiple positive and negative modifiers combined", () => {
       const input = /(?im-s:^a.c$)\nsuffix/;
-      const partial = createPartialMatchRegex(input);
+      const partial = new PartialMatchRegExp(input);
       expect(partial).toMatchPartially({
         characters: ["A", "b", "C", "\n", ..."suffix".split("")]
       });
@@ -1164,7 +1187,7 @@ c`)
       }
     ].forEach(({ name, input, testStrings, expected, notExpected }) => {
       it(`should support partial matching of ${name}`, () => {
-        const partial = createPartialMatchRegex(input);
+        const partial = new PartialMatchRegExp(input);
         for (const testString of testStrings) {
           const result = partial.exec(testString);
           expect(result).toMatchAt({ match: testString, index: 0 });
@@ -1181,7 +1204,7 @@ c`)
   describe("lookahead assertions", () => {
     it("should support partial matching of positive lookahead assertions", () => {
       const input = /foo(?=bar)/;
-      const partial = createPartialMatchRegex(input);
+      const partial = new PartialMatchRegExp(input);
       const string = "foobar";
 
       for (let i = 1; i < string.length; i++) {
@@ -1196,7 +1219,7 @@ c`)
 
     it("should support partial matching of negative lookahead assertions", () => {
       const input = /foo(?!bar)/;
-      const partial = createPartialMatchRegex(input);
+      const partial = new PartialMatchRegExp(input);
       const string = "foobaz";
 
       for (let i = 1; i < string.length; i++) {
@@ -1213,7 +1236,7 @@ c`)
 
     it("should support partial matching of positive lookbehind assertions (with caveat that the lookbehind is not partially matched whilst forming)", () => {
       const input = /(?<=foo)bar/;
-      const partial = createPartialMatchRegex(input);
+      const partial = new PartialMatchRegExp(input);
       const string = "fooba";
 
       for (let i = 3; i < string.length; i++) {
@@ -1225,14 +1248,9 @@ c`)
 
     it("should support partial matching of negative lookbehind assertions", () => {
       const input = /(?<!foo)bar/;
-      const partial = createPartialMatchRegex(input);
-      const string = "ba";
+      const partial = new PartialMatchRegExp(input);
 
-      for (let i = 1; i < string.length; i++) {
-        const partialString = string.slice(0, i);
-        const result = partial.exec(partialString);
-        expect(result).toMatchAt({ match: partialString, index: 0 });
-      }
+      expect(partial).toMatchPartially({ characters: "ba".split("") });
 
       expect(partial.exec("fo")).toNotMatch();
       expect(partial.exec("foo")).toNotMatch();
@@ -1241,7 +1259,7 @@ c`)
 
     it("should support partial matching of lookbehind assertions with lookahead assertions (with caveat that the lookbehind is not partially matched whilst forming)", () => {
       const input = /(?<=foo)bar(?=baz)/;
-      const partial = createPartialMatchRegex(input);
+      const partial = new PartialMatchRegExp(input);
       const string = "foobarba";
 
       for (let i = 3; i < string.length; i++) {
@@ -1256,7 +1274,7 @@ c`)
 
     it("should support partial matching of positive and negative lookahead assertions", () => {
       const input = /(?!.*#)(?=.*:)foo/;
-      const partial = createPartialMatchRegex(input);
+      const partial = new PartialMatchRegExp(input);
       const testStrings = ["foobar", "foob:"];
 
       for (const string of testStrings) {
@@ -1275,7 +1293,7 @@ c`)
 
     it("should support variable length lookbehind assertions", () => {
       const input = /(?<=([ab]+)([bc]+))suffix/;
-      const partial = createPartialMatchRegex(input);
+      const partial = new PartialMatchRegExp(input);
       const string = "abcsuffix";
       for (let i = 2; i < string.length; i++) {
         const partialString = string.slice(0, i);
@@ -1290,7 +1308,7 @@ c`)
 
     it("should support nested lookahead assertions", () => {
       const input = /(?=(?:foo\w*(?=:A)|bar\w*(?=:B)))(?:foo\w*|bar\w*)/;
-      const partial = createPartialMatchRegex(input);
+      const partial = new PartialMatchRegExp(input);
       const testStrings = ["fooXY:A", "barXYZ:B"];
 
       for (const string of testStrings) {
@@ -1310,34 +1328,24 @@ c`)
   describe("input boundary assertions", () => {
     it("should support partial matching of start-of-input assertions", () => {
       const input = /^foo/;
-      const partial = createPartialMatchRegex(input);
-      const string = "foo";
+      const partial = new PartialMatchRegExp(input);
 
-      for (let i = 1; i < string.length; i++) {
-        const partialString = string.slice(0, i);
-        const result = partial.exec(partialString);
-        expect(result).toMatchAt({ match: partialString, index: 0 });
-      }
+      expect(partial).toMatchPartially({ characters: "foo".split("") });
 
       expect(partial.exec(" foo")).toNotMatch();
     });
 
     it("should support partial matching of end-of-input assertions", () => {
       const input = /foo$/;
-      const partial = createPartialMatchRegex(input);
-      const string = "foo";
+      const partial = new PartialMatchRegExp(input);
 
-      for (let i = 1; i < string.length; i++) {
-        const partialString = string.slice(0, i);
-        const result = partial.exec(partialString);
-        expect(result).toMatchAt({ match: partialString, index: 0 });
-      }
+      expect(partial).toMatchPartially({ characters: "foo".split("") });
 
-      expect(partial.exec("foo ")).toNotMatch(); // N.B. test passes without "appendRaw" case for "$", since `(?:$|$)` is equivalent to `$` - but the latter is more succinct
+      expect(partial.exec("foo ")).toNotMatch();
     });
 
     it("should support a bare end-of-input assertion, matching at the end of any string", () => {
-      const partial = createPartialMatchRegex(/$/);
+      const partial = new PartialMatchRegExp(/$/);
       expect(partial.exec("abc")).toMatchAt({ match: "", index: 3 });
       expect(partial.exec("a")).toMatchAt({ match: "", index: 1 });
       expect(partial.exec("")).toMatchAt({ match: "", index: 0 });
@@ -1346,12 +1354,12 @@ c`)
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/multiline
     describe("multiline mode", () => {
       it("should support a bare end-of-input assertion at a line boundary in multiline mode", () => {
-        const partial = createPartialMatchRegex(/$/m);
+        const partial = new PartialMatchRegExp(/$/m);
         expect(partial.exec("abc\n")).toMatchAt({ match: "", index: 3 });
       });
 
       it("should not treat a coincidental line boundary as end-of-input when the pattern has no assertion there", () => {
-        const partial = createPartialMatchRegex(/^foobar/m);
+        const partial = new PartialMatchRegExp(/^foobar/m);
         expect(partial.exec("foo\nbaz")).toNotMatch();
         expect(partial.exec("foo")).toMatchAt({ match: "foo", index: 0 });
         expect(partial.exec("foobar")).toMatchAt({ match: "foobar", index: 0 });
@@ -1359,7 +1367,7 @@ c`)
 
       it("should support partial matching of lines in multiline mode", () => {
         const input = /^foo$/gm;
-        const partial = createPartialMatchRegex(input);
+        const partial = new PartialMatchRegExp(input);
         const string = "foo\nfoo";
 
         for (let i = 1; i < string.length; i++) {
@@ -1375,7 +1383,7 @@ c`)
 
       it("should support partial matching of lines in multiline mode with dotAll flag", () => {
         const input = /^f.o$/gms;
-        const partial = createPartialMatchRegex(input);
+        const partial = new PartialMatchRegExp(input);
         const string = "f\no\nf\no";
 
         for (let i = 1; i < string.length; i++) {
@@ -1388,6 +1396,13 @@ c`)
           partial.lastIndex = 0;
         }
       });
+
+      it("should support matching an unanchored pattern wherever its literal text occurs, unaffected by line boundaries", () => {
+        const pattern = new PartialMatchRegExp(/foo/m);
+        expect(pattern.test("f")).toBe(true);
+        expect(pattern.test("fo")).toBe(true);
+        expect(pattern.test("foo")).toBe(true);
+      });
     });
   });
 
@@ -1395,14 +1410,9 @@ c`)
   describe("word boundary assertions", () => {
     it("should support partial matching of word boundary assertions", () => {
       const input = /\bfoo\b/;
-      const partial = createPartialMatchRegex(input);
-      const string = "foo";
+      const partial = new PartialMatchRegExp(input);
 
-      for (let i = 1; i < string.length; i++) {
-        const partialString = string.slice(0, i);
-        const result = partial.exec(partialString);
-        expect(result).toMatchAt({ match: partialString, index: 0 });
-      }
+      expect(partial).toMatchPartially({ characters: "foo".split("") });
 
       expect(partial.exec(" foo")).toMatchAt({ match: "foo", index: 1 });
       expect(partial.exec("foo ")).toMatchAt({ match: "foo", index: 0 });
@@ -1412,7 +1422,7 @@ c`)
 
     it("should support partial matching of non-word boundary assertions", () => {
       const input = /\Bfoo\B/;
-      const partial = createPartialMatchRegex(input);
+      const partial = new PartialMatchRegExp(input);
       const string = "xfooy";
 
       for (let i = 1; i < string.length; i++) {
@@ -1435,7 +1445,7 @@ c`)
         const pattern = new RegExp(
           Array(width).fill("(?:a)").join("|") + "|(?:b)"
         );
-        const partial = createPartialMatchRegex(pattern);
+        const partial = new PartialMatchRegExp(pattern);
         expect(() => partial.exec("a")).not.toThrow();
         expect(() => partial.exec("b")).not.toThrow();
         expect(() => partial.exec("z")).not.toThrow();
@@ -1446,7 +1456,7 @@ c`)
         const pattern = new RegExp(
           "(?:".repeat(depth) + "a" + ")".repeat(depth) + "suffix"
         );
-        const partial = createPartialMatchRegex(pattern);
+        const partial = new PartialMatchRegExp(pattern);
         expect(() => partial.exec("a")).not.toThrow();
         expect(() => partial.exec("asuffix")).not.toThrow();
       });
@@ -1456,7 +1466,7 @@ c`)
     // Lucene tests quantifiers whose subpatterns can match an empty string (e.g. [^y]*{1,2}).
     describe("quantifiers over empty-matching subpatterns (Lucene-inspired)", () => {
       it("should support patterns where the quantified atom matches zero characters (a*suffix)", () => {
-        const partial = createPartialMatchRegex(/a*suffix/);
+        const partial = new PartialMatchRegExp(/a*suffix/);
         // zero repetitions of "a" — falls through directly to "suffix"
         expect(partial.exec("s")).toMatchAt({ match: "s", index: 0 });
         expect(partial.exec("suffix")).toMatchAt({ match: "suffix", index: 0 });
@@ -1468,7 +1478,7 @@ c`)
       });
 
       it("should support optional (?) quantifier where the atom matches zero characters", () => {
-        const partial = createPartialMatchRegex(/a?suffix/);
+        const partial = new PartialMatchRegExp(/a?suffix/);
         expect(partial.exec("s")).toMatchAt({ match: "s", index: 0 });
         expect(partial.exec("as")).toMatchAt({ match: "as", index: 0 });
         expect(partial.exec("suffix")).toMatchAt({ match: "suffix", index: 0 });
@@ -1479,11 +1489,15 @@ c`)
       });
 
       it("should support character class quantifier that can match empty (Lucene [^y]*{1,2} style)", () => {
-        const partial = createPartialMatchRegex(/^[^y]*suffix/);
+        const partial = new PartialMatchRegExp(/^[^y]*suffix/);
         expect(partial).toMatchPartially({
           characters: ["a", "b", ..."suffix".split("")]
         });
-        expect(partial.exec("ysuffix")).toNotMatch(); // y excluded from class; ^ prevents skipping it
+      });
+
+      it("should not match when the excluded character appears where the anchored quantifier must match zero characters", () => {
+        const partial = new PartialMatchRegExp(/^[^y]*suffix/);
+        expect(partial.exec("ysuffix")).toNotMatch();
       });
     });
 
@@ -1491,7 +1505,7 @@ c`)
     // Lucene explicitly tests Unicode case folding (σ/Σ, ῼ, ﬗ) with case-insensitive flags.
     describe("Unicode case folding (Lucene-inspired)", () => {
       it("should support case-insensitive partial matching of Greek lowercase sigma (σ) against uppercase (Σ)", () => {
-        const partial = createPartialMatchRegex(/σsuffix/iu);
+        const partial = new PartialMatchRegExp(/σsuffix/iu);
         // Σ (U+03A3) is the uppercase of σ (U+03C3) under Unicode case folding
         expect(partial.exec("Σs")).toMatchAt({ match: "Σs", index: 0 });
         expect(partial.exec("σs")).toMatchAt({ match: "σs", index: 0 });
@@ -1501,13 +1515,13 @@ c`)
       });
 
       it("should support case-insensitive partial matching of uppercase sigma (Σ) against lowercase (σ)", () => {
-        const partial = createPartialMatchRegex(/Σsuffix/iu);
+        const partial = new PartialMatchRegExp(/Σsuffix/iu);
         expect(partial.exec("σs")).toMatchAt({ match: "σs", index: 0 });
         expect(partial.exec("Σs")).toMatchAt({ match: "Σs", index: 0 });
       });
 
       it("should support case-insensitive partial matching of Greek capital letter omega with prosgegrammeni (ῼ)", () => {
-        const partial = createPartialMatchRegex(/ῼsuffix/iu);
+        const partial = new PartialMatchRegExp(/ῼsuffix/iu);
         expect(partial.exec("ῼ")).toMatchAt({ match: "ῼ", index: 0 });
         expect(partial).toMatchPartially({
           characters: ["ῼ", ..."suffix".split("")]
@@ -1523,29 +1537,31 @@ c`)
     describe("hitEnd() semantic equivalence (JDK-inspired)", () => {
       it("returns non-empty prefix match when input is a prefix of the pattern (hitEnd=true equivalent)", () => {
         // JDK: /^squidattack/.hitEnd("squid") === true — engine ran off end of input
-        const partial = createPartialMatchRegex(/^squidattack/);
+        const partial = new PartialMatchRegExp(/^squidattack/);
         expect(partial.exec("squid")?.[0]).toBe("squid");
       });
 
       it("returns null when input diverges from the pattern before end of input (hitEnd=false equivalent)", () => {
         // JDK: /^squidattack/.hitEnd("squack") === false — engine diverged at 4th char
-        const partial = createPartialMatchRegex(/^squidattack/);
+        const partial = new PartialMatchRegExp(/^squidattack/);
         expect(partial.exec("squack")).toBeNull();
       });
 
-      it("returns non-empty prefix when input is a prefix of a simple literal (JDK: /^abc/ on 'ab')", () => {
-        const partial = createPartialMatchRegex(/^abc/);
+      it("returns non-empty prefix when input is a prefix of a simple literal", () => {
+        // JDK: /^abc/ on 'ab'
+        const partial = new PartialMatchRegExp(/^abc/);
         expect(partial.exec("ab")?.[0]).toBe("ab");
       });
 
-      it("returns null when input diverges early (JDK: /^abc/ on 'ad')", () => {
-        const partial = createPartialMatchRegex(/^abc/);
+      it("returns null when input diverges early", () => {
+        // JDK: /^abc/ on 'ad'
+        const partial = new PartialMatchRegExp(/^abc/);
         expect(partial.exec("ad")).toBeNull();
       });
 
       it("returns non-empty partial match for a non-anchored pattern occurring mid-string (hitEnd=true via unanchored find)", () => {
         // JDK: /catattack/ on "attackattackattackcatatta" — hitEnd=true (prefix found at end)
-        const partial = createPartialMatchRegex(/catattack/);
+        const partial = new PartialMatchRegExp(/catattack/);
         const m = partial.exec("attackattackattackcatatta");
         expect(m).toMatchObject({ 0: "catatta", index: 18 });
       });
@@ -1555,9 +1571,7 @@ c`)
     // Java tests that ^ with MULTILINE matches at the start of a new line after \r (bare CR).
     describe("CRLF boundary in multiline mode (JDK caretAtEndTest-inspired)", () => {
       it("should recognise ^ at position 0 and after bare CR in multiline mode", () => {
-        // Use "\rfoo" so the second line is non-empty and the engine can find a match there.
-        // For zero-length matches, lastIndex must be advanced manually — standard JS pattern.
-        const partial = createPartialMatchRegex(/^x?/gm);
+        const partial = new PartialMatchRegExp(/^x?/gm);
         const m1 = partial.exec("\rfoo");
         expect(m1).toMatchObject({ index: 0 });
         if (m1?.[0] === "") partial.lastIndex++; // advance past zero-length match
@@ -1565,9 +1579,8 @@ c`)
         expect(m2).toMatchObject({ index: 1 }); // ^ matches at start of new line after \r
       });
 
-      it("should match $ before bare CR in multiline mode", () => {
-        const partial = createPartialMatchRegex(/^foo$/m);
-        // \r is a line terminator in multiline mode, so "foo" is a complete line
+      it("should match $ before bare CR, since \\r is a line terminator in multiline mode", () => {
+        const partial = new PartialMatchRegExp(/^foo$/m);
         expect(partial.exec("foo\r")).toMatchAt({ match: "foo", index: 0 });
       });
     });
@@ -1578,7 +1591,7 @@ c`)
     describe("progressive find() via lastIndex (JDK wordSearchTest-inspired)", () => {
       it("should find successive word-prefixed partial matches by advancing lastIndex", () => {
         // JDK wordSearchTest: /\b/ on "word1 word2 word3" with progressive find(pos) calls
-        const partial = createPartialMatchRegex(/\bwor/g);
+        const partial = new PartialMatchRegExp(/\bwor/g);
         const input = "word1 word2 word3";
         const positions: number[] = [];
         let m;
@@ -1589,7 +1602,7 @@ c`)
       });
 
       it("should support find(position) equivalent by setting lastIndex before exec", () => {
-        const partial = createPartialMatchRegex(/\bwor/g);
+        const partial = new PartialMatchRegExp(/\bwor/g);
         const input = "word1 word2 word3";
         // Start from position 6 (equivalent to JDK's find(6))
         partial.lastIndex = 6;
@@ -1603,7 +1616,7 @@ c`)
     // are engine/interface-specific and therefore mapped conceptually.
     describe("PCRE2 testdata parity (ECMAScript-compatible subset)", () => {
       it("should support /abcd*/ style prefix matching (PCRE2 \\=ps / \\=ph inspired)", () => {
-        const partial = createPartialMatchRegex(/abcd*/);
+        const partial = new PartialMatchRegExp(/abcd*/);
         expect(partial.exec("xxxxab")).toMatchAt({ match: "ab", index: 4 });
         expect(partial.exec("xxxxabc")).toMatchAt({ match: "abc", index: 4 });
         expect(partial.exec("xxxxabcd")).toMatchAt({
@@ -1613,7 +1626,7 @@ c`)
       });
 
       it("should support case-insensitive /abcd*/ behavior with uppercase input (PCRE2 /i inspired)", () => {
-        const partial = createPartialMatchRegex(/abcd*/i);
+        const partial = new PartialMatchRegExp(/abcd*/i);
         expect(partial.exec("XXXXAB")).toMatchAt({ match: "AB", index: 4 });
         expect(partial.exec("XXXXABCD")).toMatchAt({
           match: "ABCD",
@@ -1622,7 +1635,7 @@ c`)
       });
 
       it("should support /abc\\d*/ prefixes (PCRE2 inspired)", () => {
-        const partial = createPartialMatchRegex(/abc\d*/);
+        const partial = new PartialMatchRegExp(/abc\d*/);
         expect(partial.exec("xxxxab")).toMatchAt({ match: "ab", index: 4 });
         expect(partial.exec("xxxxabc1")).toMatchAt({
           match: "abc1",
@@ -1631,7 +1644,7 @@ c`)
       });
 
       it("should support /abc[de]*/ prefixes (PCRE2 inspired)", () => {
-        const partial = createPartialMatchRegex(/abc[de]*/);
+        const partial = new PartialMatchRegExp(/abc[de]*/);
         expect(partial.exec("xxxxab")).toMatchAt({ match: "ab", index: 4 });
         expect(partial.exec("xxxxabcde")).toMatchAt({
           match: "abcde",
@@ -1640,7 +1653,7 @@ c`)
       });
 
       it("should support \\bthe cat\\b with both complete and partial prefixes (PCRE2 inspired)", () => {
-        const partial = createPartialMatchRegex(/\bthe cat\b/);
+        const partial = new PartialMatchRegExp(/\bthe cat\b/);
         expect(partial.exec("the cat")).toMatchAt({
           match: "the cat",
           index: 0
@@ -1649,26 +1662,26 @@ c`)
       });
 
       it("should support CR subjects for wildcard quantifier prefixes in dotAll mode (PCRE2 newline-mode inspired)", () => {
-        const partial = createPartialMatchRegex(/.{2,3}/s);
+        const partial = new PartialMatchRegExp(/.{2,3}/s);
         expect(partial.exec("\r")).toMatchAt({ match: "\r", index: 0 });
         expect(partial.exec("\r\r")).toMatchAt({ match: "\r\r", index: 0 });
         expect(partial.exec("\r\r\r")).toMatchAt({ match: "\r\r\r", index: 0 });
       });
 
       it("should support CR subjects for single wildcard in dotAll mode (PCRE2 /./ newline-mode inspired)", () => {
-        const partial = createPartialMatchRegex(/./s);
+        const partial = new PartialMatchRegExp(/./s);
         expect(partial.exec("\r")).toMatchAt({ match: "\r", index: 0 });
       });
 
       it("should support CR subjects for non-greedy wildcard quantifier prefixes in dotAll mode (PCRE2 /.{2,3}?/ inspired)", () => {
-        const partial = createPartialMatchRegex(/.{2,3}?/s);
+        const partial = new PartialMatchRegExp(/.{2,3}?/s);
         expect(partial.exec("\r")).toMatchAt({ match: "\r", index: 0 });
         expect(partial.exec("\r\r")).toMatchAt({ match: "\r\r", index: 0 });
         expect(partial.exec("\r\r\r")).toMatchAt({ match: "\r\r", index: 0 });
       });
 
       it("should support lookbehind-based partial continuation (PCRE2 /(?<=abc)123/ inspired)", () => {
-        const partial = createPartialMatchRegex(/(?<=abc)123/);
+        const partial = new PartialMatchRegExp(/(?<=abc)123/);
         expect(partial.exec("xyzabc12")).toMatchAt({ match: "12", index: 6 });
         expect(partial.exec("xyzabc123")).toMatchAt({
           match: "123",
@@ -1677,13 +1690,13 @@ c`)
       });
 
       it("should support boundary-sensitive partial continuation (PCRE2 /\\babc\\b/ inspired)", () => {
-        const partial = createPartialMatchRegex(/\babc\b/);
+        const partial = new PartialMatchRegExp(/\babc\b/);
         expect(partial.exec("+++ab")).toMatchAt({ match: "ab", index: 3 });
         expect(partial.exec("+++abc+++")).toMatchAt({ match: "abc", index: 3 });
       });
 
       it("should support nested lookbehind with trailing wildcard (PCRE2 /(?<=(?<=a)b)c.*/ inspired)", () => {
-        const partial = createPartialMatchRegex(/(?<=(?<=a)b)c.*/);
+        const partial = new PartialMatchRegExp(/(?<=(?<=a)b)c.*/);
         expect(partial.exec("abc")).toMatchAt({ match: "c", index: 2 });
         expect(partial.exec("abcXYZ")).toMatchAt({
           match: "cXYZ",
@@ -1693,7 +1706,7 @@ c`)
       });
 
       it("should support fixed-width lookbehind with trailing wildcard (PCRE2 /(?<=ab)c.*/ inspired)", () => {
-        const partial = createPartialMatchRegex(/(?<=ab)c.*/);
+        const partial = new PartialMatchRegExp(/(?<=ab)c.*/);
         expect(partial.exec("abc")).toMatchAt({ match: "c", index: 2 });
         expect(partial.exec("abcXYZ")).toMatchAt({
           match: "cXYZ",
@@ -1703,7 +1716,7 @@ c`)
       });
 
       it("should support inline lookbehind assertion near the split point (PCRE2 /abc(?<=bc)def/ inspired)", () => {
-        const partial = createPartialMatchRegex(/abc(?<=bc)def/);
+        const partial = new PartialMatchRegExp(/abc(?<=bc)def/);
         // PCRE2 allusedtext output may include left context; JS match arrays expose consumed text only.
         expect(partial.exec("xxxabcd")).toMatchAt({ match: "abcd", index: 3 });
         expect(partial.exec("xxxabcdef")).toMatchAt({
@@ -1713,7 +1726,7 @@ c`)
       });
 
       it("should support lookbehind-gated continuation where only consumed text is returned (PCRE2 /(?<=ab)cdef/ inspired)", () => {
-        const partial = createPartialMatchRegex(/(?<=ab)cdef/);
+        const partial = new PartialMatchRegExp(/(?<=ab)cdef/);
         expect(partial.exec("xxabcd")).toMatchAt({ match: "cd", index: 4 });
         expect(partial.exec("xxabcdef")).toMatchAt({
           match: "cdef",
@@ -1722,7 +1735,7 @@ c`)
       });
 
       it("should support lookbehind-gated continuation for /(?<=abc)def/ (PCRE2 inspired)", () => {
-        const partial = createPartialMatchRegex(/(?<=abc)def/);
+        const partial = new PartialMatchRegExp(/(?<=abc)def/);
         expect(partial.exec("abc")).toMatchAt({ match: "", index: 3 });
         expect(partial.exec("abcde")).toMatchAt({ match: "de", index: 3 });
         expect(partial.exec("abcdef")).toMatchAt({
@@ -1732,7 +1745,7 @@ c`)
       });
 
       it("should support lookbehind-gated continuation for /(?<=123)abc/ (PCRE2 MARK-adjacent inspired)", () => {
-        const partial = createPartialMatchRegex(/(?<=123)abc/);
+        const partial = new PartialMatchRegExp(/(?<=123)abc/);
         expect(partial.exec("xxxx123a")).toMatchAt({ match: "a", index: 7 });
         expect(partial.exec("xxxx123abc")).toMatchAt({
           match: "abc",
@@ -1741,26 +1754,26 @@ c`)
       });
 
       it("should support deeply nested lookbehind chains (PCRE2 /(?<=(?<=(?<=a)b)c)./ inspired)", () => {
-        const partial = createPartialMatchRegex(/(?<=(?<=(?<=a)b)c)./);
+        const partial = new PartialMatchRegExp(/(?<=(?<=(?<=a)b)c)./);
         expect(partial.exec("123abcXYZ")).toMatchAt({ match: "X", index: 6 });
       });
 
       it("should support captures inside nested lookbehind (PCRE2 /(?<=ab(cd(?<=...)))./ inspired)", () => {
-        const partial = createPartialMatchRegex(/(?<=ab(cd(?<=...)))./);
+        const partial = new PartialMatchRegExp(/(?<=ab(cd(?<=...)))./);
         const match = partial.exec("abcdX");
         expect(match).toMatchAt({ match: "X", index: 4 });
         expect(match).toMatchObject({ 1: "cd" });
       });
 
       it("should support alternate nesting layout for captures in lookbehind (PCRE2 /(?<=ab((?<=...)cd))./ inspired)", () => {
-        const partial = createPartialMatchRegex(/(?<=ab((?<=...)cd))./);
+        const partial = new PartialMatchRegExp(/(?<=ab((?<=...)cd))./);
         const match = partial.exec("ZabcdX");
         expect(match).toMatchAt({ match: "X", index: 5 });
         expect(match).toMatchObject({ 1: "cd" });
       });
 
       it("should cover /abcd/ partial behavior independently of engine mode (PCRE2 JIT/interpretive inspired)", () => {
-        const partial = createPartialMatchRegex(/abcd/);
+        const partial = new PartialMatchRegExp(/abcd/);
         expect(partial.exec("ab")).toMatchAt({ match: "ab", index: 0 });
         expect(partial.exec("abcd")).toMatchAt({ match: "abcd", index: 0 });
         expect(partial.exec("xyz")).toNotMatch();
@@ -1769,7 +1782,7 @@ c`)
       it("should document that PCRE2 POSIX partial_hard behavior has no JS equivalent", () => {
         // PCRE2 testinput18/testoutput18: partial_hard is ignored by the POSIX wrapper.
         // This library has no POSIX API layer, so behavior is a normal partial regex.
-        const partial = createPartialMatchRegex(/abc/);
+        const partial = new PartialMatchRegExp(/abc/);
         expect(partial.exec("ab")).toMatchAt({ match: "ab", index: 0 });
       });
     });
@@ -1828,7 +1841,7 @@ c`)
       }
     ].forEach(({ name, input, testStrings, expected }) => {
       it(`should support pass-through of ${name} (despite not being able to partially match non-atomic captures, since matching is atomic)`, () => {
-        const partial = createPartialMatchRegex(input);
+        const partial = new PartialMatchRegExp(input);
         for (const testString of testStrings) {
           const result = partial.exec(testString);
           expect(result).toMatchAt({ match: testString, index: 0 });
@@ -1837,25 +1850,764 @@ c`)
       });
     });
 
-    // https://tc39.es/ecma262/#sec-regular-expressions-patterns
-    describe("Annex B literal \\k escapes", () => {
-      it("should tolerate \\k escapes with no named group reference to complete them", () => {
-        const partial = createPartialMatchRegex(new RegExp("\\k"));
-        expect(partial.exec("k")).toMatchAt({ match: "k", index: 0 });
+    it("rejects input that diverges from an anchored backreference pattern immediately", () => {
+      const partial = new PartialMatchRegExp(/^(ab)\1/);
+      expect(partial.test("xy")).toBe(false);
+      expect(partial.test("xyz")).toBe(false);
+    });
+
+    [
+      {
+        name: "simple backreference, at end of string",
+        input: /^(a)\1/,
+        validInputs: ["a", "aa"],
+        expected: (str: string) => ({ 0: str, 1: "a" })
+      },
+      {
+        name: "multi-character simple backreference, at end of string",
+        input: /^(ab)\1/,
+        validInputs: ["a", "ab", "aba", "abab"],
+        expected: (str: string) => ({ 0: str, 1: "ab".slice(0, str.length) })
+      },
+      {
+        name: "simple backreference, not at end of string",
+        input: /^(a)\1b/,
+        validInputs: ["a", "aa", "aab"],
+        expected: (str: string) => ({ 0: str, 1: "a" })
+      },
+      {
+        name: "multi-character simple backreference, not at end of string",
+        input: /^(ab)\1c/,
+        validInputs: ["a", "ab", "aba", "abab", "ababc"],
+        expected: (str: string) => ({ 0: str, 1: "ab".slice(0, str.length) })
+      },
+      {
+        name: "backreference with disjunction",
+        input: /^(a|b)\1/,
+        validInputs: ["a", "aa", "b", "bb"],
+        invalidInputs: ["ab", "ba"],
+        expected: (str: string) => ({ 0: str, 1: str[0] })
+      },
+      {
+        name: "multi-character backreference with disjunction",
+        input: /^(ab|cd)\1/,
+        validInputs: ["a", "ab", "aba", "abab", "c", "cd", "cdc", "cdcd"],
+        invalidInputs: ["ac", "abc", "abcd", "cda", "cdab"],
+        expected: (str: string) => ({ 0: str, 1: str.slice(0, 2) })
+      },
+      {
+        name: "multi-character backreference with disjunction with common prefix",
+        input: /^(abc|abb)\1/,
+        validInputs: [
+          "a",
+          "ab",
+          "abc",
+          "abca",
+          "abcabc",
+          "abb",
+          "abba",
+          "abbabb"
+        ],
+        invalidInputs: ["abab", "abcabb", "abbabc"],
+        expected: (str: string) => ({ 0: str, 1: str.slice(0, 3) })
+      },
+      {
+        name: "multi-character backreference with optional capture",
+        input: /^(ab?|ac?)\1/,
+        validInputs: ["a", "ab", "aba", "abab", "ac", "aca", "acac"],
+        invalidInputs: [],
+        expected: (str: string) => ({ 0: str, 1: str.slice(0, 2) })
+      },
+      {
+        name: "backreference used twice",
+        input: /^(ab)\1\1/,
+        validInputs: ["a", "ab", "aba", "abab", "ababa", "ababab"],
+        invalidInputs: ["ac", "abb", "abac"],
+        expected: (str: string) => ({
+          0: str,
+          1: "ab".slice(0, Math.min(str.length, 2))
+        })
+      },
+      {
+        name: "two independent groups",
+        input: /^(ab)(cd)\1\2/,
+        validInputs: [
+          "a",
+          "ab",
+          "abc",
+          "abcd",
+          "abcda",
+          "abcdab",
+          "abcdabc",
+          "abcdabcd"
+        ],
+        invalidInputs: ["abcdabce", "abcdbacd", "abcdabdc"],
+        expected: (str: string) => ({
+          0: str,
+          1: "ab".slice(0, str.length),
+          2: "cd".slice(0, Math.max(0, str.length - 2))
+        })
+      },
+      {
+        name: "nested backreferences",
+        input: /^((a))\2\1/,
+        validInputs: ["a", "aa", "aaa"],
+        expected: () => ({ 1: "a", 2: "a" })
+      },
+      {
+        name: "nested backreference with disjunction",
+        input: /^((a|b))\2\1/,
+        validInputs: ["a", "aa", "aaa", "b", "bb", "bbb"],
+        expected: ([char]: string) => ({ 1: char, 2: char })
+      },
+      {
+        name: "prefix-ambiguous alternation",
+        input: /^(a|ab)\1/,
+        validInputs: ["a", "aa", "ab", "aba", "abab"],
+        invalidInputs: ["ac", "ba", "abc"],
+        expected: (str: string) => ({
+          0: str,
+          1: str.startsWith("ab") ? "ab" : "a"
+        })
+      },
+      {
+        name: "nested outer group",
+        input: /^((a|b)c)\1/,
+        validInputs: ["a", "ac", "aca", "acac", "b", "bc", "bcb", "bcbc"],
+        invalidInputs: ["acbc", "bcac", "acab"],
+        expected: (str: string) => ({
+          0: str,
+          1: (str[0] + "c").slice(0, Math.min(str.length, 2)),
+          2: str[0]
+        })
+      },
+      {
+        name: "case-insensitive backreference",
+        input: /^(abc)\1/i,
+        validInputs: [
+          "a",
+          "ab",
+          "abc",
+          "abcA",
+          "abcAB",
+          "abcABC",
+          "ABCa",
+          "ABCabc",
+          "ABCABC"
+        ],
+        invalidInputs: ["abcx", "ABCx"],
+        expected: (str: string) => ({ 0: str, 1: str.slice(0, 3) })
+      },
+      {
+        name: "optional group: undefined capture when the group doesn't participate",
+        input: /^(a)?b\1c/,
+        validInputs: ["b", "bc", "a", "ab", "aba", "abac"],
+        invalidInputs: ["c", "ac", "ba"],
+        expected: (str: string) => ({
+          0: str,
+          ...(str.startsWith("a") ? { 1: "a" } : {})
+        })
+      },
+      {
+        name: "top-level alternation: groups from inactive branch are undefined in cap",
+        input: /^(ab)\1|^(cd)\2/,
+        validInputs: ["a", "ab", "aba", "abab", "c", "cd", "cdc", "cdcd"],
+        invalidInputs: ["ac", "ad", "bc", "ca", "abcd", "cdab"],
+        expected: (str: string) => ({
+          0: str,
+          ...(str.startsWith("a") ? { 1: str.slice(0, 2) } : {}),
+          ...(str.startsWith("c") ? { 2: str.slice(0, 2) } : {})
+        })
+      },
+      {
+        name: "non-participating group via alternation — ECMA: backreference to non-participating group matches empty string",
+        input: /^(ab)\1|^cd\1/,
+        validInputs: ["a", "ab", "aba", "abab", "c", "cd"],
+        invalidInputs: ["b", "d", "ac", "ca", "dc"],
+        expected: (str: string) => ({
+          0: str,
+          ...(str.startsWith("a") ? { 1: str.slice(0, 2) } : {})
+        })
+      },
+      {
+        name: "non-participating named group via alternation — ECMA: named backreference to non-participating group matches empty string",
+        input: /^(?<grp>ab)\k<grp>|^cd\k<grp>/,
+        validInputs: ["a", "ab", "aba", "abab", "c", "cd"],
+        invalidInputs: ["b", "d", "ac", "ca", "dc"],
+        expected: (str: string) => ({
+          0: str,
+          ...(str.startsWith("a")
+            ? { 1: str.slice(0, 2), groups: { grp: str.slice(0, 2) } }
+            : {})
+        })
+      },
+      {
+        name: "backreference inside positive lookahead",
+        input: /^(foo)(?=\1)/,
+        validInputs: ["f", "fo", "foo", "foof", "foofo", "foofoo"],
+        invalidInputs: ["fox", "food"],
+        expected: (str: string) => ({
+          0: str.slice(0, 3),
+          1: str.slice(0, 3)
+        })
+      },
+      {
+        name: "disjunction in capture with lookahead backreference",
+        input: /^(a|b)(?=\1)/,
+        validInputs: ["a", "aa", "b", "bb"],
+        invalidInputs: ["ab", "ba"],
+        expected: (str: string) => ({ 0: str[0], 1: str[0] })
+      },
+      {
+        name: "multi-character disjunction in capture with lookahead backreference",
+        input: /^(ab|cd)(?=\1)/,
+        validInputs: ["a", "ab", "aba", "abab", "c", "cd", "cdc", "cdcd"],
+        invalidInputs: ["ac", "abcd"],
+        expected: (str: string) => ({
+          0: str.slice(0, 2),
+          1: str.slice(0, 2)
+        })
+      },
+      {
+        name: "optional capture disjunction with lookahead backreference",
+        input: /^(ab?|ac?)(?=\1)/,
+        validInputs: ["a", "aa", "ab", "aba", "abab", "ac", "aca", "acac"],
+        invalidInputs: ["b", "c"],
+        expected: (str: string) => {
+          const g = str.startsWith("ab")
+            ? "ab"
+            : str.startsWith("ac")
+              ? "ac"
+              : "a";
+          return { 0: g, 1: g };
+        }
+      },
+      {
+        name: "group inside quantifier",
+        input: /^(ab)+\1/,
+        validInputs: ["a", "ab", "aba", "abab", "ababab"],
+        invalidInputs: ["b", "ba", "abc"],
+        expected: (str: string) => ({
+          0: str,
+          1: str.slice(0, 2)
+        })
+      },
+      {
+        name: "named group inside quantifier",
+        input: /^(?<word>ab)+\k<word>/,
+        validInputs: ["a", "ab", "aba", "abab", "ababab"],
+        invalidInputs: ["b", "ba", "abc"],
+        expected: (str: string) => ({
+          0: str,
+          1: str.slice(0, 2)
+        })
+      },
+      {
+        name: "quantifier inside capture group",
+        input: /^(ab+)\1/,
+        validInputs: [
+          "a",
+          "ab",
+          "aba",
+          "abab",
+          "abb",
+          "abba",
+          "abbab",
+          "abbabb"
+        ],
+        invalidInputs: ["b"],
+        expected: (str: string) => ({
+          0: str,
+          1: str.match(/^ab*/)?.[0] ?? "a"
+        })
+      },
+      {
+        name: "alternation with common prefixes in capture group",
+        input: /^(abc|ab|a)\1/,
+        validInputs: [
+          "a",
+          "aa",
+          "ab",
+          "aba",
+          "abab",
+          "abc",
+          "abca",
+          "abcab",
+          "abcabc"
+        ],
+        invalidInputs: ["b", "c", "ac", "ba", "abb", "abcc"],
+        expected: (str: string) => ({
+          0: str,
+          1: str.startsWith("abc") ? "abc" : str.startsWith("ab") ? "ab" : "a"
+        })
+      },
+      {
+        name: "greedy quantifier inside capture group",
+        input: /^(a+b)\1/,
+        validInputs: ["a", "ab", "aba", "abab", "aab", "aaba", "aabaab"],
+        invalidInputs: ["b", "ba"],
+        expected: (str: string) => ({
+          0: str,
+          1: str.match(/^a+b/)?.[0] ?? "a"
+        })
+      },
+      {
+        name: "case-insensitive fixed-length capture",
+        input: /^([A-C]{3})\1/i,
+        validInputs: ["ABC", "ABCa", "ABCaB", "ABCabc", "ABCABC"],
+        invalidInputs: ["ABCd", "ABCAD"],
+        expected: (str: string) => ({ 0: str, 1: "ABC" })
+      },
+      {
+        name: "dotAll flag — capture containing newline",
+        input: /^(a.c)\1/s,
+        validInputs: ["a\nc", "a\nca", "a\nca\n", "a\nca\nc"],
+        invalidInputs: ["a\ncb", "a\ncad"],
+        expected: (str: string) => ({ 0: str, 1: "a\nc" })
+      },
+      {
+        name: "three-char group inside quantifier with multiple candidate capture lengths",
+        input: /^(abc)+\1/,
+        validInputs: [
+          "abc",
+          "abca",
+          "abcab",
+          "abcabc",
+          "abcabca",
+          "abcabcab",
+          "abcabcabc"
+        ],
+        invalidInputs: ["abce", "abcabd"],
+        expected: (str: string) => ({
+          0: str.match(/^(abc)+\1/)?.[0] ?? str,
+          1: "abc"
+        })
+      },
+      {
+        name: "three-char group inside lazy quantifier",
+        input: /^(abc)+?\1/,
+        validInputs: [
+          "abc",
+          "abca",
+          "abcab",
+          "abcabc",
+          "abcabca",
+          "abcabcab",
+          "abcabcabc"
+        ],
+        invalidInputs: ["abce", "abcad"],
+        expected: (str: string) => ({
+          0: str.match(/^(abc)+?\1/)?.[0] ?? str,
+          1: "abc"
+        })
+      }
+    ].forEach(
+      ({ name, input, validInputs, invalidInputs = [], expected }) => {
+        it(`should support partial matching of ${name}`, () => {
+          const partial = new PartialMatchRegExp(input);
+
+          for (const str of validInputs) {
+            const result = partial.exec(str);
+            expect(result).toMatchObject(expected(str));
+          }
+          for (const str of invalidInputs) {
+            const result = partial.exec(str);
+            expect(result).not.toMatchObject(expected(str));
+          }
+        });
+      }
+    );
+
+    describe("ECMA spec: backreference to non-participating capturing group matches nothing", () => {
+      it("numeric: partial prefix of branch that leaves group non-participating is accepted", () => {
+        const partial = new PartialMatchRegExp(/^(ab)\1|^cd\1/);
+
+        expect(partial.exec("c")).toMatchObject({ 0: "c", 1: undefined });
+        expect(partial.exec("cd")).toMatchObject({ 0: "cd", 1: undefined });
+        expect(partial.exec("d")).toBeNull();
+        expect(partial.exec("dc")).toBeNull();
       });
 
-      it("should support partial matching of \\k escapes followed by an unterminated reference opening", () => {
-        const partial = createPartialMatchRegex(new RegExp("\\k<suffix"));
-        expect(partial).toMatchPartially({
-          characters: ["k", "<", ..."suffix".split("")]
+      it("named: partial prefix of branch that leaves named group non-participating is accepted", () => {
+        const partial = new PartialMatchRegExp(/^(?<grp>ab)\k<grp>|^cd\k<grp>/);
+
+        expect(partial.exec("c")).toMatchObject({
+          0: "c",
+          1: undefined,
+          groups: { grp: undefined }
+        });
+        expect(partial.exec("cd")).toMatchObject({
+          0: "cd",
+          1: undefined,
+          groups: { grp: undefined }
+        });
+      });
+    });
+
+    describe("lastIndex behaviour for backreference patterns", () => {
+      it("uses a non-zero lastIndex and propagates it to the original pattern on a full match", () => {
+        const partial = new PartialMatchRegExp(/(ab)\1/g);
+        partial.lastIndex = 2;
+
+        const m = partial.exec("zzabab");
+        expect(m).toMatchObject({ 0: "abab" });
+        expect(partial.lastIndex).toBe(6);
+      });
+
+      it("uses a non-zero lastIndex for partial matching and propagates partial regex lastIndex", () => {
+        const partial = new PartialMatchRegExp(/(ab)\1/g);
+        partial.lastIndex = 5;
+
+        const m = partial.exec("ababxaba");
+        expect(m).toMatchObject({ 0: "aba" });
+        expect(partial.lastIndex).toBe(8);
+      });
+
+      it("resets lastIndex to zero when no match is possible from an anchored start, for global and sticky", () => {
+        const g = new PartialMatchRegExp(/^(ab)\1/g);
+        g.lastIndex = 1;
+        expect(g.exec("a")).toBeNull();
+        expect(g.lastIndex).toBe(0);
+
+        const y = new PartialMatchRegExp(/^(ab)\1/y);
+        y.lastIndex = 1;
+        expect(y.exec("a")).toBeNull();
+        expect(y.lastIndex).toBe(0);
+      });
+
+      it("resets lastIndex to zero for a backreference pattern when no match is possible at the sticky, anchored position", () => {
+        const y = new PartialMatchRegExp(/^(ab)\1/y);
+        y.lastIndex = 1;
+        expect(y.exec("zzzz")).toBeNull();
+        expect(y.lastIndex).toBe(0);
+      });
+
+      it("resets lastIndex to zero when a capture is found but the expanded backreference match fails at a sticky position", () => {
+        const y = new PartialMatchRegExp(/([ab])\1/y);
+        y.lastIndex = 1;
+        expect(y.exec("aab")).toBeNull();
+        expect(y.lastIndex).toBe(0);
+      });
+
+      it("resets lastIndex to zero when a capture is found but the expanded backreference match fails at an anchored global position", () => {
+        const g = new PartialMatchRegExp(/^([ab])\1/g);
+        g.lastIndex = 0;
+        expect(g.exec("ab")).toBeNull();
+        expect(g.lastIndex).toBe(0);
+      });
+    });
+
+    describe("backreference resolution respects the original pattern's flags", () => {
+      it("honors a non-zero global lastIndex instead of matching an earlier decoy", () => {
+        const partial = new PartialMatchRegExp(/(ab)\1/g);
+        partial.lastIndex = 8;
+        expect(partial.exec("ababxxxxxa")).toMatchAt({ match: "a", index: 9 });
+      });
+
+      it("honors a non-zero sticky lastIndex instead of matching an earlier decoy", () => {
+        const partial = new PartialMatchRegExp(/(ab)\1/y);
+        partial.lastIndex = 5;
+        expect(partial.exec("ababxa")).toMatchAt({ match: "a", index: 5 });
+      });
+
+      it("honors the ignoreCase flag when resolving a backreference", () => {
+        const partial = new PartialMatchRegExp(/(AB)\1c/i);
+        expect(partial.exec("aBab")).toMatchAt({ match: "aBab", index: 0 });
+      });
+
+      it("honors the dotAll flag when resolving a backreference", () => {
+        const partial = new PartialMatchRegExp(/(a.c)\1d/s);
+        expect(partial.exec("a\nca\nc")).toMatchAt({
+          match: "a\nca\nc",
+          index: 0
         });
       });
 
-      it("should support partial matching of \\k escapes when a closing angle bracket appears later in the pattern", () => {
-        const partial = createPartialMatchRegex(new RegExp("\\ka>b"));
-        expect(partial).toMatchPartially({
-          characters: ["k", "a", ">", "b"]
+      it.each(["u", "v"])(
+        "honors the %s flag when resolving an astral-plane backreference",
+        (flag) => {
+          const partial = new PartialMatchRegExp(
+            new RegExp("(\u{1F600})\\1x", flag)
+          );
+          expect(partial.exec("\u{1F600}\u{1F600}")).toMatchAt({
+            match: "\u{1F600}\u{1F600}",
+            index: 0
+          });
+        }
+      );
+
+      it("honors the multiline flag when resolving a backreference", () => {
+        const partial = new PartialMatchRegExp(/(^ab)\1c/m);
+        expect(partial.exec("xx\nabab")).toMatchAt({ match: "abab", index: 3 });
+      });
+    });
+
+    describe("backref patterns that match the empty string", () => {
+      it("exec('') returns a match when the backref pattern matches the empty string", () => {
+        const emptyCapturingBackref = new PartialMatchRegExp(/^(a?)\1/);
+        const m = emptyCapturingBackref.exec("");
+        expect(m).toMatchObject({ 0: "", 1: "" });
+      });
+
+      it("test('') returns true when the backref pattern matches the empty string", () => {
+        expect(new PartialMatchRegExp(/^(a*)\1/).test("")).toBe(true);
+      });
+
+      it("partial prefixes are still matched correctly for non-empty inputs", () => {
+        const partial = new PartialMatchRegExp(/^(ab)\1/);
+        expect(partial.exec("a")?.[0]).toBe("a");
+        expect(partial.exec("ab")?.[0]).toBe("ab");
+        expect(partial.exec("aba")?.[0]).toBe("aba");
+        expect(partial.exec("abab")?.[0]).toBe("abab");
+      });
+    });
+
+    it("accepts every prefix of 'abab' and rejects nearby non-prefix strings", () => {
+      const partial = new PartialMatchRegExp(/^(ab)\1/);
+
+      expect(partial).toMatchPartially({ characters: "abab".split("") });
+      expect(partial.exec("abab")).toMatchObject({ 0: "abab" });
+
+      for (const input of ["b", "abb", "ababa", "abac", "abba", "xyz"]) {
+        const match = partial.exec(input);
+        expect(match?.[0] === input).toBe(false);
+      }
+    });
+
+    it("matches the optional-group branch when the capture is unmatched", () => {
+      const partial = new PartialMatchRegExp(/^(a)?b\1/);
+      const match = partial.exec("b");
+      expect(match).toMatchObject({ 0: "b", 1: undefined });
+    });
+
+    it("accepts input ending mid-named-backreference via exec", () => {
+      const partial = new PartialMatchRegExp(/^(?<word>xy)\k<word>/);
+
+      const match = partial.exec("xyx");
+      expect(match).toMatchObject({ 0: "xyx", 1: "xy", groups: { word: "xy" } });
+    });
+
+    it("accepts every prefix of 'xyxy' for a named backreference and rejects nearby non-prefix strings", () => {
+      const partial = new PartialMatchRegExp(/^(?<word>xy)\k<word>/);
+
+      expect(partial).toMatchPartially({ characters: "xyxy".split("") });
+      expect(partial.exec("xyxy")).toMatchObject({ 0: "xyxy" });
+
+      for (const input of ["y", "xyy", "xyxyx", "xyxz", "xyyx", "xyz"]) {
+        const match = partial.exec(input);
+        expect(match?.[0] === input).toBe(false);
+      }
+    });
+
+    it("does not misinterpret a character class while resolving a backreference", () => {
+      const partial = new PartialMatchRegExp(/^([ab])\1/);
+      expect(partial.exec("ab")).toBeNull();
+    });
+
+    describe("non-greedy (lazy) quantifier semantics", () => {
+      it("lazy quantifier produces a shorter match than greedy on the same input", () => {
+        const greedy = new PartialMatchRegExp(/^(abc)+\1/);
+        const lazy = new PartialMatchRegExp(/^(abc)+?\1/);
+        expect(greedy.exec("abcabcabc")?.[0]).toBe("abcabcabc");
+        expect(lazy.exec("abcabcabc")?.[0]).toBe("abcabc");
+      });
+
+      it("lazy and greedy agree on partial inputs shorter than a full backref cycle", () => {
+        const greedy = new PartialMatchRegExp(/^(abc)+\1/);
+        const lazy = new PartialMatchRegExp(/^(abc)+?\1/);
+        expect(greedy.exec("abcab")?.[0]).toBe("abcab");
+        expect(lazy.exec("abcab")?.[0]).toBe("abcab");
+        expect(greedy.exec("abcab")?.[1]).toBe("abc");
+        expect(lazy.exec("abcab")?.[1]).toBe("abc");
+      });
+    });
+
+    describe("named group match.groups sync for a repeated group", () => {
+      it("match.groups[name] reflects the longer capture chosen for a repeated named group inside a quantifier", () => {
+        const namedGroupInQuantifier = new PartialMatchRegExp(
+          /^(?<word>abc)+\k<word>/
+        );
+        const m = namedGroupInQuantifier.exec("abcab");
+        expect(m).toMatchObject({
+          0: "abcab",
+          1: "abc",
+          groups: { word: "abc" }
         });
+      });
+
+      it("match[i] and match.groups[name] agree on the resolved capture for a repeated named group", () => {
+        const namedGroupInQuantifier = new PartialMatchRegExp(
+          /^(?<word>abc)+\k<word>/
+        );
+        const match = namedGroupInQuantifier.exec("abcab");
+        expect(match).toMatchObject({ 1: match!.groups!.word });
+      });
+
+      it("match.groups is unchanged when the named group isn't repeated", () => {
+        const simpleNamedBackref = new PartialMatchRegExp(
+          /^(?<word>ab)\k<word>/
+        );
+        const m = simpleNamedBackref.exec("abab");
+        expect(m).toMatchObject({ groups: { word: "ab" } });
+      });
+    });
+
+    describe("match.indices sync with d flag for a repeated group", () => {
+      it("match.indices[i] reflects the same resolved capture as match[i] for a repeated group", () => {
+        const groupedBackrefWithIndices = new PartialMatchRegExp(
+          /^(abc)+\1/d
+        );
+        const m = groupedBackrefWithIndices.exec("abcab");
+        expect(m).toMatchObject({ 1: "abc", indices: { 1: [0, 3] } });
+      });
+
+      it("match.indices.groups[name] reflects the same resolved capture as match.groups[name]", () => {
+        expect(
+          new PartialMatchRegExp(/^(?<word>abc)+\k<word>/d).exec("abcab")
+        ).toMatchObject({
+          0: "abcab",
+          1: "abc",
+          groups: { word: "abc" },
+          indices: { 0: [0, 5], 1: [0, 3], groups: { word: [0, 3] } }
+        });
+      });
+
+      it("match[i] and match.indices[i] remain consistent for the resolved capture", () => {
+        const m = new PartialMatchRegExp(/^(abc)+\1/d).exec("abcab");
+        expect(m).not.toBeNull();
+        const [captureStart, captureEnd] = m!.indices![1]!;
+        expect(m!.input.slice(captureStart, captureEnd)).toBe(m![1]);
+      });
+    });
+
+    describe("trailing group participates in the match but not in the shorter capture scan", () => {
+      it("keeps a trailing optional group's capture when the scan settled for a shorter match without it", () => {
+        const partial = new PartialMatchRegExp(/^(a)\1(b)?\1/);
+        expect(partial.exec("aab")).toMatchObject({ 0: "aab", 1: "a", 2: "b" });
+      });
+
+      it("keeps a trailing optional group's capture through a nested backreference group", () => {
+        const partial = new PartialMatchRegExp(/^((a)\2)\1(b)?/);
+        expect(partial.exec("aaab")).toMatchObject({
+          0: "aaab",
+          1: "aa",
+          2: "a",
+          3: "b"
+        });
+      });
+
+      it("keeps a multi-character trailing optional group's capture through a nested backreference group", () => {
+        const partial = new PartialMatchRegExp(/^((a)\2)\1(bb)?/);
+        expect(partial.exec("aaabb")).toMatchObject({
+          0: "aaabb",
+          1: "aa",
+          2: "a",
+          3: "bb"
+        });
+      });
+    });
+
+    describe("ECMAScript ordered alternation (first-match) semantics", () => {
+      it("shorter first alternative wins when both alternatives can satisfy the backref", () => {
+        const partial = new PartialMatchRegExp(/^(a|aa)\1/);
+        const m = partial.exec("aaaa");
+        expect(m).toMatchObject({ 0: "aa", 1: "a" });
+      });
+
+      it("alternation order determines the result — longer listed first wins when tried first", () => {
+        const partial = new PartialMatchRegExp(/^(aa|a)\1/);
+        const m = partial.exec("aaaa");
+        expect(m).toMatchObject({ 0: "aaaa", 1: "aa" });
+      });
+
+      it("resolves a partial prefix against (a|aa)\\1 using the first matching alternative 'a', not the longer 'aa'", () => {
+        const partial = new PartialMatchRegExp(/^(a|aa)\1/);
+        const m = partial.exec("a");
+        expect(m).toMatchObject({ 1: "a" });
+      });
+
+      it("keeps the longer match when the pattern itself backtracks to a later alternative — distinct from the quantified-group capture-length ambiguity above", () => {
+        const partial = new PartialMatchRegExp(/^(a|ab)\1/);
+        const m = partial.exec("ab");
+        expect(m).toMatchObject({ 1: "ab" });
+      });
+    });
+  });
+
+  describe("lastIndex propagation", () => {
+    it("global flag: lastIndex advances past the match on every exec call, not just the first, so repeated calls don't re-match the same position", () => {
+      const partial = new PartialMatchRegExp(/ab/g);
+      expect(partial.exec("abxyab")?.[0]).toBe("ab");
+      expect(partial.lastIndex).toBe(2);
+      expect(partial.exec("abxyab")?.[0]).toBe("ab");
+      expect(partial.lastIndex).toBe(6);
+    });
+
+    it("global flag: an unanchored pattern still matches an empty string at the true end of input once past all real matches (see the .test()/.exec() caveat in the README)", () => {
+      const partial = new PartialMatchRegExp(/ab/g);
+      partial.lastIndex = 6;
+      expect(partial.exec("abxyab")).toMatchObject({ 0: "", index: 6 });
+      expect(partial.lastIndex).toBe(6);
+    });
+
+    it("sticky flag: lastIndex advances past the match so the next sticky exec uses the new position", () => {
+      const partial = new PartialMatchRegExp(/ab/y);
+      expect(partial.exec("abcd")?.[0]).toBe("ab");
+      expect(partial.lastIndex).toBe(2); // sticky must advance; otherwise next exec retries pos 0
+    });
+
+    it("global flag: lastIndex resets to 0 when no match is possible from an anchored start", () => {
+      const partial = new PartialMatchRegExp(/^foo/g);
+      partial.lastIndex = 1;
+      expect(partial.exec("XXX")).toBeNull();
+      expect(partial.lastIndex).toBe(0);
+    });
+
+    it("sticky flag: lastIndex resets to 0 when no match is possible at the current position", () => {
+      const partial = new PartialMatchRegExp(/^foo/y);
+      partial.lastIndex = 1;
+      expect(partial.exec("XXX")).toBeNull();
+      expect(partial.lastIndex).toBe(0);
+    });
+  });
+
+  describe("rejecting non-matching input", () => {
+    it("exec() returns null for a string that cannot match", () => {
+      const partial = new PartialMatchRegExp(/^foo/);
+      expect(partial.exec("bar")).toBeNull();
+      expect(partial.exec("xyz")).toBeNull();
+    });
+
+    it("string.match() returns null for non-matching input", () => {
+      const partial = new PartialMatchRegExp(/^foo/);
+      expect("bar".match(partial)).toBeNull();
+      expect("fo".match(partial)).not.toBeNull();
+    });
+
+    it("/^x*$/ returns true for complete matches like 'xx'", () => {
+      expect(new PartialMatchRegExp(/^x*$/).test("xx")).toBe(true);
+      expect(new PartialMatchRegExp(/^x*$/).test("")).toBe(true);
+    });
+  });
+
+  // https://tc39.es/ecma262/#sec-regular-expressions-patterns
+  describe("Annex B literal \\k escapes", () => {
+    it("should tolerate \\k escapes with no named group reference to complete them", () => {
+      const partial = new PartialMatchRegExp(new RegExp("\\k"));
+      expect(partial.exec("k")).toMatchAt({ match: "k", index: 0 });
+    });
+
+    it("should support partial matching of \\k escapes followed by an unterminated reference opening", () => {
+      const partial = new PartialMatchRegExp(new RegExp("\\k<suffix"));
+      expect(partial).toMatchPartially({
+        characters: ["k", "<", ..."suffix".split("")]
+      });
+    });
+
+    it("should support partial matching of \\k escapes when a closing angle bracket appears later in the pattern", () => {
+      const partial = new PartialMatchRegExp(new RegExp("\\ka>b"));
+      expect(partial).toMatchPartially({
+        characters: ["k", "a", ">", "b"]
       });
     });
   });
