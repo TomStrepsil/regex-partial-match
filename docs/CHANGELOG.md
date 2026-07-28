@@ -15,6 +15,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Moved documentation of caveat regarding prefix-ambiguous top-level alternation to its proper location alongside backreferences, since it only applies when they exist
 
+### Removed
+
+- Removed confusing "multi-engine consistency" comparison that differentiates the testing style of RE2 reference implementation from the parity documentation
+
 ## [1.0.0] - 2026-07-22
 
 ### Fixed
