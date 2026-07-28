@@ -35,6 +35,304 @@ describe("PartialMatchRegExp", () => {
     expect(new PartialMatchRegExp("abc", "gi").ignoreCase).toBe(true);
   });
 
+  describe("features", () => {
+    it("reports only 'patternCharacter' for a plain literal pattern", () => {
+      expect(new PartialMatchRegExp(/foo/).features).toEqual(
+        new Set(["patternCharacter"])
+      );
+    });
+
+    it("detects a top-level ^ as a start anchor", () => {
+      expect(new PartialMatchRegExp(/^foo/).features).toContain("startAnchor");
+    });
+
+    it("detects a top-level $ as an end anchor", () => {
+      expect(new PartialMatchRegExp(/foo$/).features).toContain("endAnchor");
+    });
+
+    it("does not mistake a character class's ^/$ for an anchor", () => {
+      const features = new PartialMatchRegExp(/[^a$bc]/).features;
+      expect(features).not.toContain("startAnchor");
+      expect(features).not.toContain("endAnchor");
+    });
+
+    it("does not mistake nested v-flag character classes for a closed class", () => {
+      const dollar = new PartialMatchRegExp(/[[a-z]$]/v).features;
+      expect(dollar).not.toContain("endAnchor");
+      const caret = new PartialMatchRegExp(/[[a-z]^]/v).features;
+      expect(caret).not.toContain("startAnchor");
+    });
+
+    it("detects a ^ that isn't at the start of the pattern", () => {
+      expect(new PartialMatchRegExp(/foo^bar/).features).toContain(
+        "startAnchor"
+      );
+    });
+
+    it("detects a $ that isn't at the end of the pattern", () => {
+      expect(new PartialMatchRegExp(/foo$bar/).features).toContain("endAnchor");
+    });
+
+    it("detects a ^ inside an alternation branch, a realistic multiline-style shape", () => {
+      expect(new PartialMatchRegExp(/foo|^bar/).features).toContain(
+        "startAnchor"
+      );
+    });
+
+    it("detects a ^ inside a non-capturing group used as a line-start alternative", () => {
+      expect(new PartialMatchRegExp(/(?:^|\n)ERROR/).features).toContain(
+        "startAnchor"
+      );
+    });
+
+    it("detects a top-level \\b as a word boundary", () => {
+      expect(new PartialMatchRegExp(/\bfoo/).features).toContain(
+        "wordBoundary"
+      );
+    });
+
+    it("detects a top-level \\B as a non-word-boundary", () => {
+      expect(new PartialMatchRegExp(/foo\B/).features).toContain(
+        "nonWordBoundary"
+      );
+    });
+
+    it("does not mistake a [\\b] backspace character class for a word boundary", () => {
+      const features = new PartialMatchRegExp(/[\b]/).features;
+      expect(features).not.toContain("wordBoundary");
+      expect(features).not.toContain("nonWordBoundary");
+    });
+
+    it("detects a positive lookahead", () => {
+      expect(new PartialMatchRegExp(/foo(?=bar)/).features).toContain(
+        "lookahead"
+      );
+    });
+
+    it("detects a negative lookahead", () => {
+      expect(new PartialMatchRegExp(/foo(?!bar)/).features).toContain(
+        "negativeLookahead"
+      );
+    });
+
+    it("does not mistake a positive lookahead for a negative one", () => {
+      expect(new PartialMatchRegExp(/foo(?=bar)/).features).not.toContain(
+        "negativeLookahead"
+      );
+    });
+
+    it("detects a positive lookbehind", () => {
+      expect(new PartialMatchRegExp(/(?<=foo)bar/).features).toContain(
+        "lookbehind"
+      );
+    });
+
+    it("detects a negative lookbehind", () => {
+      expect(new PartialMatchRegExp(/(?<!foo)bar/).features).toContain(
+        "negativeLookbehind"
+      );
+    });
+
+    it("does not mistake a positive lookbehind for a negative one", () => {
+      expect(new PartialMatchRegExp(/(?<=foo)bar/).features).not.toContain(
+        "negativeLookbehind"
+      );
+    });
+
+    it("detects a named capturing group as both namedGroup and capturingGroup", () => {
+      const features = new PartialMatchRegExp(/(?<name>foo)/).features;
+      expect(features).toContain("namedGroup");
+      expect(features).toContain("capturingGroup");
+      expect(features).not.toContain("lookbehind");
+      expect(features).not.toContain("negativeLookbehind");
+    });
+
+    it("detects a plain capturing group, without namedGroup", () => {
+      const features = new PartialMatchRegExp(/(foo)/).features;
+      expect(features).toContain("capturingGroup");
+      expect(features).not.toContain("namedGroup");
+    });
+
+    it("detects a non-capturing group", () => {
+      expect(new PartialMatchRegExp(/(?:foo)/).features).toContain(
+        "nonCapturingGroup"
+      );
+    });
+
+    it("detects an add-only modifier group", () => {
+      expect(new PartialMatchRegExp(/(?i:foo)/).features).toContain(
+        "modifierGroup"
+      );
+    });
+
+    it("detects an add-and-remove modifier group, distinct from add-only", () => {
+      const features = new PartialMatchRegExp(/(?i-s:foo)/).features;
+      expect(features).toContain("modifierGroupWithRemoval");
+      expect(features).not.toContain("modifierGroup");
+    });
+
+    it("detects a remove-only modifier group as add-and-remove", () => {
+      expect(new PartialMatchRegExp(/(?-s:foo)/).features).toContain(
+        "modifierGroupWithRemoval"
+      );
+    });
+
+    it("detects a character class", () => {
+      expect(new PartialMatchRegExp(/[a-z]/).features).toContain(
+        "characterClass"
+      );
+    });
+
+    it("detects a nested character class under the v flag", () => {
+      expect(new PartialMatchRegExp(/[[a-z]$]/v).features).toContain(
+        "nestedCharacterClass"
+      );
+    });
+
+    it("does not report a nested character class without the v flag", () => {
+      expect(new PartialMatchRegExp(/[a-z]/).features).not.toContain(
+        "nestedCharacterClass"
+      );
+    });
+
+    it("detects the && intersection operator under the v flag", () => {
+      expect(
+        new PartialMatchRegExp(/[\p{Lowercase}&&\p{Script=Greek}]/v).features
+      ).toContain("classIntersection");
+    });
+
+    it("detects the -- subtraction operator under the v flag", () => {
+      expect(
+        new PartialMatchRegExp(/[\p{Lowercase}--\p{ASCII}]/v).features
+      ).toContain("classSubtraction");
+    });
+
+    it("does not mistake a plain range's single - for a subtraction operator", () => {
+      expect(new PartialMatchRegExp(/[a-z]/v).features).not.toContain(
+        "classSubtraction"
+      );
+    });
+
+    it("does not mistake an escaped & or - for a set operator", () => {
+      const ampersand = new PartialMatchRegExp(/[\&\&]/v).features;
+      expect(ampersand).not.toContain("classIntersection");
+      const dash = new PartialMatchRegExp(/[\-\-]/v).features;
+      expect(dash).not.toContain("classSubtraction");
+    });
+
+    it("does not report a set operator without the v flag", () => {
+      expect(new PartialMatchRegExp(/[a&&b]/).features).not.toContain(
+        "classIntersection"
+      );
+    });
+
+    it("detects disjunction", () => {
+      expect(new PartialMatchRegExp(/foo|bar/).features).toContain(
+        "disjunction"
+      );
+    });
+
+    it("detects quantifiers, both symbolic and bounded", () => {
+      expect(new PartialMatchRegExp(/a+/).features).toContain("quantifier");
+      expect(new PartialMatchRegExp(/a*/).features).toContain("quantifier");
+      expect(new PartialMatchRegExp(/a{2}/).features).toContain("quantifier");
+      expect(new PartialMatchRegExp(/a{2,}/).features).toContain("quantifier");
+      expect(new PartialMatchRegExp(/a{2,4}/).features).toContain("quantifier");
+    });
+
+    it("does not mistake a literal, unclosed { for a quantifier", () => {
+      expect(new PartialMatchRegExp(/a{/).features).not.toContain("quantifier");
+      expect(new PartialMatchRegExp(/a{2/).features).not.toContain(
+        "quantifier"
+      );
+      expect(new PartialMatchRegExp(/a{2,4/).features).not.toContain(
+        "quantifier"
+      );
+    });
+
+    it("detects a numbered backreference, distinct from a named one", () => {
+      const features = new PartialMatchRegExp(/(a)\1/).features;
+      expect(features).toContain("backreference");
+      expect(features).not.toContain("namedBackreference");
+    });
+
+    it("detects a named backreference, distinct from a numbered one", () => {
+      const features = new PartialMatchRegExp(/(?<a>x)\k<a>/).features;
+      expect(features).toContain("namedBackreference");
+      expect(features).not.toContain("backreference");
+    });
+
+    it("does not mistake an unresolvable \\k for a backreference", () => {
+      const features = new PartialMatchRegExp(/\k/).features;
+      expect(features).not.toContain("backreference");
+      expect(features).not.toContain("namedBackreference");
+    });
+
+    it("detects unicode property escapes under the u/v flags", () => {
+      expect(new PartialMatchRegExp(/\p{Letter}/u).features).toContain(
+        "unicodePropertyEscape"
+      );
+    });
+
+    it("does not mistake \\p for a property escape without the u/v flag", () => {
+      expect(new PartialMatchRegExp(/\p/).features).not.toContain(
+        "unicodePropertyEscape"
+      );
+    });
+
+    it("detects a control letter escape (\\cX), distinct from controlEscape", () => {
+      const features = new PartialMatchRegExp(/\cA/).features;
+      expect(features).toContain("controlLetterEscape");
+      expect(features).not.toContain("controlEscape");
+    });
+
+    it("detects control escapes (\\f\\n\\r\\t\\v), distinct from \\cX", () => {
+      for (const source of ["\\f", "\\n", "\\r", "\\t", "\\v"]) {
+        const features = new PartialMatchRegExp(new RegExp(source)).features;
+        expect(features).toContain("controlEscape");
+        expect(features).not.toContain("controlLetterEscape");
+        expect(features).not.toContain("otherEscape");
+      }
+    });
+
+    it("detects a hex escape sequence", () => {
+      expect(new PartialMatchRegExp(/\x41/).features).toContain(
+        "hexEscapeSequence"
+      );
+    });
+
+    it("detects a unicode escape sequence", () => {
+      const pattern = new RegExp("\\u0041");
+      expect(new PartialMatchRegExp(pattern).features).toContain(
+        "unicodeEscapeSequence"
+      );
+    });
+
+    it("detects character class escapes, distinct from other escapes", () => {
+      for (const source of ["\\d", "\\D", "\\w", "\\W", "\\s", "\\S"]) {
+        const features = new PartialMatchRegExp(new RegExp(source)).features;
+        expect(features).toContain("characterClassEscape");
+        expect(features).not.toContain("otherEscape");
+      }
+    });
+
+    it("detects any other escape as otherEscape", () => {
+      expect(new PartialMatchRegExp(/\./).features).toContain("otherEscape");
+    });
+
+    it("detects a plain literal character", () => {
+      expect(new PartialMatchRegExp(/foo/).features).toContain(
+        "patternCharacter"
+      );
+    });
+
+    it("does not mistake escaped, literal lookaround-shaped text for real syntax", () => {
+      expect(new PartialMatchRegExp(/\(\?!\)/).features).not.toContain(
+        "negativeLookahead"
+      );
+    });
+  });
+
   // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/flags
   describe("supporting flags", () => {
     it("should preserve the flags of the original regex", () => {
@@ -2201,22 +2499,20 @@ c`)
           1: "abc"
         })
       }
-    ].forEach(
-      ({ name, input, validInputs, invalidInputs = [], expected }) => {
-        it(`should support partial matching of ${name}`, () => {
-          const partial = new PartialMatchRegExp(input);
+    ].forEach(({ name, input, validInputs, invalidInputs = [], expected }) => {
+      it(`should support partial matching of ${name}`, () => {
+        const partial = new PartialMatchRegExp(input);
 
-          for (const str of validInputs) {
-            const result = partial.exec(str);
-            expect(result).toMatchObject(expected(str));
-          }
-          for (const str of invalidInputs) {
-            const result = partial.exec(str);
-            expect(result).not.toMatchObject(expected(str));
-          }
-        });
-      }
-    );
+        for (const str of validInputs) {
+          const result = partial.exec(str);
+          expect(result).toMatchObject(expected(str));
+        }
+        for (const str of invalidInputs) {
+          const result = partial.exec(str);
+          expect(result).not.toMatchObject(expected(str));
+        }
+      });
+    });
 
     describe("ECMA spec: backreference to non-participating capturing group matches nothing", () => {
       it("numeric: partial prefix of branch that leaves group non-participating is accepted", () => {
@@ -2384,7 +2680,11 @@ c`)
       const partial = new PartialMatchRegExp(/^(?<word>xy)\k<word>/);
 
       const match = partial.exec("xyx");
-      expect(match).toMatchObject({ 0: "xyx", 1: "xy", groups: { word: "xy" } });
+      expect(match).toMatchObject({
+        0: "xyx",
+        1: "xy",
+        groups: { word: "xy" }
+      });
     });
 
     it("accepts every prefix of 'xyxy' for a named backreference and rejects nearby non-prefix strings", () => {
@@ -2454,9 +2754,7 @@ c`)
 
     describe("match.indices sync with d flag for a repeated group", () => {
       it("match.indices[i] reflects the same resolved capture as match[i] for a repeated group", () => {
-        const groupedBackrefWithIndices = new PartialMatchRegExp(
-          /^(abc)+\1/d
-        );
+        const groupedBackrefWithIndices = new PartialMatchRegExp(/^(abc)+\1/d);
         const m = groupedBackrefWithIndices.exec("abcab");
         expect(m).toMatchObject({ 1: "abc", indices: { 1: [0, 3] } });
       });

@@ -10,6 +10,8 @@ Unlike C/C++ (via [PCRE/PCRE2](https://www.pcre.org/original/doc/html/pcrepartia
 
 This library transforms regular expressions to best-effort support **partial matching**, allowing you to test if an incomplete string could potentially match the full pattern. This is particularly useful for real-time input validation, autocomplete systems, progressive form validation, stream chunk matching, etc.
 
+As a side effect of the parse this requires, each `PartialMatchRegExp` also exposes a [`features`](#partialmatchregexpprototypefeatures-readonlysetregexfeature) set naming the syntactic constructs its pattern uses — useful for consumers that need to reason about a pattern without writing their own regex parser.  For many features, a simple search in the [source](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/source) is insufficient.
+
 **Based on an algorithm created by [Lucas Trzesniewski](https://github.com/ltrzesniewski)**, re-created for NPM via ISC license, with permission.
 
 ## 📦 Installation
@@ -54,10 +56,6 @@ The library transforms a regular expression by wrapping each [atomic element](ht
 
 This allows the pattern to match prefixes of the original pattern, enabling validation of incomplete input.
 
-### Patterns with backreferences
-
-Backreferences cannot be handled by the `|$(?![\s\S])` transform alone because they are atomic — `\1` must match the entire captured string or fail, and its length is only known at runtime. `PartialMatchRegExp` first tries a full match natively, as a short-circuit — if the input already satisfies the whole pattern, there's nothing further to do. Otherwise it runs a "capture scan": a variant of the pattern with each backreference swapped for a lazy `(?:[\s\S]*?)` wildcard, so the group it depends on can still capture against a partial input — matching anything, or nothing at all, without needing to already know the backreference's value. Whatever that scan captures (or leaves undefined, if the group hasn't been reached yet) is then used to build a fresh partial-matching regex for this specific input, expanding the backreference character-by-character from the captured value with the same per-atom transform as the rest of the pattern. See [docs/backreferences.md](./docs/backreferences.md) for the full algorithm, including the prefer-longer post-processing that preserves correct captures for groups inside quantifiers.
-
 Since the library accepts only valid regular expressions [^2], this enables the algorithm to make lots of unguarded assumptions about the source of the expression.
 
 The library has been stress-tested with various regular expression features in isolation, and some in likely combination, but obviously it's an unbounded test space, and syntactically valid regular expressions nevertheless support contradictory patterns e.g.
@@ -70,6 +68,13 @@ Such combinations have not been tested.
 
 > [!NOTE]
 > See [Partial Match Parity](/docs/partial-match-parity.md) for full details on how the library compares to reference implementations
+
+### Patterns with backreferences
+
+Backreferences cannot be handled by the `|$(?![\s\S])` transform alone because they are atomic — `\1` must match the entire captured string or fail, and its length is only known at runtime. `PartialMatchRegExp` first tries a full match natively, as a short-circuit — if the input already satisfies the whole pattern, there's nothing further to do. Otherwise it runs a "capture scan": a variant of the pattern with each backreference swapped for a lazy `(?:[\s\S]*?)` wildcard, so the group it depends on can still capture against a partial input — matching anything, or nothing at all, without needing to already know the backreference's value. 
+
+Whatever that scan captures (or leaves `undefined`, if the group hasn't been reached yet) is then used to build a fresh partial-matching regex for this specific input, expanding the backreference character-by-character from the captured value with the same per-atom transform as the rest of the pattern. See [docs/backreferences.md](./docs/backreferences.md) for the full algorithm, including the prefer-longer post-processing that preserves correct captures for groups inside quantifiers.
+
 
 ## ✅ Supported Features
 
@@ -171,17 +176,34 @@ The following cases remain atomic (full native value or exactly at true end of i
 - **`\k<name>` with no named capturing groups in the pattern.** [Annex B](https://tc39.es/ecma262/#sec-regular-expressions-patterns) tolerates this as the literal characters `k<a>`, but it's still treated as if it were a named backreference and matched atomically — `"k"` and `"k<"` will not partially match. A `\k` not immediately followed by a well-formed `<name>` reference is treated as the literal `k` and partially matches as usual.
 - **A backreference whose captured value can't be determined from a partial input.** This only affects the backreference site itself; it's strictly better than rejecting the input outright, and never accepts anything unsound.
 
-See also the [prefix-ambiguous top-level alternation](#prefix-ambiguous-top-level-alternation) caveat below — a related edge case where the internal capture scan resolves the wrong branch first.
+#### Prefix-ambiguous top-level alternation
 
-[^1]:
-     A bare `$` alone isn't sufficient here: under the `m` (multiline) flag — including one turned on locally via a `(?m:...)` [modifier](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Modifier) — `$` also matches immediately before *any* line terminator, not just the true end of input. That would let a `"\n"` the source pattern never allowed for be silently accepted as if the input had simply run out, e.g. `new PartialMatchRegExp(/^foobar/m)` would wrongly accept `"foo\nbaz"`. Appending `(?![\s\S])` narrows the disjunction down to strict end-of-input, regardless of multiline state.
+When a pattern uses top-level alternation where one branch is a strict prefix of another (e.g. `^(ab)\1|^(abc)\2`), the internal capture scan may select the shorter branch — because it uses `(?:[\s\S]*?)` which accepts zero characters — causing the final partial regex to fail for inputs that are valid prefixes of the longer branch. In such cases `exec` returns `null` even though the input is a valid partial match:
 
-     See [chromium issue 536420076](https://issues.chromium.org/u/2/issues/536420076) for the underlying V8 bug that requires `$` to precede `(?![\s\S])` rather than using the lookahead alone.
+```javascript
+const partial = new PartialMatchRegExp(/^(ab)\1|^(abc)\2/);
 
-     A shorter option, `(?-m:$)` — disabling multiline locally so `$` means strict end-of-input on its own — also sidesteps the bug and saves a few bytes per atom. However, modifier groups are new enough that support isn't universal, and feature-detecting them would add a fallback branch our test suite can't exercise honestly, since every engine that can realistically be tested against already supports them.
+partial.test("abca"); // false — but "abca" is a valid prefix of "abcabc" via the second branch
+```
 
-[^2]:
-     To remain lightweight, no runtime type validation is applied, so non-TypeScript consumers will be reliant on underlying errors thrown if used incorrectly.
+> [!TIP]
+> If alternate branches share a prefix, list the longer one first. The capture scan tries branches in order and stops at the first that accepts the partial input, so putting the longer branch first ensures it's the one selected:
+>
+> ```javascript
+> const partial = new PartialMatchRegExp(/^(abc)\2|^(ab)\1/);
+>
+> partial.test("abca"); // true
+> ```
+
+See [docs/backreferences.md](./docs/backreferences.md) for why this happens (the internal capture scan resolving the wrong alternative first).
+
+[^1]: A bare `$` alone isn't sufficient here: under the `m` (multiline) flag — including one turned on locally via a `(?m:...)` [modifier](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Modifier) — `$` also matches immediately before *any* line terminator, not just the true end of input. That would let a `"\n"` the source pattern never allowed for be silently accepted as if the input had simply run out, e.g. `new PartialMatchRegExp(/^foobar/m)` would wrongly accept `"foo\nbaz"`. Appending `(?![\s\S])` narrows the disjunction down to strict end-of-input, regardless of multiline state.
+
+See [chromium issue 536420076](https://issues.chromium.org/u/2/issues/536420076) for the underlying V8 bug that requires `$` to precede `(?![\s\S])` rather than using the lookahead alone.
+
+A shorter option, `(?-m:$)` — disabling multiline locally so `$` means strict end-of-input on its own — also sidesteps the bug and saves a few bytes per atom. However, modifier groups are new enough that support isn't universal, and feature-detecting them would add a fallback branch the test suite can't exercise honestly, since every engine that can realistically be tested against already supports them.
+
+[^2]: To remain lightweight, no runtime type validation is applied, so non-TypeScript consumers will be reliant on underlying errors thrown if used incorrectly.
 
 ### Positive Lookbehinds
 
@@ -237,18 +259,6 @@ As with surrogate pair matching, grapheme clusters / string properties can only 
 Hence, `[\p{RGI_Emoji_Flag_Sequence}]` will match `🇺🇳` as a whole, but not as the individual code points of which it's comprised.
 
 In [`v` mode](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/unicodeSets) expressions, where `[\q{abc}]` syntax is used in isolation (rather than its canonical use-case as a subtraction/intersection of another character class), this will also only match entirely or not at all. i.e. `abc` can match, but not partially.
-
-### Prefix-ambiguous top-level alternation
-
-When a pattern uses top-level alternation where one branch is a strict prefix of another (e.g. `^(ab)\1|^(abc)\2`), the internal capture scan may select the shorter branch — because it uses `(?:[\s\S]*?)` which accepts zero characters — causing the final partial regex to fail for inputs that are valid prefixes of the longer branch. In such cases `exec` returns `null` even though the input is a valid partial match:
-
-```javascript
-const partial = new PartialMatchRegExp(/^(ab)\1|^(abc)\2/);
-
-partial.test("abca"); // false — but "abca" is a valid prefix of "abcabc" via the second branch
-```
-
-See [docs/backreferences.md](./docs/backreferences.md) for why this happens (the internal capture scan resolving the wrong alternative first).
 
 ## 💡 Examples
 
@@ -351,6 +361,63 @@ When using `import 'regex-partial-match/extend'`, this method is added to `RegEx
 **Returns:**
 
 - A new `PartialMatchRegExp` that matches partial strings, created from the `RegExp` instance the method was called on.
+
+### `PartialMatchRegExp.prototype.features: ReadonlySet<RegexFeature>`
+
+Building the partial-match regex requires walking the entire source pattern once. As a side effect of that same walk, each instance records which syntactic constructs its pattern actually uses, exposed as a `features` set — no separate scan of the source is performed to produce it.
+
+This is useful for consumers building on top of `PartialMatchRegExp` who need to reason about which constructs a *specific* pattern uses, without writing their own regex parser to find out. Two concrete cases:
+
+- **Flagging patterns likely to hit one of the [caveats](#caveats) documented above.** For example, a pattern combining `backreference` with `lookbehind`, `negativeLookahead`, or `negativeLookbehind` is a candidate for the [atomic-backreference caveat](#backreferences); one combining `backreference` with `disjunction` is a candidate for the [prefix-ambiguous top-level alternation caveat](#prefix-ambiguous-top-level-alternation). A consumer accepting user-supplied patterns can surface a warning instead of letting the edge case surprise someone later.
+- **Restricting which constructs a product surface allows.** e.g. a system that only wants to accept "simple" patterns (no lookaround, no backreferences) from untrusted input can check `features` against an allow-list and reject the rest, without needing to hand-roll that check against the raw pattern source.
+
+```javascript
+import PartialMatchRegExp from "regex-partial-match";
+
+const partial = new PartialMatchRegExp(/^[a-z]+(?<domain>\.[a-z]+)\1/);
+
+partial.features; // Set { "startAnchor", "characterClass", "quantifier", "namedGroup", "capturingGroup", "backreference" }
+partial.features.has("backreference"); // true
+```
+
+`RegexFeature` is a string union, exported alongside `PartialMatchRegExp`:
+
+| Feature                    | Matches                                                | Notes                                                                          |
+| --------------------------- | ------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| `patternCharacter`          | An ordinary literal character                          |                                                                                 |
+| `startAnchor`                | Top-level `^`                                           |                                                                                 |
+| `endAnchor`                  | Top-level `$`                                           |                                                                                 |
+| `wordBoundary`               | Top-level `\b`                                          |                                                                                 |
+| `nonWordBoundary`            | Top-level `\B`                                          |                                                                                 |
+| `lookahead`                  | `(?=...)`                                               |                                                                                 |
+| `negativeLookahead`          | `(?!...)`                                               |                                                                                 |
+| `lookbehind`                 | `(?<=...)`                                              |                                                                                 |
+| `negativeLookbehind`         | `(?<!...)`                                              |                                                                                 |
+| `backreference`              | `\1`                                                     |                                                                                 |
+| `namedBackreference`         | `\k<name>`                                              |                                                                                 |
+| `namedGroup`                 | `(?<name>...)`                                          | Always accompanied by `capturingGroup` — see below                            |
+| `capturingGroup`             | `(...)`, including named groups                        |                                                                                 |
+| `nonCapturingGroup`          | `(?:...)`                                               |                                                                                 |
+| `modifierGroup`              | `(?ims:...)`                                            |                                                                                 |
+| `modifierGroupWithRemoval`   | `(?ims-ims:...)`                                        | Mutually exclusive with `modifierGroup`                                       |
+| `characterClass`             | `[...]`                                                 |                                                                                 |
+| `nestedCharacterClass`       | `[...[...]...]`                                         | `v` flag only                                                                  |
+| `classIntersection`          | `&&` inside a character class                          | `v` flag only                                                                  |
+| `classSubtraction`           | `--` inside a character class                          | `v` flag only                                                                  |
+| `disjunction`                | `\|`                                                    |                                                                                 |
+| `quantifier`                 | `*`, `+`, `?`, `{n}`, `{n,}`, `{n,m}`                    |                                                                                 |
+| `unicodePropertyEscape`      | `\p{...}`, `\P{...}`                                    | `u`/`v` flag only — otherwise tagged `otherEscape`                            |
+| `characterClassEscape`       | `\d`, `\D`, `\w`, `\W`, `\s`, `\S`                       |                                                                                 |
+| `controlEscape`               | `\f`, `\n`, `\r`, `\t`, `\v`                             |                                                                                 |
+| `controlLetterEscape`        | `\cX`                                                   |                                                                                 |
+| `hexEscapeSequence`          | `\xXX`                                                  |                                                                                 |
+| `unicodeEscapeSequence`      | `\uXXXX`, `\u{...}`                                     |                                                                                 |
+| `otherEscape`                 | Any other `\X`, e.g. `\.`, `\0`                         |                                                                                 |
+
+Two things worth knowing about how these tags line up with the grammar:
+
+- **One ECMA-262 production can map to several tags.** `Assertion` alone covers `^`, `$`, `\b`, `\B`, and all four lookarounds — `features` splits it by whichever discriminant is easiest to read off during the walk (`^` vs `$`, `=` vs `!` after `(?<`, etc.), since that information is free at the point each construct is recognized.
+- **A named capturing group always carries both `namedGroup` and `capturingGroup`.** The grammar treats a capturing group with a name and one without as the same production (`( GroupSpecifier? Disjunction )`), not two, so both tags are added together.
 
 ## 📜 License
 

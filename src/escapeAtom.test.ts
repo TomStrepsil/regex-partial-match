@@ -1,11 +1,8 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import escapeAtom from "./escapeAtom";
 
-// All characters the fallback regex treats as metacharacters
 const METACHARACTERS = [".", "*", "+", "?", "^", "$", "{", "}", "(", ")", "|", "[", "]", "\\"];
 
-// Shared contract: both native and fallback must satisfy these.
-// `escape` is the implementation under test (either the full escapeAtom or an isolated fallback).
 function runContractTests(escape: (s: string) => string): void {
   it("returns an empty string unchanged", () => {
     expect(escape("")).toBe("");
@@ -57,9 +54,6 @@ function runContractTests(escape: (s: string) => string): void {
   });
 }
 
-// The manual fallback implementation, isolated so we can assert its exact output format.
-const fallback = (s: string): string => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-
 describe("escapeAtom — native RegExp.escape path", () => {
   const nativeEscape = (RegExp as { escape?: (s: string) => string }).escape;
 
@@ -67,8 +61,6 @@ describe("escapeAtom — native RegExp.escape path", () => {
     runContractTests(escapeAtom);
 
     it("delegates to RegExp.escape rather than the fallback", () => {
-      // Both must agree on output; if they differ, native takes precedence.
-      // We verify escapeAtom's output equals the native's output (not the fallback's).
       expect(escapeAtom("a.b*c+d?e^f$g{h}i(j)k|l[m]n\\o")).toBe(
         nativeEscape("a.b*c+d?e^f$g{h}i(j)k|l[m]n\\o")
       );
@@ -122,7 +114,7 @@ describe("escapeAtom — fallback path (RegExp.escape absent)", () => {
       METACHARACTERS.join(""),
     ];
     for (const s of samples) {
-      expect(escapeAtom(s)).toBe(fallback(s));
+      expect(escapeAtom(s)).toBe(s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
     }
   });
 });

@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `features: ReadonlySet<RegexFeature>` field of the created `PartialMatchRegExp`, indicating the discovered features found during walk of the regex
+
+### Fixed
+
+- Moved documentation of caveat regarding prefix-ambiguous top-level alternation to its proper location alongside backreferences, since it only applies when they exist
+
 ## [1.0.0] - 2026-07-22
 
 ### Fixed

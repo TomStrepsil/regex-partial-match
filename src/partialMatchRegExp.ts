@@ -1,4 +1,10 @@
-import { compilePartial, type DynamicPath } from "./compilePartial.ts";
+import {
+  compilePartial,
+  type DynamicPath,
+  type RegexFeature
+} from "./compilePartial.ts";
+
+export type { RegexFeature };
 
 /**
  * A `RegExp` subclass that supports partial (prefix) matching.
@@ -30,12 +36,15 @@ class PartialMatchRegExp extends RegExp {
   #static: RegExp | null;
   #dynamic: DynamicPath | null;
 
+  readonly features: ReadonlySet<RegexFeature>;
+
   constructor(pattern: RegExp | string, flags?: string) {
     super(pattern, flags);
     const compiled = compilePartial(this);
     [this.#dynamic, this.#static] = compiled.kind === "dynamic"
       ? [compiled.dynamic, null]
       : [null, compiled.regex];
+    this.features = compiled.features;
   }
 
   override exec(input: string): RegExpExecArray | null {
