@@ -15,11 +15,11 @@ npm run bench --workspace=benchmarking
 
 Isolates the cost of `PartialMatchRegExp`'s `exec()` override. All three candidates run the same underlying partial pattern against the same input — the only variable is whether a JavaScript wrapper sits in the call chain:
 
-| Candidate | Notes |
-|---|---|
-| Native `RegExp.exec` | Baseline — no partial transform, no override |
+| Candidate                 | Notes                                                          |
+| ------------------------- | -------------------------------------------------------------- |
+| Native `RegExp.exec`      | Baseline — no partial transform, no override                   |
 | `compilePartial()` result | Partial source baked into a plain `RegExp` — no class overhead |
-| `PartialMatchRegExp.exec` | Partial source via the class override |
+| `PartialMatchRegExp.exec` | Partial source via the class override                          |
 
 Two input cases are measured: a full match, and a partial input that returns `null` on the native regex.
 
@@ -38,10 +38,10 @@ Models a user typing character-by-character into a validated input field. Each p
 
 Two patterns are exercised:
 
-| Pattern | Example input | Length |
-|---|---|---|
+| Pattern                  | Example input       | Length   |
+| ------------------------ | ------------------- | -------- |
 | E.164-style phone number | `+1 (555) 123-4567` | 18 chars |
-| ISO 8601 date | `2024-12-31` | 10 chars |
+| ISO 8601 date            | `2024-12-31`        | 10 chars |
 
 Each group compares native `test` (always returns `false` for incomplete input), a plain partial `RegExp`, and `PartialMatchRegExp` on the fast path.
 
@@ -51,12 +51,30 @@ When `exec()` is called on a partial input that contains backreferences, the pat
 
 Two patterns are used to cover different positions within a backreference:
 
-| Pattern | Example |
-|---|---|
-| Repeated word (`/^(\w+) \1$/`) | `"foo foo"` |
+| Pattern                                           | Example              |
+| ------------------------------------------------- | -------------------- |
+| Repeated word (`/^(\w+) \1$/`)                    | `"foo foo"`          |
 | HTML open/close tag (`/^<([a-z]+)>[^<]+<\/\1>$/`) | `"<div>hello</div>"` |
 
 Each pattern is measured at three stages — full match (native fast path), partial input before the backreference atom is reached, and partial input mid-backreference — plus an accumulated keystroke simulation that sums the cost over all prefixes.
+
+### 5. Construction cost (`construction-cost.bench.ts`)
+
+Scenarios 1-4 build every candidate once outside the timed loop, so they never see the cost of `compilePartial()`'s walk()/render() pass — the one-time parsing work done per `new PartialMatchRegExp()`. This scenario isolates that cost so walk additions can be tracked independently of the exec-time scenarios above.
+
+| Candidate                  | Notes                                         |
+| -------------------------- | --------------------------------------------- |
+| Native `new RegExp()`      | Baseline — no parsing beyond V8's own compile |
+| `compilePartial()`         | Walk + render, no class overhead              |
+| `new PartialMatchRegExp()` | `compilePartial()` plus class construction    |
+
+Three patterns span the complexity range the walker branches on:
+
+| Pattern               | Notes                                                            |
+| --------------------- | ---------------------------------------------------------------- |
+| Simple (`/^hello+$/`) | No groups, no character classes, no backreferences               |
+| Phone number          | Several character classes and optional groups, no backreferences |
+| HTML tag              | Capturing group + backreference — exercises the dynamic path     |
 
 ## 🤖 CI integration
 

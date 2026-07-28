@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Benchmark for construction cost
 - `features: ReadonlySet<RegexFeature>` field of the created `PartialMatchRegExp`, indicating the discovered features found during walk of the regex
 
 ### Fixed

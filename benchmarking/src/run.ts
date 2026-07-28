@@ -18,6 +18,7 @@ import "./dispatch-overhead.bench.ts";
 import "./hot-loop.bench.ts";
 import "./keystroke.bench.ts";
 import "./backref-slow-path.bench.ts";
+import "./construction-cost.bench.ts";
 import { run } from "mitata";
 
 const isJson = process.argv.includes("--json");
