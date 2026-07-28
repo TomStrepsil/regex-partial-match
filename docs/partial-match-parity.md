@@ -63,7 +63,6 @@ RE2 **explicitly excludes backreferences by design**. From `re2.h`: _"backrefere
 | First-match (NFA) vs longest-match (POSIX) semantics | ✅ ECMAScript / NFA first-match — `(a\|aa)\1` on `"aaaa"` yields `m[1]="a"`, not `"aa"` |
 | Capturing groups across anchoring modes              | ✅ Covered — see groups tests                                                           |
 | Backreferences                                       | ✅ Partial matching supported (RE2 excludes them entirely by design)                    |
-| Multi-engine consistency                             | N/A — JS has a single engine per runtime                                                |
 
 ## ☕ OpenJDK (`java.util.regex` — `RegExTest.java`)
 
@@ -106,4 +105,3 @@ The JDK **does** support backreferences, and `RegExTest.java` includes `backRefT
 | hitEnd() / prefix-only match             |           —            |           —           | ✅ (`\=ps` / `\=ph` subject modifiers) |                 ✅                 | ✅ (non-empty exec result) |
 | requireEnd()                             |           —            |           —           |                    —                    |                 ✅                 |       ⚠️ Not exposed       |
 | Backreference partial matching           | ❌ unsupported dialect | ❌ excluded by design |            ⚠️ Not a focus in testdata            | ⚠️ full match only (`backRefTest`) |             ✅             |
-| Multi-engine consistency                 |           —            |          ✅           |                    —                    |                 —                  |            N/A             |
