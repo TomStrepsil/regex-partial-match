@@ -10,7 +10,7 @@ Unlike C/C++ (via [PCRE/PCRE2](https://www.pcre.org/original/doc/html/pcrepartia
 
 This library transforms regular expressions to best-effort support **partial matching**, allowing you to test if an incomplete string could potentially match the full pattern. This is particularly useful for real-time input validation, autocomplete systems, progressive form validation, stream chunk matching, etc.
 
-As a side effect of the parse this requires, each `PartialMatchRegExp` also exposes a [`features`](#partialmatchregexpprototypefeatures-readonlysetregexfeature) set naming the syntactic constructs its pattern uses — useful for consumers that need to reason about a pattern without writing their own regex parser.  For many features, a simple search in the [source](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/source) is insufficient.
+As a side effect of the parse this requires, each `PartialMatchRegExp` also exposes a [`features`](#partialmatchregexpprototypefeatures-readonlysetregexfeature) set naming the syntactic constructs its pattern uses — useful for consumers that need to reason about a pattern without writing their own regex parser.  For many features, a simple search in the [source](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/source) would be insufficient.
 
 **Based on an algorithm created by [Lucas Trzesniewski](https://github.com/ltrzesniewski)**, re-created for NPM via ISC license, with permission.
 
