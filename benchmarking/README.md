@@ -72,7 +72,7 @@ Three patterns span the complexity range the walker branches on:
 
 | Pattern               | Notes                                                            |
 | --------------------- | ---------------------------------------------------------------- |
-| Simple (`/^[a-z]+$/`) | No groups, no character classes, no backreferences               |
+| Simple (`/^hello+$/`) | No groups, no character classes, no backreferences               |
 | Phone number          | Several character classes and optional groups, no backreferences |
 | HTML tag              | Capturing group + backreference — exercises the dynamic path     |
 
