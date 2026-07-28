@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Benchmark for construction cost
+
 ## [1.0.0] - 2026-07-22
 
 ### Fixed
