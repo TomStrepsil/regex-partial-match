@@ -24,7 +24,7 @@ import { bench, group } from "mitata";
 import { compilePartial } from "../../src/compilePartial.ts";
 import PartialMatchRegExp from "../../src/partialMatchRegExp.ts";
 
-const simplePattern = /^[a-z]+$/;
+const simplePattern = /^hello+$/;
 const phonePattern = /^\+?1?\s?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/;
 const htmlTagPattern = /^<([a-zA-Z][\w-]*)(?:\s[^<>]*)?>[^<]+<\/\1>$/;
 
