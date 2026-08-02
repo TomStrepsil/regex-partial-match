@@ -1923,7 +1923,7 @@ c`)
         });
       });
 
-      it("should support case-insensitive /abcd*/ behavior with uppercase input (PCRE2 /i inspired)", () => {
+      it("should support case-insensitive /abcd*/ behaviour with uppercase input (PCRE2 /i inspired)", () => {
         const partial = new PartialMatchRegExp(/abcd*/i);
         expect(partial.exec("XXXXAB")).toMatchAt({ match: "AB", index: 4 });
         expect(partial.exec("XXXXABCD")).toMatchAt({
@@ -2070,16 +2070,16 @@ c`)
         expect(match).toMatchObject({ 1: "cd" });
       });
 
-      it("should cover /abcd/ partial behavior independently of engine mode (PCRE2 JIT/interpretive inspired)", () => {
+      it("should cover /abcd/ partial behaviour independently of engine mode (PCRE2 JIT/interpretive inspired)", () => {
         const partial = new PartialMatchRegExp(/abcd/);
         expect(partial.exec("ab")).toMatchAt({ match: "ab", index: 0 });
         expect(partial.exec("abcd")).toMatchAt({ match: "abcd", index: 0 });
         expect(partial.exec("xyz")).toNotMatch();
       });
 
-      it("should document that PCRE2 POSIX partial_hard behavior has no JS equivalent", () => {
+      it("should document that PCRE2 POSIX partial_hard behaviour has no JS equivalent", () => {
         // PCRE2 testinput18/testoutput18: partial_hard is ignored by the POSIX wrapper.
-        // This library has no POSIX API layer, so behavior is a normal partial regex.
+        // This library has no POSIX API layer, so behaviour is a normal partial regex.
         const partial = new PartialMatchRegExp(/abc/);
         expect(partial.exec("ab")).toMatchAt({ match: "ab", index: 0 });
       });
@@ -2541,6 +2541,15 @@ c`)
     });
 
     describe("lastIndex behaviour for backreference patterns", () => {
+      it("ignores a manually-set lastIndex on a non-global, non-sticky pattern, matching native RegExp.prototype.exec semantics", () => {
+        const partial = new PartialMatchRegExp(
+          /((?<q>["']).*?\k<q>)|(\{)|(\})/
+        );
+        partial.lastIndex = 10;
+        expect(partial.exec(' a: "}{')).toMatchAt({ match: '"}{', index: 4 });
+        expect(partial.lastIndex).toBe(10);
+      });
+
       it("uses a non-zero lastIndex and propagates it to the original pattern on a full match", () => {
         const partial = new PartialMatchRegExp(/(ab)\1/g);
         partial.lastIndex = 2;
@@ -2591,27 +2600,44 @@ c`)
         expect(g.exec("ab")).toBeNull();
         expect(g.lastIndex).toBe(0);
       });
+
+      it("advances lastIndex to the pipeline match's end when an earlier partial wins over a later native complete match", () => {
+        const partial = new PartialMatchRegExp(
+          /((?<q>["']).*?\k<q>)|(\{)|(\})/g
+        );
+        expect(partial.exec(' a: "}{')).toMatchAt({ match: '"}{', index: 4 });
+        expect(partial.lastIndex).toBe(7);
+      });
+
+      it("continues advancing lastIndex on the next call once past a pipeline-sourced match", () => {
+        const partial = new PartialMatchRegExp(
+          /((?<q>["']).*?\k<q>)|(\{)|(\})/g
+        );
+        partial.exec(' a: "}{');
+        expect(partial.exec(' a: "}{')).toMatchAt({ match: "", index: 7 });
+        expect(partial.lastIndex).toBe(7);
+      });
     });
 
     describe("backreference resolution respects the original pattern's flags", () => {
-      it("honors a non-zero global lastIndex instead of matching an earlier decoy", () => {
+      it("honours a non-zero global lastIndex instead of matching an earlier decoy", () => {
         const partial = new PartialMatchRegExp(/(ab)\1/g);
         partial.lastIndex = 8;
         expect(partial.exec("ababxxxxxa")).toMatchAt({ match: "a", index: 9 });
       });
 
-      it("honors a non-zero sticky lastIndex instead of matching an earlier decoy", () => {
+      it("honours a non-zero sticky lastIndex instead of matching an earlier decoy", () => {
         const partial = new PartialMatchRegExp(/(ab)\1/y);
         partial.lastIndex = 5;
         expect(partial.exec("ababxa")).toMatchAt({ match: "a", index: 5 });
       });
 
-      it("honors the ignoreCase flag when resolving a backreference", () => {
+      it("honours the ignoreCase flag when resolving a backreference", () => {
         const partial = new PartialMatchRegExp(/(AB)\1c/i);
         expect(partial.exec("aBab")).toMatchAt({ match: "aBab", index: 0 });
       });
 
-      it("honors the dotAll flag when resolving a backreference", () => {
+      it("honours the dotAll flag when resolving a backreference", () => {
         const partial = new PartialMatchRegExp(/(a.c)\1d/s);
         expect(partial.exec("a\nca\nc")).toMatchAt({
           match: "a\nca\nc",
@@ -2620,7 +2646,7 @@ c`)
       });
 
       it.each(["u", "v"])(
-        "honors the %s flag when resolving an astral-plane backreference",
+        "honours the %s flag when resolving an astral-plane backreference",
         (flag) => {
           const partial = new PartialMatchRegExp(
             new RegExp("(\u{1F600})\\1x", flag)
@@ -2632,7 +2658,7 @@ c`)
         }
       );
 
-      it("honors the multiline flag when resolving a backreference", () => {
+      it("honours the multiline flag when resolving a backreference", () => {
         const partial = new PartialMatchRegExp(/(^ab)\1c/m);
         expect(partial.exec("xx\nabab")).toMatchAt({ match: "abab", index: 3 });
       });
@@ -2776,6 +2802,18 @@ c`)
         const [captureStart, captureEnd] = m!.indices![1]!;
         expect(m!.input.slice(captureStart, captureEnd)).toBe(m![1]);
       });
+
+      it("reflects the pipeline match's own position when an earlier partial wins over a later native complete match", () => {
+        const partial = new PartialMatchRegExp(
+          /((?<q>["']).*?\k<q>)|(\{)|(\})/d
+        );
+        const m = partial.exec(' a: "}{');
+        expect(m).toMatchObject({
+          0: '"}{',
+          index: 4,
+          indices: { 0: [4, 7], groups: { q: [4, 5] } }
+        });
+      });
     });
 
     describe("trailing group participates in the match but not in the shorter capture scan", () => {
@@ -2830,8 +2868,46 @@ c`)
         expect(m).toMatchObject({ 1: "ab" });
       });
     });
+
+    describe("leftmost partial wins over a later native complete match", () => {
+      it("returns an earlier viable partial across a top-level alternation instead of a later complete match", () => {
+        const partial = new PartialMatchRegExp(
+          /((?<q>["']).*?\k<q>)|(\{)|(\})/
+        );
+        expect(partial.exec(' a: "}{')).toMatchAt({ match: '"}{', index: 4 });
+      });
+
+      it("a static twin of the same pattern (no backreference) already agrees on the earlier index", () => {
+        const partial = new PartialMatchRegExp(
+          /("[^"]*")|(\{)|(\})/
+        );
+        expect(partial.exec(' a: "}{')).toMatchAt({ match: '"}{', index: 4 });
+      });
+
+      it("returns an earlier viable partial when no top-level alternation is involved", () => {
+        const partial = new PartialMatchRegExp(/(.*?)[^"]*?}\1/);
+        expect(partial.exec(' x" bx<}{')).toMatchAt({
+          match: ' x" bx<}{',
+          index: 0
+        });
+      });
+
+      it("keeps the native complete match when the only pipeline candidate is at a later index than it", () => {
+        const partial = new PartialMatchRegExp(/(ab|a)\1x/);
+        expect(partial.exec("abXaax")).toMatchAt({ match: "aax", index: 3 });
+      });
+
+      it("falls back to the native complete match when the partial pipeline cannot resolve any candidate", () => {
+        const partial = new PartialMatchRegExp(/^(ab|a)\1x/m);
+        expect(partial.exec("abXaax\naax")).toMatchAt({
+          match: "aax",
+          index: 7
+        });
+      });
+    });
   });
 
+  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/lastIndex
   describe("lastIndex propagation", () => {
     it("global flag: lastIndex advances past the match on every exec call, not just the first, so repeated calls don't re-match the same position", () => {
       const partial = new PartialMatchRegExp(/ab/g);

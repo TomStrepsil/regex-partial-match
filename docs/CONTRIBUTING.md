@@ -180,7 +180,7 @@ When adding new features:
 
 ## 🏆 Recognition
 
-All contributors will be recognized in the project. Your contributions are valued and appreciated!
+All contributors will be recognised in the project. Your contributions are valued and appreciated!
 
 ## 📜 License
 

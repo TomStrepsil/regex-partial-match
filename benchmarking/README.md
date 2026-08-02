@@ -58,6 +58,8 @@ Two patterns are used to cover different positions within a backreference:
 
 Each pattern is measured at three stages — full match (native fast path), partial input before the backreference atom is reached, and partial input mid-backreference — plus an accumulated keystroke simulation that sums the cost over all prefixes.
 
+A fourth group covers a native complete match at a *non-zero* index, where `exec()` must confirm no earlier partial exists before trusting it (see [docs/backreferences.md](../docs/backreferences.md) — "Leftmost bound check"): once when the cheap `preScan` bound rejects outright (native wins, pipeline skipped), and once when the bound is loose enough that the full slow-path pipeline still has to run even though the native match wins in the end.
+
 ### 5. Construction cost (`construction-cost.bench.ts`)
 
 Scenarios 1-4 build every candidate once outside the timed loop, so they never see the cost of `compilePartial()`'s walk()/render() pass — the one-time parsing work done per `new PartialMatchRegExp()`. This scenario isolates that cost so walk additions can be tracked independently of the exec-time scenarios above.

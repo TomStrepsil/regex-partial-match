@@ -13,6 +13,14 @@
  *
  * The keystroke simulation group accumulates all prefix costs, modelling the
  * total work done while a user types a complete value.
+ *
+ * The leftmost bound check group covers a fourth case: a native complete
+ * match at a *non-zero* index, where exec() must confirm no earlier partial
+ * exists before trusting it (see docs/backreferences.md — "Leftmost bound
+ * check"). preScan gives a cheap, sound lower bound: usually it rejects
+ * outright and the native match wins for a small fixed cost, but it can also
+ * be a loose bound, forcing the full slow-path pipeline to run anyway even
+ * though the native match still wins in the end.
  */
 
 import { bench, group } from "mitata";
@@ -56,6 +64,28 @@ group("backref — single exec, HTML tag pattern", () => {
   );
   bench("PartialMatchRegExp — partial mid-backref (slow path)", () =>
     htmlTagPartial.exec(htmlMidRef)
+  );
+});
+
+// Native match at index 3; preScan's bound is also index 3 (not earlier), so
+// the native match wins without building the expanded regex.
+const laterMatchCheapReject = /(abc)x\1/;
+const laterMatchCheapRejectInput = "zzzabcxabc";
+const laterMatchCheapRejectPartial = new PartialMatchRegExp(laterMatchCheapReject);
+
+// Native match at index 3, but preScan's bound is a loose lower bound of
+// index 0 — the full pipeline runs (capture scan, expand, new RegExp, exec)
+// even though its result loses to the native match anyway.
+const laterMatchFallsThrough = /(ab|a)\1x/;
+const laterMatchFallsThroughInput = "abXaax";
+const laterMatchFallsThroughPartial = new PartialMatchRegExp(laterMatchFallsThrough);
+
+group("backref — leftmost bound check (native match at a later index)", () => {
+  bench("bound rejects quickly — native wins, no pipeline", () =>
+    laterMatchCheapRejectPartial.exec(laterMatchCheapRejectInput)
+  );
+  bench("bound doesn't reject — full pipeline still runs", () =>
+    laterMatchFallsThroughPartial.exec(laterMatchFallsThroughInput)
   );
 });
 

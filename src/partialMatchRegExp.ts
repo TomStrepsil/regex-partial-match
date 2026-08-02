@@ -1,5 +1,6 @@
 import {
   compilePartial,
+  type CompiledPartial,
   type DynamicPath,
   type RegexFeature
 } from "./compilePartial.ts";
@@ -33,58 +34,75 @@ export type { RegexFeature };
  * @see {@link https://github.com/TomStrepsil/regex-partial-match#readme | Documentation}
  */
 class PartialMatchRegExp extends RegExp {
-  #static: RegExp | null;
-  #dynamic: DynamicPath | null;
+  #compiledPartial: CompiledPartial;
 
   readonly features: ReadonlySet<RegexFeature>;
 
   constructor(pattern: RegExp | string, flags?: string) {
     super(pattern, flags);
-    const compiled = compilePartial(this);
-    [this.#dynamic, this.#static] = compiled.kind === "dynamic"
-      ? [compiled.dynamic, null]
-      : [null, compiled.regex];
-    this.features = compiled.features;
+    this.#compiledPartial = compilePartial(this);
+    this.features = this.#compiledPartial.features;
   }
 
   override exec(input: string): RegExpExecArray | null {
-    if (!this.#dynamic) {
-      const partial = this.#static!; // eslint-disable-line @typescript-eslint/no-non-null-assertion -- #static is set whenever #dynamic is null
-      partial.lastIndex = this.lastIndex;
-      const match = partial.exec(input);
-      this.lastIndex = partial.lastIndex;
-      return match;
-    }
+    const compiled = this.#compiledPartial;
+    if (compiled.kind === "dynamic")
+      return this.#execDynamic(compiled.dynamic, input);
 
-    const start = this.lastIndex;
+    const { regex } = compiled;
+    const match = execFrom(regex, input, this.lastIndex);
+    this.lastIndex = regex.lastIndex;
+    return match;
+  }
+
+  #execDynamic(dynamic: DynamicPath, input: string): RegExpExecArray | null {
+    const { originalCaptureScan, preScan, expand } = dynamic;
+
+    const honoursLastIndex = this.global || this.sticky;
+    const start = honoursLastIndex ? this.lastIndex : 0;
+
     const originalMatch = super.exec(input);
-    if (originalMatch) return originalMatch;
+    if (isAtOrBefore(originalMatch, start)) return originalMatch;
 
-    const { originalCaptureScan, preScan, expand } = this.#dynamic;
-
-    originalCaptureScan.lastIndex = start;
-    let capture = originalCaptureScan.exec(input);
-    if (capture === null) {
-      preScan.lastIndex = start;
-      capture = preScan.exec(input);
+    let preScanMatch: RegExpExecArray | null = null;
+    if (originalMatch) {
+      preScanMatch = execFrom(preScan, input, start);
+      const noEarlierPartialPossible =
+        preScanMatch === null || preScanMatch.index >= originalMatch.index;
+      if (noEarlierPartialPossible) return originalMatch;
     }
-    if (capture === null) return null;
+
+    const capture =
+      execFrom(originalCaptureScan, input, start) ??
+      preScanMatch ??
+      execFrom(preScan, input, start);
+    if (capture === null) return originalMatch;
 
     const expanded = new RegExp(expand(capture), this.flags);
-    expanded.lastIndex = start;
-    const match = expanded.exec(input);
-    if (match === null) return null;
+    const match = execFrom(expanded, input, start);
+    if (match === null || isAtOrBefore(originalMatch, match.index))
+      return originalMatch;
 
     preferLongerCaptures(match, capture);
-    this.lastIndex = expanded.lastIndex;
+    if (honoursLastIndex) this.lastIndex = expanded.lastIndex;
     return match;
   }
 }
 
-function pickLonger(
-  scanned?: string,
-  matched?: string
-): string | undefined {
+function execFrom(
+  regex: RegExp,
+  input: string,
+  start: number
+): RegExpExecArray | null {
+  regex.lastIndex = start;
+  return regex.exec(input);
+}
+
+function isAtOrBefore(match: RegExpExecArray | null, index: number): boolean {
+  return match !== null && match.index <= index;
+}
+
+function pickLonger(scanned?: string, matched?: string): string | undefined {
   return scanned !== undefined &&
     matched !== undefined &&
     scanned.length > matched.length
