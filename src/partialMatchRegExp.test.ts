@@ -2907,6 +2907,7 @@ c`)
     });
   });
 
+  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/lastIndex
   describe("lastIndex propagation", () => {
     it("global flag: lastIndex advances past the match on every exec call, not just the first, so repeated calls don't re-match the same position", () => {
       const partial = new PartialMatchRegExp(/ab/g);
