@@ -74,7 +74,7 @@ jobs:
             exit 1
           fi
 
-          # Initialize semver bump level (0=none, 1=patch, 2=minor, 3=major)
+          # Initialise semver bump level (0=none, 1=patch, 2=minor, 3=major)
           MAX_BUMP=0  # Must be explicitly set by PR checkbox
 
           # Parse each commit to find semver selections

@@ -36,18 +36,18 @@ The expected output files (`testoutput7`, `testoutput15`, `testoutput17`, `testo
 | PCRE2 testdata source                                  | Specific case                                                                 | This library                                                                                      |
 | ------------------------------------------------------ | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
 | `testinput7` / `testoutput7`                           | `/abcd*/utf` on `xxxxabcd\=ps` vs `xxxxabcd\=ph`                            | ⚠️ No soft/hard split; single partial mode via transformed regex                                 |
-| `testinput7` / `testoutput7`                           | `/.{2,3}/newline=crlf,utf` on `\r\=ps`, `\r\=ph`                          | ✅ Covered for JS newline semantics; same prefix behavior goal                                     |
+| `testinput7` / `testoutput7`                           | `/.{2,3}/newline=crlf,utf` on `\r\=ps`, `\r\=ph`                          | ✅ Covered for JS newline semantics; same prefix behaviour goal                                     |
 | `testinput15` / `testoutput15`                         | `/(?<=abc)123/` on `xyzabc12\=ps` and `xyzabc12\=ph`                       | ✅ Covered — lookbehind + prefix continuation                                                      |
 | `testinput15` / `testoutput15`                         | `/(?<=123)(*MARK:xx)abc/mark` on `xxxx123a\=ph` / `\=ps`                    | ⚠️ Partial prefix covered; PCRE2 `(*MARK)` metadata has no JS equivalent                          |
-| `testinput15` / `testoutput15`                         | `/\babc\b/` on `+++ab\=ps` / `+++ab\=ph`                                  | ✅ Covered — boundary-sensitive prefix behavior                                                     |
-| `testinput17` / `testoutput17` (JIT-only test set)     | `/abcd/jitfast` on `ab\=ps` / `ab\=ph` -> partial in both modes             | ✅ Prefix behavior aligns; JIT mode toggles are PCRE2-specific and not applicable in JS runtimes |
+| `testinput15` / `testoutput15`                         | `/\babc\b/` on `+++ab\=ps` / `+++ab\=ph`                                  | ✅ Covered — boundary-sensitive prefix behaviour                                                     |
+| `testinput17` / `testoutput17` (JIT-only test set)     | `/abcd/jitfast` on `ab\=ps` / `ab\=ph` -> partial in both modes             | ✅ Prefix behaviour aligns; JIT mode toggles are PCRE2-specific and not applicable in JS runtimes |
 | `testinput18` / `testoutput18` (POSIX interface)        | `/abc/` with `abc\=partial_hard` -> `Ignored with POSIX interface: partial_hard` | N/A — this library has no POSIX wrapper layer; no equivalent ignore path                          |
 
 PCRE2-specific features that are intentionally out of scope for parity here:
 
 - Engine control and diagnostics (`jit`, `jitfast`, match/depth/heap limits).
 - PCRE2-only opcodes and metadata (`(*MARK)`, `allusedtext` left/right context output).
-- POSIX wrapper behavior in `pcre2posix` (`partial_hard` ignored by interface).
+- POSIX wrapper behaviour in `pcre2posix` (`partial_hard` ignored by interface).
 
 ## 🔷 Google RE2 (`tester.cc`, `exhaustive_tester.cc`)
 

@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Patterns with backreferences now return the leftmost match, rather than preferring a later complete match over an earlier viable partial
+- Patterns with backreferences no longer read or write `lastIndex` when the pattern is neither `global` nor `sticky`, matching native `RegExp.prototype.exec` and the behaviour of patterns without backreferences
+- Updated outliers to British English across docs, tests, and internal identifiers
+
+### Added
+
+- Benchmark scenario for the leftmost bound check
+
+### Changed
+
+- Simplified `PartialMatchRegExp` internals: compiled state held as a single discriminated union, and the dynamic `exec()` pipeline extracted to its own method
+- Renamed `MAYBE_HAS_BACKREFERENCE` to `MAYBE_HAS_BACKREFERENCE_REGEX`
+
 ## [1.1.0] - 2026-07-28
 
 ### Added

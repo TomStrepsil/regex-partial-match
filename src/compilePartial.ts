@@ -2,8 +2,8 @@ import escapeAtom from "./escapeAtom.ts";
 
 const OCCURRENCES_REGEX = /\{\d+,?\d*\}/y;
 const NOT_NUMBERS_REGEX = /\D/g;
+const MAYBE_HAS_BACKREFERENCE_REGEX = /\\[1-9]|\\k</;
 const DISJUNCTION_TO_END_OF_INPUT = "|$(?![\\s\\S]))";
-const MAYBE_HAS_BACKREFERENCE = /\\[1-9]|\\k</;
 
 interface NumericBackreference {
   ref: number;
@@ -389,7 +389,7 @@ export type CompiledPartial = (
 export const compilePartial = (regex: RegExp): CompiledPartial => {
   const { parts, groupCount, features } = walk(regex);
 
-  if (!MAYBE_HAS_BACKREFERENCE.test(regex.source)) {
+  if (!MAYBE_HAS_BACKREFERENCE_REGEX.test(regex.source)) {
     return {
       kind: "static",
       regex: new RegExp(render(parts, backrefToken), regex.flags),
@@ -398,14 +398,14 @@ export const compilePartial = (regex: RegExp): CompiledPartial => {
   }
 
   const isUnicode = regex.unicode || regex.unicodeSets;
-  const sanitizedParts = isUnicode
+  const sanitisedParts = isUnicode
     ? parts
     : reclassifyOctalEscapes(parts, regex.source, groupCount);
-  const backreferences = sanitizedParts.filter(isBackreference);
+  const backreferences = sanitisedParts.filter(isBackreference);
   if (backreferences.length === 0) {
     return {
       kind: "static",
-      regex: new RegExp(render(sanitizedParts, backrefToken), regex.flags),
+      regex: new RegExp(render(sanitisedParts, backrefToken), regex.flags),
       features
     };
   }
