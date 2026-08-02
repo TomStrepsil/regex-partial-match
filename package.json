@@ -62,6 +62,7 @@
     "lint:fix": "eslint . --fix",
     "prepare": "simple-git-hooks",
     "prepublishOnly": "tsc -p tsconfig.build.json",
+    "ci:smoke-test-built-package": "node .github/scripts/smoke-test-built-package.ts",
     "test": "vitest run --config ./test/vitest.config.ts",
     "test:watch": "vitest --config ./test/vitest.config.ts"
   },

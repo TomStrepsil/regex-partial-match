@@ -37,6 +37,12 @@ jobs:
       - name: Run tests
         run: corepack npm test
 
+      - name: Build publishable output
+        run: corepack npm run prepublishOnly
+
+      - name: Smoke test built output
+        run: corepack npm run ci:smoke-test-built-package
+
   changelog-and-semver-check:
     name: CHANGELOG and Semver Check
     runs-on: ubuntu-latest
