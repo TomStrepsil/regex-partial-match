@@ -47,7 +47,7 @@ class PartialMatchRegExp extends RegExp {
   override exec(input: string): RegExpExecArray | null {
     const compiled = this.#compiledPartial;
     if (compiled.kind === "dynamic")
-      return this.#execDynamic(compiled.dynamic, input);
+      return this._execDynamic(compiled.dynamic, input);
 
     const { regex } = compiled;
     const match = execFrom(regex, input, this.lastIndex);
@@ -55,7 +55,10 @@ class PartialMatchRegExp extends RegExp {
     return match;
   }
 
-  #execDynamic(dynamic: DynamicPath, input: string): RegExpExecArray | null {
+  private _execDynamic(
+    dynamic: DynamicPath,
+    input: string
+  ): RegExpExecArray | null {
     const { originalCaptureScan, preScan, expand } = dynamic;
 
     const honoursLastIndex = this.global || this.sticky;

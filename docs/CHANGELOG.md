@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Fixed the published v[1.1.1](#111---2026-08-02) package failing to load under both `import` and `require` with `SyntaxError: 'super' keyword unexpected here`, caused by the `ES2015` build target moving the `#`-private `#execDynamic()`, and its `super.exec()` call, outside the class body
+
+### Added
+
+- CI now smoke tests the built output, parsing every emitted file at the `ES2015` floor the README states, then loading every `exports` entry point under both `import` and `require`, so defects present only in emitted code are caught before publishing
+
 ## [1.1.1] - 2026-08-02
 
 ### Fixed
