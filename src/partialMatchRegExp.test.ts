@@ -3263,6 +3263,20 @@ c`)
       });
     });
 
+    describe("what isComplete() cannot see", () => {
+      it("reports a greedy capture inside a lookahead as complete, though more input would still extend it", () => {
+        const partial = new PartialMatchRegExp(/a(?=(b+))/);
+        const match = partial.exec("ab");
+
+        expect(match?.[1]).toBe("b");
+        expect(match && partial.isComplete(match)).toBe(true);
+      });
+
+      it("shows the same capture growing once the input actually continues", () => {
+        expect(/a(?=(b+))/.exec("abbX")?.[1]).toBe("bb");
+      });
+    });
+
     describe("branches the transform never introduced", () => {
       it("ignores an end-of-input disjunction the pattern itself wrote inside a lookbehind", () => {
         const partial = new PartialMatchRegExp(/(?<=a|$(?![\s\S]))/);

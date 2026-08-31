@@ -442,6 +442,24 @@ The information only exists during matching. `isComplete()` recovers it by re-ru
 
 **Cost:** one anchored `exec` per call, and nothing at all for callers who never ask — `exec()` and `test()` are untouched. For patterns with [backreferences](#backreferences), whose partial regex is rebuilt per input, the expansion behind each partial match is retained until the match is collected.
 
+#### What it cannot see
+
+`isComplete()` is necessary, but not sufficient, for a scanner whose output must be the same however the input is chunked. It cannot see a capture still growing *inside* an assertion: [`RepeatMatcher`](https://tc39.es/ecma262/#sec-runtime-semantics-repeatmatcher-abstract-operation) discards a repetition once it matches empty, so a truncation sentinel placed after a greedy repetition never gets a chance to fire there.
+
+```javascript
+const partial = new PartialMatchRegExp(/a(?=(b+))/);
+const match = partial.exec("ab");
+
+match[1]; // 'b'
+partial.isComplete(match); // true
+
+/a(?=(b+))/.exec("abbX")[1]; // 'bb' — the same capture, over more input
+```
+
+This isn't a defect: every atom in the `"ab"` match matched literally, so `isComplete()` answers correctly by its own definition. It just doesn't mean *cannot change with more input* — the same distinction the [note above](#partialmatchregexpprototypeiscompletematch-regexpexecarray-boolean) draws for `/hello \w+/`, one level further in.
+
+A chunk-invariant scanner needs a second, independent check: whether any capture's end coincides with the end of the buffer, computable from [`d`-flag](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/hasIndices) indices without this library's help. Defer a match when either check says to.
+
 ### `PartialMatchRegExp.prototype.features: ReadonlySet<RegexFeature>`
 
 Building the partial-match regex requires walking the entire source pattern once. As a side effect of that same walk, each instance records which syntactic constructs its pattern actually uses, exposed as a `features` set — no separate scan of the source is performed to produce it.

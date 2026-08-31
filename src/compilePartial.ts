@@ -501,17 +501,24 @@ export const tookTruncationBranch = (
   return false;
 };
 
+function toStatic(
+  parts: string[],
+  flags: string,
+  featureMask: number
+): CompiledStatic {
+  return new CompiledStatic(
+    new RegExp(parts.join(""), flags),
+    parts,
+    featureMask
+  );
+}
+
 export const compilePartial = (regex: RegExp): CompiledPartial => {
   const { parts, groupCount, featureMask } = walk(regex);
   const flags = regex.flags;
 
   if (!MAYBE_HAS_BACKREFERENCE_REGEX.test(regex.source)) {
-    const partsWithoutBackreferences = parts as string[];
-    return new CompiledStatic(
-      new RegExp(partsWithoutBackreferences.join(""), flags),
-      partsWithoutBackreferences,
-      featureMask
-    );
+    return toStatic(parts as string[], flags, featureMask);
   }
 
   const isUnicode = regex.unicode || regex.unicodeSets;
@@ -520,12 +527,7 @@ export const compilePartial = (regex: RegExp): CompiledPartial => {
     : reclassifyOctalEscapes(parts, regex.source, groupCount);
   const backreferences = sanitisedParts.filter(isBackreference);
   if (backreferences.length === 0) {
-    const partsWithoutBackreferences = sanitisedParts as string[];
-    return new CompiledStatic(
-      new RegExp(partsWithoutBackreferences.join(""), flags),
-      partsWithoutBackreferences,
-      featureMask
-    );
+    return toStatic(sanitisedParts as string[], flags, featureMask);
   }
 
   return new CompiledDynamic(
