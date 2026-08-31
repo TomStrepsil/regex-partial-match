@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `lookaroundCapture` `RegexFeature`, reported when a capturing group appears lexically inside any lookaround, distinguishing e.g. `/a(?=(b))/` from `/(a)(?=b)/` — which `features` previously reported identically as `lookahead` plus `capturingGroup`
+
+### Changed
+
+- Made construction 27-34% faster (19% when `features` is also read), `exec()` and `test()` 8-14% faster, and the backreference path 7% faster
+  - `features` is accumulated during the walk as a 32-bit mask and materialised into a `Set` on first read, rather than being built with a `Set.add` per token
+  - Compiled state moved from a `#`-private field to a module-private symbol, avoiding the `WeakMap` helpers emitted for `#` fields at the `ES2015` target while preventing collisions with subclass properties
+  - Compiled parts are concatenated in a single pass, rather than being mapped into an intermediate array and joined
+- `features` iterates in `RegexFeature` declaration order, rather than the order the constructs first appear in the pattern, a consequence of recording them as a bit mask
+- updated [`js-yaml`](https://github.com/nodeca/js-yaml) to [4.3.1](https://github.com/nodeca/js-yaml/tree/4.3.1) to mitigate [`CVE-2026-59870`](https://nvd.nist.gov/vuln/detail/cve-2026-59870)
+
 ## [1.1.2] - 2026-08-02
 
 ### Fixed

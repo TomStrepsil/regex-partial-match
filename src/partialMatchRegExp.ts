@@ -7,6 +7,8 @@ import {
 
 export type { RegexFeature };
 
+const compiledPartial = Symbol("compiledPartial");
+
 /**
  * A `RegExp` subclass that supports partial (prefix) matching.
  *
@@ -34,18 +36,34 @@ export type { RegexFeature };
  * @see {@link https://github.com/TomStrepsil/regex-partial-match#readme | Documentation}
  */
 class PartialMatchRegExp extends RegExp {
-  #compiledPartial: CompiledPartial;
-
-  readonly features: ReadonlySet<RegexFeature>;
+  declare private [compiledPartial]: CompiledPartial;
 
   constructor(pattern: RegExp | string, flags?: string) {
     super(pattern, flags);
-    this.#compiledPartial = compilePartial(this);
-    this.features = this.#compiledPartial.features;
+    this[compiledPartial] = compilePartial(this);
+  }
+
+  /**
+   * The syntactic constructs the original pattern uses, recorded as a side
+   * effect of the single walk that builds the partial-match regex.
+   *
+   * The set is built on first read and cached, so patterns that are only ever
+   * matched against never pay for it. It iterates in `RegexFeature` declaration
+   * order, not the order the constructs appear in the pattern.
+   *
+   * @returns The features the original pattern contains
+   *
+   * @example
+   * ```typescript
+   * new PartialMatchRegExp(/^[a-z]+/).features.has("startAnchor"); // true
+   * ```
+   */
+  get features(): ReadonlySet<RegexFeature> {
+    return this[compiledPartial].features;
   }
 
   override exec(input: string): RegExpExecArray | null {
-    const compiled = this.#compiledPartial;
+    const compiled = this[compiledPartial];
     if (compiled.kind === "dynamic")
       return this._execDynamic(compiled.dynamic, input);
 
