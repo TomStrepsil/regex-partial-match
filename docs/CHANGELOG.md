@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `isComplete(match: RegExpExecArray): boolean` on `PartialMatchRegExp`, reporting whether a match `exec()` returned is a match of the original pattern or merely a prefix of it — the distinction partial matching is named for, which the result previously discarded. Answered by re-running the compiled pattern sticky at `match.index` with an empty named group in front of each `|$(?![\s\S])` truncation branch: an empty group is zero-width and always succeeds, so the twin walks the identical path, and any marker returned defined is a branch the match actually took. Supported on both the static and the backreference paths
+- The built-package smoke test now exercises `isComplete()` over a pattern with a backreference, so a build that breaks the dynamic path is caught before publishing
+
+### Changed
+
+- `exec()` and `test()` are untouched by the above — the twin is built once per instance, only on first use, so callers who never ask pay nothing
+- The backreference path builds its per-input regex from an array of atoms rather than a concatenated source string, so the truncation markers can be placed in it, and records that expansion against the match it produced — around 9% of that path's cost, and the only measurable change to any benchmark
+- `compilePartial()` joins its parts directly on the static path rather than routing them through `render()`, which has no backreferences to substitute there
+
 ## [1.1.2] - 2026-08-02
 
 ### Fixed

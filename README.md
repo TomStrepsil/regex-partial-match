@@ -36,6 +36,28 @@ partial.test("hello world"); // true - full match
 partial.test("goodbye"); // false - cannot match
 ```
 
+### Telling a prefix from a complete match
+
+`test()` and `exec()` answer "could this match?", which is `true` for a prefix and for a complete match alike. [`isComplete()`](#partialmatchregexpprototypeiscompletematch-regexpexecarray-boolean) separates the two, giving the three states progressive validation actually needs:
+
+```javascript
+import PartialMatchRegExp from "regex-partial-match";
+
+const partial = new PartialMatchRegExp(/^\d{4}-\d{2}-\d{2}/);
+
+function state(input) {
+  const match = partial.exec(input);
+
+  if (match === null) return "invalid";
+  return partial.isComplete(match) ? "complete" : "incomplete";
+}
+
+state("20xx"); // 'invalid'    - reject
+state("2024"); // 'incomplete' - no error, keep typing
+state("2024-06"); // 'incomplete' - no error, keep typing
+state("2024-06-15"); // 'complete'   - accept, enable submit
+```
+
 ### Extending RegExp.prototype
 
 ```javascript
@@ -165,6 +187,9 @@ e.g.
 
 > [!NOTE]
 > A more ergonomic `test()` / `exec()` output [was explored](https://github.com/TomStrepsil/regex-partial-match/pull/51), but proved a complex problem space.
+
+> [!TIP]
+> [`isComplete()`](#partialmatchregexpprototypeiscompletematch-regexpexecarray-boolean) identifies these empty end-of-input matches without a length check: it reports `false` for them, since they exist only because the input ran out.
 
 ### Backreferences
 
@@ -363,6 +388,59 @@ When using `import 'regex-partial-match/extend'`, this method is added to `RegEx
 **Returns:**
 
 - A new `PartialMatchRegExp` that matches partial strings, created from the `RegExp` instance the method was called on.
+
+### `PartialMatchRegExp.prototype.isComplete(match: RegExpExecArray): boolean`
+
+Reports whether a match this instance produced is a **match** of the original pattern, or merely a **prefix** of it. `exec()` alone cannot say: it returns the same shape of array for `"h"`, `"hello"` and `"hello world"` against `/hello world/`.
+
+**Parameters:**
+
+- `match` - A match returned by this instance's `exec()`
+
+**Returns:**
+
+- `true` when every atom matched literally, so the path the match took is one the original pattern could have taken itself.
+- `false` when the match depended on the input running out — it took one of the `|$(?![\s\S])` branches described in [How It Works](#how-it-works). More input is needed, and the match's captures are **provisional**: a truncated path can capture values that no complete match ever produces.
+
+```javascript
+import PartialMatchRegExp from "regex-partial-match";
+
+const partial = new PartialMatchRegExp(/hello world/);
+const prefix = partial.exec("hello");
+
+prefix[0]; // 'hello'
+partial.isComplete(prefix); // false — a prefix, not a match
+
+const complete = partial.exec("hello world");
+
+complete[0]; // 'hello world'
+partial.isComplete(complete); // true
+```
+
+> [!NOTE]
+> Complete is not the same as *final*. A greedy pattern like `/hello \w+/` matches `"hello world"` completely, and would still match more of `"hello worldly"`.
+
+#### Why the question can't be answered from the outside
+
+Neither of the obvious workarounds answers it:
+
+- **Checking whether the match ends at the end of input.** True for every prefix, but also true for the common case of a complete match of input as it is typed — `/^\d{4}/` against `"2024"` ends at end of input and is complete.
+- **Re-running the original pattern.** That asks whether the original matches *at all* at that position, not whether *this result* was arrived at by truncation. Where a truncation branch fires inside a zero-width assertion the two diverge, and the original can return an identical array by a different path:
+
+  ```javascript
+  const pattern = /a(?=(?:b(?:x|(c))d|b))/;
+  const partial = new PartialMatchRegExp(pattern);
+
+  partial.exec("ab"); // ['a', undefined] — truncated inside the assertion
+  pattern.exec("ab"); // ['a', undefined] — identical, and complete
+  pattern.exec("abcd"); // ['a', 'c']       — what more input actually produces
+  ```
+
+  Over `"ab"` the transformed pattern satisfies the atoms after `b` through *their* truncation branches — zero-width, so the match's own end never moves — before ever reaching the `(c)` group. Group 1 is left `undefined` where more input would define it.
+
+The information only exists during matching. `isComplete()` recovers it by re-running the compiled pattern, [sticky](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/sticky) at `match.index`, with an empty named group in front of each truncation branch; an empty group is zero-width and always succeeds, so the twin walks the identical path, and any marker that comes back defined is a truncation branch the match actually took. The twin is built once per instance, only on first use, and never escapes the library — the array, `groups`, numbering and `d`-flag indices you hold are the ones `exec()` produced.
+
+**Cost:** one anchored `exec` per call, and nothing at all for callers who never ask — `exec()` and `test()` are untouched. For patterns with [backreferences](#backreferences), whose partial regex is rebuilt per input, the expansion behind each partial match is retained until the match is collected.
 
 ### `PartialMatchRegExp.prototype.features: ReadonlySet<RegexFeature>`
 

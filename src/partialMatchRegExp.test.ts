@@ -2985,4 +2985,330 @@ c`)
       });
     });
   });
+  describe("isComplete()", () => {
+    const completenessOf = (
+      regex: PartialMatchRegExp,
+      input: string
+    ): boolean | null => {
+      const match = regex.exec(input);
+      return match === null ? null : regex.isComplete(match);
+    };
+
+    describe("distinguishing a match of the original pattern from a prefix", () => {
+      it("reports every proper prefix of a literal pattern as incomplete", () => {
+        const partial = new PartialMatchRegExp(/hello world/);
+
+        expect(completenessOf(partial, "h")).toBe(false);
+        expect(completenessOf(partial, "hello")).toBe(false);
+        expect(completenessOf(partial, "hello world")).toBe(true);
+      });
+
+      it("separates the three states progressive validation needs", () => {
+        const partial = new PartialMatchRegExp(/^\d{4}-\d{2}-\d{2}/);
+
+        expect(completenessOf(partial, "20xx")).toBeNull();
+        expect(completenessOf(partial, "2024")).toBe(false);
+        expect(completenessOf(partial, "2024-06")).toBe(false);
+        expect(completenessOf(partial, "2024-06-15")).toBe(true);
+      });
+
+      it("reports a complete match that more input would extend as complete", () => {
+        expect(
+          completenessOf(new PartialMatchRegExp(/hello \w+/), "hello world")
+        ).toBe(true);
+      });
+
+      it("reports a complete match that more input would invalidate as complete", () => {
+        expect(completenessOf(new PartialMatchRegExp(/^a(?!b)/), "a")).toBe(
+          true
+        );
+      });
+
+      it("reports the empty match at the true end of input as incomplete", () => {
+        const partial = new PartialMatchRegExp(/x/);
+
+        expect(partial.exec("a")).toMatchAt({ match: "", index: 1 });
+        expect(completenessOf(partial, "a")).toBe(false);
+      });
+
+      it("reports a pattern that completely matches an empty string as complete", () => {
+        const partial = new PartialMatchRegExp(/a*/);
+
+        expect(completenessOf(partial, "")).toBe(true);
+        expect(completenessOf(partial, "aa")).toBe(true);
+      });
+    });
+
+    describe("cases the end-of-input heuristic cannot answer", () => {
+      it("distinguishes a truncated branch inside a lookahead from a complete match", () => {
+        const partial = new PartialMatchRegExp(/a(?=(?:b(?:x|(c))d|b))/);
+
+        const truncated = partial.exec("ab");
+        expect(truncated).toMatchAt({ match: "a", index: 0 });
+        expect(truncated?.[1]).toBeUndefined();
+        expect(truncated && partial.isComplete(truncated)).toBe(false);
+
+        const complete = partial.exec("abcd");
+        expect(complete?.[1]).toBe("c");
+        expect(complete && partial.isComplete(complete)).toBe(true);
+      });
+
+      it("answers where re-running the original pattern cannot", () => {
+        const original = /a(?=(?:b(?:x|(c))d|b))/y;
+
+        original.lastIndex = 0;
+        expect(original.exec("ab")).toMatchAt({ match: "a", index: 0 });
+        original.lastIndex = 0;
+        expect(original.exec("abcd")).toMatchAt({ match: "a", index: 0 });
+      });
+
+      it("reports a complete match that ends at the end of input as complete", () => {
+        const partial = new PartialMatchRegExp(/^[a-z]+@[a-z]+\.[a-z]{2,}$/);
+
+        expect(completenessOf(partial, "user@example")).toBe(false);
+        expect(completenessOf(partial, "user@example.com")).toBe(true);
+      });
+
+      it("reports a truncated lookbehind-qualified atom as incomplete", () => {
+        const partial = new PartialMatchRegExp(/(?<=foo)bar/);
+
+        expect(completenessOf(partial, "foob")).toBe(false);
+        expect(completenessOf(partial, "foobar")).toBe(true);
+      });
+    });
+
+    describe("branches the transform never introduced", () => {
+      it("ignores an end-of-input disjunction the pattern itself wrote inside a lookbehind", () => {
+        const partial = new PartialMatchRegExp(/(?<=a|$(?![\s\S]))/);
+
+        expect(partial.exec("")).toMatchAt({ match: "", index: 0 });
+        expect(completenessOf(partial, "")).toBe(true);
+      });
+
+      it("ignores an end-of-input disjunction the pattern itself wrote inside a negative lookahead", () => {
+        expect(
+          completenessOf(new PartialMatchRegExp(/^x(?!a|$(?![\s\S]))/), "xb")
+        ).toBe(true);
+      });
+
+      it("reports a pattern with no truncatable atoms as complete", () => {
+        expect(completenessOf(new PartialMatchRegExp(/^$/), "")).toBe(true);
+        expect(completenessOf(new PartialMatchRegExp(/^/), "abc")).toBe(true);
+      });
+    });
+
+    describe("marker names that the pattern could collide with", () => {
+      it("renames its markers past a named group of the same name", () => {
+        const partial = new PartialMatchRegExp(/^(?<truncation0>a)b/);
+
+        expect(completenessOf(partial, "a")).toBe(false);
+        expect(completenessOf(partial, "ab")).toBe(true);
+        expect(partial.exec("ab")?.groups?.truncation0).toBe("a");
+      });
+
+      it("keeps renaming until the name is free", () => {
+        const partial = new PartialMatchRegExp(
+          /^(?<truncation0>a)(?<truncation_0>b)c/
+        );
+
+        expect(completenessOf(partial, "ab")).toBe(false);
+        expect(completenessOf(partial, "abc")).toBe(true);
+      });
+    });
+
+    describe("across the constructs the walker transforms", () => {
+      it("reports completeness through a non-capturing group", () => {
+        const partial = new PartialMatchRegExp(/^(?:ab)c/);
+
+        expect(completenessOf(partial, "ab")).toBe(false);
+        expect(completenessOf(partial, "abc")).toBe(true);
+      });
+
+      it("reports completeness through a capturing group", () => {
+        const partial = new PartialMatchRegExp(/^(ab)c/);
+
+        expect(completenessOf(partial, "ab")).toBe(false);
+        expect(completenessOf(partial, "abc")).toBe(true);
+      });
+
+      it("reports completeness through a named group", () => {
+        const partial = new PartialMatchRegExp(/^(?<pair>ab)c/);
+
+        expect(completenessOf(partial, "ab")).toBe(false);
+        expect(completenessOf(partial, "abc")).toBe(true);
+      });
+
+      it("reports completeness through a disjunction", () => {
+        const partial = new PartialMatchRegExp(/^(?:foo|bar)/);
+
+        expect(completenessOf(partial, "ba")).toBe(false);
+        expect(completenessOf(partial, "bar")).toBe(true);
+      });
+
+      it("reports completeness through a modifier group", () => {
+        const partial = new PartialMatchRegExp(/^(?i:AB)c/);
+
+        expect(completenessOf(partial, "ab")).toBe(false);
+        expect(completenessOf(partial, "abc")).toBe(true);
+      });
+
+      it("reports completeness through an astral atom in unicode mode", () => {
+        const partial = new PartialMatchRegExp(/^\u{1F600}x/u);
+
+        expect(completenessOf(partial, "\u{1F600}")).toBe(false);
+        expect(completenessOf(partial, "\u{1F600}x")).toBe(true);
+      });
+
+      it("reports completeness through a nested character class in v mode", () => {
+        const partial = new PartialMatchRegExp(/^[[a-z]--[c]]d/v);
+
+        expect(completenessOf(partial, "a")).toBe(false);
+        expect(completenessOf(partial, "ad")).toBe(true);
+      });
+
+      it("reports completeness through a reclassified octal escape", () => {
+        const partial = new PartialMatchRegExp(new RegExp("^\\8a"));
+
+        expect(completenessOf(partial, "8")).toBe(false);
+        expect(completenessOf(partial, "8a")).toBe(true);
+      });
+
+      it("reports completeness through a word boundary assertion", () => {
+        const partial = new PartialMatchRegExp(/^\bfoo/);
+
+        expect(completenessOf(partial, "fo")).toBe(false);
+        expect(completenessOf(partial, "foo")).toBe(true);
+      });
+    });
+
+    describe("under every flag", () => {
+      it("reports completeness with the d flag, leaving indices intact", () => {
+        const partial = new PartialMatchRegExp(/^(ab)c/d);
+
+        const match = partial.exec("ab");
+        expect(match && partial.isComplete(match)).toBe(false);
+        expect(match?.indices?.[1]).toEqual([0, 2]);
+      });
+
+      it("reports completeness with the g flag without disturbing lastIndex", () => {
+        const partial = new PartialMatchRegExp(/ab/g);
+
+        const first = partial.exec("abab");
+        expect(partial.lastIndex).toBe(2);
+        expect(first && partial.isComplete(first)).toBe(true);
+        expect(partial.lastIndex).toBe(2);
+        expect(partial.exec("abab")).toMatchAt({ match: "ab", index: 2 });
+      });
+
+      it("reports completeness with the y flag", () => {
+        const partial = new PartialMatchRegExp(/hello/y);
+
+        partial.lastIndex = 2;
+        expect(completenessOf(partial, "xyhel")).toBe(false);
+        partial.lastIndex = 2;
+        expect(completenessOf(partial, "xyhello")).toBe(true);
+      });
+
+      it("reports completeness with the d, g and y flags combined", () => {
+        expect(completenessOf(new PartialMatchRegExp(/^(ab)c/dgy), "ab")).toBe(
+          false
+        );
+      });
+
+      it("reports completeness with the m flag", () => {
+        const partial = new PartialMatchRegExp(/^foo$/m);
+
+        expect(completenessOf(partial, "a\nfo")).toBe(false);
+        expect(completenessOf(partial, "a\nfoo")).toBe(true);
+      });
+
+      it("reports completeness with the i flag", () => {
+        const partial = new PartialMatchRegExp(/^abc/i);
+
+        expect(completenessOf(partial, "AB")).toBe(false);
+        expect(completenessOf(partial, "ABC")).toBe(true);
+      });
+    });
+
+    describe("patterns with backreferences", () => {
+      it("reports a truncated backreference expansion as incomplete", () => {
+        const partial = new PartialMatchRegExp(/^(ab)\1/);
+
+        expect(completenessOf(partial, "aba")).toBe(false);
+        expect(completenessOf(partial, "abab")).toBe(true);
+      });
+
+      it("reports a truncated named backreference expansion as incomplete", () => {
+        const partial = new PartialMatchRegExp(/^(?<pair>ab)\k<pair>/);
+
+        expect(completenessOf(partial, "aba")).toBe(false);
+        expect(completenessOf(partial, "abab")).toBe(true);
+      });
+
+      it("reports a truncated atom before the backreference as incomplete", () => {
+        expect(completenessOf(new PartialMatchRegExp(/^(ab)\1/), "a")).toBe(
+          false
+        );
+      });
+
+      it("reports a native full match found later in the input as complete", () => {
+        const partial = new PartialMatchRegExp(/(ab)\1/);
+
+        expect(partial.exec("xxabab")).toMatchAt({ match: "abab", index: 2 });
+        expect(completenessOf(partial, "xxabab")).toBe(true);
+      });
+
+      it("reports a backreference to an unmatched group as complete", () => {
+        expect(completenessOf(new PartialMatchRegExp(/^(a)?b\1/), "b")).toBe(
+          true
+        );
+      });
+
+      it("answers repeatedly without rebuilding its probe", () => {
+        const partial = new PartialMatchRegExp(/^(ab)\1/);
+        const match = partial.exec("aba");
+
+        expect(match && partial.isComplete(match)).toBe(false);
+        expect(match && partial.isComplete(match)).toBe(false);
+      });
+
+      it("returns null, with nothing to report, when no partial match exists", () => {
+        expect(new PartialMatchRegExp(/^(ab)\1/).exec("z")).toBeNull();
+        expect(
+          new PartialMatchRegExp(/^(ab)\1|^(abc)\2/).exec("abca")
+        ).toBeNull();
+      });
+    });
+
+    describe("leaving the match it describes alone", () => {
+      it("does not mutate the match", () => {
+        const partial = new PartialMatchRegExp(/^(a)(?<second>b)/);
+        const match = partial.exec("a");
+        const beforeAsking = [...(match ?? [])];
+
+        expect(match && partial.isComplete(match)).toBe(false);
+        expect(match && [...match]).toEqual(beforeAsking);
+        expect(match?.groups).toEqual({ second: "" });
+        expect(match?.index).toBe(0);
+        expect(match?.input).toBe("a");
+      });
+
+      it("adds no own property to the match", () => {
+        const partial = new PartialMatchRegExp(/^ab/);
+        const match = partial.exec("a");
+        const ownProperties = Object.getOwnPropertyNames(match ?? {});
+
+        expect(match && partial.isComplete(match)).toBe(false);
+        expect(Object.getOwnPropertyNames(match ?? {})).toEqual(ownProperties);
+      });
+
+      it("reports on every match a global iteration yields", () => {
+        const partial = new PartialMatchRegExp(/a|b/g);
+
+        expect(completenessOf(partial, "ab")).toBe(true);
+        expect(completenessOf(partial, "ab")).toBe(true);
+        expect(completenessOf(partial, "ab")).toBe(false);
+      });
+    });
+  });
 });

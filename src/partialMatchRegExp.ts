@@ -1,11 +1,19 @@
 import {
+  buildTruncationProbe,
   compilePartial,
+  tookTruncationBranch,
   type CompiledPartial,
   type DynamicPath,
-  type RegexFeature
+  type RegexFeature,
+  type TruncationProbe
 } from "./compilePartial.ts";
 
 export type { RegexFeature };
+
+interface BackreferenceExpansion {
+  parts: string[];
+  probe: TruncationProbe | undefined;
+}
 
 /**
  * A `RegExp` subclass that supports partial (prefix) matching.
@@ -35,6 +43,11 @@ export type { RegexFeature };
  */
 class PartialMatchRegExp extends RegExp {
   #compiledPartial: CompiledPartial;
+  #truncationProbe: TruncationProbe | undefined;
+  #backreferenceExpansions = new WeakMap<
+    RegExpExecArray,
+    BackreferenceExpansion
+  >();
 
   readonly features: ReadonlySet<RegexFeature>;
 
@@ -53,6 +66,57 @@ class PartialMatchRegExp extends RegExp {
     const match = execFrom(regex, input, this.lastIndex);
     this.lastIndex = regex.lastIndex;
     return match;
+  }
+
+  /**
+   * Whether `match` — a match this instance produced — is a match of the
+   * original pattern, or merely a prefix of it.
+   *
+   * `true` means every atom matched literally, so the path the match took is
+   * one the original pattern could have taken itself. `false` means the match
+   * depended on the input running out: it took a `|$(?![\s\S])` truncation
+   * branch, so more input is needed and its captures are provisional.
+   *
+   * Complete is not the same as final: `/hello \w+/` matches `"hello world"`
+   * completely, and would match more of `"hello worldly"`.
+   *
+   * The implication runs one way only. The original pattern may also match at
+   * this index by some *other* path — yielding the same text, and even the
+   * same captures — so re-testing the original answers "does anything match
+   * here?", not "did this result depend on truncation?", and cannot recover
+   * this answer.
+   *
+   * @param match - A match returned by this instance's `exec()`
+   * @returns `true` when the match is complete, `false` when it is a prefix
+   *
+   * @example
+   * ```typescript
+   * const partial = new PartialMatchRegExp(/^\d{4}-\d{2}-\d{2}/);
+   * const match = partial.exec('2024-06');
+   *
+   * match !== null && partial.isComplete(match); // false - keep typing
+   * ```
+   */
+  isComplete(match: RegExpExecArray): boolean {
+    const compiled = this.#compiledPartial;
+
+    if (compiled.kind === "dynamic") {
+      const expansion = this.#backreferenceExpansions.get(match);
+      if (expansion === undefined) return true;
+      expansion.probe ??= this.#probeFor(expansion.parts);
+      return !tookTruncationBranch(expansion.probe, match.input, match.index);
+    }
+
+    this.#truncationProbe ??= this.#probeFor(compiled.parts);
+    return !tookTruncationBranch(
+      this.#truncationProbe,
+      match.input,
+      match.index
+    );
+  }
+
+  #probeFor(parts: string[]): TruncationProbe {
+    return buildTruncationProbe(parts, this.source, this.flags);
   }
 
   private _execDynamic(
@@ -81,13 +145,18 @@ class PartialMatchRegExp extends RegExp {
       execFrom(preScan, input, start);
     if (capture === null) return originalMatch;
 
-    const expanded = new RegExp(expand(capture), this.flags);
+    const expandedParts = expand(capture);
+    const expanded = new RegExp(expandedParts.join(""), this.flags);
     const match = execFrom(expanded, input, start);
     if (match === null || isAtOrBefore(originalMatch, match.index))
       return originalMatch;
 
     preferLongerCaptures(match, capture);
     if (honoursLastIndex) this.lastIndex = expanded.lastIndex;
+    this.#backreferenceExpansions.set(match, {
+      parts: expandedParts,
+      probe: undefined
+    });
     return match;
   }
 }

@@ -33,10 +33,14 @@ const BUILT_OUTPUT = new URL("../../lib/", import.meta.url);
 
 type LoadedModule = Record<string, unknown>;
 
+interface SmokeTestedPartialMatchRegExp extends RegExp {
+  isComplete(match: RegExpExecArray): boolean;
+}
+
 type PartialMatchRegExpConstructor = new (
   pattern: RegExp | string,
   flags?: string
-) => RegExp;
+) => SmokeTestedPartialMatchRegExp;
 
 const SMOKE_TESTS: Record<string, (loaded: LoadedModule) => void> = {
   ".": (loaded) => {
@@ -48,6 +52,14 @@ const SMOKE_TESTS: Record<string, (loaded: LoadedModule) => void> = {
     assert.equal(partial.test("abc ab"), true, "rejects a prefix");
     assert.equal(partial.test("abc abc end"), true, "rejects a full match");
     assert.equal(partial.test("abc xyz end"), false, "accepts an impossible input");
+
+    const prefix = partial.exec("abc ab");
+    assert.ok(prefix, "no match for a prefix");
+    assert.equal(partial.isComplete(prefix), false, "reports a prefix as complete");
+
+    const full = partial.exec("abc abc end");
+    assert.ok(full, "no match for a full match");
+    assert.equal(partial.isComplete(full), true, "reports a full match as partial");
   },
 
   "./extend": () => {

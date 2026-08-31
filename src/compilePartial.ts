@@ -4,6 +4,9 @@ const OCCURRENCES_REGEX = /\{\d+,?\d*\}/y;
 const NOT_NUMBERS_REGEX = /\D/g;
 const MAYBE_HAS_BACKREFERENCE_REGEX = /\\[1-9]|\\k</;
 const DISJUNCTION_TO_END_OF_INPUT = "|$(?![\\s\\S]))";
+const OPTIONAL_ATOM_OPENING = "(?:";
+const TRUNCATION_MARKER_NAME = "truncation";
+const FLAGS_INCOMPATIBLE_WITH_PROBING = /[dgy]/g;
 
 interface NumericBackreference {
   ref: number;
@@ -369,30 +372,80 @@ function spliceOriginalSource(
   return result + source.slice(cursor);
 }
 
-function expandCaptured(value: string, isUnicode: boolean): string {
-  return (isUnicode ? Array.from(value) : value.split(""))
-    .map((atom) => "(?:" + escapeAtom(atom) + DISJUNCTION_TO_END_OF_INPUT)
-    .join("");
-}
-
 export interface DynamicPath {
   originalCaptureScan: RegExp;
   preScan: RegExp;
-  expand: (capture: RegExpExecArray) => string;
+  expand: (capture: RegExpExecArray) => string[];
 }
 
 export type CompiledPartial = (
-  | { kind: "static"; regex: RegExp }
+  | { kind: "static"; regex: RegExp; parts: string[] }
   | { kind: "dynamic"; dynamic: DynamicPath }
 ) & { features: Set<RegexFeature> };
+
+export interface TruncationProbe {
+  regex: RegExp;
+  markerName: string;
+  markerCount: number;
+}
+
+export const buildTruncationProbe = (
+  parts: readonly string[],
+  source: string,
+  flags: string
+): TruncationProbe => {
+  let markerName = TRUNCATION_MARKER_NAME;
+  while (source.includes("(?<" + markerName)) markerName += "_";
+
+  let markerCount = 0;
+  const probed = parts.map((part) => {
+    const endsAtTruncationBranch =
+      part === DISJUNCTION_TO_END_OF_INPUT ||
+      (part.startsWith(OPTIONAL_ATOM_OPENING) &&
+        part.endsWith(DISJUNCTION_TO_END_OF_INPUT));
+    if (!endsAtTruncationBranch) return part;
+
+    const marker = "|(?<" + markerName + String(markerCount++) + ">)";
+    return (
+      part.slice(0, -DISJUNCTION_TO_END_OF_INPUT.length) +
+      marker +
+      DISJUNCTION_TO_END_OF_INPUT.slice(1)
+    );
+  });
+
+  return {
+    regex: new RegExp(
+      probed.join(""),
+      flags.replace(FLAGS_INCOMPATIBLE_WITH_PROBING, "") + "y"
+    ),
+    markerName,
+    markerCount
+  };
+};
+
+export const tookTruncationBranch = (
+  probe: TruncationProbe,
+  input: string,
+  index: number
+): boolean => {
+  const { regex, markerName, markerCount } = probe;
+  regex.lastIndex = index;
+  const markers = regex.exec(input)?.groups ?? {};
+  for (let marker = 0; marker < markerCount; marker++) {
+    if (markers[markerName + String(marker)] !== undefined) return true;
+  }
+  return false;
+};
 
 export const compilePartial = (regex: RegExp): CompiledPartial => {
   const { parts, groupCount, features } = walk(regex);
 
   if (!MAYBE_HAS_BACKREFERENCE_REGEX.test(regex.source)) {
+    const partsWithoutBackreferences = parts as string[];
     return {
       kind: "static",
-      regex: new RegExp(render(parts, backrefToken), regex.flags),
+      regex: new RegExp(partsWithoutBackreferences.join(""), regex.flags),
+      parts: partsWithoutBackreferences,
       features
     };
   }
@@ -403,9 +456,11 @@ export const compilePartial = (regex: RegExp): CompiledPartial => {
     : reclassifyOctalEscapes(parts, regex.source, groupCount);
   const backreferences = sanitisedParts.filter(isBackreference);
   if (backreferences.length === 0) {
+    const partsWithoutBackreferences = sanitisedParts as string[];
     return {
       kind: "static",
-      regex: new RegExp(render(sanitisedParts, backrefToken), regex.flags),
+      regex: new RegExp(partsWithoutBackreferences.join(""), regex.flags),
+      parts: partsWithoutBackreferences,
       features
     };
   }
@@ -422,15 +477,31 @@ export const compilePartial = (regex: RegExp): CompiledPartial => {
         render(parts, () => "(?:[\\s\\S]*?)"),
         regex.flags
       ),
-      expand: (capture) =>
-        render(parts, (backref) => {
-          const captured = isNumericBackreference(backref)
-            ? capture[backref.ref]
-            : capture.groups?.[backref.ref];
-          return captured === undefined
-            ? "(?:" + backrefToken(backref) + DISJUNCTION_TO_END_OF_INPUT
-            : expandCaptured(captured, isUnicode);
-        })
+      expand: (capture) => {
+        const expanded: string[] = [];
+        for (const part of parts) {
+          if (!isBackreference(part)) {
+            expanded.push(part);
+            continue;
+          }
+          const captured = isNumericBackreference(part)
+            ? capture[part.ref]
+            : capture.groups?.[part.ref];
+          if (captured === undefined) {
+            expanded.push(
+              "(?:" + backrefToken(part) + DISJUNCTION_TO_END_OF_INPUT
+            );
+            continue;
+          }
+          const atoms = isUnicode ? Array.from(captured) : captured.split("");
+          for (const atom of atoms) {
+            expanded.push(
+              "(?:" + escapeAtom(atom) + DISJUNCTION_TO_END_OF_INPUT
+            );
+          }
+        }
+        return expanded;
+      }
     }
   };
 };
