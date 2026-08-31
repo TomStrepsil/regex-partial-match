@@ -7,6 +7,8 @@ import {
 
 export type { RegexFeature };
 
+const compiledPartial = Symbol("compiledPartial");
+
 /**
  * A `RegExp` subclass that supports partial (prefix) matching.
  *
@@ -34,11 +36,11 @@ export type { RegexFeature };
  * @see {@link https://github.com/TomStrepsil/regex-partial-match#readme | Documentation}
  */
 class PartialMatchRegExp extends RegExp {
-  private _compiledPartial: CompiledPartial;
+  declare private [compiledPartial]: CompiledPartial;
 
   constructor(pattern: RegExp | string, flags?: string) {
     super(pattern, flags);
-    this._compiledPartial = compilePartial(this);
+    this[compiledPartial] = compilePartial(this);
   }
 
   /**
@@ -57,11 +59,11 @@ class PartialMatchRegExp extends RegExp {
    * ```
    */
   get features(): ReadonlySet<RegexFeature> {
-    return this._compiledPartial.features;
+    return this[compiledPartial].features;
   }
 
   override exec(input: string): RegExpExecArray | null {
-    const compiled = this._compiledPartial;
+    const compiled = this[compiledPartial];
     if (compiled.kind === "dynamic")
       return this._execDynamic(compiled.dynamic, input);
 
