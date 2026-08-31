@@ -8,6 +8,8 @@ const OPTIONAL_ATOM_OPENING = "(?:";
 const TRUNCATION_MARKER_NAME = "truncation";
 const FLAGS_INCOMPATIBLE_WITH_PROBING = /[dgy]/g;
 const ANY_CAPTURED_TEXT = "(?:[\\s\\S]*?)";
+const NAMED_GROUP_REGEX = /\(\?<(?![=!])([^>]*)>/g;
+const UNICODE_ESCAPE_IN_NAME_REGEX = /\\u\{([0-9a-fA-F]+)\}|\\u([0-9a-fA-F]{4})/g;
 
 interface NumericBackreference {
   ref: number;
@@ -453,13 +455,36 @@ export interface TruncationProbe {
   markerCount: number;
 }
 
+function decodeGroupName(rawName: string): string {
+  return rawName.replace(
+    UNICODE_ESCAPE_IN_NAME_REGEX,
+    (_, braced?: string, plain?: string) =>
+      String.fromCodePoint(parseInt(braced ?? plain ?? "", 16))
+  );
+}
+
+function namedGroupNames(source: string): string[] {
+  const names: string[] = [];
+  NAMED_GROUP_REGEX.lastIndex = 0;
+
+  let opener: RegExpExecArray | null;
+  while ((opener = NAMED_GROUP_REGEX.exec(source))) {
+    names.push(decodeGroupName(opener[1]));
+  }
+
+  return names;
+}
+
 export const buildTruncationProbe = (
   parts: readonly string[],
   source: string,
   flags: string
 ): TruncationProbe => {
+  const existingNames = namedGroupNames(source);
   let markerName = TRUNCATION_MARKER_NAME;
-  while (source.includes("(?<" + markerName)) markerName += "_";
+  while (existingNames.some((name) => name.startsWith(markerName))) {
+    markerName += "_";
+  }
 
   let markerCount = 0;
   const probed = parts.map((part) => {

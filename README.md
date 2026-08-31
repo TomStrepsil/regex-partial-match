@@ -138,6 +138,8 @@ The library is compiled to **ES2015** (ECMAScript 6). Certain regular expression
 - [**`v` (unicodeSets) flag**](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/unicodeSets) - ES2024+
 - [**Modifiers**](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Modifier) (`(?ims:...)`, `(?-ims:...)`, `(?i-ms:...)`) - ES2025+
 
+Each of these applies only when the *original* pattern uses the feature — everything else, including construction, `exec()` and `test()`, holds to the ES2015 floor. [`isComplete()`](#partialmatchregexpprototypeiscompletematch-regexpexecarray-boolean) is the one exception: it always requires **ES2018+**, regardless of the pattern, since its internal probe uses named capturing groups.
+
 ## ⚠️ Caveats
 
 ### [`.test()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/test) behaviour and non-matching results from [`.exec()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/exec) and [`.match()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/match)
@@ -443,7 +445,10 @@ Neither of the obvious workarounds answers it:
 
 The information only exists during matching. `isComplete()` recovers it by re-running the compiled pattern, [sticky](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/sticky) at `match.index`, with an empty named group in front of each truncation branch; an empty group is zero-width and always succeeds, so the twin walks the identical path, and any marker that comes back defined is a truncation branch the match actually took. The twin is built once per instance, only on first use, and never escapes the library — the array, `groups`, numbering and `d`-flag indices you hold are the ones `exec()` produced.
 
-**Cost:** one anchored `exec` per call, and nothing at all for callers who never ask — `exec()` and `test()` are untouched. For patterns with [backreferences](#backreferences), whose partial regex is rebuilt per input, the expansion behind each partial match is retained until the match is collected.
+**Cost:** one anchored `exec` per call. `exec()` and `test()` are untouched either way. For a pattern without [backreferences](#backreferences), that's the entire cost — nothing is paid by a caller who never asks. For one with backreferences, whose partial regex is rebuilt per input, the expansion behind each partial match is retained in a `WeakMap` until the match is collected — whether or not `isComplete()` is ever called on it.
+
+> [!CAUTION]
+> `isComplete()` itself always requires ES2018+, regardless of the pattern: its truncation probe is built from named capturing groups internally, even for a pattern as plain as `/^abc/`. See [Browser Compatibility](#browser-compatibility) — every other method holds to the ES2015 floor stated there.
 
 #### What it cannot see
 

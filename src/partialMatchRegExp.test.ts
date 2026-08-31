@@ -3308,6 +3308,15 @@ c`)
         expect(completenessOf(partial, "ab")).toBe(false);
         expect(completenessOf(partial, "abc")).toBe(true);
       });
+
+      it("recognises a group name spelled with a unicode escape", () => {
+        const partial = new PartialMatchRegExp(
+          new RegExp("^(?<\\u0074runcation0>a)b")
+        );
+
+        expect(completenessOf(partial, "a")).toBe(false);
+        expect(completenessOf(partial, "ab")).toBe(true);
+      });
     });
 
     describe("across the constructs the walker transforms", () => {

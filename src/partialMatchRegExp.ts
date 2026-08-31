@@ -48,15 +48,13 @@ const backreferenceExpansions = Symbol("backreferenceExpansions");
 class PartialMatchRegExp extends RegExp {
   declare private [compiledPartial]: CompiledPartial;
   declare private [truncationProbe]: TruncationProbe | undefined;
-  declare private [backreferenceExpansions]: WeakMap<
-    RegExpExecArray,
-    BackreferenceExpansion
-  >;
+  declare private [backreferenceExpansions]:
+    | WeakMap<RegExpExecArray, BackreferenceExpansion>
+    | undefined;
 
   constructor(pattern: RegExp | string, flags?: string) {
     super(pattern, flags);
     this[compiledPartial] = compilePartial(this);
-    this[backreferenceExpansions] = new WeakMap();
   }
 
   /**
@@ -110,6 +108,10 @@ class PartialMatchRegExp extends RegExp {
    * @param match - A match returned by this instance's `exec()`
    * @returns `true` when the match is complete, `false` when it is a prefix
    *
+   * @remarks
+   * Requires ES2018+ regardless of the pattern — the probe this builds uses
+   * named capturing groups internally, unlike `exec()` and `test()`.
+   *
    * @example
    * ```typescript
    * const partial = new PartialMatchRegExp(/^\d{4}-\d{2}-\d{2}/);
@@ -122,22 +124,26 @@ class PartialMatchRegExp extends RegExp {
     const compiled = this[compiledPartial];
 
     if (compiled.kind === "dynamic") {
-      const expansion = this[backreferenceExpansions].get(match);
+      const expansion = this[backreferenceExpansions]?.get(match);
       if (expansion === undefined) return true;
-      expansion.probe ??= this.#probeFor(expansion.parts);
+      expansion.probe ??= buildTruncationProbe(
+        expansion.parts,
+        this.source,
+        this.flags
+      );
       return !tookTruncationBranch(expansion.probe, match.input, match.index);
     }
 
-    this[truncationProbe] ??= this.#probeFor(compiled.parts);
+    this[truncationProbe] ??= buildTruncationProbe(
+      compiled.parts,
+      this.source,
+      this.flags
+    );
     return !tookTruncationBranch(
       this[truncationProbe],
       match.input,
       match.index
     );
-  }
-
-  #probeFor(parts: string[]): TruncationProbe {
-    return buildTruncationProbe(parts, this.source, this.flags);
   }
 
   private _execDynamic(
@@ -174,7 +180,7 @@ class PartialMatchRegExp extends RegExp {
 
     preferLongerCaptures(match, capture);
     if (honoursLastIndex) this.lastIndex = expanded.lastIndex;
-    this[backreferenceExpansions].set(match, {
+    (this[backreferenceExpansions] ??= new WeakMap()).set(match, {
       parts: expandedParts,
       probe: undefined
     });

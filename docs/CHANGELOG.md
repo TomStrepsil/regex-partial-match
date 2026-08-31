@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `isComplete(match: RegExpExecArray): boolean` on `PartialMatchRegExp`, reporting whether a match `exec()` returned is a match of the original pattern or merely a prefix of it — the distinction partial matching is named for, which the result previously discarded. Answered by re-running the compiled pattern sticky at `match.index` with an empty named group in front of each `|$(?![\s\S])` truncation branch: an empty group is zero-width and always succeeds, so the twin walks the identical path, and any marker returned defined is a branch the match actually took. Supported on both the static and the backreference paths
   - The built-package smoke test now exercises `isComplete()` over a pattern with a backreference, so a build that breaks the dynamic path is caught before publishing
   - Documented that `isComplete()` cannot see a capture still growing inside an assertion, since `RepeatMatcher` discards a repetition once it matches empty — necessary but not sufficient for a chunk-invariant scanner, which also needs its own end-of-buffer check on capture indices
+  - Documented that `isComplete()` itself always requires ES2018+ regardless of the pattern, since its probe uses named capturing groups internally, and corrected the cost note: only the static path is free for a caller who never asks — the backreference path pays the retention cost on every match
 
 ### Changed
 
