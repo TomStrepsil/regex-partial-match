@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - The compiled state moved from a `#`-private field to a TypeScript `private` one, which the `ES2015` target emits as a plain property rather than a `WeakMap`
   - Compiled parts are concatenated in a single pass, rather than being mapped into an intermediate array and joined
 - `features` iterates in `RegexFeature` declaration order, rather than the order the constructs first appear in the pattern, a consequence of recording them as a bit mask
+- updated [`js-yaml`](https://github.com/nodeca/js-yaml) to [4.3.1](https://github.com/nodeca/js-yaml/tree/4.3.1) to mitigate [`CVE-2026-59870`](https://nvd.nist.gov/vuln/detail/cve-2026-59870)
 
 ## [1.1.2] - 2026-08-02
 
