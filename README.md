@@ -38,7 +38,7 @@ partial.test("goodbye"); // false - cannot match
 
 ### Telling a prefix from a complete match
 
-`test()` and `exec()` answer "could this match?", which is `true` for a prefix and for a complete match alike. [`isComplete()`](#partialmatchregexpprototypeiscompletematch-regexpexecarray-boolean) separates the two, giving the three states progressive validation actually needs:
+`test()` and `exec()` answer "could this match?", which is `true` for a prefix and for a complete match alike. [`isComplete()`](#partialmatchregexpprototypeiscompletematch-regexpexecarray-boolean) separates the two — testing the original pattern instead doesn't[^1] — giving the three states progressive validation actually needs:
 
 ```javascript
 import PartialMatchRegExp from "regex-partial-match";
@@ -58,6 +58,9 @@ state("2024-06"); // 'incomplete' - no error, keep typing
 state("2024-06-15"); // 'complete'   - accept, enable submit
 ```
 
+[^1]: 
+    Testing the original, untransformed pattern looks like it should answer this — "did the input fully satisfy the original pattern?" — but it asks a different question: whether the original matches *at all* here, not whether *this* match got there by truncation. The two agree almost always, but a truncation branch firing inside a zero-width assertion can make both return an identical result by different paths. See [Why the question can't be answered from the outside](#why-the-question-cant-be-answered-from-the-outside) for the case where they diverge.
+
 ### Extending RegExp.prototype
 
 ```javascript
@@ -70,7 +73,7 @@ partial.test("hel"); // true
 
 ## ⚙️ How It Works
 
-The library transforms a regular expression by wrapping each [atomic element](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions#atoms) in a [non-capturing group](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Non-capturing_group) with a [disjunction](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Disjunction) to a true-end-of-input sentinel (`$(?![\s\S])`[^1]):
+The library transforms a regular expression by wrapping each [atomic element](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions#atoms) in a [non-capturing group](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Non-capturing_group) with a [disjunction](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Disjunction) to a true-end-of-input sentinel (`$(?![\s\S])`[^2]):
 
 ```javascript
 /abc/ → /(?:a|$(?![\s\S]))(?:b|$(?![\s\S]))(?:c|$(?![\s\S]))/
@@ -78,7 +81,7 @@ The library transforms a regular expression by wrapping each [atomic element](ht
 
 This allows the pattern to match prefixes of the original pattern, enabling validation of incomplete input.
 
-Since the library accepts only valid regular expressions [^2], this enables the algorithm to make lots of unguarded assumptions about the source of the expression.
+Since the library accepts only valid regular expressions [^3], this enables the algorithm to make lots of unguarded assumptions about the source of the expression.
 
 The library has been stress-tested with various regular expression features in isolation, and some in likely combination, but obviously it's an unbounded test space, and syntactically valid regular expressions nevertheless support contradictory patterns e.g.
 
@@ -222,14 +225,14 @@ partial.test("abca"); // false — but "abca" is a valid prefix of "abcabc" via 
 
 See [docs/backreferences.md](./docs/backreferences.md) for why this happens (the internal capture scan resolving the wrong alternative first).
 
-[^1]: 
+[^2]: 
     A bare `$` alone isn't sufficient here: under the `m` (multiline) flag — including one turned on locally via a `(?m:...)` [modifier](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Modifier) — `$` also matches immediately before *any* line terminator, not just the true end of input. That would let a `"\n"` the source pattern never allowed for be silently accepted as if the input had simply run out, e.g. `new PartialMatchRegExp(/^foobar/m)` would wrongly accept `"foo\nbaz"`. Appending `(?![\s\S])` narrows the disjunction down to strict end-of-input, regardless of multiline state.
 
     See [chromium issue 536420076](https://issues.chromium.org/u/2/issues/536420076) for the underlying V8 bug that requires `$` to precede `(?![\s\S])` rather than using the lookahead alone.
 
     A shorter option, `(?-m:$)` — disabling multiline locally so `$` means strict end-of-input on its own — also sidesteps the bug and saves a few bytes per atom. However, modifier groups are new enough that support isn't universal, and feature-detecting them would add a fallback branch the test suite can't exercise honestly, since every engine that can realistically be tested against already supports them.
 
-[^2]: 
+[^3]: 
     To remain lightweight, no runtime type validation is applied, so non-TypeScript consumers will be reliant on underlying errors thrown if used incorrectly.
 
 ### Positive Lookbehinds
