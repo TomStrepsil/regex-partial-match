@@ -42,6 +42,27 @@ describe("PartialMatchRegExp", () => {
       );
     });
 
+    it("reports every construct of a pattern combining several, and nothing else", () => {
+      expect(
+        new PartialMatchRegExp(/^[a-z]+(?<domain>\.[a-z]+)\1/).features
+      ).toEqual(
+        new Set([
+          "startAnchor",
+          "characterClass",
+          "quantifier",
+          "namedGroup",
+          "capturingGroup",
+          "otherEscape",
+          "backreference"
+        ])
+      );
+    });
+
+    it("returns the same set on every access", () => {
+      const partial = new PartialMatchRegExp(/^foo/);
+      expect(partial.features).toBe(partial.features);
+    });
+
     it("detects a top-level ^ as a start anchor", () => {
       expect(new PartialMatchRegExp(/^foo/).features).toContain("startAnchor");
     });
@@ -2878,9 +2899,7 @@ c`)
       });
 
       it("a static twin of the same pattern (no backreference) already agrees on the earlier index", () => {
-        const partial = new PartialMatchRegExp(
-          /("[^"]*")|(\{)|(\})/
-        );
+        const partial = new PartialMatchRegExp(/("[^"]*")|(\{)|(\})/);
         expect(partial.exec(' a: "}{')).toMatchAt({ match: '"}{', index: 4 });
       });
 
@@ -2902,6 +2921,21 @@ c`)
         expect(partial.exec("abXaax\naax")).toMatchAt({
           match: "aax",
           index: 7
+        });
+      });
+
+      it("returns the complete match when no partial is viable before it", () => {
+        expect(new PartialMatchRegExp(/(a)\1/).exec("baa")).toMatchAt({
+          match: "aa",
+          index: 1
+        });
+        expect(new PartialMatchRegExp(/(ab)\1/).exec("xabab")).toMatchAt({
+          match: "abab",
+          index: 1
+        });
+        expect(new PartialMatchRegExp(/(?<n>a)\k<n>/).exec("zaa")).toMatchAt({
+          match: "aa",
+          index: 1
         });
       });
     });

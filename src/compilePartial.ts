@@ -4,6 +4,7 @@ const OCCURRENCES_REGEX = /\{\d+,?\d*\}/y;
 const NOT_NUMBERS_REGEX = /\D/g;
 const MAYBE_HAS_BACKREFERENCE_REGEX = /\\[1-9]|\\k</;
 const DISJUNCTION_TO_END_OF_INPUT = "|$(?![\\s\\S]))";
+const ANY_CAPTURED_TEXT = "(?:[\\s\\S]*?)";
 
 interface NumericBackreference {
   ref: number;
@@ -26,47 +27,60 @@ const isBackreference = (part: Part): part is Backreference =>
 const isNumericBackreference = (part: Part): part is NumericBackreference =>
   isBackreference(part) && typeof part.ref === "number";
 
-export type RegexFeature =
-  | "patternCharacter"
-  | "startAnchor"
-  | "endAnchor"
-  | "wordBoundary"
-  | "nonWordBoundary"
-  | "lookahead"
-  | "negativeLookahead"
-  | "lookbehind"
-  | "negativeLookbehind"
-  | "backreference"
-  | "namedBackreference"
-  | "namedGroup"
-  | "capturingGroup"
-  | "nonCapturingGroup"
-  | "modifierGroup"
-  | "modifierGroupWithRemoval"
-  | "characterClass"
-  | "nestedCharacterClass"
-  | "classIntersection"
-  | "classSubtraction"
-  | "disjunction"
-  | "quantifier"
-  | "unicodePropertyEscape"
-  | "characterClassEscape"
-  | "controlEscape"
-  | "controlLetterEscape"
-  | "hexEscapeSequence"
-  | "unicodeEscapeSequence"
-  | "otherEscape";
+type LengthUpToOneBitMask<Counted extends unknown[] = []> =
+  Counted["length"] extends 33
+    ? never
+    : Counted["length"] | LengthUpToOneBitMask<[...Counted, unknown]>;
 
-function walk(
-  regex: RegExp
-): { parts: Part[]; groupCount: number; features: Set<RegexFeature> } {
+const REGEX_FEATURES = [
+  "patternCharacter",
+  "startAnchor",
+  "endAnchor",
+  "wordBoundary",
+  "nonWordBoundary",
+  "lookahead",
+  "negativeLookahead",
+  "lookbehind",
+  "negativeLookbehind",
+  "backreference",
+  "namedBackreference",
+  "namedGroup",
+  "capturingGroup",
+  "nonCapturingGroup",
+  "modifierGroup",
+  "modifierGroupWithRemoval",
+  "characterClass",
+  "nestedCharacterClass",
+  "classIntersection",
+  "classSubtraction",
+  "disjunction",
+  "quantifier",
+  "unicodePropertyEscape",
+  "characterClassEscape",
+  "controlEscape",
+  "controlLetterEscape",
+  "hexEscapeSequence",
+  "unicodeEscapeSequence",
+  "otherEscape"
+] as const satisfies { length: LengthUpToOneBitMask };
+
+export type RegexFeature = (typeof REGEX_FEATURES)[number];
+
+const FEATURE_BIT = Object.fromEntries(
+  REGEX_FEATURES.map((feature, index) => [feature, 1 << index])
+) as Record<RegexFeature, number>;
+
+function walk(regex: RegExp): {
+  parts: Part[];
+  groupCount: number;
+  featureMask: number;
+} {
   const source = regex.source;
   const isUnicode = regex.unicode || regex.unicodeSets;
 
   let i = 0;
   let groupCount = 0;
-  const features = new Set<RegexFeature>();
-
+  let featureMask = 0;
   function extractSlice(length: number): string {
     return source.slice(i, (i += length));
   }
@@ -94,7 +108,7 @@ function walk(
         case "\\":
           switch (source[i + 1]) {
             case "c":
-              features.add("controlLetterEscape");
+              featureMask |= FEATURE_BIT.controlLetterEscape;
               appendOptional(3);
               break;
             case "k": {
@@ -103,7 +117,7 @@ function walk(
               if (referenceEnd === -1) {
                 appendOptional(2);
               } else {
-                features.add("namedBackreference");
+                featureMask |= FEATURE_BIT.namedBackreference;
                 const start = i;
                 const ref = source.slice(i + 3, referenceEnd);
                 i = referenceEnd + 1;
@@ -112,7 +126,7 @@ function walk(
               break;
             }
             case "u":
-              features.add("unicodeEscapeSequence");
+              featureMask |= FEATURE_BIT.unicodeEscapeSequence;
               if (isUnicode && source[i + 2] === "{") {
                 appendOptional(source.indexOf("}", i) - i + 1);
               } else {
@@ -122,22 +136,22 @@ function walk(
             case "p":
             case "P":
               if (isUnicode) {
-                features.add("unicodePropertyEscape");
+                featureMask |= FEATURE_BIT.unicodePropertyEscape;
                 appendOptional(source.indexOf("}", i) - i + 1);
               } else {
                 appendOptional(2);
               }
               break;
             case "x":
-              features.add("hexEscapeSequence");
+              featureMask |= FEATURE_BIT.hexEscapeSequence;
               appendOptional(4);
               break;
             case "b":
-              features.add("wordBoundary");
+              featureMask |= FEATURE_BIT.wordBoundary;
               appendOptional(2);
               break;
             case "B":
-              features.add("nonWordBoundary");
+              featureMask |= FEATURE_BIT.nonWordBoundary;
               appendOptional(2);
               break;
             case "f":
@@ -145,7 +159,7 @@ function walk(
             case "r":
             case "t":
             case "v":
-              features.add("controlEscape");
+              featureMask |= FEATURE_BIT.controlEscape;
               appendOptional(2);
               break;
             case "1":
@@ -157,7 +171,7 @@ function walk(
             case "7":
             case "8":
             case "9": {
-              features.add("backreference");
+              featureMask |= FEATURE_BIT.backreference;
               NOT_NUMBERS_REGEX.lastIndex = i + 1;
               const nextNonDigit = NOT_NUMBERS_REGEX.exec(source);
               const start = i;
@@ -173,17 +187,17 @@ function walk(
             case "W":
             case "s":
             case "S":
-              features.add("characterClassEscape");
+              featureMask |= FEATURE_BIT.characterClassEscape;
               appendOptional(2);
               break;
             default:
-              features.add("otherEscape");
+              featureMask |= FEATURE_BIT.otherEscape;
               appendOptional(2);
               break;
           }
           break;
         case "[": {
-          features.add("characterClass");
+          featureMask |= FEATURE_BIT.characterClass;
           let depth = 1,
             j = i + 1,
             previousSetOperatorCharacter: string | undefined;
@@ -196,7 +210,7 @@ function walk(
                 continue;
               case "[":
                 if (regex.unicodeSets) {
-                  features.add("nestedCharacterClass");
+                  featureMask |= FEATURE_BIT.nestedCharacterClass;
                   depth++;
                 }
                 break;
@@ -205,12 +219,12 @@ function walk(
                 break;
               case "&":
                 if (regex.unicodeSets && previousSetOperatorCharacter === "&") {
-                  features.add("classIntersection");
+                  featureMask |= FEATURE_BIT.classIntersection;
                 }
                 break;
               case "-":
                 if (regex.unicodeSets && previousSetOperatorCharacter === "-") {
-                  features.add("classSubtraction");
+                  featureMask |= FEATURE_BIT.classSubtraction;
                 }
                 break;
             }
@@ -221,28 +235,28 @@ function walk(
           break;
         }
         case "^":
-          features.add("startAnchor");
+          featureMask |= FEATURE_BIT.startAnchor;
           appendRaw(1);
           break;
         case "$":
-          features.add("endAnchor");
+          featureMask |= FEATURE_BIT.endAnchor;
           appendRaw(1);
           break;
         case "|":
-          features.add("disjunction");
+          featureMask |= FEATURE_BIT.disjunction;
           appendRaw(1);
           break;
         case "*":
         case "+":
         case "?":
-          features.add("quantifier");
+          featureMask |= FEATURE_BIT.quantifier;
           appendRaw(1);
           break;
         case "{": {
           OCCURRENCES_REGEX.lastIndex = i;
           const regExpExecArray = OCCURRENCES_REGEX.exec(source);
           if (regExpExecArray) {
-            features.add("quantifier");
+            featureMask |= FEATURE_BIT.quantifier;
             appendRaw(regExpExecArray[0].length);
           } else {
             appendOptional(1);
@@ -253,13 +267,13 @@ function walk(
           if (source[i + 1] == "?") {
             switch (source[i + 2]) {
               case ":":
-                features.add("nonCapturingGroup");
+                featureMask |= FEATURE_BIT.nonCapturingGroup;
                 result.push("(?:");
                 i += 3;
                 result.push(...process(), DISJUNCTION_TO_END_OF_INPUT);
                 break;
               case "=":
-                features.add("lookahead");
+                featureMask |= FEATURE_BIT.lookahead;
                 result.push("(?=");
                 i += 3;
                 result.push(...process(), ")");
@@ -271,33 +285,31 @@ function walk(
                 const flagsStart = i + 2,
                   colonIndex = source.indexOf(":", flagsStart);
                 const modifiers = source.slice(flagsStart, colonIndex);
-                features.add(
-                  modifiers.includes("-")
-                    ? "modifierGroupWithRemoval"
-                    : "modifierGroup"
-                );
+                featureMask |= modifiers.includes("-")
+                  ? FEATURE_BIT.modifierGroupWithRemoval
+                  : FEATURE_BIT.modifierGroup;
                 result.push("(?" + modifiers + ":");
                 i = colonIndex + 1;
                 result.push(...process(), ")");
                 break;
               }
               case "!":
-                features.add("negativeLookahead");
+                featureMask |= FEATURE_BIT.negativeLookahead;
                 appendRawGroup(3);
                 break;
               case "<":
                 switch (source[i + 3]) {
                   case "=":
-                    features.add("lookbehind");
+                    featureMask |= FEATURE_BIT.lookbehind;
                     appendRawGroup(4);
                     break;
                   case "!":
-                    features.add("negativeLookbehind");
+                    featureMask |= FEATURE_BIT.negativeLookbehind;
                     appendRawGroup(4);
                     break;
                   default:
-                    features.add("namedGroup");
-                    features.add("capturingGroup");
+                    featureMask |= FEATURE_BIT.namedGroup;
+                    featureMask |= FEATURE_BIT.capturingGroup;
                     ++groupCount;
                     appendRaw(source.indexOf(">", i) - i + 1);
                     result.push(...process(), DISJUNCTION_TO_END_OF_INPUT);
@@ -306,27 +318,29 @@ function walk(
                 break;
             }
           } else {
-            features.add("capturingGroup");
+            featureMask |= FEATURE_BIT.capturingGroup;
             ++groupCount;
             appendRaw(1);
-            result.push(...process(), DISJUNCTION_TO_END_OF_INPUT );
+            result.push(...process(), DISJUNCTION_TO_END_OF_INPUT);
           }
           break;
         case ")":
           ++i;
           return result;
         default:
-          features.add("patternCharacter");
+          featureMask |= FEATURE_BIT.patternCharacter;
           appendOptional(
-            isUnicode && (source.codePointAt(i) ?? 0) > 0xffff ? 2 : 1
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- the loop only runs while i indexes into source, so this narrows the type rather than guarding a reachable case
+            isUnicode && source.codePointAt(i)! > 0xffff ? 2 : 1
           );
           break;
       }
     }
+
     return result;
   }
 
-  return { parts: process(), groupCount, features };
+  return { parts: process(), groupCount, featureMask };
 }
 
 function render(
@@ -358,12 +372,12 @@ function reclassifyOctalEscapes(
 
 function spliceOriginalSource(
   source: string,
-  backrefs: Backreference[]
+  ascendingBackrefs: Backreference[]
 ): string {
   let result = "";
   let cursor = 0;
-  for (const { start, end } of backrefs) {
-    result += source.slice(cursor, start) + "(?:[\\s\\S]*?)";
+  for (const { start, end } of ascendingBackrefs) {
+    result += source.slice(cursor, start) + ANY_CAPTURED_TEXT;
     cursor = end;
   }
   return result + source.slice(cursor);
@@ -381,20 +395,53 @@ export interface DynamicPath {
   expand: (capture: RegExpExecArray) => string;
 }
 
-export type CompiledPartial = (
-  | { kind: "static"; regex: RegExp }
-  | { kind: "dynamic"; dynamic: DynamicPath }
-) & { features: Set<RegexFeature> };
+abstract class Compiled {
+  private _features?: ReadonlySet<RegexFeature>;
+
+  constructor(private readonly _featureMask: number) {}
+
+  get features(): ReadonlySet<RegexFeature> {
+    return (this._features ??= new Set(
+      REGEX_FEATURES.filter(
+        (_, index) => (this._featureMask & (1 << index)) !== 0
+      )
+    ));
+  }
+}
+
+class CompiledStatic extends Compiled {
+  readonly kind = "static";
+
+  constructor(
+    readonly regex: RegExp,
+    featureMask: number
+  ) {
+    super(featureMask);
+  }
+}
+
+class CompiledDynamic extends Compiled {
+  readonly kind = "dynamic";
+
+  constructor(
+    readonly dynamic: DynamicPath,
+    featureMask: number
+  ) {
+    super(featureMask);
+  }
+}
+
+export type CompiledPartial = CompiledStatic | CompiledDynamic;
 
 export const compilePartial = (regex: RegExp): CompiledPartial => {
-  const { parts, groupCount, features } = walk(regex);
+  const { parts, groupCount, featureMask } = walk(regex);
+  const flags = regex.flags;
 
   if (!MAYBE_HAS_BACKREFERENCE_REGEX.test(regex.source)) {
-    return {
-      kind: "static",
-      regex: new RegExp(render(parts, backrefToken), regex.flags),
-      features
-    };
+    return new CompiledStatic(
+      new RegExp(render(parts, backrefToken), flags),
+      featureMask
+    );
   }
 
   const isUnicode = regex.unicode || regex.unicodeSets;
@@ -403,24 +450,21 @@ export const compilePartial = (regex: RegExp): CompiledPartial => {
     : reclassifyOctalEscapes(parts, regex.source, groupCount);
   const backreferences = sanitisedParts.filter(isBackreference);
   if (backreferences.length === 0) {
-    return {
-      kind: "static",
-      regex: new RegExp(render(sanitisedParts, backrefToken), regex.flags),
-      features
-    };
+    return new CompiledStatic(
+      new RegExp(render(sanitisedParts, backrefToken), flags),
+      featureMask
+    );
   }
 
-  return {
-    kind: "dynamic",
-    features,
-    dynamic: {
+  return new CompiledDynamic(
+    {
       originalCaptureScan: new RegExp(
         spliceOriginalSource(regex.source, backreferences),
-        regex.flags
+        flags
       ),
       preScan: new RegExp(
-        render(parts, () => "(?:[\\s\\S]*?)"),
-        regex.flags
+        render(parts, () => ANY_CAPTURED_TEXT),
+        flags
       ),
       expand: (capture) =>
         render(parts, (backref) => {
@@ -431,6 +475,7 @@ export const compilePartial = (regex: RegExp): CompiledPartial => {
             ? "(?:" + backrefToken(backref) + DISJUNCTION_TO_END_OF_INPUT
             : expandCaptured(captured, isUnicode);
         })
-    }
-  };
+    },
+    featureMask
+  );
 };

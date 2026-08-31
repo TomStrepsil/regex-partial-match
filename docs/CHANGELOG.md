@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `regex-partial-match/matches-zero-length`, a new entry point exporting `matchesZeroLength(regex)` — whether a pattern can match zero characters at any position, the question `regex.test("")` cannot answer for patterns such as `/(?=a)/`, and the one a scanning loop needs to avoid failing to advance its cursor. It takes any `RegExp`, so nothing has to be transformed for partial matching in order to ask. Every zero-width construct is replaced by an empty group and the regular expression engine is asked whether the remainder matches the empty string, so sequences, alternation, quantifier minimums, laziness and nesting all behave as the engine defines them. The answer errs towards `true`, the safe direction for a loop guard
+
+### Changed
+
+- `features` is now recorded during the walk as a bit set rather than a `Set`, and the `Set` is built on first read of the property and cached. `features` is consequently an accessor rather than an own property, and the set iterates in the order features are declared rather than the order they are encountered in the pattern
+- `compilePartial` now reads `RegExp.prototype.flags` once per call rather than once per regex it builds. The getter assembles a fresh string on every access, and it was being read twice on the static path and four times on the dynamic one. Together with the bit set this leaves construction consistently faster than [1.1.2](#112---2026-08-02) — roughly 4–16% across the benchmarked patterns
+
 ## [1.1.2] - 2026-08-02
 
 ### Fixed

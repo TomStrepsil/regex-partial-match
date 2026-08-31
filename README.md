@@ -10,7 +10,7 @@ Unlike C/C++ (via [PCRE/PCRE2](https://www.pcre.org/original/doc/html/pcrepartia
 
 This library transforms regular expressions to best-effort support **partial matching**, allowing you to test if an incomplete string could potentially match the full pattern. This is particularly useful for real-time input validation, autocomplete systems, progressive form validation, stream chunk matching, etc.
 
-As a side effect of the parse this requires, each `PartialMatchRegExp` also exposes a [`features`](#partialmatchregexpprototypefeatures-readonlysetregexfeature) set naming the syntactic constructs its pattern uses — useful for consumers that need to reason about a pattern without writing their own regex parser.  For many features, a simple search in the [source](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/source) would be insufficient.
+As a side effect of the parse this requires, each `PartialMatchRegExp` also exposes a [`features`](#partialmatchregexpprototypefeatures-readonlysetregexfeature) set naming the syntactic constructs its pattern uses — useful for consumers that need to reason about a pattern without writing their own regex parser.  For many features, a simple search in the [source](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/source) would be insufficient. The same parsing work backs [`matchesZeroLength`](#matcheszerolengthregex-regexp-boolean), a separate entry point answering whether a pattern can match zero characters — the question a scanning loop needs and `pattern.test("")` cannot answer.
 
 **Based on an algorithm created by [Lucas Trzesniewski](https://github.com/ltrzesniewski)**, re-created for NPM via ISC license, with permission.
 
@@ -366,7 +366,7 @@ When using `import 'regex-partial-match/extend'`, this method is added to `RegEx
 
 ### `PartialMatchRegExp.prototype.features: ReadonlySet<RegexFeature>`
 
-Building the partial-match regex requires walking the entire source pattern once. As a side effect of that same walk, each instance records which syntactic constructs its pattern actually uses, exposed as a `features` set — no separate scan of the source is performed to produce it.
+Building the partial-match regex requires walking the entire source pattern once. As a side effect of that same walk, each instance records which syntactic constructs its pattern actually uses, exposed as a `features` set — no separate scan of the source is performed to produce it. The set itself is built the first time the property is read, and cached thereafter, so patterns that are only ever matched against don't pay for it.
 
 This is useful for consumers building on top of `PartialMatchRegExp` who need to reason about which constructs a *specific* pattern uses, without writing their own regex parser to find out. Two concrete cases:
 
@@ -378,7 +378,7 @@ import PartialMatchRegExp from "regex-partial-match";
 
 const partial = new PartialMatchRegExp(/^[a-z]+(?<domain>\.[a-z]+)\1/);
 
-partial.features; // Set { "startAnchor", "characterClass", "quantifier", "namedGroup", "capturingGroup", "backreference" }
+partial.features; // Set { "startAnchor", "backreference", "namedGroup", "capturingGroup", "characterClass", "quantifier", "otherEscape" }
 partial.features.has("backreference"); // true
 ```
 
@@ -420,6 +420,43 @@ Two things worth knowing about how these tags line up with the grammar:
 
 - **One ECMA-262 production can map to several tags.** `Assertion` alone covers `^`, `$`, `\b`, `\B`, and all four lookarounds — `features` splits it by whichever discriminant is easiest to read off during the walk (`^` vs `$`, `=` vs `!` after `(?<`, etc.), since that information is free at the point each construct is recognised.
 - **A named capturing group always carries both `namedGroup` and `capturingGroup`.** The grammar treats a capturing group with a name and one without as the same production (`( GroupSpecifier? Disjunction )`), not two, so both tags are added together.
+
+### `matchesZeroLength(regex: RegExp): boolean`
+
+Reports whether `regex` can produce a zero-length match at some position — not whether it matches the empty *string*. Available from a separate entry point, and takes any `RegExp`, so nothing needs to be transformed for partial matching in order to ask.
+
+```javascript
+import matchesZeroLength from "regex-partial-match/matches-zero-length";
+
+matchesZeroLength(/(?=a)/); // true
+/(?=a)/.test(""); // false — a different question
+
+matchesZeroLength(/\d{4}/); // false
+matchesZeroLength(/x|/); // true
+```
+
+The distinction matters to anyone driving a pattern round a scanning loop: a zero-length match leaves the cursor where it was, so a loop that advances by match length alone will spin forever. The obvious defensive check, `pattern.test("")`, does not answer the question — `/(?=a)/` returns `false` for `test("")` yet matches zero characters at every position where the lookahead holds. That gap is why this exists: answering it properly needs the parse, not a search of the [source](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/source).
+
+Rather than reimplement the rules for what can match nothing, every zero-width construct — `^`, `$`, `\b`, `\B` and all four lookarounds — is replaced by an empty group, and the regular expression engine itself is asked whether what remains matches the empty string. Sequences, alternation, quantifier minimums, laziness and nesting therefore behave exactly as the engine defines them. Two consequences are worth knowing:
+
+- **Backreferences are assumed to match zero length**, because whether one does depends on what its group captured at match time. This biases towards `true`, the safe answer for a loop guard: `/(a)?\1/` is `true` correctly. The same applies to every backreference-shaped escape, including the ones [Annex B](https://tc39.es/ecma262/multipage/additional-ecmascript-features-for-web-browsers.html#sec-regular-expressions-patterns) reinterprets as literals and which therefore always consume — `/\1/` with no capturing group, `/\8/`, `/\9/`, and `/\k<name>/` naming a group that does not exist are all `true` conservatively.
+- **Contradictory patterns report `true`.** `/(?=a)(?=b)/` never matches anything at all, but both lookarounds are treated as satisfiable, so the answer is `true`. Deciding otherwise would mean solving satisfiability.
+
+In both directions the error is towards `true`, so a loop that force-advances its cursor when `matchesZeroLength` is set will never hang — at worst it takes the guarded path for a pattern that did not need it.
+
+This is deliberately not a [`RegexFeature`](#partialmatchregexpprototypefeatures-readonlysetregexfeature), and deliberately not a member of `PartialMatchRegExp`. `features` records syntax a pattern contains, whereas this is a semantic property of the whole pattern — `?` appearing says nothing on its own, since `(?:a?b)c` still has to consume. And the question is about a plain pattern, so it should not require building a `PartialMatchRegExp` to ask it.
+
+> [!IMPORTANT]
+> Ask this about the pattern you intend to scan with. A `PartialMatchRegExp` is not that pattern: the transform always matches an empty string at end of input, so scanning with one yields a zero-length match there whatever `matchesZeroLength` reports of the pattern it was built from.
+>
+> ```javascript
+> const partial = new PartialMatchRegExp(/a/g);
+> matchesZeroLength(/a/g); // false
+> partial.exec("ba"); // { 0: "a", index: 1 } — lastIndex 2
+> partial.exec("ba"); // { 0: "", index: 2 } — lastIndex 2, and the loop stalls
+> ```
+>
+> A loop scanning with a `PartialMatchRegExp` must always force its cursor forward on a zero-length match.
 
 ## 📜 License
 

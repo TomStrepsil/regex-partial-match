@@ -44,6 +44,11 @@
       "types": "./lib/extend.d.ts",
       "import": "./lib/extend.js",
       "default": "./lib/extend.js"
+    },
+    "./matches-zero-length": {
+      "types": "./lib/matchesZeroLength.d.ts",
+      "import": "./lib/matchesZeroLength.js",
+      "default": "./lib/matchesZeroLength.js"
     }
   },
   "files": [

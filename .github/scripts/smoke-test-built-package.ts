@@ -61,6 +61,20 @@ const SMOKE_TESTS: Record<string, (loaded: LoadedModule) => void> = {
       true,
       "extended regex rejects a prefix"
     );
+  },
+
+  "./matches-zero-length": (loaded) => {
+    const matchesZeroLength = loaded.default as
+      | ((regex: RegExp) => boolean)
+      | undefined;
+    assert.ok(matchesZeroLength, "no default export");
+
+    assert.equal(
+      matchesZeroLength(/(?=a)/),
+      true,
+      "misses a zero-width assertion"
+    );
+    assert.equal(matchesZeroLength(/\d{4}/), false, "false positive");
   }
 };
 

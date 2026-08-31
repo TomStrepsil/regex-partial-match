@@ -36,12 +36,26 @@ export type { RegexFeature };
 class PartialMatchRegExp extends RegExp {
   #compiledPartial: CompiledPartial;
 
-  readonly features: ReadonlySet<RegexFeature>;
-
   constructor(pattern: RegExp | string, flags?: string) {
     super(pattern, flags);
     this.#compiledPartial = compilePartial(this);
-    this.features = this.#compiledPartial.features;
+  }
+
+  /**
+   * The syntactic constructs the original pattern uses, recorded as a side
+   * effect of the single walk that builds the partial-match regex.
+   *
+   * The set is built on first read and cached, so patterns that are only ever
+   * matched against never pay for it. It iterates in declaration order, not the
+   * order the constructs appear in the pattern.
+   *
+   * @example
+   * ```typescript
+   * new PartialMatchRegExp(/^[a-z]+/).features.has("startAnchor"); // true
+   * ```
+   */
+  get features(): ReadonlySet<RegexFeature> {
+    return this.#compiledPartial.features;
   }
 
   override exec(input: string): RegExpExecArray | null {
@@ -70,8 +84,11 @@ class PartialMatchRegExp extends RegExp {
     let preScanMatch: RegExpExecArray | null = null;
     if (originalMatch) {
       preScanMatch = execFrom(preScan, input, start);
+      /* v8 ignore next -- preScan relaxes the original, so it matches wherever the original just did; unreachable, but returning the complete match degrades better than throwing should that ever stop holding */
+      if (preScanMatch === null) return originalMatch;
+
       const noEarlierPartialPossible =
-        preScanMatch === null || preScanMatch.index >= originalMatch.index;
+        preScanMatch.index >= originalMatch.index;
       if (noEarlierPartialPossible) return originalMatch;
     }
 
