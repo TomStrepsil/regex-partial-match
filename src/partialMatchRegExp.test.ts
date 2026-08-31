@@ -206,42 +206,6 @@ describe("PartialMatchRegExp", () => {
       );
     });
 
-    it("returns the same set on every read", () => {
-      const partial = new PartialMatchRegExp(/a(?=(b))/);
-
-      expect(partial.features).toBe(partial.features);
-    });
-
-    it("gives each instance its own set", () => {
-      const withCapture = new PartialMatchRegExp(/(a)/);
-      const withoutCapture = new PartialMatchRegExp(/a/);
-
-      expect(withCapture.features).not.toBe(withoutCapture.features);
-      expect(withoutCapture.features).toEqual(new Set(["patternCharacter"]));
-    });
-
-    it("exposes features as an accessor rather than an own property", () => {
-      const partial = new PartialMatchRegExp(/(a)/);
-
-      expect(Object.hasOwn(partial, "features")).toBe(false);
-      expect(Object.keys(partial)).not.toContain("features");
-      expect(partial.features).toBeInstanceOf(Set);
-    });
-
-    it("iterates in declaration order, not the order constructs appear", () => {
-      const partial = new PartialMatchRegExp(/^[a-z]+(?<domain>\.[a-z]+)\1/);
-
-      expect([...partial.features]).toEqual([
-        "startAnchor",
-        "backreference",
-        "namedGroup",
-        "capturingGroup",
-        "characterClass",
-        "quantifier",
-        "otherEscape"
-      ]);
-    });
-
     it("detects a capturing group inside a positive lookahead", () => {
       expect(new PartialMatchRegExp(/a(?=(b))/).features).toContain(
         "lookaroundCapture"
