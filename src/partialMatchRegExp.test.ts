@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import PartialMatchRegExp from "./partialMatchRegExp.ts";
+import { completenessOf } from "../test/vitest.setup.ts";
 
 describe("PartialMatchRegExp", () => {
   it("is an instance of RegExp", () => {
@@ -3173,14 +3174,6 @@ c`)
   });
 
   describe("isComplete()", () => {
-    const completenessOf = (
-      regex: PartialMatchRegExp,
-      input: string
-    ): boolean | null => {
-      const match = regex.exec(input);
-      return match === null ? null : regex.isComplete(match);
-    };
-
     describe("distinguishing a match of the original pattern from a prefix", () => {
       it("reports every proper prefix of a literal pattern as incomplete", () => {
         const partial = new PartialMatchRegExp(/hello world/);
