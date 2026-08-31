@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-08-31
+
 ### Added
 
 - `lookaroundCapture` `RegexFeature`, reported when a capturing group appears lexically inside any lookaround, distinguishing e.g. `/a(?=(b))/` from `/(a)(?=b)/` — which `features` previously reported identically as `lookahead` plus `capturingGroup`
