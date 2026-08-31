@@ -450,13 +450,14 @@ This is useful for consumers building on top of `PartialMatchRegExp` who need to
 
 - **Flagging patterns likely to hit one of the [caveats](#caveats) documented above.** For example, a pattern combining `backreference` with `lookbehind`, `negativeLookahead`, or `negativeLookbehind` is a candidate for the [atomic-backreference caveat](#backreferences); one combining `backreference` with `disjunction` is a candidate for the [prefix-ambiguous top-level alternation caveat](#prefix-ambiguous-top-level-alternation). A consumer accepting user-supplied patterns can surface a warning instead of letting the edge case surprise someone later.
 - **Restricting which constructs a product surface allows.** e.g. a system that only wants to accept "simple" patterns (no lookaround, no backreferences) from untrusted input can check `features` against an allow-list and reject the rest, without needing to hand-roll that check against the raw pattern source.
+- **Deciding at construction time whether a pattern needs a careful path.** A capture nested inside a lookaround is decided by the assertion rather than by the consumed text, so its value can vary with how far the input has been seen. `features.has("lookaroundCapture")` isolates exactly those patterns, where `features.has("lookahead") && features.has("capturingGroup")` would also catch the ordinary `/(\w+)(?= END)/`.
 
 ```javascript
 import PartialMatchRegExp from "regex-partial-match";
 
 const partial = new PartialMatchRegExp(/^[a-z]+(?<domain>\.[a-z]+)\1/);
 
-partial.features; // Set { "startAnchor", "characterClass", "quantifier", "namedGroup", "capturingGroup", "backreference" }
+partial.features; // Set { "startAnchor", "backreference", "namedGroup", "capturingGroup", "characterClass", "quantifier", "otherEscape" }
 partial.features.has("backreference"); // true
 ```
 
@@ -477,6 +478,7 @@ partial.features.has("backreference"); // true
 | `namedBackreference`         | `\k<name>`                                              |                                                                                 |
 | `namedGroup`                 | `(?<name>...)`                                          | Always accompanied by `capturingGroup` — see below                            |
 | `capturingGroup`             | `(...)`, including named groups                        |                                                                                 |
+| `lookaroundCapture`          | A capturing group inside any lookaround                | Nesting, not a construct — always accompanied by `capturingGroup`             |
 | `nonCapturingGroup`          | `(?:...)`                                               |                                                                                 |
 | `modifierGroup`              | `(?ims:...)`                                            |                                                                                 |
 | `modifierGroupWithRemoval`   | `(?ims-ims:...)`                                        | Mutually exclusive with `modifierGroup`                                       |
@@ -494,10 +496,11 @@ partial.features.has("backreference"); // true
 | `unicodeEscapeSequence`      | `\uXXXX`, `\u{...}`                                     |                                                                                 |
 | `otherEscape`                 | Any other `\X`, e.g. `\.`, `\0`                         |                                                                                 |
 
-Two things worth knowing about how these tags line up with the grammar:
+Three things worth knowing about how these tags line up with the grammar:
 
 - **One ECMA-262 production can map to several tags.** `Assertion` alone covers `^`, `$`, `\b`, `\B`, and all four lookarounds — `features` splits it by whichever discriminant is easiest to read off during the walk (`^` vs `$`, `=` vs `!` after `(?<`, etc.), since that information is free at the point each construct is recognised.
 - **A named capturing group always carries both `namedGroup` and `capturingGroup`.** The grammar treats a capturing group with a name and one without as the same production (`( GroupSpecifier? Disjunction )`), not two, so both tags are added together.
+- **`lookaroundCapture` records nesting, not a construct.** Every other tag names something the source contains; this one names where something sits — a capturing group appearing lexically inside `(?=...)`, `(?!...)`, `(?<=...)` or `(?<!...)`, at any depth of nested groups. It is the one relationship between constructs the flattened set cannot otherwise express: `/(\w+)(?= END)/` and `/a(?=(?:b(?:x|(c))d|b))/` both report `lookahead` and `capturingGroup`, but only the second has a capture whose value the assertion decides.
 
 ## 📜 License
 

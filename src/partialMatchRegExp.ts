@@ -15,6 +15,10 @@ interface BackreferenceExpansion {
   probe: TruncationProbe | undefined;
 }
 
+const compiledPartial = Symbol("compiledPartial");
+const truncationProbe = Symbol("truncationProbe");
+const backreferenceExpansions = Symbol("backreferenceExpansions");
+
 /**
  * A `RegExp` subclass that supports partial (prefix) matching.
  *
@@ -42,23 +46,40 @@ interface BackreferenceExpansion {
  * @see {@link https://github.com/TomStrepsil/regex-partial-match#readme | Documentation}
  */
 class PartialMatchRegExp extends RegExp {
-  #compiledPartial: CompiledPartial;
-  #truncationProbe: TruncationProbe | undefined;
-  #backreferenceExpansions = new WeakMap<
+  declare private [compiledPartial]: CompiledPartial;
+  declare private [truncationProbe]: TruncationProbe | undefined;
+  declare private [backreferenceExpansions]: WeakMap<
     RegExpExecArray,
     BackreferenceExpansion
-  >();
-
-  readonly features: ReadonlySet<RegexFeature>;
+  >;
 
   constructor(pattern: RegExp | string, flags?: string) {
     super(pattern, flags);
-    this.#compiledPartial = compilePartial(this);
-    this.features = this.#compiledPartial.features;
+    this[compiledPartial] = compilePartial(this);
+    this[backreferenceExpansions] = new WeakMap();
+  }
+
+  /**
+   * The syntactic constructs the original pattern uses, recorded as a side
+   * effect of the single walk that builds the partial-match regex.
+   *
+   * The set is built on first read and cached, so patterns that are only ever
+   * matched against never pay for it. It iterates in `RegexFeature` declaration
+   * order, not the order the constructs appear in the pattern.
+   *
+   * @returns The features the original pattern contains
+   *
+   * @example
+   * ```typescript
+   * new PartialMatchRegExp(/^[a-z]+/).features.has("startAnchor"); // true
+   * ```
+   */
+  get features(): ReadonlySet<RegexFeature> {
+    return this[compiledPartial].features;
   }
 
   override exec(input: string): RegExpExecArray | null {
-    const compiled = this.#compiledPartial;
+    const compiled = this[compiledPartial];
     if (compiled.kind === "dynamic")
       return this._execDynamic(compiled.dynamic, input);
 
@@ -98,18 +119,18 @@ class PartialMatchRegExp extends RegExp {
    * ```
    */
   isComplete(match: RegExpExecArray): boolean {
-    const compiled = this.#compiledPartial;
+    const compiled = this[compiledPartial];
 
     if (compiled.kind === "dynamic") {
-      const expansion = this.#backreferenceExpansions.get(match);
+      const expansion = this[backreferenceExpansions].get(match);
       if (expansion === undefined) return true;
       expansion.probe ??= this.#probeFor(expansion.parts);
       return !tookTruncationBranch(expansion.probe, match.input, match.index);
     }
 
-    this.#truncationProbe ??= this.#probeFor(compiled.parts);
+    this[truncationProbe] ??= this.#probeFor(compiled.parts);
     return !tookTruncationBranch(
-      this.#truncationProbe,
+      this[truncationProbe],
       match.input,
       match.index
     );
@@ -153,7 +174,7 @@ class PartialMatchRegExp extends RegExp {
 
     preferLongerCaptures(match, capture);
     if (honoursLastIndex) this.lastIndex = expanded.lastIndex;
-    this.#backreferenceExpansions.set(match, {
+    this[backreferenceExpansions].set(match, {
       parts: expandedParts,
       probe: undefined
     });

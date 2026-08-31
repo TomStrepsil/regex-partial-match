@@ -1,6 +1,6 @@
 {
   "name": "regex-partial-match",
-  "version": "1.1.2",
+  "version": "1.2.0",
   "description": "A regular expression transform for partial matching",
   "devEngines": {
     "runtime": {
@@ -78,11 +78,11 @@
     "registry": "https://registry.npmjs.org"
   },
   "devDependencies": {
-    "@typescript/lib-es2018": "file:types/lib-es2018",
-    "@typescript/lib-es2022": "file:types/lib-es2022",
     "@eslint/js": "^9.17.0",
     "@eslint/markdown": "^7.5.1",
     "@types/node": "^25.9.3",
+    "@typescript/lib-es2018": "file:types/lib-es2018",
+    "@typescript/lib-es2022": "file:types/lib-es2022",
     "eslint": "^9.17.0",
     "jiti": "^2.6.1",
     "lint-staged": "^15.2.11",
