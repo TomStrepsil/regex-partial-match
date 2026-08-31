@@ -455,11 +455,15 @@ export interface TruncationProbe {
   markerCount: number;
 }
 
+const MAX_CODE_POINT = 0x10ffff;
+
 function decodeGroupName(rawName: string): string {
   return rawName.replace(
     UNICODE_ESCAPE_IN_NAME_REGEX,
-    (_, braced?: string, plain?: string) =>
-      String.fromCodePoint(parseInt(braced ?? plain ?? "", 16))
+    (whole, braced?: string, plain?: string) => {
+      const codePoint = parseInt(braced ?? plain ?? "", 16);
+      return codePoint <= MAX_CODE_POINT ? String.fromCodePoint(codePoint) : whole;
+    }
   );
 }
 

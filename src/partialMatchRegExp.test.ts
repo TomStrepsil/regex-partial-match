@@ -3317,6 +3317,15 @@ c`)
         expect(completenessOf(partial, "a")).toBe(false);
         expect(completenessOf(partial, "ab")).toBe(true);
       });
+
+      it("does not mistake character class text for a named group", () => {
+        const partial = new PartialMatchRegExp(
+          new RegExp("[(?<\\u{110000}>]a")
+        );
+
+        expect(completenessOf(partial, "(")).toBe(false);
+        expect(completenessOf(partial, "(a")).toBe(true);
+      });
     });
 
     describe("across the constructs the walker transforms", () => {
