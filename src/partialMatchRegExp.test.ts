@@ -153,6 +153,228 @@ describe("PartialMatchRegExp", () => {
       expect(features).not.toContain("namedGroup");
     });
 
+    it("gives every feature outside unicode sets its own bit", () => {
+      const everyFeatureOutsideUnicodeSets =
+        /^(?<name>a)\k<name>(b)\1o+[c-d]\d\n\cA\x41\u0041q\.(?:e)(?i:f)(?i-s:g)\bh\Bi(?=j)(?!(k))(?<=l)(?<!m)|n$/;
+
+      expect(
+        new PartialMatchRegExp(everyFeatureOutsideUnicodeSets).features
+      ).toEqual(
+        new Set([
+          "patternCharacter",
+          "startAnchor",
+          "endAnchor",
+          "wordBoundary",
+          "nonWordBoundary",
+          "lookahead",
+          "negativeLookahead",
+          "lookbehind",
+          "negativeLookbehind",
+          "backreference",
+          "namedBackreference",
+          "namedGroup",
+          "capturingGroup",
+          "lookaroundCapture",
+          "nonCapturingGroup",
+          "modifierGroup",
+          "modifierGroupWithRemoval",
+          "characterClass",
+          "disjunction",
+          "quantifier",
+          "characterClassEscape",
+          "controlEscape",
+          "controlLetterEscape",
+          "hexEscapeSequence",
+          "unicodeEscapeSequence",
+          "otherEscape"
+        ])
+      );
+    });
+
+    it("gives every unicode sets feature its own bit", () => {
+      const everyUnicodeSetsFeature =
+        /[[a-z]&&[b-c]][\p{ASCII}--\p{Lowercase}]\p{Letter}/v;
+
+      expect(new PartialMatchRegExp(everyUnicodeSetsFeature).features).toEqual(
+        new Set([
+          "characterClass",
+          "nestedCharacterClass",
+          "classIntersection",
+          "classSubtraction",
+          "unicodePropertyEscape"
+        ])
+      );
+    });
+
+    it("returns the same set on every read", () => {
+      const partial = new PartialMatchRegExp(/a(?=(b))/);
+
+      expect(partial.features).toBe(partial.features);
+    });
+
+    it("gives each instance its own set", () => {
+      const withCapture = new PartialMatchRegExp(/(a)/);
+      const withoutCapture = new PartialMatchRegExp(/a/);
+
+      expect(withCapture.features).not.toBe(withoutCapture.features);
+      expect(withoutCapture.features).toEqual(new Set(["patternCharacter"]));
+    });
+
+    it("exposes features as an accessor rather than an own property", () => {
+      const partial = new PartialMatchRegExp(/(a)/);
+
+      expect(Object.hasOwn(partial, "features")).toBe(false);
+      expect(Object.keys(partial)).not.toContain("features");
+      expect(partial.features).toBeInstanceOf(Set);
+    });
+
+    it("iterates in declaration order, not the order constructs appear", () => {
+      const partial = new PartialMatchRegExp(/^[a-z]+(?<domain>\.[a-z]+)\1/);
+
+      expect([...partial.features]).toEqual([
+        "startAnchor",
+        "backreference",
+        "namedGroup",
+        "capturingGroup",
+        "characterClass",
+        "quantifier",
+        "otherEscape"
+      ]);
+    });
+
+    it("detects a capturing group inside a positive lookahead", () => {
+      expect(new PartialMatchRegExp(/a(?=(b))/).features).toContain(
+        "lookaroundCapture"
+      );
+    });
+
+    it("detects a capturing group nested deeper inside a lookahead", () => {
+      expect(
+        new PartialMatchRegExp(/a(?=(?:b(?:x|(c))d|b))/).features
+      ).toContain("lookaroundCapture");
+    });
+
+    it("detects a capturing group inside a negative lookahead", () => {
+      expect(new PartialMatchRegExp(/a(?!(b))/).features).toContain(
+        "lookaroundCapture"
+      );
+    });
+
+    it("detects a capturing group inside a positive lookbehind", () => {
+      expect(new PartialMatchRegExp(/(?<=(a))b/).features).toContain(
+        "lookaroundCapture"
+      );
+    });
+
+    it("detects a capturing group inside a negative lookbehind", () => {
+      expect(new PartialMatchRegExp(/(?<!(a))b/).features).toContain(
+        "lookaroundCapture"
+      );
+    });
+
+    it("detects a named capturing group inside a lookaround", () => {
+      const features = new PartialMatchRegExp(/(?=(?<name>a))/).features;
+      expect(features).toContain("lookaroundCapture");
+      expect(features).toContain("namedGroup");
+      expect(features).toContain("capturingGroup");
+    });
+
+    it("detects a capturing group inside a modifier group inside a lookaround", () => {
+      expect(new PartialMatchRegExp(/(?=(?i:(a)))/).features).toContain(
+        "lookaroundCapture"
+      );
+    });
+
+    it("detects a capturing group inside a lookaround nested in a lookaround", () => {
+      expect(new PartialMatchRegExp(/(?=(?<!(a))b)/).features).toContain(
+        "lookaroundCapture"
+      );
+    });
+
+    it("does not report a capturing group that precedes a lookaround", () => {
+      expect(new PartialMatchRegExp(/(\w+)(?= END)/).features).not.toContain(
+        "lookaroundCapture"
+      );
+    });
+
+    it("does not report a capturing group that follows a lookaround", () => {
+      expect(new PartialMatchRegExp(/(?=a)(b)/).features).not.toContain(
+        "lookaroundCapture"
+      );
+    });
+
+    it("does not report a capturing group that follows a nested lookaround", () => {
+      expect(new PartialMatchRegExp(/(?:(?=a)(b))/).features).not.toContain(
+        "lookaroundCapture"
+      );
+    });
+
+    it("does not report a lookaround nested inside a capturing group", () => {
+      expect(new PartialMatchRegExp(/(a(?=b))/).features).not.toContain(
+        "lookaroundCapture"
+      );
+    });
+
+    it("does not report a lookaround containing only a non-capturing group", () => {
+      const features = new PartialMatchRegExp(/(?=(?:x))/).features;
+      expect(features).toContain("nonCapturingGroup");
+      expect(features).not.toContain("lookaroundCapture");
+    });
+
+    it("does not report a capturing group without any lookaround", () => {
+      expect(new PartialMatchRegExp(/(a)/).features).not.toContain(
+        "lookaroundCapture"
+      );
+    });
+
+    it("does not report a capturing group inside a modifier group", () => {
+      expect(new PartialMatchRegExp(/(?i:(a))/).features).not.toContain(
+        "lookaroundCapture"
+      );
+    });
+
+    it("does not report a capturing group inside a remove-only modifier group", () => {
+      expect(new PartialMatchRegExp(/(?-s:(a))/).features).not.toContain(
+        "lookaroundCapture"
+      );
+    });
+
+    it("does not report a capturing group nested inside a named group", () => {
+      expect(new PartialMatchRegExp(/(?<name>(a))/).features).not.toContain(
+        "lookaroundCapture"
+      );
+    });
+
+    it("does not report a named group nested inside a named group", () => {
+      expect(
+        new PartialMatchRegExp(/(?<outer>x(?<inner>y))/).features
+      ).not.toContain("lookaroundCapture");
+    });
+
+    it("does not report a capturing group nested inside a non-capturing group", () => {
+      expect(new PartialMatchRegExp(/(?:(a))/).features).not.toContain(
+        "lookaroundCapture"
+      );
+    });
+
+    it("does not report a capturing group nested inside a capturing group", () => {
+      expect(new PartialMatchRegExp(/((a))/).features).not.toContain(
+        "lookaroundCapture"
+      );
+    });
+
+    it("does not mistake a lookaround's character class ( for a capturing group", () => {
+      expect(new PartialMatchRegExp(/(?=[(])/).features).not.toContain(
+        "lookaroundCapture"
+      );
+    });
+
+    it("does not mistake a lookaround's escaped ( for a capturing group", () => {
+      expect(new PartialMatchRegExp(/(?=\(a\))/).features).not.toContain(
+        "lookaroundCapture"
+      );
+    });
+
     it("detects a non-capturing group", () => {
       expect(new PartialMatchRegExp(/(?:foo)/).features).toContain(
         "nonCapturingGroup"
