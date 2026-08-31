@@ -3171,6 +3171,7 @@ c`)
       });
     });
   });
+
   describe("isComplete()", () => {
     const completenessOf = (
       regex: PartialMatchRegExp,
