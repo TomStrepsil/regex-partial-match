@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1788181292643,
+  "lastUpdate": 1788181718932,
   "repoUrl": "https://github.com/TomStrepsil/regex-partial-match",
   "entries": {
     "regex-partial-match": [
@@ -3999,6 +3999,282 @@ window.BENCHMARK_DATA = {
             "range": "± 240.29",
             "unit": "ns/iter",
             "extra": "min: 9276.86ns  p75: 11527.21ns  p99: 12205.04ns"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "github-actions[bot]@users.noreply.github.com",
+            "name": "github-actions[bot]",
+            "username": "github-actions[bot]"
+          },
+          "committer": {
+            "email": "github-actions[bot]@users.noreply.github.com",
+            "name": "github-actions[bot]",
+            "username": "github-actions[bot]"
+          },
+          "distinct": true,
+          "id": "6a5eeb4b432a715d11c9b2b8c255dc4a4bf896ea",
+          "message": "Release version 1.2.0",
+          "timestamp": "2026-08-31T13:07:50Z",
+          "tree_id": "41cb064923e25e61ccb9861a80724ceda23e0f87",
+          "url": "https://github.com/TomStrepsil/regex-partial-match/commit/6a5eeb4b432a715d11c9b2b8c255dc4a4bf896ea"
+        },
+        "date": 1788181717961,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "dispatch overhead — full match input — native RegExp.exec",
+            "value": 44.85,
+            "range": "± 0.46",
+            "unit": "ns/iter",
+            "extra": "min: 41.17ns  p75: 43.58ns  p99: 89.00ns"
+          },
+          {
+            "name": "dispatch overhead — full match input — plain partial RegExp (no class wrapper)",
+            "value": 91.64,
+            "range": "± 1.69",
+            "unit": "ns/iter",
+            "extra": "min: 86.40ns  p75: 90.50ns  p99: 138.47ns"
+          },
+          {
+            "name": "dispatch overhead — full match input — PartialMatchRegExp.exec",
+            "value": 91.99,
+            "range": "± 1.64",
+            "unit": "ns/iter",
+            "extra": "min: 88.10ns  p75: 92.76ns  p99: 125.64ns"
+          },
+          {
+            "name": "dispatch overhead — partial input (returns null on native) — native RegExp.exec",
+            "value": 34.15,
+            "range": "± 0.16",
+            "unit": "ns/iter",
+            "extra": "min: 32.74ns  p75: 33.39ns  p99: 61.83ns"
+          },
+          {
+            "name": "dispatch overhead — partial input (returns null on native) — plain partial RegExp (no class wrapper)",
+            "value": 75.91,
+            "range": "± 1.3",
+            "unit": "ns/iter",
+            "extra": "min: 72.93ns  p75: 76.67ns  p99: 109.26ns"
+          },
+          {
+            "name": "dispatch overhead — partial input (returns null on native) — PartialMatchRegExp.exec",
+            "value": 81.25,
+            "range": "± 1.39",
+            "unit": "ns/iter",
+            "extra": "min: 74.42ns  p75: 78.67ns  p99: 130.13ns"
+          },
+          {
+            "name": "hot loop — manual global exec (~700 matches) — native RegExp (global exec loop)",
+            "value": 51428.82,
+            "range": "± 526",
+            "unit": "ns/iter",
+            "extra": "min: 48192.00ns  p75: 50786.00ns  p99: 64818.00ns"
+          },
+          {
+            "name": "hot loop — manual global exec (~700 matches) — PartialMatchRegExp (global exec loop)",
+            "value": 67316.94,
+            "range": "± 641",
+            "unit": "ns/iter",
+            "extra": "min: 63495.00ns  p75: 66080.00ns  p99: 94512.00ns"
+          },
+          {
+            "name": "hot loop — String.prototype.matchAll (~700 matches) — native matchAll",
+            "value": 57009.79,
+            "range": "± 521",
+            "unit": "ns/iter",
+            "extra": "min: 52989.00ns  p75: 56075.00ns  p99: 79680.00ns"
+          },
+          {
+            "name": "hot loop — String.prototype.matchAll (~700 matches) — PartialMatchRegExp matchAll",
+            "value": 158706.91,
+            "range": "± 5543.5",
+            "unit": "ns/iter",
+            "extra": "min: 134252.00ns  p75: 147592.00ns  p99: 298459.00ns"
+          },
+          {
+            "name": "keystroke simulation — phone number (18 chars) — native RegExp.test per keystroke (fails until full input)",
+            "value": 362.63,
+            "range": "± 1.27",
+            "unit": "ns/iter",
+            "extra": "min: 356.08ns  p75: 363.13ns  p99: 379.16ns"
+          },
+          {
+            "name": "keystroke simulation — phone number (18 chars) — plain partial RegExp.test per keystroke",
+            "value": 1362.39,
+            "range": "± 5.23",
+            "unit": "ns/iter",
+            "extra": "min: 1350.35ns  p75: 1366.79ns  p99: 1392.00ns"
+          },
+          {
+            "name": "keystroke simulation — phone number (18 chars) — PartialMatchRegExp.test per keystroke",
+            "value": 1864.88,
+            "range": "± 5.68",
+            "unit": "ns/iter",
+            "extra": "min: 1848.57ns  p75: 1866.81ns  p99: 1912.86ns"
+          },
+          {
+            "name": "keystroke simulation — ISO date (10 chars) — native RegExp.test per keystroke (fails until full input)",
+            "value": 207.92,
+            "range": "± 0.96",
+            "unit": "ns/iter",
+            "extra": "min: 200.36ns  p75: 206.88ns  p99: 249.28ns"
+          },
+          {
+            "name": "keystroke simulation — ISO date (10 chars) — plain partial RegExp.test per keystroke",
+            "value": 397.07,
+            "range": "± 1.89",
+            "unit": "ns/iter",
+            "extra": "min: 389.47ns  p75: 398.39ns  p99: 412.73ns"
+          },
+          {
+            "name": "keystroke simulation — ISO date (10 chars) — PartialMatchRegExp.test per keystroke",
+            "value": 690.63,
+            "range": "± 2.81",
+            "unit": "ns/iter",
+            "extra": "min: 675.39ns  p75: 686.57ns  p99: 754.86ns"
+          },
+          {
+            "name": "backref — single exec, repeated-word pattern — native exec (full match only)",
+            "value": 42.64,
+            "range": "± 0.31",
+            "unit": "ns/iter",
+            "extra": "min: 40.68ns  p75: 41.69ns  p99: 78.15ns"
+          },
+          {
+            "name": "backref — single exec, repeated-word pattern — PartialMatchRegExp — full match (native fast path)",
+            "value": 69.01,
+            "range": "± 1.22",
+            "unit": "ns/iter",
+            "extra": "min: 65.97ns  p75: 68.88ns  p99: 115.32ns"
+          },
+          {
+            "name": "backref — single exec, repeated-word pattern — PartialMatchRegExp — partial pre-backref (slow path)",
+            "value": 1827.25,
+            "range": "± 25.35",
+            "unit": "ns/iter",
+            "extra": "min: 1778.63ns  p75: 1834.47ns  p99: 2138.94ns"
+          },
+          {
+            "name": "backref — single exec, repeated-word pattern — PartialMatchRegExp — partial mid-backref (slow path)",
+            "value": 1732.21,
+            "range": "± 13.63",
+            "unit": "ns/iter",
+            "extra": "min: 1709.17ns  p75: 1741.08ns  p99: 1810.31ns"
+          },
+          {
+            "name": "backref — single exec, HTML tag pattern — native exec (full match only)",
+            "value": 98.63,
+            "range": "± 1.27",
+            "unit": "ns/iter",
+            "extra": "min: 93.22ns  p75: 99.27ns  p99: 121.04ns"
+          },
+          {
+            "name": "backref — single exec, HTML tag pattern — PartialMatchRegExp — full match (native fast path)",
+            "value": 124.91,
+            "range": "± 1.36",
+            "unit": "ns/iter",
+            "extra": "min: 118.74ns  p75: 124.62ns  p99: 177.28ns"
+          },
+          {
+            "name": "backref — single exec, HTML tag pattern — PartialMatchRegExp — partial mid-backref (slow path)",
+            "value": 7679.04,
+            "range": "± 160",
+            "unit": "ns/iter",
+            "extra": "min: 7180.00ns  p75: 7631.00ns  p99: 13410.00ns"
+          },
+          {
+            "name": "backref — leftmost bound check (native match at a later index) — bound rejects quickly — native wins, no pipeline",
+            "value": 120.72,
+            "range": "± 1.27",
+            "unit": "ns/iter",
+            "extra": "min: 116.41ns  p75: 119.68ns  p99: 167.82ns"
+          },
+          {
+            "name": "backref — leftmost bound check (native match at a later index) — bound doesn't reject — full pipeline still runs",
+            "value": 1842.06,
+            "range": "± 9.7",
+            "unit": "ns/iter",
+            "extra": "min: 1820.31ns  p75: 1844.79ns  p99: 1949.85ns"
+          },
+          {
+            "name": "backref — keystroke simulation (accumulated exec cost) — repeated word: 7 keystrokes",
+            "value": 10397.33,
+            "range": "± 35.8",
+            "unit": "ns/iter",
+            "extra": "min: 10341.08ns  p75: 10425.19ns  p99: 10454.33ns"
+          },
+          {
+            "name": "backref — keystroke simulation (accumulated exec cost) — HTML tag: 90 keystrokes",
+            "value": 613905.72,
+            "range": "± 15358",
+            "unit": "ns/iter",
+            "extra": "min: 584590.00ns  p75: 626472.00ns  p99: 707304.00ns"
+          },
+          {
+            "name": "construction — simple pattern (no groups, no backreferences) — native new RegExp()",
+            "value": 89.17,
+            "range": "± 1.17",
+            "unit": "ns/iter",
+            "extra": "min: 86.62ns  p75: 89.74ns  p99: 102.01ns"
+          },
+          {
+            "name": "construction — simple pattern (no groups, no backreferences) — compilePartial()",
+            "value": 2892.3,
+            "range": "± 26.63",
+            "unit": "ns/iter",
+            "extra": "min: 2837.16ns  p75: 2901.13ns  p99: 3183.50ns"
+          },
+          {
+            "name": "construction — simple pattern (no groups, no backreferences) — new PartialMatchRegExp()",
+            "value": 3491.13,
+            "range": "± 79.38",
+            "unit": "ns/iter",
+            "extra": "min: 3384.22ns  p75: 3559.60ns  p99: 3729.35ns"
+          },
+          {
+            "name": "construction — phone pattern (character classes, optional groups) — native new RegExp()",
+            "value": 134.69,
+            "range": "± 1.74",
+            "unit": "ns/iter",
+            "extra": "min: 124.33ns  p75: 130.41ns  p99: 235.98ns"
+          },
+          {
+            "name": "construction — phone pattern (character classes, optional groups) — compilePartial()",
+            "value": 4379.66,
+            "range": "± 31.64",
+            "unit": "ns/iter",
+            "extra": "min: 4330.62ns  p75: 4407.34ns  p99: 4464.43ns"
+          },
+          {
+            "name": "construction — phone pattern (character classes, optional groups) — new PartialMatchRegExp()",
+            "value": 5057.25,
+            "range": "± 89.71",
+            "unit": "ns/iter",
+            "extra": "min: 4923.59ns  p75: 5135.80ns  p99: 5251.65ns"
+          },
+          {
+            "name": "construction — HTML tag pattern (capturing group + backreference) — native new RegExp()",
+            "value": 153.07,
+            "range": "± 1.85",
+            "unit": "ns/iter",
+            "extra": "min: 140.10ns  p75: 147.22ns  p99: 245.65ns"
+          },
+          {
+            "name": "construction — HTML tag pattern (capturing group + backreference) — compilePartial()",
+            "value": 10130.24,
+            "range": "± 476.88",
+            "unit": "ns/iter",
+            "extra": "min: 8269.18ns  p75: 10770.44ns  p99: 11072.62ns"
+          },
+          {
+            "name": "construction — HTML tag pattern (capturing group + backreference) — new PartialMatchRegExp()",
+            "value": 10868.99,
+            "range": "± 756.85",
+            "unit": "ns/iter",
+            "extra": "min: 9228.72ns  p75: 11305.97ns  p99: 11747.63ns"
           }
         ]
       }
