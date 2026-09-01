@@ -3596,6 +3596,20 @@ c`)
         expect(completenessOf(partial, "xa")).toBe(true);
       });
 
+      it("canonicalises an Annex B named identity escape inside a lookaround, rather than letting a marker turn it into a broken reference", () => {
+        const partial = new PartialMatchRegExp(new RegExp("^a(?!\\k<bogus>)b"));
+
+        expect(completenessOf(partial, "a")).toBe(false);
+        expect(completenessOf(partial, "ab")).toBe(true);
+      });
+
+      it("canonicalises a named identity escape inside a lookbehind too", () => {
+        const partial = new PartialMatchRegExp(new RegExp("^a(?<!\\k<bogus>)b"));
+
+        expect(completenessOf(partial, "a")).toBe(false);
+        expect(completenessOf(partial, "ab")).toBe(true);
+      });
+
       it("leaves a named backreference inside a lookaround unaffected, since names don't renumber", () => {
         const partial = new PartialMatchRegExp(/^(?<g>a)b(?!\k<g>)c/);
 

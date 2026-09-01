@@ -21,7 +21,7 @@ export type Part = string | Backreference;
 export interface RawLookaroundInfo {
   sourceStart: number;
   capturingGroupsOpened: number;
-  backreferences: NumericBackreference[];
+  backreferences: Backreference[];
 }
 
 export const NO_RAW_LOOKAROUNDS: readonly RawLookaroundInfo[] = [];
@@ -98,7 +98,7 @@ export function walk(regex: RegExp): {
   let groupCount = 0;
   let featureMask = 0;
   let rawLookarounds: RawLookaroundInfo[] | undefined;
-  let currentRawLookaroundBackreferences: NumericBackreference[] | undefined;
+  let currentRawLookaroundBackreferences: Backreference[] | undefined;
 
   function extractSlice(length: number): string {
     return source.slice(i, (i += length));
@@ -120,7 +120,7 @@ export function walk(regex: RegExp): {
       i += prefixLength;
       const groupCountBefore = groupCount;
       const isOutermost = currentRawLookaroundBackreferences === undefined;
-      const backreferences: NumericBackreference[] =
+      const backreferences: Backreference[] =
         currentRawLookaroundBackreferences ?? [];
       if (isOutermost) currentRawLookaroundBackreferences = backreferences;
       process(true);
@@ -153,7 +153,9 @@ export function walk(regex: RegExp): {
                 const start = i;
                 const ref = source.slice(i + 3, referenceEnd);
                 i = referenceEnd + 1;
-                result.push({ ref, start, end: i });
+                const namedBackreference = { ref, start, end: i };
+                result.push(namedBackreference);
+                currentRawLookaroundBackreferences?.push(namedBackreference);
               }
               break;
             }

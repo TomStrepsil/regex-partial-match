@@ -2,6 +2,8 @@ import legacyEscapeAsLiteral from "./legacyEscape.ts";
 import {
   DISJUNCTION_TO_END_OF_INPUT,
   OPTIONAL_ATOM_OPENING,
+  isNumericBackreference,
+  type Backreference,
   type RawLookaroundInfo
 } from "./walk.ts";
 
@@ -81,22 +83,41 @@ function groupShiftTable(
 function renumberRawBackreferences(
   part: string,
   info: RawLookaroundInfo,
-  shiftForGroup: readonly number[]
+  shiftForGroup: readonly number[],
+  existingNames: readonly string[]
 ): string {
   let renumbered = "";
   let cursor = 0;
   for (const backreference of info.backreferences) {
     const relativeStart = backreference.start - info.sourceStart;
     const relativeEnd = backreference.end - info.sourceStart;
-    const isRealBackreference = backreference.ref < shiftForGroup.length;
     renumbered +=
       part.slice(cursor, relativeStart) +
-      (isRealBackreference
-        ? "\\" + String(backreference.ref + shiftForGroup[backreference.ref])
-        : legacyEscapeAsLiteral(part.slice(relativeStart + 1, relativeEnd)));
+      rawReferenceReplacement(
+        part.slice(relativeStart, relativeEnd),
+        backreference,
+        shiftForGroup,
+        existingNames
+      );
     cursor = relativeEnd;
   }
   return renumbered + part.slice(cursor);
+}
+
+function rawReferenceReplacement(
+  spelling: string,
+  backreference: Backreference,
+  shiftForGroup: readonly number[],
+  existingNames: readonly string[]
+): string {
+  if (isNumericBackreference(backreference)) {
+    return backreference.ref < shiftForGroup.length
+      ? "\\" + String(backreference.ref + shiftForGroup[backreference.ref])
+      : legacyEscapeAsLiteral(spelling.slice(1));
+  }
+  return existingNames.includes(decodeGroupName(backreference.ref))
+    ? spelling
+    : "k" + spelling.slice(2);
 }
 
 export interface TruncationProbe {
@@ -126,7 +147,8 @@ export const buildTruncationProbe = (
       return renumberRawBackreferences(
         part,
         rawLookarounds[rawLookaroundIndex++],
-        shiftForGroup
+        shiftForGroup,
+        existingNames
       );
     }
     if (!endsAtTruncationBranch(part)) return part;

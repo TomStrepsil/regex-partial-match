@@ -17,9 +17,13 @@ interface BackreferenceExpansion {
   probe: TruncationProbe | undefined;
 }
 
+interface ExpandedMatch extends RegExpExecArray {
+  [backreferenceExpansion]?: BackreferenceExpansion;
+}
+
 const compiledPartial = Symbol("compiledPartial");
 const truncationProbe = Symbol("truncationProbe");
-const backreferenceExpansions = Symbol("backreferenceExpansions");
+const backreferenceExpansion = Symbol("backreferenceExpansion");
 
 /**
  * A `RegExp` subclass that supports partial (prefix) matching.
@@ -50,9 +54,6 @@ const backreferenceExpansions = Symbol("backreferenceExpansions");
 class PartialMatchRegExp extends RegExp {
   declare private [compiledPartial]: CompiledPartial;
   declare private [truncationProbe]: TruncationProbe | undefined;
-  declare private [backreferenceExpansions]:
-    | WeakMap<RegExpExecArray, BackreferenceExpansion>
-    | undefined;
 
   constructor(pattern: RegExp | string, flags?: string) {
     super(pattern, flags);
@@ -126,7 +127,7 @@ class PartialMatchRegExp extends RegExp {
     const compiled = this[compiledPartial];
 
     if (compiled.kind === "dynamic") {
-      const expansion = this[backreferenceExpansions]?.get(match);
+      const expansion = (match as ExpandedMatch)[backreferenceExpansion];
       if (expansion === undefined) return true;
       expansion.probe ??= buildTruncationProbe(
         expansion.parts,
@@ -184,10 +185,10 @@ class PartialMatchRegExp extends RegExp {
 
     preferLongerCaptures(match, capture);
     if (honoursLastIndex) this.lastIndex = expanded.lastIndex;
-    (this[backreferenceExpansions] ??= new WeakMap()).set(match, {
+    (match as ExpandedMatch)[backreferenceExpansion] = {
       parts: expandedParts,
       probe: undefined
-    });
+    };
     return match;
   }
 }
