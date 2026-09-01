@@ -5,8 +5,8 @@ import {
   isBackreference,
   isNumericBackreference,
   featureSet,
+  hasFeature,
   DISJUNCTION_TO_END_OF_INPUT,
-  FEATURE_BIT,
   type Backreference,
   type Part,
   type RawLookaroundInfo,
@@ -31,22 +31,15 @@ function asOptionalAtom(text: string): string {
 function reclassifyLegacyEscapes(
   parts: Part[],
   source: string,
-  groupCount: number,
-  hasNamedGroup: boolean
+  groupCount: number
 ): Part[] {
-  return parts.map((part) => {
-    if (!isBackreference(part)) return part;
-    if (isNumericBackreference(part)) {
-      return part.ref > groupCount
-        ? asOptionalAtom(
-            legacyEscapeAsLiteral(source.slice(part.start + 1, part.end))
-          )
-        : part;
-    }
-    return hasNamedGroup
-      ? part
-      : asOptionalAtom("k" + source.slice(part.start + 2, part.end));
-  });
+  return parts.map((part) =>
+    isNumericBackreference(part) && part.ref > groupCount
+      ? asOptionalAtom(
+          legacyEscapeAsLiteral(source.slice(part.start + 1, part.end))
+        )
+      : part
+  );
 }
 
 function spliceOriginalSource(
@@ -78,6 +71,10 @@ abstract class Compiled {
 
   get features(): ReadonlySet<RegexFeature> {
     return (this._features ??= featureSet(this._featureMask));
+  }
+
+  has(feature: RegexFeature): boolean {
+    return hasFeature(this._featureMask, feature);
   }
 }
 
@@ -123,8 +120,15 @@ function toStatic(
 }
 
 export const compilePartial = (regex: RegExp): CompiledPartial => {
-  const { parts, groupCount, featureMask, rawLookarounds } = walk(regex);
   const flags = regex.flags;
+  let walked = walk(regex, true);
+  if (
+    hasFeature(walked.featureMask, "namedBackreference") &&
+    !hasFeature(walked.featureMask, "namedGroup")
+  ) {
+    walked = walk(regex, false);
+  }
+  const { parts, groupCount, featureMask, rawLookarounds } = walked;
 
   if (!MAYBE_HAS_BACKREFERENCE_REGEX.test(regex.source)) {
     return toStatic(parts as string[], flags, rawLookarounds, featureMask);
@@ -133,12 +137,7 @@ export const compilePartial = (regex: RegExp): CompiledPartial => {
   const isUnicode = regex.unicode || regex.unicodeSets;
   const sanitisedParts = isUnicode
     ? parts
-    : reclassifyLegacyEscapes(
-        parts,
-        regex.source,
-        groupCount,
-        (featureMask & FEATURE_BIT.namedGroup) !== 0
-      );
+    : reclassifyLegacyEscapes(parts, regex.source, groupCount);
   const backreferences = sanitisedParts.filter(isBackreference);
   if (backreferences.length === 0) {
     return toStatic(sanitisedParts as string[], flags, rawLookarounds, featureMask);

@@ -2,6 +2,7 @@ const OCCURRENCES_REGEX = /\{\d+,?\d*\}/y;
 const NOT_NUMBERS_REGEX = /\D/g;
 export const DISJUNCTION_TO_END_OF_INPUT = "|$(?![\\s\\S]))";
 export const OPTIONAL_ATOM_OPENING = "(?:";
+const LITERAL_K_ATOM = OPTIONAL_ATOM_OPENING + "k" + DISJUNCTION_TO_END_OF_INPUT;
 
 export interface NumericBackreference {
   ref: number;
@@ -72,9 +73,13 @@ const REGEX_FEATURES = [
 
 export type RegexFeature = (typeof REGEX_FEATURES)[number];
 
-export const FEATURE_BIT = {} as Record<RegexFeature, number>;
+const FEATURE_BIT = {} as Record<RegexFeature, number>;
 for (let index = 0; index < REGEX_FEATURES.length; index++) {
   FEATURE_BIT[REGEX_FEATURES[index]] = 1 << index;
+}
+
+export function hasFeature(mask: number, feature: RegexFeature): boolean {
+  return (mask & FEATURE_BIT[feature]) !== 0;
 }
 
 export function featureSet(mask: number): Set<RegexFeature> {
@@ -85,7 +90,10 @@ export function featureSet(mask: number): Set<RegexFeature> {
   return features;
 }
 
-export function walk(regex: RegExp): {
+export function walk(
+  regex: RegExp,
+  declaresNamedGroup: boolean
+): {
   parts: Part[];
   groupCount: number;
   featureMask: number;
@@ -104,7 +112,10 @@ export function walk(regex: RegExp): {
     return source.slice(i, (i += length));
   }
 
-  function process(withinLookaround: boolean): Part[] {
+  function process(
+    withinLookaround: boolean,
+    declaresNamedGroup: boolean
+  ): Part[] {
     const result: Part[] = [];
 
     function appendOptional(length: number) {
@@ -123,7 +134,7 @@ export function walk(regex: RegExp): {
       const backreferences: Backreference[] =
         currentRawLookaroundBackreferences ?? [];
       if (isOutermost) currentRawLookaroundBackreferences = backreferences;
-      process(true);
+      process(true, declaresNamedGroup);
       if (isOutermost) {
         (rawLookarounds ??= []).push({
           sourceStart: start,
@@ -146,9 +157,7 @@ export function walk(regex: RegExp): {
             case "k": {
               const referenceEnd =
                 source[i + 2] === "<" ? source.indexOf(">", i) : -1;
-              if (referenceEnd === -1) {
-                appendOptional(2);
-              } else {
+              if (referenceEnd !== -1 && declaresNamedGroup) {
                 featureMask |= FEATURE_BIT.namedBackreference;
                 const start = i;
                 const ref = source.slice(i + 3, referenceEnd);
@@ -156,6 +165,17 @@ export function walk(regex: RegExp): {
                 const namedBackreference = { ref, start, end: i };
                 result.push(namedBackreference);
                 currentRawLookaroundBackreferences?.push(namedBackreference);
+              } else if (currentRawLookaroundBackreferences) {
+                const start = i;
+                i += 2;
+                currentRawLookaroundBackreferences.push({
+                  ref: "",
+                  start,
+                  end: i
+                });
+              } else {
+                result.push(LITERAL_K_ATOM);
+                i += 2;
               }
               break;
             }
@@ -307,7 +327,7 @@ export function walk(regex: RegExp): {
                 result.push("(?:");
                 i += 3;
                 result.push(
-                  ...process(withinLookaround),
+                  ...process(withinLookaround, declaresNamedGroup),
                   DISJUNCTION_TO_END_OF_INPUT
                 );
                 break;
@@ -315,7 +335,7 @@ export function walk(regex: RegExp): {
                 featureMask |= FEATURE_BIT.lookahead;
                 result.push("(?=");
                 i += 3;
-                result.push(...process(true), ")");
+                result.push(...process(true, declaresNamedGroup), ")");
                 break;
               case "-":
               case "i":
@@ -329,7 +349,7 @@ export function walk(regex: RegExp): {
                   : FEATURE_BIT.modifierGroup;
                 result.push("(?" + modifiers + ":");
                 i = colonIndex + 1;
-                result.push(...process(withinLookaround), ")");
+                result.push(...process(withinLookaround, declaresNamedGroup), ")");
                 break;
               }
               case "!":
@@ -353,7 +373,7 @@ export function walk(regex: RegExp): {
                     ++groupCount;
                     appendRaw(source.indexOf(">", i) - i + 1);
                     result.push(
-                      ...process(withinLookaround),
+                      ...process(withinLookaround, declaresNamedGroup),
                       DISJUNCTION_TO_END_OF_INPUT
                     );
                     break;
@@ -366,7 +386,7 @@ export function walk(regex: RegExp): {
             ++groupCount;
             appendRaw(1);
             result.push(
-              ...process(withinLookaround),
+              ...process(withinLookaround, declaresNamedGroup),
               DISJUNCTION_TO_END_OF_INPUT
             );
           }
@@ -386,7 +406,7 @@ export function walk(regex: RegExp): {
   }
 
   return {
-    parts: process(false),
+    parts: process(false, declaresNamedGroup),
     groupCount,
     featureMask,
     rawLookarounds: rawLookarounds ?? NO_RAW_LOOKAROUNDS

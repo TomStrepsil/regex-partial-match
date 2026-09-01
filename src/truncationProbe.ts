@@ -84,7 +84,7 @@ function renumberRawBackreferences(
   part: string,
   info: RawLookaroundInfo,
   shiftForGroup: readonly number[],
-  existingNames: readonly string[]
+  declaresNamedGroup: boolean
 ): string {
   let renumbered = "";
   let cursor = 0;
@@ -97,7 +97,7 @@ function renumberRawBackreferences(
         part.slice(relativeStart, relativeEnd),
         backreference,
         shiftForGroup,
-        existingNames
+        declaresNamedGroup
       );
     cursor = relativeEnd;
   }
@@ -108,16 +108,14 @@ function rawReferenceReplacement(
   spelling: string,
   backreference: Backreference,
   shiftForGroup: readonly number[],
-  existingNames: readonly string[]
+  declaresNamedGroup: boolean
 ): string {
   if (isNumericBackreference(backreference)) {
     return backreference.ref < shiftForGroup.length
       ? "\\" + String(backreference.ref + shiftForGroup[backreference.ref])
       : legacyEscapeAsLiteral(spelling.slice(1));
   }
-  return existingNames.includes(decodeGroupName(backreference.ref))
-    ? spelling
-    : "k" + spelling.slice(2);
+  return declaresNamedGroup ? spelling : "k" + spelling.slice(2);
 }
 
 export interface TruncationProbe {
@@ -130,7 +128,8 @@ export const buildTruncationProbe = (
   parts: readonly string[],
   rawLookarounds: readonly RawLookaroundInfo[],
   source: string,
-  flags: string
+  flags: string,
+  declaresNamedGroup: boolean
 ): TruncationProbe => {
   const existingNames = namedGroupNames(source);
   let markerName = TRUNCATION_MARKER_NAME;
@@ -148,7 +147,7 @@ export const buildTruncationProbe = (
         part,
         rawLookarounds[rawLookaroundIndex++],
         shiftForGroup,
-        existingNames
+        declaresNamedGroup
       );
     }
     if (!endsAtTruncationBranch(part)) return part;

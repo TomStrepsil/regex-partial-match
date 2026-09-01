@@ -3172,6 +3172,23 @@ c`)
       });
     });
 
+    it("should partial match through a completed reference the same way as an unterminated one", () => {
+      const partial = new PartialMatchRegExp(new RegExp("^\\k<bogus>a"));
+      expect(partial).toMatchPartially({
+        characters: ["k", "<", ..."bogus".split(""), ">", "a"]
+      });
+    });
+
+    it("should not report a named backreference for a reference no named group declares", () => {
+      const features = new PartialMatchRegExp(new RegExp("^\\k<none>x")).features;
+      expect(features).not.toContain("namedBackreference");
+    });
+
+    it("should still report a named backreference when a named group declares one", () => {
+      const features = new PartialMatchRegExp(/^(?<g>a)\k<g>/).features;
+      expect(features).toContain("namedBackreference");
+    });
+
     it("should treat a completed reference as literal text when the pattern declares no named group", () => {
       const partial = new PartialMatchRegExp(new RegExp("^\\k<bogus>a"));
 
@@ -3601,6 +3618,22 @@ c`)
 
         expect(completenessOf(partial, "a")).toBe(false);
         expect(completenessOf(partial, "ab")).toBe(true);
+      });
+
+      it("canonicalises a bare Annex B \\k inside a lookaround, which the probe's own named markers would otherwise invalidate", () => {
+        const partial = new PartialMatchRegExp(new RegExp("^a(?!\\k)b"));
+
+        expect(completenessOf(partial, "a")).toBe(false);
+        expect(completenessOf(partial, "ab")).toBe(true);
+      });
+
+      it("does not treat a group name appearing inside a character class as a declaration", () => {
+        const partial = new PartialMatchRegExp(
+          new RegExp("^[(?<bogus>](?!\\k<bogus>)a")
+        );
+
+        expect(completenessOf(partial, "(")).toBe(false);
+        expect(completenessOf(partial, "(a")).toBe(true);
       });
 
       it("canonicalises a named identity escape inside a lookbehind too", () => {

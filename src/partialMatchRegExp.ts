@@ -133,7 +133,8 @@ class PartialMatchRegExp extends RegExp {
         expansion.parts,
         compiled.rawLookarounds,
         this.source,
-        this.flags
+        this.flags,
+        compiled.has("namedGroup")
       );
       return !tookTruncationBranch(expansion.probe, match.input, match.index);
     }
@@ -142,7 +143,8 @@ class PartialMatchRegExp extends RegExp {
       compiled.parts,
       compiled.rawLookarounds,
       this.source,
-      this.flags
+      this.flags,
+      compiled.has("namedGroup")
     );
     return !tookTruncationBranch(
       this[truncationProbe],
