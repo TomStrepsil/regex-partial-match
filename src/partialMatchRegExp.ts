@@ -1,12 +1,14 @@
 import {
-  buildTruncationProbe,
   compilePartial,
-  tookTruncationBranch,
   type CompiledPartial,
-  type DynamicPath,
-  type RegexFeature,
-  type TruncationProbe
+  type DynamicPath
 } from "./compilePartial.ts";
+import {
+  buildTruncationProbe,
+  tookTruncationBranch,
+  type TruncationProbe
+} from "./truncationProbe.ts";
+import type { RegexFeature } from "./walk.ts";
 
 export type { RegexFeature };
 
@@ -128,6 +130,7 @@ class PartialMatchRegExp extends RegExp {
       if (expansion === undefined) return true;
       expansion.probe ??= buildTruncationProbe(
         expansion.parts,
+        compiled.rawLookarounds,
         this.source,
         this.flags
       );
@@ -136,6 +139,7 @@ class PartialMatchRegExp extends RegExp {
 
     this[truncationProbe] ??= buildTruncationProbe(
       compiled.parts,
+      compiled.rawLookarounds,
       this.source,
       this.flags
     );

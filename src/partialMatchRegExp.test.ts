@@ -3492,6 +3492,86 @@ c`)
       });
     });
 
+    // A numeric backreference inside a negative lookahead or either
+    // lookbehind is never extracted as its own token — the walker copies the
+    // whole construct in as one opaque, unparsed string (see
+    // `appendRawLookaround` in compilePartial.ts), since none of it is
+    // individually partial-matchable. The truncation markers inserted
+    // elsewhere in the pattern are new capturing groups, so they renumber
+    // every group that follows them — including ones a raw backreference
+    // still points at by number.
+    describe("a raw numeric backreference inside a lookaround", () => {
+      it("distinguishes a genuine prefix from a complete match (the motivating case)", () => {
+        const partial = new PartialMatchRegExp(/^x(a)b(?!\1)c/);
+
+        expect(completenessOf(partial, "xab")).toBe(false);
+        expect(completenessOf(partial, "xabc")).toBe(true);
+      });
+
+      it("shifts each group by its own count of preceding markers, not a single pattern-wide count", () => {
+        const partial = new PartialMatchRegExp(/^vw(x)(yy)z(?!\1\2)w/);
+
+        expect(completenessOf(partial, "vwxyyz")).toBe(false);
+        expect(completenessOf(partial, "vwxyyzw")).toBe(true);
+      });
+
+      it("handles more than one raw backreference in the same lookaround", () => {
+        const partial = new PartialMatchRegExp(/^xy(a)(b)c(?!\1\2)d/);
+
+        expect(completenessOf(partial, "xyabc")).toBe(false);
+        expect(completenessOf(partial, "xyabcd")).toBe(true);
+      });
+
+      it("handles a group and its own backreference both inside the same negative lookahead", () => {
+        const partial = new PartialMatchRegExp(/^x(?!(a)\1)b/);
+
+        expect(completenessOf(partial, "x")).toBe(false);
+        expect(completenessOf(partial, "xb")).toBe(true);
+      });
+
+      it("handles a raw backreference inside a lookbehind", () => {
+        const partial = new PartialMatchRegExp(/^v(a)(b)(?<=\1\2)c/);
+
+        expect(completenessOf(partial, "vab")).toBe(false);
+        expect(completenessOf(partial, "vabc")).toBe(true);
+      });
+
+      it("handles a group and its own backreference both inside the same lookbehind", () => {
+        const partial = new PartialMatchRegExp(/^aa(?<=(a)\1)b/);
+
+        expect(completenessOf(partial, "aa")).toBe(false);
+        expect(completenessOf(partial, "aab")).toBe(true);
+      });
+
+      it("handles a raw backreference inside a negative lookbehind", () => {
+        const partial = new PartialMatchRegExp(/^v(a)bb(?<!\1)c/);
+
+        expect(completenessOf(partial, "vabb")).toBe(false);
+        expect(completenessOf(partial, "vabbc")).toBe(true);
+      });
+
+      it("leaves a reference past the pattern's own group count untouched, rather than misreading it as a backreference", () => {
+        const partial = new PartialMatchRegExp(new RegExp("^x(?!\\9)a"));
+
+        expect(completenessOf(partial, "x")).toBe(false);
+        expect(completenessOf(partial, "xa")).toBe(true);
+      });
+
+      it("leaves a named backreference inside a lookaround unaffected, since names don't renumber", () => {
+        const partial = new PartialMatchRegExp(/^(?<g>a)b(?!\k<g>)c/);
+
+        expect(completenessOf(partial, "ab")).toBe(false);
+        expect(completenessOf(partial, "abc")).toBe(true);
+      });
+
+      it("also renumbers correctly on the backreference (dynamic) path", () => {
+        const partial = new PartialMatchRegExp(/^(x)(a)b(?!\2)c\1/);
+
+        expect(completenessOf(partial, "xabc")).toBe(false);
+        expect(completenessOf(partial, "xabcx")).toBe(true);
+      });
+    });
+
     describe("leaving the match it describes alone", () => {
       it("does not mutate the match", () => {
         const partial = new PartialMatchRegExp(/^(a)(?<second>b)/);
