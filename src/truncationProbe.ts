@@ -1,3 +1,4 @@
+import legacyEscapeAsLiteral from "./legacyEscape.ts";
 import {
   DISJUNCTION_TO_END_OF_INPUT,
   OPTIONAL_ATOM_OPENING,
@@ -85,13 +86,14 @@ function renumberRawBackreferences(
   let renumbered = "";
   let cursor = 0;
   for (const backreference of info.backreferences) {
-    const isRealBackreference = backreference.ref < shiftForGroup.length;
-    if (!isRealBackreference) continue;
-
     const relativeStart = backreference.start - info.sourceStart;
     const relativeEnd = backreference.end - info.sourceStart;
-    const shifted = backreference.ref + shiftForGroup[backreference.ref];
-    renumbered += part.slice(cursor, relativeStart) + "\\" + String(shifted);
+    const isRealBackreference = backreference.ref < shiftForGroup.length;
+    renumbered +=
+      part.slice(cursor, relativeStart) +
+      (isRealBackreference
+        ? "\\" + String(backreference.ref + shiftForGroup[backreference.ref])
+        : legacyEscapeAsLiteral(part.slice(relativeStart + 1, relativeEnd)));
     cursor = relativeEnd;
   }
   return renumbered + part.slice(cursor);

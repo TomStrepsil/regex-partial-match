@@ -27,6 +27,12 @@ import PartialMatchRegExp from "../../src/partialMatchRegExp.ts";
 const simplePattern = /^hello+$/;
 const phonePattern = /^\+?1?\s?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/;
 const htmlTagPattern = /^<([a-zA-Z][\w-]*)(?:\s[^<>]*)?>[^<]+<\/\1>$/;
+// \7 is past the group count and \k<none> names nothing, so both are Annex B
+// legacy escapes rather than references. Reclassifying them is what keeps the
+// pattern on the static path and its escapes independent of any group added
+// later — the walk() cost is the same either way, so this group tracks what
+// the reclassification pass itself adds.
+const legacyEscapePattern = new RegExp("^(abc)\\7d\\k<none>e$");
 
 group("construction — simple pattern (no groups, no backreferences)", () => {
   bench("native new RegExp()", () => new RegExp(simplePattern));
@@ -44,4 +50,12 @@ group("construction — HTML tag pattern (capturing group + backreference)", () 
   bench("native new RegExp()", () => new RegExp(htmlTagPattern));
   bench("compilePartial()", () => compilePartial(htmlTagPattern));
   bench("new PartialMatchRegExp()", () => new PartialMatchRegExp(htmlTagPattern));
+});
+
+group("construction — legacy escape reclassification", () => {
+  bench("native new RegExp()", () => new RegExp(legacyEscapePattern));
+  bench("compilePartial()", () => compilePartial(legacyEscapePattern));
+  bench("new PartialMatchRegExp()", () =>
+    new PartialMatchRegExp(legacyEscapePattern)
+  );
 });

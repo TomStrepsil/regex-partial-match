@@ -72,7 +72,7 @@ const REGEX_FEATURES = [
 
 export type RegexFeature = (typeof REGEX_FEATURES)[number];
 
-const FEATURE_BIT = {} as Record<RegexFeature, number>;
+export const FEATURE_BIT = {} as Record<RegexFeature, number>;
 for (let index = 0; index < REGEX_FEATURES.length; index++) {
   FEATURE_BIT[REGEX_FEATURES[index]] = 1 << index;
 }

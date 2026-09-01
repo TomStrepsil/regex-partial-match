@@ -1,10 +1,12 @@
 import escapeAtom from "./escapeAtom.ts";
+import legacyEscapeAsLiteral from "./legacyEscape.ts";
 import {
   walk,
   isBackreference,
   isNumericBackreference,
   featureSet,
   DISJUNCTION_TO_END_OF_INPUT,
+  FEATURE_BIT,
   type Backreference,
   type Part,
   type RawLookaroundInfo,
@@ -22,16 +24,29 @@ function backrefToken(backref: Backreference): string {
     : "\\k<" + backref.ref + ">";
 }
 
-function reclassifyOctalEscapes(
+function asOptionalAtom(text: string): string {
+  return "(?:" + text + DISJUNCTION_TO_END_OF_INPUT;
+}
+
+function reclassifyLegacyEscapes(
   parts: Part[],
   source: string,
-  groupCount: number
+  groupCount: number,
+  hasNamedGroup: boolean
 ): Part[] {
-  return parts.map((part) =>
-    isNumericBackreference(part) && part.ref > groupCount
-      ? "(?:" + source.slice(part.start, part.end) + DISJUNCTION_TO_END_OF_INPUT
-      : part
-  );
+  return parts.map((part) => {
+    if (!isBackreference(part)) return part;
+    if (isNumericBackreference(part)) {
+      return part.ref > groupCount
+        ? asOptionalAtom(
+            legacyEscapeAsLiteral(source.slice(part.start + 1, part.end))
+          )
+        : part;
+    }
+    return hasNamedGroup
+      ? part
+      : asOptionalAtom("k" + source.slice(part.start + 2, part.end));
+  });
 }
 
 function spliceOriginalSource(
@@ -118,7 +133,12 @@ export const compilePartial = (regex: RegExp): CompiledPartial => {
   const isUnicode = regex.unicode || regex.unicodeSets;
   const sanitisedParts = isUnicode
     ? parts
-    : reclassifyOctalEscapes(parts, regex.source, groupCount);
+    : reclassifyLegacyEscapes(
+        parts,
+        regex.source,
+        groupCount,
+        (featureMask & FEATURE_BIT.namedGroup) !== 0
+      );
   const backreferences = sanitisedParts.filter(isBackreference);
   if (backreferences.length === 0) {
     return toStatic(sanitisedParts as string[], flags, rawLookarounds, featureMask);
@@ -131,14 +151,14 @@ export const compilePartial = (regex: RegExp): CompiledPartial => {
         flags
       ),
       preScan: new RegExp(
-        parts
+        sanitisedParts
           .map((part) => (isBackreference(part) ? ANY_CAPTURED_TEXT : part))
           .join(""),
         flags
       ),
       expand: (capture) => {
         const expanded: string[] = [];
-        for (const part of parts) {
+        for (const part of sanitisedParts) {
           if (!isBackreference(part)) {
             expanded.push(part);
             continue;
@@ -147,16 +167,12 @@ export const compilePartial = (regex: RegExp): CompiledPartial => {
             ? capture[part.ref]
             : capture.groups?.[part.ref];
           if (captured === undefined) {
-            expanded.push(
-              "(?:" + backrefToken(part) + DISJUNCTION_TO_END_OF_INPUT
-            );
+            expanded.push(asOptionalAtom(backrefToken(part)));
             continue;
           }
           const atoms = isUnicode ? Array.from(captured) : captured.split("");
           for (const atom of atoms) {
-            expanded.push(
-              "(?:" + escapeAtom(atom) + DISJUNCTION_TO_END_OF_INPUT
-            );
+            expanded.push(asOptionalAtom(escapeAtom(atom)));
           }
         }
         return expanded;

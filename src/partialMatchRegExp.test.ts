@@ -489,7 +489,7 @@ describe("PartialMatchRegExp", () => {
     });
 
     it("detects a unicode escape sequence", () => {
-      const pattern = new RegExp("\\u0041");
+      const pattern = /\u0041/;
       expect(new PartialMatchRegExp(pattern).features).toContain(
         "unicodeEscapeSequence"
       );
@@ -3154,7 +3154,7 @@ c`)
   // https://tc39.es/ecma262/#sec-regular-expressions-patterns
   describe("Annex B literal \\k escapes", () => {
     it("should tolerate \\k escapes with no named group reference to complete them", () => {
-      const partial = new PartialMatchRegExp(new RegExp("\\k"));
+      const partial = new PartialMatchRegExp(/\k/);
       expect(partial.exec("k")).toMatchAt({ match: "k", index: 0 });
     });
 
@@ -3166,10 +3166,21 @@ c`)
     });
 
     it("should support partial matching of \\k escapes when a closing angle bracket appears later in the pattern", () => {
-      const partial = new PartialMatchRegExp(new RegExp("\\ka>b"));
+      const partial = new PartialMatchRegExp(/\ka>b/);
       expect(partial).toMatchPartially({
         characters: ["k", "a", ">", "b"]
       });
+    });
+
+    it("should treat a completed reference as literal text when the pattern declares no named group", () => {
+      const partial = new PartialMatchRegExp(new RegExp("^\\k<bogus>a"));
+
+      expect(partial.exec("k<bogus>")).toMatchAt({ match: "k<bogus>", index: 0 });
+      expect(partial.exec("k<bogus>a")).toMatchAt({
+        match: "k<bogus>a",
+        index: 0
+      });
+      expect(partial.exec("x")).toBeNull();
     });
   });
 
@@ -3383,6 +3394,34 @@ c`)
 
         expect(completenessOf(partial, "8")).toBe(false);
         expect(completenessOf(partial, "8a")).toBe(true);
+      });
+
+      it("reports completeness through a reclassified octal escape a marker group could otherwise turn into a backreference", () => {
+        const partial = new PartialMatchRegExp(new RegExp("^\\1a"));
+
+        expect(completenessOf(partial, "\x01")).toBe(false);
+        expect(completenessOf(partial, "\x01a")).toBe(true);
+      });
+
+      it("reports completeness through a multi-digit reclassified octal escape with a literal digit left over", () => {
+        const partial = new PartialMatchRegExp(new RegExp("^\\128x"));
+
+        expect(completenessOf(partial, "\n8")).toBe(false);
+        expect(completenessOf(partial, "\n8x")).toBe(true);
+      });
+
+      it("reports completeness through a reclassified octal escape that follows a genuine backreference", () => {
+        const partial = new PartialMatchRegExp(new RegExp("^(a)\\1\\3b"));
+
+        expect(completenessOf(partial, "aa\x03")).toBe(false);
+        expect(completenessOf(partial, "aa\x03b")).toBe(true);
+      });
+
+      it("reports completeness through a reclassified named identity escape a marker group could otherwise turn into a broken backreference", () => {
+        const partial = new PartialMatchRegExp(new RegExp("^\\k<bogus>a"));
+
+        expect(completenessOf(partial, "k<bogus>")).toBe(false);
+        expect(completenessOf(partial, "k<bogus>a")).toBe(true);
       });
 
       it("reports completeness through a word boundary assertion", () => {
