@@ -58,7 +58,15 @@ function spliceOriginalSource(
 export interface DynamicPath {
   originalCaptureScan: RegExp;
   preScan: RegExp;
-  expand: (capture: RegExpExecArray) => string[];
+  expand: (capture: RegExpExecArray) => Part[];
+}
+
+export function renderParts(parts: readonly Part[]): string {
+  let rendered = "";
+  for (const part of parts) {
+    rendered += isBackreference(part) ? asOptionalAtom(backrefToken(part)) : part;
+  }
+  return rendered;
 }
 
 abstract class Compiled {
@@ -156,7 +164,7 @@ export const compilePartial = (regex: RegExp): CompiledPartial => {
         flags
       ),
       expand: (capture) => {
-        const expanded: string[] = [];
+        const expanded: Part[] = [];
         for (const part of sanitisedParts) {
           if (!isBackreference(part)) {
             expanded.push(part);
@@ -166,7 +174,7 @@ export const compilePartial = (regex: RegExp): CompiledPartial => {
             ? capture[part.ref]
             : capture.groups?.[part.ref];
           if (captured === undefined) {
-            expanded.push(asOptionalAtom(backrefToken(part)));
+            expanded.push(part);
             continue;
           }
           const atoms = isUnicode ? Array.from(captured) : captured.split("");

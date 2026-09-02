@@ -3656,6 +3656,20 @@ c`)
         expect(completenessOf(partial, "xabc")).toBe(false);
         expect(completenessOf(partial, "xabcx")).toBe(true);
       });
+
+      it("renumbers a numeric backreference to a group that never participated, rather than reading a marker's own capture as the target", () => {
+        const partial = new PartialMatchRegExp(/^x(a)(b)?\2cd/);
+
+        expect(completenessOf(partial, "xac")).toBe(false);
+        expect(completenessOf(partial, "xacd")).toBe(true);
+      });
+
+      it("leaves a named backreference to a group that never participated unrenumbered, since names don't renumber", () => {
+        const partial = new PartialMatchRegExp(/^(?<g1>a)(?<g2>b)?\k<g2>cd/);
+
+        expect(completenessOf(partial, "ac")).toBe(false);
+        expect(completenessOf(partial, "acd")).toBe(true);
+      });
     });
 
     describe("leaving the match it describes alone", () => {

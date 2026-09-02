@@ -14,10 +14,12 @@
  *   - `compilePartial()`      — walk() + render(), no class wrapper
  *   - `new PartialMatchRegExp()` — compilePartial() plus class construction
  *
- * Three patterns span the complexity range the walker branches on:
+ * Patterns span the complexity range the walker branches on:
  *   - simple:  no groups, no character classes, no backreferences
  *   - phone:   several character classes and optional groups, no backreferences
  *   - HTML tag: capturing group + backreference, exercises the dynamic path
+ *   - legacy numeric escape: an out-of-range \N, reclassified after a single walk()
+ *   - legacy named escape: a \k<name> naming no group, which costs a second walk()
  */
 
 import { bench, group } from "mitata";
@@ -27,12 +29,16 @@ import PartialMatchRegExp from "../../src/partialMatchRegExp.ts";
 const simplePattern = /^hello+$/;
 const phonePattern = /^\+?1?\s?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/;
 const htmlTagPattern = /^<([a-zA-Z][\w-]*)(?:\s[^<>]*)?>[^<]+<\/\1>$/;
-// \7 is past the group count and \k<none> names nothing, so both are Annex B
-// legacy escapes rather than references. Reclassifying them is what keeps the
-// pattern on the static path and its escapes independent of any group added
-// later — the walk() cost is the same either way, so this group tracks what
-// the reclassification pass itself adds.
-const legacyEscapePattern = new RegExp("^(abc)\\7d\\k<none>e$");
+// \7 is past the group count, so it's an Annex B legacy escape rather than a
+// reference. Reclassifying it doesn't change what walk() itself discovers —
+// only one walk() runs — so this group isolates the reclassification pass's
+// own cost.
+const legacyNumericEscapePattern = new RegExp("^(abc)\\7d$");
+// \k<none> names a group the pattern never declares. walk() can't tell that
+// until it's seen the whole pattern, so compilePartial() re-walks once it
+// knows — this group's cost is roughly two walk() passes, not one plus
+// reclassification.
+const legacyNamedEscapePattern = new RegExp("^(abc)d\\k<none>e$");
 
 group("construction — simple pattern (no groups, no backreferences)", () => {
   bench("native new RegExp()", () => new RegExp(simplePattern));
@@ -52,10 +58,18 @@ group("construction — HTML tag pattern (capturing group + backreference)", () 
   bench("new PartialMatchRegExp()", () => new PartialMatchRegExp(htmlTagPattern));
 });
 
-group("construction — legacy escape reclassification", () => {
-  bench("native new RegExp()", () => new RegExp(legacyEscapePattern));
-  bench("compilePartial()", () => compilePartial(legacyEscapePattern));
+group("construction — legacy numeric escape reclassification", () => {
+  bench("native new RegExp()", () => new RegExp(legacyNumericEscapePattern));
+  bench("compilePartial()", () => compilePartial(legacyNumericEscapePattern));
   bench("new PartialMatchRegExp()", () =>
-    new PartialMatchRegExp(legacyEscapePattern)
+    new PartialMatchRegExp(legacyNumericEscapePattern)
+  );
+});
+
+group("construction — legacy named escape fallback (double walk())", () => {
+  bench("native new RegExp()", () => new RegExp(legacyNamedEscapePattern));
+  bench("compilePartial()", () => compilePartial(legacyNamedEscapePattern));
+  bench("new PartialMatchRegExp()", () =>
+    new PartialMatchRegExp(legacyNamedEscapePattern)
   );
 });

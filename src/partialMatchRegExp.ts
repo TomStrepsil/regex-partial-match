@@ -1,5 +1,6 @@
 import {
   compilePartial,
+  renderParts,
   type CompiledPartial,
   type DynamicPath
 } from "./compilePartial.ts";
@@ -8,12 +9,12 @@ import {
   tookTruncationBranch,
   type TruncationProbe
 } from "./truncationProbe.ts";
-import type { RegexFeature } from "./walk.ts";
+import type { Part, RegexFeature } from "./walk.ts";
 
 export type { RegexFeature };
 
 interface BackreferenceExpansion {
-  parts: string[];
+  parts: Part[];
   probe: TruncationProbe | undefined;
 }
 
@@ -180,7 +181,7 @@ class PartialMatchRegExp extends RegExp {
     if (capture === null) return originalMatch;
 
     const expandedParts = expand(capture);
-    const expanded = new RegExp(expandedParts.join(""), this.flags);
+    const expanded = new RegExp(renderParts(expandedParts), this.flags);
     const match = execFrom(expanded, input, start);
     if (match === null || isAtOrBefore(originalMatch, match.index))
       return originalMatch;

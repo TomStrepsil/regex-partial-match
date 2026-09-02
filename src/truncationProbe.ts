@@ -2,8 +2,10 @@ import legacyEscapeAsLiteral from "./legacyEscape.ts";
 import {
   DISJUNCTION_TO_END_OF_INPUT,
   OPTIONAL_ATOM_OPENING,
+  isBackreference,
   isNumericBackreference,
   type Backreference,
+  type Part,
   type RawLookaroundInfo
 } from "./walk.ts";
 
@@ -17,7 +19,8 @@ function decodeGroupName(rawName: string): string {
   return rawName.replace(
     UNICODE_ESCAPE_IN_NAME_REGEX,
     (whole, braced?: string, plain?: string) => {
-      const codePoint = parseInt(braced ?? plain ?? "", 16);
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- one of braced or plain is guaranteed to be defined by the regex
+      const codePoint = parseInt((braced ?? plain)!, 16);
       return codePoint <= MAX_CODE_POINT ? String.fromCodePoint(codePoint) : whole;
     }
   );
@@ -57,7 +60,7 @@ function isRawLookaround(part: string): boolean {
 }
 
 function groupShiftTable(
-  parts: readonly string[],
+  parts: readonly Part[],
   rawLookarounds: readonly RawLookaroundInfo[]
 ): number[] {
   const shiftForGroup: number[] = [0];
@@ -65,7 +68,9 @@ function groupShiftTable(
   let rawLookaroundIndex = 0;
 
   for (const part of parts) {
-    if (isSimpleGroupOpen(part)) {
+    if (isBackreference(part)) {
+      markerCount++;
+    } else if (isSimpleGroupOpen(part)) {
       shiftForGroup.push(markerCount);
     } else if (isRawLookaround(part)) {
       const { capturingGroupsOpened } = rawLookarounds[rawLookaroundIndex++];
@@ -78,6 +83,15 @@ function groupShiftTable(
   }
 
   return shiftForGroup;
+}
+
+function renumberedToken(
+  backreference: Backreference,
+  shiftForGroup: readonly number[]
+): string {
+  return isNumericBackreference(backreference)
+    ? "\\" + String(backreference.ref + shiftForGroup[backreference.ref])
+    : "\\k<" + backreference.ref + ">";
 }
 
 function renumberRawBackreferences(
@@ -125,7 +139,7 @@ export interface TruncationProbe {
 }
 
 export const buildTruncationProbe = (
-  parts: readonly string[],
+  parts: readonly Part[],
   rawLookarounds: readonly RawLookaroundInfo[],
   source: string,
   flags: string,
@@ -142,6 +156,15 @@ export const buildTruncationProbe = (
   let markerCount = 0;
   let rawLookaroundIndex = 0;
   const probed = parts.map((part) => {
+    if (isBackreference(part)) {
+      const marker = "|(?<" + markerName + String(markerCount++) + ">)";
+      return (
+        OPTIONAL_ATOM_OPENING +
+        renumberedToken(part, shiftForGroup) +
+        marker +
+        DISJUNCTION_TO_END_OF_INPUT.slice(1)
+      );
+    }
     if (isRawLookaround(part)) {
       return renumberRawBackreferences(
         part,

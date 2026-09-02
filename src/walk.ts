@@ -396,9 +396,8 @@ export function walk(
           return result;
         default:
           featureMask |= FEATURE_BIT.patternCharacter;
-          appendOptional(
-            isUnicode && (source.codePointAt(i) ?? 0) > 0xffff ? 2 : 1
-          );
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- i < source.length is the loop invariant, so codePointAt(i) is always defined
+          appendOptional(isUnicode && source.codePointAt(i)! > 0xffff ? 2 : 1);
           break;
       }
     }
