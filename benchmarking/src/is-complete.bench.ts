@@ -29,8 +29,7 @@
 import { bench, group } from "mitata";
 import PartialMatchRegExp from "../../src/partialMatchRegExp.ts";
 
-// A bench whose match is null would time isComplete() answering nothing at
-// all, and would read as a large improvement rather than a broken setup.
+// A bench whose match is null would time isComplete() answering nothing at all, and would read as a large improvement rather than a broken setup.
 function matchOrThrow(
   partial: PartialMatchRegExp,
   input: string
@@ -74,10 +73,7 @@ group("isComplete — static path (ISO date)", () => {
   });
 });
 
-// "foo fo" — ends inside the backreference, so exec() takes the expansion path
-// and records an expansion the probe can be built from. A full match returns
-// via the native fast path with no expansion at all, and isComplete() answers
-// from that alone.
+// "foo fo" — ends inside the backreference, so exec() takes the expansion path and records an expansion the probe can be built from. A full match returns via the native fast path with no expansion at all, and isComplete() answers from that alone.
 const repeatedWord = /^(\w+) \1$/;
 const repeatedWordMidRef = "foo fo";
 
@@ -102,9 +98,7 @@ group("isComplete — backreference path (repeated word)", () => {
   });
 });
 
-// A raw lookaround is copied into the probe verbatim, so its backreferences
-// have to be renumbered past every marker inserted before them — the one place
-// probe construction does more than splice in a marker per truncation branch.
+// A raw lookaround is copied into the probe verbatim, so its backreferences have to be renumbered past every marker inserted before them — the one place probe construction does more than splice in a marker per truncation branch.
 const rawLookaroundBackref = /^v(a)(b)(?<=\1\2)c/;
 const rawLookaroundInput = "vab";
 

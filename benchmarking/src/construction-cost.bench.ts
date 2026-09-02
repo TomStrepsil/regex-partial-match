@@ -29,15 +29,9 @@ import PartialMatchRegExp from "../../src/partialMatchRegExp.ts";
 const simplePattern = /^hello+$/;
 const phonePattern = /^\+?1?\s?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/;
 const htmlTagPattern = /^<([a-zA-Z][\w-]*)(?:\s[^<>]*)?>[^<]+<\/\1>$/;
-// \7 is past the group count, so it's an Annex B legacy escape rather than a
-// reference. Reclassifying it doesn't change what walk() itself discovers —
-// only one walk() runs — so this group isolates the reclassification pass's
-// own cost.
+// \7 is past the group count, so it's an Annex B legacy escape rather than a reference. Reclassifying it doesn't change what walk() itself discovers — only one walk() runs — so this group isolates the reclassification pass's own cost.
 const legacyNumericEscapePattern = new RegExp("^(abc)\\7d$");
-// \k<none> names a group the pattern never declares. walk() can't tell that
-// until it's seen the whole pattern, so compilePartial() re-walks once it
-// knows — this group's cost is roughly two walk() passes, not one plus
-// reclassification.
+// \k<none> names a group the pattern never declares. walk() can't tell that until it's seen the whole pattern, so compilePartial() re-walks once it knows — this group's cost is roughly two walk() passes, not one plus reclassification.
 const legacyNamedEscapePattern = new RegExp("^(abc)d\\k<none>e$");
 
 group("construction — simple pattern (no groups, no backreferences)", () => {
