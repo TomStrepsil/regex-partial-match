@@ -34,6 +34,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A backreference whose captured value is the empty string now expands to `(?:)` rather than to nothing, so a quantifier following it still has an atom to bind to. `new PartialMatchRegExp(/^\1*(a)/).exec("")` threw `SyntaxError: Nothing to repeat` from the per-input regex it builds
 - A `\0`-led legacy octal escape (`\0`, `\012`, …) is now walked the same way as `\1`-`\9`, reclassifying a multi-digit run atom-by-atom instead of leaking its trailing digits past the walk as literal characters, which shifted prefix positions and quantifier binding. Since there's no group `0`, the walk always tags it `ref: 0` so it's never read as a genuine backreference
   - The truncation probe's raw-lookaround renumbering had the same gap, treating such a run inside `(?!…)`/`(?<=…)`/`(?<!…)` as a real backreference whenever any group preceded it — visible only through `isComplete()`, since `exec()`/`test()` never rebuild that text
+- A quantifier following a backreference now applies to the whole expansion of its captured text, not just its last character: `\1*` after capturing `"ab"` grouped its per-character atoms as `(?:a|…)(?:b|…)*`, so the `*` bound only to `b` and rejected valid prefixes like `"ababa"`
+- `feature-cost.bench.ts`'s "hex and unicode escapes" bench actually exercised `\cC`, a control-letter escape, not `\uXXXX`; split it into its own `\cC` bench so removing the mislabelled one didn't drop coverage
 
 ## [1.2.0] - 2026-08-31
 

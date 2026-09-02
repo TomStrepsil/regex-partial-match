@@ -52,7 +52,8 @@ const features: [name: string, pattern: RegExp][] = [
   ["negative lookahead (raw)", /^(?!abcdefgh)x_tail/],
   ["lookbehind (raw)", /^ab(?<=ab)cdefgh_tail/],
   ["control escapes", /^\n\r\t\f\v_tail/],
-  ["hex and unicode escapes", /^\x41B\cC_tail/],
+  ["control-letter escape", /^\cC_tail/],
+  ["hex and unicode escapes", /^\x41B\u0043_tail/],
   ["unicode property escape (u)", /^\p{Letter}+_tail/u],
   ["nested character class (v)", /^[[a-z]--[c]]+_tail/v]
 ];

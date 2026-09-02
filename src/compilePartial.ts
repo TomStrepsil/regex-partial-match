@@ -7,6 +7,7 @@ import {
   featureSet,
   hasFeature,
   DISJUNCTION_TO_END_OF_INPUT,
+  OPTIONAL_ATOM_OPENING,
   type Backreference,
   type Part,
   type RawLookaroundInfo,
@@ -18,6 +19,7 @@ export type { RegexFeature };
 const MAYBE_HAS_BACKREFERENCE_REGEX = /\\[0-9]|\\k</;
 const ANY_CAPTURED_TEXT = "(?:[\\s\\S]*?)";
 const QUANTIFIABLE_EMPTY_ATOM = "(?:)";
+const GROUP_CLOSING = ")";
 
 function backrefToken(backref: Backreference) {
   return isNumericBackreference(backref)
@@ -203,9 +205,11 @@ export const compilePartial = (regex: RegExp): CompiledPartial => {
             expanded.push(QUANTIFIABLE_EMPTY_ATOM);
             continue;
           }
+          expanded.push(OPTIONAL_ATOM_OPENING);
           for (const atom of atoms) {
             expanded.push(asOptionalAtom(escapeAtom(atom)));
           }
+          expanded.push(GROUP_CLOSING);
         }
         return expanded;
       }

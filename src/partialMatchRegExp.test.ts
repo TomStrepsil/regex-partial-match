@@ -2564,6 +2564,16 @@ c`)
         })
       },
       {
+        name: "quantifier on the backreference itself",
+        input: /^(ab)\1*c/,
+        validInputs: ["a", "ab", "aba", "abab", "ababc", "ababab", "abababc"],
+        invalidInputs: ["b", "ba", "abd"],
+        expected: (str: string) => ({
+          0: str,
+          1: "ab".slice(0, str.length)
+        })
+      },
+      {
         name: "named group inside quantifier",
         input: /^(?<word>ab)+\k<word>/,
         validInputs: ["a", "ab", "aba", "abab", "ababab"],
