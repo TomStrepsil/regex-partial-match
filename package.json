@@ -64,7 +64,8 @@
     "prepublishOnly": "tsc -p tsconfig.build.json",
     "ci:smoke-test-built-package": "node .github/scripts/smoke-test-built-package.ts",
     "test": "vitest run --config ./test/vitest.config.ts",
-    "test:watch": "vitest --config ./test/vitest.config.ts"
+    "test:watch": "vitest --config ./test/vitest.config.ts",
+    "test:coverage": "vitest run --config ./test/vitest.config.ts --coverage"
   },
   "simple-git-hooks": {
     "pre-commit": "node_modules/.bin/lint-staged"
@@ -83,6 +84,7 @@
     "@types/node": "^25.9.3",
     "@typescript/lib-es2018": "file:types/lib-es2018",
     "@typescript/lib-es2022": "file:types/lib-es2022",
+    "@vitest/coverage-v8": "^4.1.11",
     "eslint": "^9.17.0",
     "jiti": "^2.6.1",
     "lint-staged": "^15.2.11",

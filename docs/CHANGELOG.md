@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Requires ES2018+ regardless of the pattern, since that probe uses named capturing groups internally
   - Necessary but not sufficient for a chunk-invariant streaming scanner: it cannot see a capture still growing inside an assertion, so such a consumer also needs its own end-of-buffer check on capture indices. Documented in `README.md` with a pinning test
 - Benchmark scenarios for `isComplete()` and for per-feature construction cost
+- `test:coverage` script
 
 ### Changed
 
