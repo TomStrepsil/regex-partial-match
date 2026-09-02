@@ -166,7 +166,7 @@ describe("feature name", () => {
 
 ### Adding a `RegexFeature`
 
-Append the tag to `REGEX_FEATURES` in `src/compilePartial.ts`, and record it during the walk with `featureMask |= FEATURE_BIT.yourTag`. The `RegexFeature` union, the bit each tag occupies, and the `Set` handed to consumers are all derived from that one list.
+Append the tag to `REGEX_FEATURES` in `src/walk.ts`, and record it during the walk with `featureMask |= FEATURE_BIT.yourTag`. The `RegexFeature` union, the bit each tag occupies, and the `Set` handed to consumers are all derived from that one list.
 
 Those bits live in a single 32-bit mask, so the list has room for 32 tags — 30 are used. A 33rd would silently alias the first (`1 << 32 === 1`), so `LengthUpToOneBitMask` fails the build before it can: past 32, the mask has to become a pair of numbers.
 

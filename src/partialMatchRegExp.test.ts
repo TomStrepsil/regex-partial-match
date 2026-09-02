@@ -3616,7 +3616,7 @@ c`)
     // A numeric backreference inside a negative lookahead or either
     // lookbehind is never extracted as its own token — the walker copies the
     // whole construct in as one opaque, unparsed string (see
-    // `appendRawLookaround` in compilePartial.ts), since none of it is
+    // `appendRawLookaround` in walk.ts), since none of it is
     // individually partial-matchable. The truncation markers inserted
     // elsewhere in the pattern are new capturing groups, so they renumber
     // every group that follows them — including ones a raw backreference

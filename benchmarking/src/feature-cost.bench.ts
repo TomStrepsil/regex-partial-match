@@ -1,27 +1,40 @@
 /**
  * Scenario 7: construction cost per regex feature
  *
- * construction-cost.bench.ts tracks three whole patterns end to end. This
+ * construction-cost.bench.ts tracks whole realistic patterns end to end. This
  * scenario instead isolates *which construct* the walker is paying for, one
  * bench per feature, so a change to a single switch case in walk() — or to how
  * a construct is reclassified afterwards — shows up against its neighbours
  * rather than being averaged into a realistic pattern.
  *
- * Every pattern is deliberately the same shape and close to the same length:
- * an anchor, a construct under test, and a literal tail. Differences between
- * benches are therefore the construct, not the amount of source text. The
- * numbers are only meaningful relative to each other and to the literal
- * baseline at the top of the group.
+ * Every pattern in the first group is the same shape and close to the same
+ * length: an anchor, a construct under test, and a literal tail. That controls
+ * for source length, but NOT for the number of parts the walk emits — a
+ * construct that collapses a span into one atom (a character class, a property
+ * escape) leaves fewer parts behind than the same length of literal text, and
+ * construction cost tracks that part count closely. So read the first group as
+ * "what did this construct cost to walk, end to end", and watch each bench
+ * against its own history; do not read it as a ranking of switch cases, and do
+ * not read a bench below the literal baseline as a cheaper switch case. Raw
+ * lookarounds in particular are not the outlier they might look: the walker
+ * processes the body to find its extent and count the capturing groups inside
+ * it, then discards those parts and keeps the source slice, which costs about
+ * what walking the same text once costs.
  *
- * Three features cost far more than the rest, and each for a structural
- * reason worth keeping visible:
+ * The genuinely expensive constructs are in the second group, and each for a
+ * structural reason worth keeping visible:
  *
  *   - a backreference forces the dynamic path, which defers most of its work
  *     to exec() but still builds two extra regexes up front
- *   - a raw lookaround (negative lookahead, either lookbehind) is copied in
- *     verbatim and walked a second time to count the groups inside it
- *   - a legacy escape is reclassified after the walk, against the pattern's
- *     group count and whether it declares any named group
+ *   - a \k<name> in a pattern declaring no named group is an Annex B literal,
+ *     which the walk cannot know until it has seen the whole source — so
+ *     compilePartial() walks a second time, making this the costliest bench
+ *     here despite compiling to the static path
+ *
+ * A reclassified octal escape, by contrast, is only modestly above the static
+ * baseline beside it: reclassification itself is cheap, and the third group
+ * shows why the classification still matters — the same pattern misread as a
+ * backreference would rebuild a RegExp on every exec().
  */
 
 import { bench, group } from "mitata";

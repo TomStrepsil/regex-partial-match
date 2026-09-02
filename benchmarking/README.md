@@ -94,11 +94,11 @@ The last two benches in the backreference group are that difference, and are the
 
 ### 7. Feature cost (`feature-cost.bench.ts`)
 
-Scenario 5 tracks three whole patterns end to end; this one isolates *which construct* the walker is paying for, one bench per feature, so a change to a single `switch` case shows up against its neighbours instead of being averaged into a realistic pattern.
+Scenario 5 tracks whole realistic patterns end to end; this one isolates *which construct* the walker is paying for, one bench per feature, so a change to a single `switch` case shows up against its neighbours instead of being averaged into a realistic pattern.
 
-Every pattern in the first group is the same shape and close to the same length — an anchor, the construct under test, a literal tail — so the differences are the construct rather than the amount of source text. The numbers are only meaningful relative to each other and to the literal baseline at the top of the group.
+Every pattern in the first group is the same shape and close to the same length — an anchor, the construct under test, a literal tail. That controls for source length but not for how many parts the walk emits, and construction cost tracks that part count closely: a construct that collapses a span into a single atom leaves fewer parts behind than the same length of literal text. Read each bench against its own history rather than as a ranking of the walker's `switch` cases, and don't read a bench below the literal baseline as a cheaper case.
 
-Two further groups cover the constructs that decide which compiled path a pattern lands on. A backreference forces the dynamic path; a legacy escape (`\7` past the group count, or `\k<name>` in a pattern declaring no named group) is an Annex B literal and must not. That distinction costs a few percent at construction but is worth two orders of magnitude at `exec()`, since the dynamic path rebuilds a `RegExp` per call — so it is measured at both.
+Two further groups cover the constructs that decide which compiled path a pattern lands on. A backreference forces the dynamic path; a legacy escape (`\7` past the group count, or `\k<name>` in a pattern declaring no named group) is an Annex B literal and must not. That distinction costs something at construction — more for `\k<name>`, which pays for the second walk — but is worth better than an order of magnitude at `exec()`, since the dynamic path rebuilds a `RegExp` per call. So it is measured at both.
 
 ## 🤖 CI integration
 
