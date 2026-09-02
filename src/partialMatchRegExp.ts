@@ -172,12 +172,12 @@ function execFrom(
   regex: RegExp,
   input: string,
   start: number
-): RegExpExecArray | null {
+) {
   regex.lastIndex = start;
   return regex.exec(input);
 }
 
-function isAtOrBefore(match: RegExpExecArray | null, index: number): boolean {
+function isAtOrBefore(match: RegExpExecArray | null, index: number) {
   return match !== null && match.index <= index;
 }
 

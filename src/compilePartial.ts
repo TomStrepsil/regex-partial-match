@@ -19,13 +19,13 @@ const MAYBE_HAS_BACKREFERENCE_REGEX = /\\[1-9]|\\k</;
 const ANY_CAPTURED_TEXT = "(?:[\\s\\S]*?)";
 const QUANTIFIABLE_EMPTY_ATOM = "(?:)";
 
-function backrefToken(backref: Backreference): string {
+function backrefToken(backref: Backreference) {
   return isNumericBackreference(backref)
     ? "\\" + String(backref.ref)
     : "\\k<" + backref.ref + ">";
 }
 
-function asOptionalAtom(text: string): string {
+function asOptionalAtom(text: string) {
   return "(?:" + text + DISJUNCTION_TO_END_OF_INPUT;
 }
 
@@ -33,7 +33,7 @@ function reclassifyLegacyEscapes(
   parts: Part[],
   source: string,
   groupCount: number
-): Part[] {
+) {
   const reclassified: Part[] = [];
   for (const part of parts) {
     if (isNumericBackreference(part) && part.ref > groupCount) {
@@ -52,7 +52,7 @@ function reclassifyLegacyEscapes(
 function spliceOriginalSource(
   source: string,
   backrefs: Backreference[]
-): string {
+) {
   let result = "";
   let cursor = 0;
   for (const { start, end } of backrefs) {
@@ -125,7 +125,7 @@ function toStatic(
   rawLookarounds: readonly RawLookaroundInfo[],
   namedGroupOpenings: readonly string[],
   featureMask: number
-): CompiledStatic {
+) {
   return new CompiledStatic(
     new RegExp(parts.join(""), flags),
     parts,

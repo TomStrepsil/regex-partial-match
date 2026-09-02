@@ -1,4 +1,4 @@
-function pickLonger(scanned?: string, matched?: string): string | undefined {
+function pickLonger(scanned?: string, matched?: string) {
   return scanned !== undefined &&
     matched !== undefined &&
     scanned.length > matched.length
@@ -9,7 +9,7 @@ function pickLonger(scanned?: string, matched?: string): string | undefined {
 export function preferLongerCaptures(
   match: RegExpExecArray,
   scanned: RegExpExecArray
-): void {
+) {
   for (let index = 1; index < match.length; index++) {
     const longer = pickLonger(scanned[index], match[index]);
     if (longer === undefined) continue;

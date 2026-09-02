@@ -1,6 +1,6 @@
 const LEGACY_OCTAL_ESCAPE_REGEX = /^(?:[0-3][0-7]{0,2}|[4-7][0-7]?)/;
 
-const hexEscape = (codeUnit: number): string =>
+const hexEscape = (codeUnit: number) =>
   "\\x" + (codeUnit < 0x10 ? "0" : "") + codeUnit.toString(16);
 
 export function legacyEscapeAsLiteral(digits: string): string {

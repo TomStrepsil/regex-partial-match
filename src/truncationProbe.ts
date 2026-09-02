@@ -15,7 +15,7 @@ const TRUNCATION_MARKER_NAME = "truncation";
 const FLAGS_INCOMPATIBLE_WITH_PROBING = /[dgy]/g;
 const UNICODE_ESCAPE_IN_NAME_REGEX = /\\u\{([0-9a-fA-F]+)\}|\\u([0-9a-fA-F]{4})/g;
 
-function decodeGroupName(rawName: string): string {
+function decodeGroupName(rawName: string) {
   return rawName.replace(
     UNICODE_ESCAPE_IN_NAME_REGEX,
     (_whole, braced?: string, plain?: string) =>
@@ -24,7 +24,7 @@ function decodeGroupName(rawName: string): string {
   );
 }
 
-function endsAtTruncationBranch(part: string): boolean {
+function endsAtTruncationBranch(part: string) {
   return (
     part === DISJUNCTION_TO_END_OF_INPUT ||
     (part.startsWith(OPTIONAL_ATOM_OPENING) &&
@@ -32,7 +32,7 @@ function endsAtTruncationBranch(part: string): boolean {
   );
 }
 
-function isSimpleGroupOpen(part: string): boolean {
+function isSimpleGroupOpen(part: string) {
   return (
     part === "(" ||
     (part.startsWith(NAMED_GROUP_OPENING) &&
@@ -40,7 +40,7 @@ function isSimpleGroupOpen(part: string): boolean {
   );
 }
 
-function isRawLookaround(part: string): boolean {
+function isRawLookaround(part: string) {
   return (
     part.startsWith("(?!") ||
     part.startsWith(NAMED_GROUP_OPENING + "=") ||
@@ -51,7 +51,7 @@ function isRawLookaround(part: string): boolean {
 function groupShiftTable(
   parts: readonly Part[],
   rawLookarounds: readonly RawLookaroundInfo[]
-): number[] {
+) {
   const shiftForGroup: number[] = [0];
   let markerCount = 0;
   let rawLookaroundIndex = 0;
@@ -77,7 +77,7 @@ function groupShiftTable(
 function renumberedToken(
   backreference: Backreference,
   shiftForGroup: readonly number[]
-): string {
+) {
   return isNumericBackreference(backreference)
     ? "\\" + String(backreference.ref + shiftForGroup[backreference.ref])
     : "\\k<" + backreference.ref + ">";
@@ -88,7 +88,7 @@ function renumberRawBackreferences(
   info: RawLookaroundInfo,
   shiftForGroup: readonly number[],
   declaresNamedGroup: boolean
-): string {
+) {
   let renumbered = "";
   let cursor = 0;
   for (const backreference of info.backreferences) {
@@ -112,7 +112,7 @@ function rawReferenceReplacement(
   backreference: Backreference,
   shiftForGroup: readonly number[],
   declaresNamedGroup: boolean
-): string {
+) {
   if (isNumericBackreference(backreference)) {
     return backreference.ref < shiftForGroup.length
       ? "\\" + String(backreference.ref + shiftForGroup[backreference.ref])

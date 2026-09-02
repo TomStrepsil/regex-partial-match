@@ -3,7 +3,8 @@ const NOT_NUMBERS_REGEX = /\D/g;
 export const DISJUNCTION_TO_END_OF_INPUT = "|$(?![\\s\\S]))";
 export const OPTIONAL_ATOM_OPENING = "(?:";
 export const NAMED_GROUP_OPENING = "(?<";
-const LITERAL_K_ATOM = OPTIONAL_ATOM_OPENING + "k" + DISJUNCTION_TO_END_OF_INPUT;
+const LITERAL_K_ATOM =
+  OPTIONAL_ATOM_OPENING + "k" + DISJUNCTION_TO_END_OF_INPUT;
 
 interface NumericBackreference {
   ref: number;
@@ -35,7 +36,9 @@ export const groupNameOf = (namedGroupOpening: string): string =>
 export const isBackreference = (part: Part): part is Backreference =>
   typeof part !== "string";
 
-export const isNumericBackreference = (part: Part): part is NumericBackreference =>
+export const isNumericBackreference = (
+  part: Part
+): part is NumericBackreference =>
   isBackreference(part) && typeof part.ref === "number";
 
 type LengthUpToOneBitMask<Counted extends unknown[] = []> =
@@ -115,14 +118,11 @@ export function walk(
   let namedGroupOpenings: string[] | undefined;
   let currentRawLookaroundBackreferences: Backreference[] | undefined;
 
-  function extractSlice(length: number): string {
+  function extractSlice(length: number) {
     return source.slice(i, (i += length));
   }
 
-  function process(
-    withinLookaround: boolean,
-    declaresNamedGroup: boolean
-  ): Part[] {
+  function process(withinLookaround: boolean, declaresNamedGroup: boolean) {
     const result: Part[] = [];
 
     function appendOptional(length: number) {
@@ -356,7 +356,10 @@ export function walk(
                   : FEATURE_BIT.modifierGroup;
                 result.push("(?" + modifiers + ":");
                 i = colonIndex + 1;
-                result.push(...process(withinLookaround, declaresNamedGroup), ")");
+                result.push(
+                  ...process(withinLookaround, declaresNamedGroup),
+                  ")"
+                );
                 break;
               }
               case "!":
@@ -376,9 +379,12 @@ export function walk(
                   default: {
                     featureMask |= FEATURE_BIT.namedGroup;
                     featureMask |= FEATURE_BIT.capturingGroup;
-                    if (withinLookaround) featureMask |= FEATURE_BIT.lookaroundCapture;
+                    if (withinLookaround)
+                      featureMask |= FEATURE_BIT.lookaroundCapture;
                     ++groupCount;
-                    const opening = extractSlice(source.indexOf(">", i) - i + 1);
+                    const opening = extractSlice(
+                      source.indexOf(">", i) - i + 1
+                    );
                     (namedGroupOpenings ??= []).push(opening);
                     result.push(opening);
                     result.push(
