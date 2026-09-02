@@ -26,7 +26,7 @@ import assert from "node:assert/strict";
 import { readdir, readFile } from "node:fs/promises";
 import { createRequire } from "node:module";
 import { Linter } from "eslint";
-import type PartialMatchRegExp from "../../src/partialMatchRegExp.ts";
+import type PartialMatchRegExpInstance from "../../src/partialMatchRegExp.ts";
 
 const SUPPORTED_ECMA_VERSION = 2015;
 
@@ -37,7 +37,7 @@ type LoadedModule = Record<string, unknown>;
 type PartialMatchRegExpConstructor = new (
   pattern: RegExp | string,
   flags?: string
-) => PartialMatchRegExp;
+) => PartialMatchRegExpInstance;
 
 const SMOKE_TESTS: Record<string, (loaded: LoadedModule) => void> = {
   ".": (loaded) => {
