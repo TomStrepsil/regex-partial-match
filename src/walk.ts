@@ -5,7 +5,7 @@ export const OPTIONAL_ATOM_OPENING = "(?:";
 export const NAMED_GROUP_OPENING = "(?<";
 const LITERAL_K_ATOM = OPTIONAL_ATOM_OPENING + "k" + DISJUNCTION_TO_END_OF_INPUT;
 
-export interface NumericBackreference {
+interface NumericBackreference {
   ref: number;
   start: number;
   end: number;
@@ -26,8 +26,8 @@ export interface RawLookaroundInfo {
   backreferences: Backreference[];
 }
 
-export const NO_RAW_LOOKAROUNDS: readonly RawLookaroundInfo[] = [];
-export const NO_NAMED_GROUP_OPENINGS: readonly string[] = [];
+const NO_RAW_LOOKAROUNDS: readonly RawLookaroundInfo[] = [];
+const NO_NAMED_GROUP_OPENINGS: readonly string[] = [];
 
 export const groupNameOf = (namedGroupOpening: string): string =>
   namedGroupOpening.slice(NAMED_GROUP_OPENING.length, -1);
