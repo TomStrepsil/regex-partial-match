@@ -88,10 +88,6 @@ abstract class Compiled {
   get features(): ReadonlySet<RegexFeature> {
     return (this._features ??= featureSet(this._featureMask));
   }
-
-  has(feature: RegexFeature): boolean {
-    return hasFeature(this._featureMask, feature);
-  }
 }
 
 class CompiledStatic extends Compiled {
