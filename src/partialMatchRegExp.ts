@@ -5,26 +5,18 @@ import {
   type DynamicPath
 } from "./compilePartial.ts";
 import {
-  buildTruncationProbe,
-  tookTruncationBranch,
-  type TruncationProbe
-} from "./truncationProbe.ts";
-import type { Part, RegexFeature } from "./walk.ts";
+  isComplete as matchIsComplete,
+  backreferenceExpansion,
+  type ExpandedMatch,
+  type TruncationProbeCache
+} from "./isComplete.ts";
+import { preferLongerCaptures } from "./preferLongerCaptures.ts";
+import type { RegexFeature } from "./walk.ts";
 
 export type { RegexFeature };
 
-interface BackreferenceExpansion {
-  parts: Part[];
-  probe: TruncationProbe | undefined;
-}
-
-interface ExpandedMatch extends RegExpExecArray {
-  [backreferenceExpansion]?: BackreferenceExpansion;
-}
-
 const compiledPartial = Symbol("compiledPartial");
-const truncationProbe = Symbol("truncationProbe");
-const backreferenceExpansion = Symbol("backreferenceExpansion");
+const truncationProbeCache = Symbol("truncationProbeCache");
 
 /**
  * A `RegExp` subclass that supports partial (prefix) matching.
@@ -54,11 +46,12 @@ const backreferenceExpansion = Symbol("backreferenceExpansion");
  */
 class PartialMatchRegExp extends RegExp {
   declare private [compiledPartial]: CompiledPartial;
-  declare private [truncationProbe]: TruncationProbe | undefined;
+  declare private [truncationProbeCache]: TruncationProbeCache;
 
   constructor(pattern: RegExp | string, flags?: string) {
     super(pattern, flags);
     this[compiledPartial] = compilePartial(this);
+    this[truncationProbeCache] = { probe: undefined };
   }
 
   /**
@@ -125,30 +118,11 @@ class PartialMatchRegExp extends RegExp {
    * ```
    */
   isComplete(match: RegExpExecArray): boolean {
-    const compiled = this[compiledPartial];
-
-    if (compiled.kind === "dynamic") {
-      const expansion = (match as ExpandedMatch)[backreferenceExpansion];
-      if (expansion === undefined) return true;
-      expansion.probe ??= buildTruncationProbe(
-        expansion.parts,
-        compiled.rawLookarounds,
-        compiled.namedGroupOpenings,
-        this.flags
-      );
-      return !tookTruncationBranch(expansion.probe, match.input, match.index);
-    }
-
-    this[truncationProbe] ??= buildTruncationProbe(
-      compiled.parts,
-      compiled.rawLookarounds,
-      compiled.namedGroupOpenings,
-      this.flags
-    );
-    return !tookTruncationBranch(
-      this[truncationProbe],
-      match.input,
-      match.index
+    return matchIsComplete(
+      this[compiledPartial],
+      match,
+      this.flags,
+      this[truncationProbeCache]
     );
   }
 
@@ -205,39 +179,6 @@ function execFrom(
 
 function isAtOrBefore(match: RegExpExecArray | null, index: number): boolean {
   return match !== null && match.index <= index;
-}
-
-function pickLonger(scanned?: string, matched?: string): string | undefined {
-  return scanned !== undefined &&
-    matched !== undefined &&
-    scanned.length > matched.length
-    ? scanned
-    : undefined;
-}
-
-function preferLongerCaptures(
-  match: RegExpExecArray,
-  scanned: RegExpExecArray
-): void {
-  for (let index = 1; index < match.length; index++) {
-    const longer = pickLonger(scanned[index], match[index]);
-    if (longer === undefined) continue;
-    match[index] = longer;
-    if (match.indices && scanned.indices?.[index]) {
-      match.indices[index] = scanned.indices[index];
-    }
-  }
-
-  if (match.groups && scanned.groups) {
-    for (const name of Object.keys(match.groups)) {
-      const longer = pickLonger(scanned.groups[name], match.groups[name]);
-      if (longer === undefined) continue;
-      match.groups[name] = longer;
-      if (match.indices?.groups) {
-        match.indices.groups[name] = scanned.indices?.groups?.[name];
-      }
-    }
-  }
 }
 
 export default PartialMatchRegExp;
