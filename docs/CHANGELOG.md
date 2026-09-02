@@ -7,6 +7,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `isComplete(match: RegExpExecArray): boolean` on `PartialMatchRegExp`, reporting whether a match `exec()` returned is a match of the original pattern or merely a prefix of it — the distinction partial matching is named for, which the result previously discarded
+  - Answered by re-running the compiled pattern sticky at `match.index` with an empty named group in front of each `|$(?![\s\S])` truncation branch, so any marker returned defined is a branch the match actually took. Supported on both the static and the backreference paths
+  - Requires ES2018+ regardless of the pattern, since that probe uses named capturing groups internally
+- Benchmark scenarios for `isComplete()` and for per-feature construction cost
+- `test:coverage` script
+
+### Changed
+
+- A `\k<name>` in a pattern that declares no named group, and a bare `\k`, are walked as the [Annex B](https://tc39.es/ecma262/#sec-regular-expressions-patterns) literals they are rather than as backreferences, correcting prefix matching, `features` reporting, and `isComplete()` throwing on them. The README's caveat listing that form as atomic has been removed, since it no longer is
+- A `\N` past the pattern's own group count is rewritten to a group-count-independent literal as it is reclassified, so the truncation probe's capturing groups cannot change what it means
+- The truncation probe takes the pattern's declared group names from the walk that already visited each declaration, rather than re-finding them with a regex over the raw source, which could see `(?<name>` inside a character class, where the walk correctly treats it as class content. Both the sentinel-collision check and whether a named reference inside a raw lookaround is genuine now read that one list, so neither can disagree with the walk. `isComplete()` is 10-14% faster as a result, since the scan ran over the whole source while the list holds only real declarations
+- The expansion behind a backreference match is held on the match under a private symbol rather than in a per-instance `WeakMap`, which was written to on every partial match whether or not `isComplete()` was ever called, restoring that path to within 6% of v[1.2.0](#120---2026-08-31)
+- The backreference path builds its per-input regex from an array of atoms rather than a concatenated source string, so the truncation markers can be placed in it
+- `compilePartial()` joins its parts directly on the static path rather than routing them through `render()`, and shares that return between both places a pattern turns out to have no backreferences
+- `src/` is linted against the library methods newer than the ES2015 floor the README states. 
+  - The built output's existing check parses at that floor, so it catches newer *syntax* but not a newer *method*; the RegExp properties past it are read behind runtime guards, but a plain `String.prototype` call has nothing to guard it
+- Liberally split `compilePartial.ts` into separate files
+- Prefer `//` vs `new RegExp`, where possible, in tests
+
+### Fixed
+
+- A legacy escape denoting more than one atom is now reclassified into one optional atom *per atom*, rather than one covering the whole run. `\128` is the character `\x0a` followed by a literal `8`; wrapping both together lost the prefix position between them and re-bound any following quantifier to the pair, so `/^\128*x/` — which means `\x0a` then `8*` then `x` — rejected `"\n88x"` and `"\nx"` outright, both of which the original pattern matches in full. The same applies to `\8` and `\9`, which are identity escapes rather than octal
+- A backreference whose captured value is the empty string now expands to `(?:)` rather than to nothing, so a quantifier following it still has an atom to bind to. `new PartialMatchRegExp(/^\1*(a)/).exec("")` threw `SyntaxError: Nothing to repeat` from the per-input regex it builds
+- A `\0`-led legacy octal escape (`\0`, `\012`, …) is now walked the same way as `\1`-`\9`, reclassifying a multi-digit run atom-by-atom instead of leaking its trailing digits past the walk as literal characters, which shifted prefix positions and quantifier binding. Since there's no group `0`, the walk always tags it `ref: 0` so it's never read as a genuine backreference
+  - The truncation probe's raw-lookaround renumbering had the same gap, treating such a run inside `(?!…)`/`(?<=…)`/`(?<!…)` as a real backreference whenever any group preceded it — visible only through `isComplete()`, since `exec()`/`test()` never rebuild that text
+- A quantifier following a backreference now applies to the whole expansion of its captured text, not just its last character: `\1*` after capturing `"ab"` grouped its per-character atoms as `(?:a|…)(?:b|…)*`, so the `*` bound only to `b` and rejected valid prefixes like `"ababa"`
+- `feature-cost.bench.ts`'s "hex and unicode escapes" bench actually exercised `\cC`, a control-letter escape, not `\uXXXX`; split it into its own `\cC` bench so removing the mislabelled one didn't drop coverage
+
 ## [1.2.0] - 2026-08-31
 
 ### Added

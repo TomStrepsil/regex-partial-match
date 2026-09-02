@@ -19,14 +19,13 @@ import "./hot-loop.bench.ts";
 import "./keystroke.bench.ts";
 import "./backref-slow-path.bench.ts";
 import "./construction-cost.bench.ts";
+import "./is-complete.bench.ts";
+import "./feature-cost.bench.ts";
 import { run } from "mitata";
 
 const isJson = process.argv.includes("--json");
 
-// When --json: mitata's json format writes the result to stdout itself via
-// console.log. Do not also call process.stdout.write — that would produce two
-// concatenated JSON objects and break the downstream parser.
-// samples:false drops raw timing arrays from the output; we only need summary stats.
+// When --json: mitata's json format writes the result to stdout itself via console.log. Do not also call process.stdout.write — that would produce two concatenated JSON objects and break the downstream parser. samples:false drops raw timing arrays from the output; we only need summary stats.
 await run({
   colors: !isJson,
   ...(isJson ? { format: { json: { samples: false } } } : {}),

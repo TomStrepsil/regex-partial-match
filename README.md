@@ -36,6 +36,31 @@ partial.test("hello world"); // true - full match
 partial.test("goodbye"); // false - cannot match
 ```
 
+### Telling a prefix from a complete match
+
+`test()` and `exec()` answer "could this match?", which is `true` for a prefix and for a complete match alike. [`isComplete()`](#partialmatchregexpprototypeiscompletematch-regexpexecarray-boolean) separates the two — testing the original pattern instead doesn't[^1] — giving the three states progressive validation actually needs:
+
+```javascript
+import PartialMatchRegExp from "regex-partial-match";
+
+const partial = new PartialMatchRegExp(/^\d{4}-\d{2}-\d{2}/);
+
+function state(input) {
+  const match = partial.exec(input);
+
+  if (match === null) return "invalid";
+  return partial.isComplete(match) ? "complete" : "incomplete";
+}
+
+state("20xx"); // 'invalid'    - reject
+state("2024"); // 'incomplete' - no error, keep typing
+state("2024-06"); // 'incomplete' - no error, keep typing
+state("2024-06-15"); // 'complete'   - accept, enable submit
+```
+
+[^1]: 
+    Testing the original, untransformed pattern looks like it should answer this — "did the input fully satisfy the original pattern?" — but it asks a different question: whether the original matches *at all* here, not whether *this* match got there by truncation. The two agree almost always, but a truncation branch firing inside a zero-width assertion can make both return an identical result by different paths. See [Why the question can't be answered from the outside](#why-the-question-cant-be-answered-from-the-outside) for the case where they diverge.
+
 ### Extending RegExp.prototype
 
 ```javascript
@@ -48,7 +73,7 @@ partial.test("hel"); // true
 
 ## ⚙️ How It Works
 
-The library transforms a regular expression by wrapping each [atomic element](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions#atoms) in a [non-capturing group](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Non-capturing_group) with a [disjunction](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Disjunction) to a true-end-of-input sentinel (`$(?![\s\S])`[^1]):
+The library transforms a regular expression by wrapping each [atomic element](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions#atoms) in a [non-capturing group](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Non-capturing_group) with a [disjunction](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Disjunction) to a true-end-of-input sentinel (`$(?![\s\S])`[^2]):
 
 ```javascript
 /abc/ → /(?:a|$(?![\s\S]))(?:b|$(?![\s\S]))(?:c|$(?![\s\S]))/
@@ -56,7 +81,7 @@ The library transforms a regular expression by wrapping each [atomic element](ht
 
 This allows the pattern to match prefixes of the original pattern, enabling validation of incomplete input.
 
-Since the library accepts only valid regular expressions [^2], this enables the algorithm to make lots of unguarded assumptions about the source of the expression.
+Since the library accepts only valid regular expressions [^3], this enables the algorithm to make lots of unguarded assumptions about the source of the expression.
 
 The library has been stress-tested with various regular expression features in isolation, and some in likely combination, but obviously it's an unbounded test space, and syntactically valid regular expressions nevertheless support contradictory patterns e.g.
 
@@ -113,6 +138,8 @@ The library is compiled to **ES2015** (ECMAScript 6). Certain regular expression
 - [**`v` (unicodeSets) flag**](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/unicodeSets) - ES2024+
 - [**Modifiers**](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Modifier) (`(?ims:...)`, `(?-ims:...)`, `(?i-ms:...)`) - ES2025+
 
+Each of these applies only when the *original* pattern uses the feature — everything else, including construction, `exec()` and `test()`, holds to the ES2015 floor. [`isComplete()`](#partialmatchregexpprototypeiscompletematch-regexpexecarray-boolean) is the one exception: it always requires **ES2018+**, regardless of the pattern, since its internal probe uses named capturing groups.
+
 ## ⚠️ Caveats
 
 ### [`.test()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/test) behaviour and non-matching results from [`.exec()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/exec) and [`.match()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/match)
@@ -163,6 +190,20 @@ e.g.
 "a".match(/(?:x|$(?![\s\S]))/); // ['', index: 1, input: "a", groups: undefined];
 ```
 
+> [!TIP]
+> [`isComplete()`](#partialmatchregexpprototypeiscompletematch-regexpexecarray-boolean) answers this without a length check, and covers more than one: it reports `false` for the empty end-of-input match, since it exists only because the input ran out, and equally for a non-empty prefix like `"hello"` against `/hello world/`, which a length check would wave through.
+>
+> It describes a match, so ask it from `exec()` rather than `test()`:
+>
+> ```js
+> const partial = new PartialMatchRegExp(/x/);
+> const match = partial.exec("a"); // ['', index: 1, input: "a", groups: undefined]
+>
+> partial.isComplete(match); // false - the match depended on the input running out
+> ```
+>
+> `false` is "not yet", not "never": for an unanchored `/x/`, `"a"` really is a viable prefix of `"ax"`. It is only when validating that which came before that it should be read as "no match".
+
 > [!NOTE]
 > A more ergonomic `test()` / `exec()` output [was explored](https://github.com/TomStrepsil/regex-partial-match/pull/51), but proved a complex problem space.
 
@@ -173,7 +214,6 @@ e.g.
 The following cases remain atomic (full native value or exactly at true end of input, no mid-value partial matching):
 
 - **Backreferences inside lookbehinds and negative lookarounds.** These are verbatim contexts — the value a lookbehind or negative lookahead requires must be fully present or fully absent, so there's no partial-prefix position to expand into.
-- **`\k<name>` with no named capturing groups in the pattern.** [Annex B](https://tc39.es/ecma262/#sec-regular-expressions-patterns) tolerates this as the literal characters `k<a>`, but it's still treated as if it were a named backreference and matched atomically — `"k"` and `"k<"` will not partially match. A `\k` not immediately followed by a well-formed `<name>` reference is treated as the literal `k` and partially matches as usual.
 - **A backreference whose captured value can't be determined from a partial input.** This only affects the backreference site itself; it's strictly better than rejecting the input outright, and never accepts anything unsound.
 
 #### Prefix-ambiguous top-level alternation
@@ -197,14 +237,14 @@ partial.test("abca"); // false — but "abca" is a valid prefix of "abcabc" via 
 
 See [docs/backreferences.md](./docs/backreferences.md) for why this happens (the internal capture scan resolving the wrong alternative first).
 
-[^1]: 
+[^2]: 
     A bare `$` alone isn't sufficient here: under the `m` (multiline) flag — including one turned on locally via a `(?m:...)` [modifier](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Modifier) — `$` also matches immediately before *any* line terminator, not just the true end of input. That would let a `"\n"` the source pattern never allowed for be silently accepted as if the input had simply run out, e.g. `new PartialMatchRegExp(/^foobar/m)` would wrongly accept `"foo\nbaz"`. Appending `(?![\s\S])` narrows the disjunction down to strict end-of-input, regardless of multiline state.
 
     See [chromium issue 536420076](https://issues.chromium.org/u/2/issues/536420076) for the underlying V8 bug that requires `$` to precede `(?![\s\S])` rather than using the lookahead alone.
 
     A shorter option, `(?-m:$)` — disabling multiline locally so `$` means strict end-of-input on its own — also sidesteps the bug and saves a few bytes per atom. However, modifier groups are new enough that support isn't universal, and feature-detecting them would add a fallback branch the test suite can't exercise honestly, since every engine that can realistically be tested against already supports them.
 
-[^2]: 
+[^3]: 
     To remain lightweight, no runtime type validation is applied, so non-TypeScript consumers will be reliant on underlying errors thrown if used incorrectly.
 
 ### Positive Lookbehinds
@@ -364,6 +404,80 @@ When using `import 'regex-partial-match/extend'`, this method is added to `RegEx
 
 - A new `PartialMatchRegExp` that matches partial strings, created from the `RegExp` instance the method was called on.
 
+### `PartialMatchRegExp.prototype.isComplete(match: RegExpExecArray): boolean`
+
+Reports whether a match this instance produced is a **match** of the original pattern, or merely a **prefix** of it. `exec()` alone cannot say: it returns the same shape of array for `"h"`, `"hello"` and `"hello world"` against `/hello world/`.
+
+**Parameters:**
+
+- `match` - A match returned by this instance's `exec()`
+
+**Returns:**
+
+- `true` when every atom matched literally, so the path the match took is one the original pattern could have taken itself.
+- `false` when the match depended on the input running out — it took one of the `|$(?![\s\S])` branches described in [How It Works](#how-it-works). More input is needed, and the match's captures are **provisional**: a truncated path can capture values that no complete match ever produces.
+
+```javascript
+import PartialMatchRegExp from "regex-partial-match";
+
+const partial = new PartialMatchRegExp(/hello world/);
+const prefix = partial.exec("hello");
+
+prefix[0]; // 'hello'
+partial.isComplete(prefix); // false — a prefix, not a match
+
+const complete = partial.exec("hello world");
+
+complete[0]; // 'hello world'
+partial.isComplete(complete); // true
+```
+
+> [!NOTE]
+> Complete is not the same as *final*. A greedy pattern like `/hello \w+/` matches `"hello world"` completely, and would still match more of `"hello worldly"`.
+
+#### Why the question can't be answered from the outside
+
+Neither of the obvious workarounds answers it:
+
+- **Checking whether the match ends at the end of input.** True for every prefix, but also true for the common case of a complete match of input as it is typed — `/^\d{4}/` against `"2024"` ends at end of input and is complete.
+- **Re-running the original pattern.** That asks whether the original matches *at all* at that position, not whether *this result* was arrived at by truncation. Where a truncation branch fires inside a zero-width assertion the two diverge, and the original can return an identical array by a different path:
+
+  ```javascript
+  const pattern = /a(?=(?:b(?:x|(c))d|b))/;
+  const partial = new PartialMatchRegExp(pattern);
+
+  partial.exec("ab"); // ['a', undefined] — truncated inside the assertion
+  pattern.exec("ab"); // ['a', undefined] — identical, and complete
+  pattern.exec("abcd"); // ['a', 'c']       — what more input actually produces
+  ```
+
+  Over `"ab"` the transformed pattern satisfies the atoms after `b` through *their* truncation branches — zero-width, so the match's own end never moves — before ever reaching the `(c)` group. Group 1 is left `undefined` where more input would define it.
+
+The information only exists during matching. `isComplete()` recovers it by re-running the compiled pattern, [sticky](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/sticky) at `match.index`, with an empty named group in front of each truncation branch; an empty group is zero-width and always succeeds, so the twin walks the identical path, and any marker that comes back defined is a truncation branch the match actually took. The twin is built lazily, on first use, and never escapes the library — the array, `groups`, numbering and `d`-flag indices you hold are the ones `exec()` produced. It is cached once per instance for a pattern without [backreferences](#backreferences); for one with them the pattern is re-expanded per input, so the twin belongs to the expansion behind one particular match and a later match builds its own.
+
+**Cost:** one anchored `exec` per call, plus the twin's construction on the first call that needs it. `exec()` and `test()` are untouched: the expansion a backreference match is answered from is held on the match itself, under a private symbol, so it costs a single field write and is collected with the match. Repeatedly asking about the *same* match is cheap; asking once per match on a backreference pattern pays for a new twin each time.
+
+> [!CAUTION]
+> `isComplete()` itself always requires ES2018+, regardless of the pattern: its truncation probe is built from named capturing groups internally, even for a pattern as plain as `/^abc/`. See [Browser Compatibility](#browser-compatibility) — every other method holds to the ES2015 floor stated there.
+
+#### What it cannot see
+
+`isComplete()` is necessary, but not sufficient, for a scanner whose output must be the same however the input is chunked. It cannot see a capture still growing *inside* an assertion: [`RepeatMatcher`](https://tc39.es/ecma262/#sec-runtime-semantics-repeatmatcher-abstract-operation) discards a repetition once it matches empty, so a truncation sentinel placed after a greedy repetition never gets a chance to fire there.
+
+```javascript
+const partial = new PartialMatchRegExp(/a(?=(b+))/);
+const match = partial.exec("ab");
+
+match[1]; // 'b'
+partial.isComplete(match); // true
+
+/a(?=(b+))/.exec("abbX")[1]; // 'bb' — the same capture, over more input
+```
+
+This isn't a defect: every atom in the `"ab"` match matched literally, so `isComplete()` answers correctly by its own definition. It just doesn't mean *cannot change with more input* — the same distinction the [note above](#partialmatchregexpprototypeiscompletematch-regexpexecarray-boolean) draws for `/hello \w+/`, one level further in.
+
+A chunk-invariant scanner needs a second, independent check: whether any capture's end coincides with the end of the buffer, computable from [`d`-flag](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/hasIndices) indices without this library's help. Defer a match when either check says to.
+
 ### `PartialMatchRegExp.prototype.features: ReadonlySet<RegexFeature>`
 
 Building the partial-match regex requires walking the entire source pattern once. As a side effect of that same walk, each instance records which syntactic constructs its pattern actually uses, exposed as a `features` set — no separate scan of the source is performed to produce it.
@@ -416,7 +530,7 @@ partial.features.has("backreference"); // true
 | `controlLetterEscape`        | `\cX`                                                   |                                                                                 |
 | `hexEscapeSequence`          | `\xXX`                                                  |                                                                                 |
 | `unicodeEscapeSequence`      | `\uXXXX`, `\u{...}`                                     |                                                                                 |
-| `otherEscape`                 | Any other `\X`, e.g. `\.`, `\0`                         |                                                                                 |
+| `otherEscape`                 | Any other `\X`, e.g. `\.`                               | `\0` alone is tagged `otherEscape` only under `u`/`v`; otherwise `backreference`, [like any other digit escape](docs/backreferences.md) |
 
 Three things worth knowing about how these tags line up with the grammar:
 

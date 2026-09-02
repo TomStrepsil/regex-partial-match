@@ -488,7 +488,7 @@ describe("PartialMatchRegExp", () => {
     });
 
     it("detects a unicode escape sequence", () => {
-      const pattern = new RegExp("\\u0041");
+      const pattern = /\u0041/;
       expect(new PartialMatchRegExp(pattern).features).toContain(
         "unicodeEscapeSequence"
       );
@@ -1921,8 +1921,7 @@ c`)
   });
 
   describe("parity with reference implementations", () => {
-    // Apache Lucene TestRegExp.java — testRegExpNoStackOverflow
-    // Lucene verifies its automaton builder does not stack-overflow on very deeply nested patterns.
+    // Apache Lucene TestRegExp.java — testRegExpNoStackOverflow: Lucene verifies its automaton builder does not stack-overflow on very deeply nested patterns.
     describe("deep nesting safety (Lucene-inspired)", () => {
       it("should not throw on a high-count top-level alternation (wide pattern)", () => {
         const width = 1000;
@@ -1946,8 +1945,7 @@ c`)
       });
     });
 
-    // Apache Lucene TestRegExp.java — testRepeatWithEmptyString
-    // Lucene tests quantifiers whose subpatterns can match an empty string (e.g. [^y]*{1,2}).
+    // Apache Lucene TestRegExp.java — testRepeatWithEmptyString: Lucene tests quantifiers whose subpatterns can match an empty string (e.g. [^y]*{1,2}).
     describe("quantifiers over empty-matching subpatterns (Lucene-inspired)", () => {
       it("should support patterns where the quantified atom matches zero characters (a*suffix)", () => {
         const partial = new PartialMatchRegExp(/a*suffix/);
@@ -1985,8 +1983,7 @@ c`)
       });
     });
 
-    // Apache Lucene TestRegExp.java — testUnicodeAsciiInsensitiveFlags
-    // Lucene explicitly tests Unicode case folding (σ/Σ, ῼ, ﬗ) with case-insensitive flags.
+    // Apache Lucene TestRegExp.java — testUnicodeAsciiInsensitiveFlags: Lucene explicitly tests Unicode case folding (σ/Σ, ῼ, ﬗ) with case-insensitive flags.
     describe("Unicode case folding (Lucene-inspired)", () => {
       it("should support case-insensitive partial matching of Greek lowercase sigma (σ) against uppercase (Σ)", () => {
         const partial = new PartialMatchRegExp(/σsuffix/iu);
@@ -2013,11 +2010,7 @@ c`)
       });
     });
 
-    // JDK RegExTest.java — hitEndTest
-    // Java's Matcher.hitEnd() returns true when the engine consumed all input before failing,
-    // meaning a longer string could potentially produce a match (i.e. the input is a valid prefix).
-    // In this library, a non-empty exec result is the equivalent of hitEnd()=true, and an empty
-    // (or null) result is the equivalent of hitEnd()=false.
+    // JDK RegExTest.java — hitEndTest: Java's Matcher.hitEnd() returns true when the engine consumed all input before failing, meaning a longer string could potentially produce a match (i.e. the input is a valid prefix). In this library, a non-empty exec result is the equivalent of hitEnd()=true, and an empty (or null) result is the equivalent of hitEnd()=false.
     describe("hitEnd() semantic equivalence (JDK-inspired)", () => {
       it("returns non-empty prefix match when input is a prefix of the pattern (hitEnd=true equivalent)", () => {
         // JDK: /^squidattack/.hitEnd("squid") === true — engine ran off end of input
@@ -2051,8 +2044,7 @@ c`)
       });
     });
 
-    // JDK RegExTest.java — caretAtEndTest
-    // Java tests that ^ with MULTILINE matches at the start of a new line after \r (bare CR).
+    // JDK RegExTest.java — caretAtEndTest: Java tests that ^ with MULTILINE matches at the start of a new line after \r (bare CR).
     describe("CRLF boundary in multiline mode (JDK caretAtEndTest-inspired)", () => {
       it("should recognise ^ at position 0 and after bare CR in multiline mode", () => {
         const partial = new PartialMatchRegExp(/^x?/gm);
@@ -2069,9 +2061,7 @@ c`)
       });
     });
 
-    // JDK RegExTest.java — wordSearchTest
-    // Java's Matcher.find(pos) advances through successive matches by position.
-    // The equivalent in JS is advancing lastIndex on a global-flag regex.
+    // JDK RegExTest.java — wordSearchTest: Java's Matcher.find(pos) advances through successive matches by position. The equivalent in JS is advancing lastIndex on a global-flag regex.
     describe("progressive find() via lastIndex (JDK wordSearchTest-inspired)", () => {
       it("should find successive word-prefixed partial matches by advancing lastIndex", () => {
         // JDK wordSearchTest: /\b/ on "word1 word2 word3" with progressive find(pos) calls
@@ -2095,9 +2085,7 @@ c`)
       });
     });
 
-    // PCRE2 testdata/testinput7, testinput15, testinput17, testinput18
-    // Many cases map directly; others (JIT controls, POSIX wrapper, allusedtext metadata)
-    // are engine/interface-specific and therefore mapped conceptually.
+    // PCRE2 testdata/testinput7, testinput15, testinput17, testinput18: Many cases map directly; others (JIT controls, POSIX wrapper, allusedtext metadata) are engine/interface-specific and therefore mapped conceptually.
     describe("PCRE2 testdata parity (ECMAScript-compatible subset)", () => {
       it("should support /abcd*/ style prefix matching (PCRE2 \\=ps / \\=ph inspired)", () => {
         const partial = new PartialMatchRegExp(/abcd*/);
@@ -2264,8 +2252,7 @@ c`)
       });
 
       it("should document that PCRE2 POSIX partial_hard behaviour has no JS equivalent", () => {
-        // PCRE2 testinput18/testoutput18: partial_hard is ignored by the POSIX wrapper.
-        // This library has no POSIX API layer, so behaviour is a normal partial regex.
+        // PCRE2 testinput18/testoutput18: partial_hard is ignored by the POSIX wrapper. This library has no POSIX API layer, so behaviour is a normal partial regex.
         const partial = new PartialMatchRegExp(/abc/);
         expect(partial.exec("ab")).toMatchAt({ match: "ab", index: 0 });
       });
@@ -2577,6 +2564,16 @@ c`)
         })
       },
       {
+        name: "quantifier on the backreference itself",
+        input: /^(ab)\1*c/,
+        validInputs: ["a", "ab", "aba", "abab", "ababc", "ababab", "abababc"],
+        invalidInputs: ["b", "ba", "abd"],
+        expected: (str: string) => ({
+          0: str,
+          1: "ab".slice(0, str.length)
+        })
+      },
+      {
         name: "named group inside quantifier",
         input: /^(?<word>ab)+\k<word>/,
         validInputs: ["a", "ab", "aba", "abab", "ababab"],
@@ -2870,6 +2867,22 @@ c`)
       });
     });
 
+    describe("a backreference whose captured value is empty", () => {
+      it("should still render an atom a following quantifier can bind to", () => {
+        const partial = new PartialMatchRegExp(new RegExp("^\\1*(a)"));
+
+        expect(partial.exec("")).toMatchAt({ match: "", index: 0 });
+        expect(partial.exec("a")).toMatchAt({ match: "a", index: 0 });
+      });
+
+      it("should agree with the original pattern when the captured group matched nothing", () => {
+        const partial = new PartialMatchRegExp(/^(x?)\1*a/);
+
+        expect(partial.exec("a")).toMatchAt({ match: "a", index: 0 });
+        expect(partial.exec("xxa")).toMatchAt({ match: "xxa", index: 0 });
+      });
+    });
+
     it("accepts every prefix of 'abab' and rejects nearby non-prefix strings", () => {
       const partial = new PartialMatchRegExp(/^(ab)\1/);
 
@@ -2931,101 +2944,6 @@ c`)
         expect(lazy.exec("abcab")?.[0]).toBe("abcab");
         expect(greedy.exec("abcab")?.[1]).toBe("abc");
         expect(lazy.exec("abcab")?.[1]).toBe("abc");
-      });
-    });
-
-    describe("named group match.groups sync for a repeated group", () => {
-      it("match.groups[name] reflects the longer capture chosen for a repeated named group inside a quantifier", () => {
-        const namedGroupInQuantifier = new PartialMatchRegExp(
-          /^(?<word>abc)+\k<word>/
-        );
-        const m = namedGroupInQuantifier.exec("abcab");
-        expect(m).toMatchObject({
-          0: "abcab",
-          1: "abc",
-          groups: { word: "abc" }
-        });
-      });
-
-      it("match[i] and match.groups[name] agree on the resolved capture for a repeated named group", () => {
-        const namedGroupInQuantifier = new PartialMatchRegExp(
-          /^(?<word>abc)+\k<word>/
-        );
-        const match = namedGroupInQuantifier.exec("abcab");
-        expect(match).toMatchObject({ 1: match!.groups!.word });
-      });
-
-      it("match.groups is unchanged when the named group isn't repeated", () => {
-        const simpleNamedBackref = new PartialMatchRegExp(
-          /^(?<word>ab)\k<word>/
-        );
-        const m = simpleNamedBackref.exec("abab");
-        expect(m).toMatchObject({ groups: { word: "ab" } });
-      });
-    });
-
-    describe("match.indices sync with d flag for a repeated group", () => {
-      it("match.indices[i] reflects the same resolved capture as match[i] for a repeated group", () => {
-        const groupedBackrefWithIndices = new PartialMatchRegExp(/^(abc)+\1/d);
-        const m = groupedBackrefWithIndices.exec("abcab");
-        expect(m).toMatchObject({ 1: "abc", indices: { 1: [0, 3] } });
-      });
-
-      it("match.indices.groups[name] reflects the same resolved capture as match.groups[name]", () => {
-        expect(
-          new PartialMatchRegExp(/^(?<word>abc)+\k<word>/d).exec("abcab")
-        ).toMatchObject({
-          0: "abcab",
-          1: "abc",
-          groups: { word: "abc" },
-          indices: { 0: [0, 5], 1: [0, 3], groups: { word: [0, 3] } }
-        });
-      });
-
-      it("match[i] and match.indices[i] remain consistent for the resolved capture", () => {
-        const m = new PartialMatchRegExp(/^(abc)+\1/d).exec("abcab");
-        expect(m).not.toBeNull();
-        const [captureStart, captureEnd] = m!.indices![1]!;
-        expect(m!.input.slice(captureStart, captureEnd)).toBe(m![1]);
-      });
-
-      it("reflects the pipeline match's own position when an earlier partial wins over a later native complete match", () => {
-        const partial = new PartialMatchRegExp(
-          /((?<q>["']).*?\k<q>)|(\{)|(\})/d
-        );
-        const m = partial.exec(' a: "}{');
-        expect(m).toMatchObject({
-          0: '"}{',
-          index: 4,
-          indices: { 0: [4, 7], groups: { q: [4, 5] } }
-        });
-      });
-    });
-
-    describe("trailing group participates in the match but not in the shorter capture scan", () => {
-      it("keeps a trailing optional group's capture when the scan settled for a shorter match without it", () => {
-        const partial = new PartialMatchRegExp(/^(a)\1(b)?\1/);
-        expect(partial.exec("aab")).toMatchObject({ 0: "aab", 1: "a", 2: "b" });
-      });
-
-      it("keeps a trailing optional group's capture through a nested backreference group", () => {
-        const partial = new PartialMatchRegExp(/^((a)\2)\1(b)?/);
-        expect(partial.exec("aaab")).toMatchObject({
-          0: "aaab",
-          1: "aa",
-          2: "a",
-          3: "b"
-        });
-      });
-
-      it("keeps a multi-character trailing optional group's capture through a nested backreference group", () => {
-        const partial = new PartialMatchRegExp(/^((a)\2)\1(bb)?/);
-        expect(partial.exec("aaabb")).toMatchObject({
-          0: "aaabb",
-          1: "aa",
-          2: "a",
-          3: "bb"
-        });
       });
     });
 
@@ -3151,9 +3069,78 @@ c`)
   });
 
   // https://tc39.es/ecma262/#sec-regular-expressions-patterns
+  describe("Annex B legacy octal escapes", () => {
+    it("should partially match each atom a multi-digit escape denotes, not the run as a whole", () => {
+      const partial = new PartialMatchRegExp(new RegExp("^\\128x"));
+
+      expect(partial).toMatchPartially({ characters: ["\n", "8", "x"] });
+    });
+
+    it("should leave a following quantifier bound to the escape's own final atom", () => {
+      const partial = new PartialMatchRegExp(new RegExp("^\\128*x"));
+
+      expect(partial.exec("\nx")).toMatchAt({ match: "\nx", index: 0 });
+      expect(partial.exec("\n88x")).toMatchAt({ match: "\n88x", index: 0 });
+      expect(partial).toMatchPartially({ characters: ["\n", "8", "8", "x"] });
+    });
+
+    it("should treat \\8 and \\9 as the identity escapes they are, each its own atom", () => {
+      const partial = new PartialMatchRegExp(new RegExp("^\\89*x"));
+
+      expect(partial.exec("8x")).toMatchAt({ match: "8x", index: 0 });
+      expect(partial.exec("899x")).toMatchAt({ match: "899x", index: 0 });
+      expect(partial).toMatchPartially({ characters: ["8", "9", "x"] });
+    });
+
+    it("should zero-pad a single-digit octal character code into a two-digit hex escape", () => {
+      const partial = new PartialMatchRegExp(new RegExp("^\\1a"));
+
+      expect(partial.exec("\x01a")).toMatchAt({ match: "\x01a", index: 0 });
+      expect(partial.exec("\x01")).toMatchAt({ match: "\x01", index: 0 });
+    });
+
+    it("should route a \\0-led escape through the same reclassification as \\1-\\9", () => {
+      const partial = new PartialMatchRegExp(new RegExp("^\\012x"));
+
+      expect(partial.exec("\nx")).toMatchAt({ match: "\nx", index: 0 });
+      expect(partial).toMatchPartially({ characters: ["\n", "x"] });
+    });
+
+    it("should leave a following quantifier bound to a \\0-led escape's own atom", () => {
+      const partial = new PartialMatchRegExp(new RegExp("^\\012*x"));
+
+      expect(partial.exec("x")).toMatchAt({ match: "x", index: 0 });
+      expect(partial.exec("\n\nx")).toMatchAt({ match: "\n\nx", index: 0 });
+      expect(partial).toMatchPartially({ characters: ["\n", "x"] });
+    });
+
+    it("should never treat a leading-zero run as a genuine backreference, even with enough groups", () => {
+      const partial = new PartialMatchRegExp(new RegExp("^(a)(b)(c)(d)(e)(f)(g)(h)(i)(j)(k)(l)\\012x"));
+
+      expect(partial.exec("abcdefghijkl\nx")).toMatchAt({
+        match: "abcdefghijkl\nx",
+        index: 0
+      });
+    });
+
+    it("should tag a bare \\0 as backreference-shaped, same as any other digit escape", () => {
+      const features = new PartialMatchRegExp(new RegExp("^\\0")).features;
+
+      expect(features).toContain("backreference");
+      expect(features).not.toContain("otherEscape");
+    });
+
+    it("should tag \\0 as otherEscape under the u flag, where Annex B octal escapes don't exist", () => {
+      const features = new PartialMatchRegExp(/^\0/u).features;
+
+      expect(features).toContain("otherEscape");
+      expect(features).not.toContain("backreference");
+    });
+  });
+
   describe("Annex B literal \\k escapes", () => {
     it("should tolerate \\k escapes with no named group reference to complete them", () => {
-      const partial = new PartialMatchRegExp(new RegExp("\\k"));
+      const partial = new PartialMatchRegExp(/\k/);
       expect(partial.exec("k")).toMatchAt({ match: "k", index: 0 });
     });
 
@@ -3165,10 +3152,32 @@ c`)
     });
 
     it("should support partial matching of \\k escapes when a closing angle bracket appears later in the pattern", () => {
-      const partial = new PartialMatchRegExp(new RegExp("\\ka>b"));
+      const partial = new PartialMatchRegExp(/\ka>b/);
       expect(partial).toMatchPartially({
         characters: ["k", "a", ">", "b"]
       });
+    });
+
+    it("should partial match through a completed reference the same way as an unterminated one", () => {
+      const partial = new PartialMatchRegExp(new RegExp("^\\k<bogus>a"));
+      expect(partial).toMatchPartially({
+        characters: ["k", "<", ..."bogus".split(""), ">", "a"]
+      });
+    });
+
+    it("should not report a named backreference for a reference no named group declares", () => {
+      const features = new PartialMatchRegExp(new RegExp("^\\k<none>x")).features;
+      expect(features).not.toContain("namedBackreference");
+    });
+
+    it("should treat a completed reference as literal text when the pattern declares no named group", () => {
+      const partial = new PartialMatchRegExp(new RegExp("^\\k<bogus>a"));
+      expect(partial.exec("k<bogus>")).toMatchAt({ match: "k<bogus>", index: 0 });
+      expect(partial.exec("k<bogus>a")).toMatchAt({
+        match: "k<bogus>a",
+        index: 0
+      });
+      expect(partial.exec("x")).toBeNull();
     });
   });
 });

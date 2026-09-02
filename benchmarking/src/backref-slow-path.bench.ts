@@ -32,10 +32,7 @@ const repeatedWordFull = "foo foo";
 const repeatedWordPreRef = "foo"; // before the space + backref
 const repeatedWordMidRef = "foo fo"; // inside the backreference
 
-// "<custom-widget-container ...>hello world</custom-widget-container>" — a
-// long custom-element tag name with attributes on the opening tag (a longer
-// captured name than a bare "div" so the per-character cost of expand()'s
-// backreference expansion actually shows up in the numbers)
+// "<custom-widget-container ...>hello world</custom-widget-container>" — a long custom-element tag name with attributes on the opening tag (a longer captured name than a bare "div" so the per-character cost of expand()'s backreference expansion actually shows up in the numbers)
 const htmlTag = /^<([a-zA-Z][\w-]*)(?:\s[^<>]*)?>[^<]+<\/\1>$/;
 const htmlFull =
   '<custom-widget-container data-id="42" class="active">hello world</custom-widget-container>';
@@ -67,15 +64,12 @@ group("backref — single exec, HTML tag pattern", () => {
   );
 });
 
-// Native match at index 3; preScan's bound is also index 3 (not earlier), so
-// the native match wins without building the expanded regex.
+// Native match at index 3; preScan's bound is also index 3 (not earlier), so the native match wins without building the expanded regex.
 const laterMatchCheapReject = /(abc)x\1/;
 const laterMatchCheapRejectInput = "zzzabcxabc";
 const laterMatchCheapRejectPartial = new PartialMatchRegExp(laterMatchCheapReject);
 
-// Native match at index 3, but preScan's bound is a loose lower bound of
-// index 0 — the full pipeline runs (capture scan, expand, new RegExp, exec)
-// even though its result loses to the native match anyway.
+// Native match at index 3, but preScan's bound is a loose lower bound of index 0 — the full pipeline runs (capture scan, expand, new RegExp, exec) even though its result loses to the native match anyway.
 const laterMatchFallsThrough = /(ab|a)\1x/;
 const laterMatchFallsThroughInput = "abXaax";
 const laterMatchFallsThroughPartial = new PartialMatchRegExp(laterMatchFallsThrough);

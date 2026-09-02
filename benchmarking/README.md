@@ -77,6 +77,28 @@ Three patterns span the complexity range the walker branches on:
 | Simple (`/^hello+$/`) | No groups, no character classes, no backreferences               |
 | Phone number          | Several character classes and optional groups, no backreferences |
 | HTML tag              | Capturing group + backreference — exercises the dynamic path     |
+| Legacy escape         | `\7` and `\k<none>` — exercises the reclassification pass        |
+
+### 6. `isComplete()` (`is-complete.bench.ts`)
+
+`isComplete()` re-runs a twin of the compiled pattern to recover whether a match took a truncation branch. The twin is built lazily, so the cost splits in two and both halves are tracked: the one-off probe build, and the steady-state cost of one anchored `exec` per call thereafter. In each group the probe build is the delta between the first two benches, which differ only by the `isComplete()` call.
+
+The two paths cache the probe at different granularities, which is why they are measured separately:
+
+| Path           | Probe cached on | Consequence                                                   |
+| -------------- | --------------- | ------------------------------------------------------------- |
+| Static         | The instance    | Every later call on that instance is steady state             |
+| Backreference  | The expansion   | Cached per *match* — a fresh match builds a fresh probe       |
+
+The last two benches in the backreference group are that difference, and are the ones to watch: asking about the same match repeatedly is cheap, while asking once per match is roughly an order of magnitude more expensive. A third group covers a raw lookaround, the one case where probe construction does more than splice a marker into each truncation branch — the backreferences inside it have to be renumbered past every marker added before them.
+
+### 7. Feature cost (`feature-cost.bench.ts`)
+
+Scenario 5 tracks whole realistic patterns end to end; this one isolates *which construct* the walker is paying for, one bench per feature, so a change to a single `switch` case shows up against its neighbours instead of being averaged into a realistic pattern.
+
+Every pattern in the first group is the same shape and close to the same length — an anchor, the construct under test, a literal tail. That controls for source length but not for how many parts the walk emits, and construction cost tracks that part count closely: a construct that collapses a span into a single atom leaves fewer parts behind than the same length of literal text. Read each bench against its own history rather than as a ranking of the walker's `switch` cases, and don't read a bench below the literal baseline as a cheaper case.
+
+Two further groups cover the constructs that decide which compiled path a pattern lands on. A backreference forces the dynamic path; a legacy escape (`\7` past the group count, or `\k<name>` in a pattern declaring no named group) is an Annex B literal and must not. That distinction costs something at construction — more for `\k<name>`, which pays for the second walk — but is worth better than an order of magnitude at `exec()`, since the dynamic path rebuilds a `RegExp` per call. So it is measured at both.
 
 ## 🤖 CI integration
 

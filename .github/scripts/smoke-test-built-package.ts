@@ -26,6 +26,7 @@ import assert from "node:assert/strict";
 import { readdir, readFile } from "node:fs/promises";
 import { createRequire } from "node:module";
 import { Linter } from "eslint";
+import type PartialMatchRegExpInstance from "../../src/partialMatchRegExp.ts";
 
 const SUPPORTED_ECMA_VERSION = 2015;
 
@@ -36,18 +37,43 @@ type LoadedModule = Record<string, unknown>;
 type PartialMatchRegExpConstructor = new (
   pattern: RegExp | string,
   flags?: string
-) => RegExp;
+) => PartialMatchRegExpInstance;
 
 const SMOKE_TESTS: Record<string, (loaded: LoadedModule) => void> = {
   ".": (loaded) => {
-    const PartialMatchRegExp =
-      loaded.default as PartialMatchRegExpConstructor | undefined;
+    const PartialMatchRegExp = loaded.default as
+      | PartialMatchRegExpConstructor
+      | undefined;
     assert.ok(PartialMatchRegExp, "no default export");
 
     const partial = new PartialMatchRegExp(/^(\w+) \1 end$/);
-    assert.equal(partial.test("abc ab"), true, "rejects a prefix");
-    assert.equal(partial.test("abc abc end"), true, "rejects a full match");
-    assert.equal(partial.test("abc xyz end"), false, "accepts an impossible input");
+    assert.equal(partial.test("abc ab"), true, "does not accept a prefix");
+    assert.equal(
+      partial.test("abc abc end"),
+      true,
+      "does not accept a full match"
+    );
+    assert.equal(
+      partial.test("abc xyz end"),
+      false,
+      "accepts an impossible input"
+    );
+
+    const prefix = partial.exec("abc ab");
+    assert.ok(prefix, "no match for a prefix");
+    assert.equal(
+      partial.isComplete(prefix),
+      false,
+      "does not identify the prefix as incomplete"
+    );
+
+    const full = partial.exec("abc abc end");
+    assert.ok(full, "no match for a full match");
+    assert.equal(
+      partial.isComplete(full),
+      true,
+      "does not identify the full match as complete"
+    );
   },
 
   "./extend": () => {
@@ -89,7 +115,9 @@ async function assertBuiltOutputParsesAtSupportedEcmaVersion(): Promise<void> {
         `lib/${file} uses syntax newer than ES${String(SUPPORTED_ECMA_VERSION)} — ${parseError.message} (line ${String(parseError.line)})`
       );
     }
-    console.log(`  ✓ lib/${file} parses as ES${String(SUPPORTED_ECMA_VERSION)}`);
+    console.log(
+      `  ✓ lib/${file} parses as ES${String(SUPPORTED_ECMA_VERSION)}`
+    );
   }
 }
 
