@@ -114,7 +114,7 @@ function rawReferenceReplacement(
   declaresNamedGroup: boolean
 ) {
   if (isNumericBackreference(backreference)) {
-    return backreference.ref < shiftForGroup.length
+    return backreference.ref >= 1 && backreference.ref < shiftForGroup.length
       ? "\\" + String(backreference.ref + shiftForGroup[backreference.ref])
       : legacyEscapeAsLiteral(spelling.slice(1));
   }

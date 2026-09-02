@@ -530,7 +530,7 @@ partial.features.has("backreference"); // true
 | `controlLetterEscape`        | `\cX`                                                   |                                                                                 |
 | `hexEscapeSequence`          | `\xXX`                                                  |                                                                                 |
 | `unicodeEscapeSequence`      | `\uXXXX`, `\u{...}`                                     |                                                                                 |
-| `otherEscape`                 | Any other `\X`, e.g. `\.`, `\0`                         |                                                                                 |
+| `otherEscape`                 | Any other `\X`, e.g. `\.`                               | `\0` alone is tagged `otherEscape` only under `u`/`v`; otherwise `backreference`, [like any other digit escape](docs/backreferences.md) |
 
 Three things worth knowing about how these tags line up with the grammar:
 

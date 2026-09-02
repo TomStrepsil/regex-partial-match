@@ -425,6 +425,13 @@ describe("isComplete()", () => {
       expect(completenessOf(partial, "xa")).toBe(true);
     });
 
+    it("canonicalises a \\0-led octal escape inside a lookaround, rather than letting the probe misread its ref as a real group 0", () => {
+      const partial = new PartialMatchRegExp(new RegExp("^a(?!\\0128).{2}z"));
+
+      expect(completenessOf(partial, "a\x00")).toBe(false);
+      expect(completenessOf(partial, "axyz")).toBe(true);
+    });
+
     it("canonicalises an Annex B named identity escape inside a lookaround, rather than letting a marker turn it into a broken reference", () => {
       const partial = new PartialMatchRegExp(new RegExp("^a(?!\\k<bogus>)b"));
 

@@ -15,7 +15,7 @@ import {
 
 export type { RegexFeature };
 
-const MAYBE_HAS_BACKREFERENCE_REGEX = /\\[1-9]|\\k</;
+const MAYBE_HAS_BACKREFERENCE_REGEX = /\\[0-9]|\\k</;
 const ANY_CAPTURED_TEXT = "(?:[\\s\\S]*?)";
 const QUANTIFIABLE_EMPTY_ATOM = "(?:)";
 
@@ -36,7 +36,7 @@ function reclassifyLegacyEscapes(
 ) {
   const reclassified: Part[] = [];
   for (const part of parts) {
-    if (isNumericBackreference(part) && part.ref > groupCount) {
+    if (isNumericBackreference(part) && (part.ref < 1 || part.ref > groupCount)) {
       for (const atom of legacyEscapeAtoms(
         source.slice(part.start + 1, part.end)
       )) {

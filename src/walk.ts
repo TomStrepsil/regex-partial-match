@@ -133,6 +133,19 @@ export function walk(
       result.push(extractSlice(length));
     }
 
+    function appendDigitRun(forcedRef?: number) {
+      featureMask |= FEATURE_BIT.backreference;
+      NOT_NUMBERS_REGEX.lastIndex = i + 1;
+      const nextNonDigit = NOT_NUMBERS_REGEX.exec(source);
+      const start = i;
+      const end = nextNonDigit ? nextNonDigit.index : source.length;
+      const ref = forcedRef ?? Number(source.slice(start + 1, end));
+      i = end;
+      const backreference = { ref, start, end };
+      result.push(backreference);
+      currentRawLookaroundBackreferences?.push(backreference);
+    }
+
     function appendRawLookaround(prefixLength: number) {
       const start = i;
       i += prefixLength;
@@ -223,6 +236,14 @@ export function walk(
               featureMask |= FEATURE_BIT.controlEscape;
               appendOptional(2);
               break;
+            case "0":
+              if (isUnicode) {
+                featureMask |= FEATURE_BIT.otherEscape;
+                appendOptional(2);
+              } else {
+                appendDigitRun(0);
+              }
+              break;
             case "1":
             case "2":
             case "3":
@@ -231,19 +252,9 @@ export function walk(
             case "6":
             case "7":
             case "8":
-            case "9": {
-              featureMask |= FEATURE_BIT.backreference;
-              NOT_NUMBERS_REGEX.lastIndex = i + 1;
-              const nextNonDigit = NOT_NUMBERS_REGEX.exec(source);
-              const start = i;
-              const end = nextNonDigit ? nextNonDigit.index : source.length;
-              const ref = Number(source.slice(start + 1, end));
-              i = end;
-              const backreference = { ref, start, end };
-              result.push(backreference);
-              currentRawLookaroundBackreferences?.push(backreference);
+            case "9":
+              appendDigitRun();
               break;
-            }
             case "d":
             case "D":
             case "w":

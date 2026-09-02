@@ -3088,6 +3088,44 @@ c`)
       expect(partial.exec("\x01a")).toMatchAt({ match: "\x01a", index: 0 });
       expect(partial.exec("\x01")).toMatchAt({ match: "\x01", index: 0 });
     });
+
+    it("should route a \\0-led escape through the same reclassification as \\1-\\9", () => {
+      const partial = new PartialMatchRegExp(new RegExp("^\\012x"));
+
+      expect(partial.exec("\nx")).toMatchAt({ match: "\nx", index: 0 });
+      expect(partial).toMatchPartially({ characters: ["\n", "x"] });
+    });
+
+    it("should leave a following quantifier bound to a \\0-led escape's own atom", () => {
+      const partial = new PartialMatchRegExp(new RegExp("^\\012*x"));
+
+      expect(partial.exec("x")).toMatchAt({ match: "x", index: 0 });
+      expect(partial.exec("\n\nx")).toMatchAt({ match: "\n\nx", index: 0 });
+      expect(partial).toMatchPartially({ characters: ["\n", "x"] });
+    });
+
+    it("should never treat a leading-zero run as a genuine backreference, even with enough groups", () => {
+      const partial = new PartialMatchRegExp(new RegExp("^(a)(b)(c)(d)(e)(f)(g)(h)(i)(j)(k)(l)\\012x"));
+
+      expect(partial.exec("abcdefghijkl\nx")).toMatchAt({
+        match: "abcdefghijkl\nx",
+        index: 0
+      });
+    });
+
+    it("should tag a bare \\0 as backreference-shaped, same as any other digit escape", () => {
+      const features = new PartialMatchRegExp(new RegExp("^\\0")).features;
+
+      expect(features).toContain("backreference");
+      expect(features).not.toContain("otherEscape");
+    });
+
+    it("should tag \\0 as otherEscape under the u flag, where Annex B octal escapes don't exist", () => {
+      const features = new PartialMatchRegExp(/^\0/u).features;
+
+      expect(features).toContain("otherEscape");
+      expect(features).not.toContain("backreference");
+    });
   });
 
   describe("Annex B literal \\k escapes", () => {
