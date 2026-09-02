@@ -3124,7 +3124,6 @@ c`)
 
     it("should treat a completed reference as literal text when the pattern declares no named group", () => {
       const partial = new PartialMatchRegExp(new RegExp("^\\k<bogus>a"));
-
       expect(partial.exec("k<bogus>")).toMatchAt({ match: "k<bogus>", index: 0 });
       expect(partial.exec("k<bogus>a")).toMatchAt({
         match: "k<bogus>a",
