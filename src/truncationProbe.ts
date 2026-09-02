@@ -36,8 +36,7 @@ function isSimpleGroupOpen(part: string): boolean {
   return (
     part === "(" ||
     (part.startsWith(NAMED_GROUP_OPENING) &&
-      part[NAMED_GROUP_OPENING.length] !== "=" &&
-      part[NAMED_GROUP_OPENING.length] !== "!")
+      !"=!".includes(part[NAMED_GROUP_OPENING.length]))
   );
 }
 
