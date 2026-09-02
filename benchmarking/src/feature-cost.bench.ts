@@ -7,19 +7,24 @@
  * a construct is reclassified afterwards — shows up against its neighbours
  * rather than being averaged into a realistic pattern.
  *
- * Every pattern in the first group is the same shape and close to the same
- * length: an anchor, a construct under test, and a literal tail. That controls
- * for source length, but NOT for the number of parts the walk emits — a
- * construct that collapses a span into one atom (a character class, a property
- * escape) leaves fewer parts behind than the same length of literal text, and
- * construction cost tracks that part count closely. So read the first group as
- * "what did this construct cost to walk, end to end", and watch each bench
- * against its own history; do not read it as a ranking of switch cases, and do
- * not read a bench below the literal baseline as a cheaper switch case. Raw
- * lookarounds in particular are not the outlier they might look: the walker
- * processes the body to find its extent and count the capturing groups inside
- * it, then discards those parts and keeps the source slice, which costs about
- * what walking the same text once costs.
+ * Every pattern in the first group starts as the same shape — an anchor, a
+ * construct under test, a literal tail — then has its tail padded with plain
+ * literal characters until it compiles to the same emittedPartCount as every
+ * other pattern in the group. Construction cost tracks the number of parts the
+ * walk emits as closely as it tracks source length, so an unpadded group would
+ * mostly rank patterns by how few parts their construct collapses into: a
+ * character class or property escape would read as cheaper than a plain
+ * literal not because the switch case is cheaper, but because it leaves fewer
+ * parts behind for the same source length. Equalising part count removes that
+ * confound — every bench below now differs from the literal baseline only in
+ * which switch case walk() took.
+ *
+ * Read that way, raw lookaheads and lookbehinds are the most expensive
+ * construct in the group, not the mid-pack result their part count alone would
+ * suggest: the walker processes the body to find its extent and count the
+ * capturing groups inside it, then discards those parts and keeps the source
+ * slice, so it pays for a second walk on top of the one every other bench here
+ * pays once.
  *
  * The genuinely expensive constructs are in the second group, and each for a
  * structural reason worth keeping visible:
@@ -31,6 +36,12 @@
  *     compilePartial() walks a second time, making this the costliest bench
  *     here despite compiling to the static path
  *
+ * That group's patterns aren't part-count-equalised, and don't need to be: the
+ * gap between them is dominated by which compiled path a pattern lands on and
+ * whether compilePartial() walks it twice, not by how many parts the walk
+ * emits, so unequal part counts don't confound its conclusion the way they did
+ * in the first group.
+ *
  * A reclassified octal escape, by contrast, is only modestly above the static
  * baseline beside it: reclassification itself is cheap, and the third group
  * shows why the classification still matters — the same pattern misread as a
@@ -38,9 +49,35 @@
  */
 
 import { bench, group } from "mitata";
+import { compilePartial } from "../../src/compilePartial.ts";
 import PartialMatchRegExp from "../../src/partialMatchRegExp.ts";
 
-const features: [name: string, pattern: RegExp][] = [
+function emittedPartCount(pattern: RegExp): number {
+  const compiled = compilePartial(pattern);
+  if (compiled.kind !== "static") {
+    throw new Error(
+      `${pattern.source} has no part count to equalise — it compiles to the dynamic path`
+    );
+  }
+  return compiled.parts.length;
+}
+
+function padded(
+  targetPartCount: number,
+  [name, pattern]: [string, RegExp]
+): [string, RegExp] {
+  const shortfall = targetPartCount - emittedPartCount(pattern);
+  const paddedPattern = new RegExp(pattern.source + "x".repeat(shortfall), pattern.flags);
+  const paddedPartCount = emittedPartCount(paddedPattern);
+  if (paddedPartCount !== targetPartCount) {
+    throw new Error(
+      `${name}: padding to ${String(targetPartCount)} parts landed on ${String(paddedPartCount)} — a literal "x" no longer emits exactly one part`
+    );
+  }
+  return [name, paddedPattern];
+}
+
+const rawFeatures: [name: string, pattern: RegExp][] = [
   ["literal characters (baseline)", /^abcdefgh_tail/],
   ["character class", /^[a-gA-G]+_tail/],
   ["quantifier", /^a{2,8}b*c?_tail/],
@@ -57,6 +94,12 @@ const features: [name: string, pattern: RegExp][] = [
   ["unicode property escape (u)", /^\p{Letter}+_tail/u],
   ["nested character class (v)", /^[[a-z]--[c]]+_tail/v]
 ];
+
+const equalisedPartCount = Math.max(
+  ...rawFeatures.map(([, pattern]) => emittedPartCount(pattern))
+);
+
+const features = rawFeatures.map((feature) => padded(equalisedPartCount, feature));
 
 group("feature cost — construction, one construct per bench", () => {
   for (const [name, pattern] of features) {
