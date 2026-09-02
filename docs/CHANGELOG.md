@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `compilePartial()` joins its parts directly on the static path rather than routing them through `render()`, and shares that return between both places a pattern turns out to have no backreferences
 - `src/` is linted against the library methods newer than the ES2015 floor the README states. 
   - The built output's existing check parses at that floor, so it catches newer *syntax* but not a newer *method*; the RegExp properties past it are read behind runtime guards, but a plain `String.prototype` call has nothing to guard it
+- Liberally split `compilePartial.ts` into separate files
 
 ### Fixed
 
