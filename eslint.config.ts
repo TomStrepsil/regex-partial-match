@@ -3,7 +3,7 @@ import markdown from "@eslint/markdown";
 
 export default [
   {
-    ignores: ["lib/**", "node_modules/**", "types/**"]
+    ignores: ["lib/**", "node_modules/**", "types/**", "coverage/**"]
   },
   {
     files: ["**/*.md"],
