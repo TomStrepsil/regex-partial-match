@@ -2871,6 +2871,22 @@ c`)
       });
     });
 
+    describe("a backreference whose captured value is empty", () => {
+      it("should still render an atom a following quantifier can bind to", () => {
+        const partial = new PartialMatchRegExp(new RegExp("^\\1*(a)"));
+
+        expect(partial.exec("")).toMatchAt({ match: "", index: 0 });
+        expect(partial.exec("a")).toMatchAt({ match: "a", index: 0 });
+      });
+
+      it("should agree with the original pattern when the captured group matched nothing", () => {
+        const partial = new PartialMatchRegExp(/^(x?)\1*a/);
+
+        expect(partial.exec("a")).toMatchAt({ match: "a", index: 0 });
+        expect(partial.exec("xxa")).toMatchAt({ match: "xxa", index: 0 });
+      });
+    });
+
     it("accepts every prefix of 'abab' and rejects nearby non-prefix strings", () => {
       const partial = new PartialMatchRegExp(/^(ab)\1/);
 
@@ -3180,22 +3196,6 @@ c`)
 
       expect(partial.exec("\x01a")).toMatchAt({ match: "\x01a", index: 0 });
       expect(partial.exec("\x01")).toMatchAt({ match: "\x01", index: 0 });
-    });
-  });
-
-  describe("a backreference whose captured value is empty", () => {
-    it("should still render an atom a following quantifier can bind to", () => {
-      const partial = new PartialMatchRegExp(new RegExp("^\\1*(a)"));
-
-      expect(partial.exec("")).toMatchAt({ match: "", index: 0 });
-      expect(partial.exec("a")).toMatchAt({ match: "a", index: 0 });
-    });
-
-    it("should agree with the original pattern when the captured group matched nothing", () => {
-      const partial = new PartialMatchRegExp(/^(x?)\1*a/);
-
-      expect(partial.exec("a")).toMatchAt({ match: "a", index: 0 });
-      expect(partial.exec("xxa")).toMatchAt({ match: "xxa", index: 0 });
     });
   });
 
