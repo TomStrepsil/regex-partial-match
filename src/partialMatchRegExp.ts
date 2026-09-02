@@ -133,9 +133,8 @@ class PartialMatchRegExp extends RegExp {
       expansion.probe ??= buildTruncationProbe(
         expansion.parts,
         compiled.rawLookarounds,
-        this.source,
-        this.flags,
-        compiled.has("namedGroup")
+        compiled.namedGroupOpenings,
+        this.flags
       );
       return !tookTruncationBranch(expansion.probe, match.input, match.index);
     }
@@ -143,9 +142,8 @@ class PartialMatchRegExp extends RegExp {
     this[truncationProbe] ??= buildTruncationProbe(
       compiled.parts,
       compiled.rawLookarounds,
-      this.source,
-      this.flags,
-      compiled.has("namedGroup")
+      compiled.namedGroupOpenings,
+      this.flags
     );
     return !tookTruncationBranch(
       this[truncationProbe],

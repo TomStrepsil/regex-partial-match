@@ -3152,6 +3152,53 @@ c`)
   });
 
   // https://tc39.es/ecma262/#sec-regular-expressions-patterns
+  describe("Annex B legacy octal escapes", () => {
+    it("should partially match each atom a multi-digit escape denotes, not the run as a whole", () => {
+      const partial = new PartialMatchRegExp(new RegExp("^\\128x"));
+
+      expect(partial).toMatchPartially({ characters: ["\n", "8", "x"] });
+    });
+
+    it("should leave a following quantifier bound to the escape's own final atom", () => {
+      const partial = new PartialMatchRegExp(new RegExp("^\\128*x"));
+
+      expect(partial.exec("\nx")).toMatchAt({ match: "\nx", index: 0 });
+      expect(partial.exec("\n88x")).toMatchAt({ match: "\n88x", index: 0 });
+      expect(partial).toMatchPartially({ characters: ["\n", "8", "8", "x"] });
+    });
+
+    it("should treat \\8 and \\9 as the identity escapes they are, each its own atom", () => {
+      const partial = new PartialMatchRegExp(new RegExp("^\\89*x"));
+
+      expect(partial.exec("8x")).toMatchAt({ match: "8x", index: 0 });
+      expect(partial.exec("899x")).toMatchAt({ match: "899x", index: 0 });
+      expect(partial).toMatchPartially({ characters: ["8", "9", "x"] });
+    });
+
+    it("should zero-pad a single-digit octal character code into a two-digit hex escape", () => {
+      const partial = new PartialMatchRegExp(new RegExp("^\\1a"));
+
+      expect(partial.exec("\x01a")).toMatchAt({ match: "\x01a", index: 0 });
+      expect(partial.exec("\x01")).toMatchAt({ match: "\x01", index: 0 });
+    });
+  });
+
+  describe("a backreference whose captured value is empty", () => {
+    it("should still render an atom a following quantifier can bind to", () => {
+      const partial = new PartialMatchRegExp(new RegExp("^\\1*(a)"));
+
+      expect(partial.exec("")).toMatchAt({ match: "", index: 0 });
+      expect(partial.exec("a")).toMatchAt({ match: "a", index: 0 });
+    });
+
+    it("should agree with the original pattern when the captured group matched nothing", () => {
+      const partial = new PartialMatchRegExp(/^(x?)\1*a/);
+
+      expect(partial.exec("a")).toMatchAt({ match: "a", index: 0 });
+      expect(partial.exec("xxa")).toMatchAt({ match: "xxa", index: 0 });
+    });
+  });
+
   describe("Annex B literal \\k escapes", () => {
     it("should tolerate \\k escapes with no named group reference to complete them", () => {
       const partial = new PartialMatchRegExp(/\k/);
@@ -3349,6 +3396,24 @@ c`)
       it("does not mistake character class text for a named group", () => {
         const partial = new PartialMatchRegExp(
           new RegExp("[(?<\\u{110000}>]a")
+        );
+
+        expect(completenessOf(partial, "(")).toBe(false);
+        expect(completenessOf(partial, "(a")).toBe(true);
+      });
+
+      it("does not rename past a marker name that only appears as class content", () => {
+        const partial = new PartialMatchRegExp(
+          new RegExp("^[(?<truncation0>]a")
+        );
+
+        expect(completenessOf(partial, "(")).toBe(false);
+        expect(completenessOf(partial, "(a")).toBe(true);
+      });
+
+      it("takes the declared names from the walk, so class content cannot invalidate a reference", () => {
+        const partial = new PartialMatchRegExp(
+          new RegExp("^[(?<bogus>](?!\\k<bogus>)a")
         );
 
         expect(completenessOf(partial, "(")).toBe(false);

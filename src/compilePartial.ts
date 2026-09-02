@@ -1,5 +1,5 @@
 import escapeAtom from "./escapeAtom.ts";
-import legacyEscapeAsLiteral from "./legacyEscape.ts";
+import { legacyEscapeAtoms } from "./legacyEscape.ts";
 import {
   walk,
   isBackreference,
@@ -17,6 +17,7 @@ export type { RegexFeature };
 
 const MAYBE_HAS_BACKREFERENCE_REGEX = /\\[1-9]|\\k</;
 const ANY_CAPTURED_TEXT = "(?:[\\s\\S]*?)";
+const QUANTIFIABLE_EMPTY_ATOM = "(?:)";
 
 function backrefToken(backref: Backreference): string {
   return isNumericBackreference(backref)
@@ -33,13 +34,19 @@ function reclassifyLegacyEscapes(
   source: string,
   groupCount: number
 ): Part[] {
-  return parts.map((part) =>
-    isNumericBackreference(part) && part.ref > groupCount
-      ? asOptionalAtom(
-          legacyEscapeAsLiteral(source.slice(part.start + 1, part.end))
-        )
-      : part
-  );
+  const reclassified: Part[] = [];
+  for (const part of parts) {
+    if (isNumericBackreference(part) && part.ref > groupCount) {
+      for (const atom of legacyEscapeAtoms(
+        source.slice(part.start + 1, part.end)
+      )) {
+        reclassified.push(asOptionalAtom(atom));
+      }
+    } else {
+      reclassified.push(part);
+    }
+  }
+  return reclassified;
 }
 
 function spliceOriginalSource(
@@ -74,6 +81,7 @@ abstract class Compiled {
 
   constructor(
     readonly rawLookarounds: readonly RawLookaroundInfo[],
+    readonly namedGroupOpenings: readonly string[],
     private readonly _featureMask: number
   ) {}
 
@@ -93,9 +101,10 @@ class CompiledStatic extends Compiled {
     readonly regex: RegExp,
     readonly parts: string[],
     rawLookarounds: readonly RawLookaroundInfo[],
+    namedGroupOpenings: readonly string[],
     featureMask: number
   ) {
-    super(rawLookarounds, featureMask);
+    super(rawLookarounds, namedGroupOpenings, featureMask);
   }
 }
 
@@ -105,9 +114,10 @@ class CompiledDynamic extends Compiled {
   constructor(
     readonly dynamic: DynamicPath,
     rawLookarounds: readonly RawLookaroundInfo[],
+    namedGroupOpenings: readonly string[],
     featureMask: number
   ) {
-    super(rawLookarounds, featureMask);
+    super(rawLookarounds, namedGroupOpenings, featureMask);
   }
 }
 
@@ -117,12 +127,14 @@ function toStatic(
   parts: string[],
   flags: string,
   rawLookarounds: readonly RawLookaroundInfo[],
+  namedGroupOpenings: readonly string[],
   featureMask: number
 ): CompiledStatic {
   return new CompiledStatic(
     new RegExp(parts.join(""), flags),
     parts,
     rawLookarounds,
+    namedGroupOpenings,
     featureMask
   );
 }
@@ -136,10 +148,17 @@ export const compilePartial = (regex: RegExp): CompiledPartial => {
   ) {
     walked = walk(regex, false);
   }
-  const { parts, groupCount, featureMask, rawLookarounds } = walked;
+  const { parts, groupCount, featureMask, rawLookarounds, namedGroupOpenings } =
+    walked;
 
   if (!MAYBE_HAS_BACKREFERENCE_REGEX.test(regex.source)) {
-    return toStatic(parts as string[], flags, rawLookarounds, featureMask);
+    return toStatic(
+      parts as string[],
+      flags,
+      rawLookarounds,
+      namedGroupOpenings,
+      featureMask
+    );
   }
 
   const isUnicode = regex.unicode || regex.unicodeSets;
@@ -148,7 +167,13 @@ export const compilePartial = (regex: RegExp): CompiledPartial => {
     : reclassifyLegacyEscapes(parts, regex.source, groupCount);
   const backreferences = sanitisedParts.filter(isBackreference);
   if (backreferences.length === 0) {
-    return toStatic(sanitisedParts as string[], flags, rawLookarounds, featureMask);
+    return toStatic(
+      sanitisedParts as string[],
+      flags,
+      rawLookarounds,
+      namedGroupOpenings,
+      featureMask
+    );
   }
 
   return new CompiledDynamic(
@@ -178,6 +203,10 @@ export const compilePartial = (regex: RegExp): CompiledPartial => {
             continue;
           }
           const atoms = isUnicode ? Array.from(captured) : captured.split("");
+          if (atoms.length === 0) {
+            expanded.push(QUANTIFIABLE_EMPTY_ATOM);
+            continue;
+          }
           for (const atom of atoms) {
             expanded.push(asOptionalAtom(escapeAtom(atom)));
           }
@@ -186,6 +215,7 @@ export const compilePartial = (regex: RegExp): CompiledPartial => {
       }
     },
     rawLookarounds,
+    namedGroupOpenings,
     featureMask
   );
 };

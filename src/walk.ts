@@ -2,6 +2,7 @@ const OCCURRENCES_REGEX = /\{\d+,?\d*\}/y;
 const NOT_NUMBERS_REGEX = /\D/g;
 export const DISJUNCTION_TO_END_OF_INPUT = "|$(?![\\s\\S]))";
 export const OPTIONAL_ATOM_OPENING = "(?:";
+export const NAMED_GROUP_OPENING = "(?<";
 const LITERAL_K_ATOM = OPTIONAL_ATOM_OPENING + "k" + DISJUNCTION_TO_END_OF_INPUT;
 
 export interface NumericBackreference {
@@ -26,6 +27,10 @@ export interface RawLookaroundInfo {
 }
 
 export const NO_RAW_LOOKAROUNDS: readonly RawLookaroundInfo[] = [];
+export const NO_NAMED_GROUP_OPENINGS: readonly string[] = [];
+
+export const groupNameOf = (namedGroupOpening: string): string =>
+  namedGroupOpening.slice(NAMED_GROUP_OPENING.length, -1);
 
 export const isBackreference = (part: Part): part is Backreference =>
   typeof part !== "string";
@@ -98,6 +103,7 @@ export function walk(
   groupCount: number;
   featureMask: number;
   rawLookarounds: readonly RawLookaroundInfo[];
+  namedGroupOpenings: readonly string[];
 } {
   const source = regex.source;
   const isUnicode = regex.unicode || regex.unicodeSets;
@@ -106,6 +112,7 @@ export function walk(
   let groupCount = 0;
   let featureMask = 0;
   let rawLookarounds: RawLookaroundInfo[] | undefined;
+  let namedGroupOpenings: string[] | undefined;
   let currentRawLookaroundBackreferences: Backreference[] | undefined;
 
   function extractSlice(length: number): string {
@@ -366,17 +373,20 @@ export function walk(
                     featureMask |= FEATURE_BIT.negativeLookbehind;
                     appendRawLookaround(4);
                     break;
-                  default:
+                  default: {
                     featureMask |= FEATURE_BIT.namedGroup;
                     featureMask |= FEATURE_BIT.capturingGroup;
                     if (withinLookaround) featureMask |= FEATURE_BIT.lookaroundCapture;
                     ++groupCount;
-                    appendRaw(source.indexOf(">", i) - i + 1);
+                    const opening = extractSlice(source.indexOf(">", i) - i + 1);
+                    (namedGroupOpenings ??= []).push(opening);
+                    result.push(opening);
                     result.push(
                       ...process(withinLookaround, declaresNamedGroup),
                       DISJUNCTION_TO_END_OF_INPUT
                     );
                     break;
+                  }
                 }
                 break;
             }
@@ -408,6 +418,7 @@ export function walk(
     parts: process(false, declaresNamedGroup),
     groupCount,
     featureMask,
-    rawLookarounds: rawLookarounds ?? NO_RAW_LOOKAROUNDS
+    rawLookarounds: rawLookarounds ?? NO_RAW_LOOKAROUNDS,
+    namedGroupOpenings: namedGroupOpenings ?? NO_NAMED_GROUP_OPENINGS
   };
 }

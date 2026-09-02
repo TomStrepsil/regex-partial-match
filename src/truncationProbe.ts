@@ -1,9 +1,11 @@
-import legacyEscapeAsLiteral from "./legacyEscape.ts";
+import { legacyEscapeAsLiteral } from "./legacyEscape.ts";
 import {
   DISJUNCTION_TO_END_OF_INPUT,
   OPTIONAL_ATOM_OPENING,
+  NAMED_GROUP_OPENING,
   isBackreference,
   isNumericBackreference,
+  groupNameOf,
   type Backreference,
   type Part,
   type RawLookaroundInfo
@@ -11,31 +13,15 @@ import {
 
 const TRUNCATION_MARKER_NAME = "truncation";
 const FLAGS_INCOMPATIBLE_WITH_PROBING = /[dgy]/g;
-const NAMED_GROUP_REGEX = /\(\?<(?![=!])([^>]*)>/g;
 const UNICODE_ESCAPE_IN_NAME_REGEX = /\\u\{([0-9a-fA-F]+)\}|\\u([0-9a-fA-F]{4})/g;
-const MAX_CODE_POINT = 0x10ffff;
 
 function decodeGroupName(rawName: string): string {
   return rawName.replace(
     UNICODE_ESCAPE_IN_NAME_REGEX,
-    (whole, braced?: string, plain?: string) => {
+    (_whole, braced?: string, plain?: string) =>
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- one of braced or plain is guaranteed to be defined by the regex
-      const codePoint = parseInt((braced ?? plain)!, 16);
-      return codePoint <= MAX_CODE_POINT ? String.fromCodePoint(codePoint) : whole;
-    }
+      String.fromCodePoint(parseInt((braced ?? plain)!, 16))
   );
-}
-
-function namedGroupNames(source: string): string[] {
-  const names: string[] = [];
-  NAMED_GROUP_REGEX.lastIndex = 0;
-
-  let opener: RegExpExecArray | null;
-  while ((opener = NAMED_GROUP_REGEX.exec(source))) {
-    names.push(decodeGroupName(opener[1]));
-  }
-
-  return names;
 }
 
 function endsAtTruncationBranch(part: string): boolean {
@@ -49,13 +35,17 @@ function endsAtTruncationBranch(part: string): boolean {
 function isSimpleGroupOpen(part: string): boolean {
   return (
     part === "(" ||
-    (part.startsWith("(?<") && part[3] !== "=" && part[3] !== "!")
+    (part.startsWith(NAMED_GROUP_OPENING) &&
+      part[NAMED_GROUP_OPENING.length] !== "=" &&
+      part[NAMED_GROUP_OPENING.length] !== "!")
   );
 }
 
 function isRawLookaround(part: string): boolean {
   return (
-    part.startsWith("(?!") || part.startsWith("(?<=") || part.startsWith("(?<!")
+    part.startsWith("(?!") ||
+    part.startsWith(NAMED_GROUP_OPENING + "=") ||
+    part.startsWith(NAMED_GROUP_OPENING + "!")
   );
 }
 
@@ -141,13 +131,15 @@ export interface TruncationProbe {
 export const buildTruncationProbe = (
   parts: readonly Part[],
   rawLookarounds: readonly RawLookaroundInfo[],
-  source: string,
-  flags: string,
-  declaresNamedGroup: boolean
+  namedGroupOpenings: readonly string[],
+  flags: string
 ): TruncationProbe => {
-  const existingNames = namedGroupNames(source);
+  const declaresNamedGroup = namedGroupOpenings.length > 0;
+  const declaredNames = namedGroupOpenings.map((opening) =>
+    decodeGroupName(groupNameOf(opening))
+  );
   let markerName = TRUNCATION_MARKER_NAME;
-  while (existingNames.some((name) => name.startsWith(markerName))) {
+  while (declaredNames.some((name) => name.startsWith(markerName))) {
     markerName += "_";
   }
 
