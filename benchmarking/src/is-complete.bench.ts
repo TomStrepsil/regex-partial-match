@@ -46,10 +46,6 @@ const isoDate = /^\d{4}-\d{2}-\d{2}/;
 const isoDateIncomplete = "2024-06";
 const isoDateComplete = "2024-12-31";
 
-const isoDatePartial = new PartialMatchRegExp(isoDate);
-const isoDateIncompleteMatch = matchOrThrow(isoDatePartial, isoDateIncomplete);
-const isoDateCompleteMatch = matchOrThrow(isoDatePartial, isoDateComplete);
-
 group("isComplete — static path (ISO date)", () => {
   bench("construct + exec (baseline, never asks)", () =>
     new PartialMatchRegExp(isoDate).exec(isoDateIncomplete)
@@ -59,12 +55,23 @@ group("isComplete — static path (ISO date)", () => {
     const match = partial.exec(isoDateIncomplete);
     return match && partial.isComplete(match);
   });
-  bench("isComplete — warm instance, incomplete match", () =>
-    isoDatePartial.isComplete(isoDateIncompleteMatch)
-  );
-  bench("isComplete — warm instance, complete match", () =>
-    isoDatePartial.isComplete(isoDateCompleteMatch)
-  );
+  bench("construct + exec + isComplete (complete, includes probe build)", () => {
+    const partial = new PartialMatchRegExp(isoDate);
+    const match = partial.exec(isoDateComplete);
+    return match && partial.isComplete(match);
+  });
+  bench("isComplete — incomplete match, warm probe", function* () {
+    const partial = new PartialMatchRegExp(isoDate);
+    const match = matchOrThrow(partial, isoDateIncomplete);
+    partial.isComplete(match);
+    yield () => partial.isComplete(match);
+  });
+  bench("isComplete — complete match, warm probe", function* () {
+    const partial = new PartialMatchRegExp(isoDate);
+    const match = matchOrThrow(partial, isoDateComplete);
+    partial.isComplete(match);
+    yield () => partial.isComplete(match);
+  });
 });
 
 // "foo fo" — ends inside the backreference, so exec() takes the expansion path
