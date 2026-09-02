@@ -52,14 +52,14 @@ describe("isComplete()", () => {
     it("distinguishes a truncated branch inside a lookahead from a complete match", () => {
       const partial = new PartialMatchRegExp(/a(?=(?:b(?:x|(c))d|b))/);
 
-      const truncated = partial.exec("ab");
+      const truncated = partial.exec("ab")!;
       expect(truncated).toMatchAt({ match: "a", index: 0 });
-      expect(truncated?.[1]).toBeUndefined();
-      expect(truncated && partial.isComplete(truncated)).toBe(false);
+      expect(truncated[1]).toBeUndefined();
+      expect(partial.isComplete(truncated)).toBe(false);
 
-      const complete = partial.exec("abcd");
-      expect(complete?.[1]).toBe("c");
-      expect(complete && partial.isComplete(complete)).toBe(true);
+      const complete = partial.exec("abcd")!;
+      expect(complete[1]).toBe("c");
+      expect(partial.isComplete(complete)).toBe(true);
     });
 
     it("answers where re-running the original pattern cannot", () => {
@@ -89,10 +89,10 @@ describe("isComplete()", () => {
   describe("what isComplete() cannot see", () => {
     it("reports a greedy capture inside a lookahead as complete, though more input would still extend it", () => {
       const partial = new PartialMatchRegExp(/a(?=(b+))/);
-      const match = partial.exec("ab");
+      const match = partial.exec("ab")!;
 
-      expect(match?.[1]).toBe("b");
-      expect(match && partial.isComplete(match)).toBe(true);
+      expect(match[1]).toBe("b");
+      expect(partial.isComplete(match)).toBe(true);
     });
 
     it("shows the same capture growing once the input actually continues", () => {
@@ -272,17 +272,17 @@ describe("isComplete()", () => {
     it("reports completeness with the d flag, leaving indices intact", () => {
       const partial = new PartialMatchRegExp(/^(ab)c/d);
 
-      const match = partial.exec("ab");
-      expect(match && partial.isComplete(match)).toBe(false);
-      expect(match?.indices?.[1]).toEqual([0, 2]);
+      const match = partial.exec("ab")!;
+      expect(partial.isComplete(match)).toBe(false);
+      expect(match.indices![1]).toEqual([0, 2]);
     });
 
     it("reports completeness with the g flag without disturbing lastIndex", () => {
       const partial = new PartialMatchRegExp(/ab/g);
 
-      const first = partial.exec("abab");
+      const first = partial.exec("abab")!;
       expect(partial.lastIndex).toBe(2);
-      expect(first && partial.isComplete(first)).toBe(true);
+      expect(partial.isComplete(first)).toBe(true);
       expect(partial.lastIndex).toBe(2);
       expect(partial.exec("abab")).toMatchAt({ match: "ab", index: 2 });
     });
@@ -353,10 +353,10 @@ describe("isComplete()", () => {
 
     it("answers repeatedly without rebuilding its probe", () => {
       const partial = new PartialMatchRegExp(/^(ab)\1/);
-      const match = partial.exec("aba");
+      const match = partial.exec("aba")!;
 
-      expect(match && partial.isComplete(match)).toBe(false);
-      expect(match && partial.isComplete(match)).toBe(false);
+      expect(partial.isComplete(match)).toBe(false);
+      expect(partial.isComplete(match)).toBe(false);
     });
 
     it("returns null, with nothing to report, when no partial match exists", () => {
@@ -487,23 +487,23 @@ describe("isComplete()", () => {
   describe("leaving the match it describes alone", () => {
     it("does not mutate the match", () => {
       const partial = new PartialMatchRegExp(/^(a)(?<second>b)/);
-      const match = partial.exec("a");
-      const beforeAsking = [...(match ?? [])];
+      const match = partial.exec("a")!;
+      const beforeAsking = [...match];
 
-      expect(match && partial.isComplete(match)).toBe(false);
-      expect(match && [...match]).toEqual(beforeAsking);
-      expect(match?.groups).toEqual({ second: "" });
-      expect(match?.index).toBe(0);
-      expect(match?.input).toBe("a");
+      expect(partial.isComplete(match)).toBe(false);
+      expect([...match]).toEqual(beforeAsking);
+      expect(match.groups).toEqual({ second: "" });
+      expect(match.index).toBe(0);
+      expect(match.input).toBe("a");
     });
 
     it("adds no own property to the match", () => {
       const partial = new PartialMatchRegExp(/^ab/);
-      const match = partial.exec("a");
-      const ownProperties = Object.getOwnPropertyNames(match ?? {});
+      const match = partial.exec("a")!;
+      const ownProperties = Object.getOwnPropertyNames(match);
 
-      expect(match && partial.isComplete(match)).toBe(false);
-      expect(Object.getOwnPropertyNames(match ?? {})).toEqual(ownProperties);
+      expect(partial.isComplete(match)).toBe(false);
+      expect(Object.getOwnPropertyNames(match)).toEqual(ownProperties);
     });
 
     it("reports on every match a global iteration yields", () => {
