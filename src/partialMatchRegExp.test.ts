@@ -1921,8 +1921,7 @@ c`)
   });
 
   describe("parity with reference implementations", () => {
-    // Apache Lucene TestRegExp.java — testRegExpNoStackOverflow
-    // Lucene verifies its automaton builder does not stack-overflow on very deeply nested patterns.
+    // Apache Lucene TestRegExp.java — testRegExpNoStackOverflow: Lucene verifies its automaton builder does not stack-overflow on very deeply nested patterns.
     describe("deep nesting safety (Lucene-inspired)", () => {
       it("should not throw on a high-count top-level alternation (wide pattern)", () => {
         const width = 1000;
@@ -1946,8 +1945,7 @@ c`)
       });
     });
 
-    // Apache Lucene TestRegExp.java — testRepeatWithEmptyString
-    // Lucene tests quantifiers whose subpatterns can match an empty string (e.g. [^y]*{1,2}).
+    // Apache Lucene TestRegExp.java — testRepeatWithEmptyString: Lucene tests quantifiers whose subpatterns can match an empty string (e.g. [^y]*{1,2}).
     describe("quantifiers over empty-matching subpatterns (Lucene-inspired)", () => {
       it("should support patterns where the quantified atom matches zero characters (a*suffix)", () => {
         const partial = new PartialMatchRegExp(/a*suffix/);
@@ -1985,8 +1983,7 @@ c`)
       });
     });
 
-    // Apache Lucene TestRegExp.java — testUnicodeAsciiInsensitiveFlags
-    // Lucene explicitly tests Unicode case folding (σ/Σ, ῼ, ﬗ) with case-insensitive flags.
+    // Apache Lucene TestRegExp.java — testUnicodeAsciiInsensitiveFlags: Lucene explicitly tests Unicode case folding (σ/Σ, ῼ, ﬗ) with case-insensitive flags.
     describe("Unicode case folding (Lucene-inspired)", () => {
       it("should support case-insensitive partial matching of Greek lowercase sigma (σ) against uppercase (Σ)", () => {
         const partial = new PartialMatchRegExp(/σsuffix/iu);
@@ -2013,11 +2010,7 @@ c`)
       });
     });
 
-    // JDK RegExTest.java — hitEndTest
-    // Java's Matcher.hitEnd() returns true when the engine consumed all input before failing,
-    // meaning a longer string could potentially produce a match (i.e. the input is a valid prefix).
-    // In this library, a non-empty exec result is the equivalent of hitEnd()=true, and an empty
-    // (or null) result is the equivalent of hitEnd()=false.
+    // JDK RegExTest.java — hitEndTest: Java's Matcher.hitEnd() returns true when the engine consumed all input before failing, meaning a longer string could potentially produce a match (i.e. the input is a valid prefix). In this library, a non-empty exec result is the equivalent of hitEnd()=true, and an empty (or null) result is the equivalent of hitEnd()=false.
     describe("hitEnd() semantic equivalence (JDK-inspired)", () => {
       it("returns non-empty prefix match when input is a prefix of the pattern (hitEnd=true equivalent)", () => {
         // JDK: /^squidattack/.hitEnd("squid") === true — engine ran off end of input
@@ -2051,8 +2044,7 @@ c`)
       });
     });
 
-    // JDK RegExTest.java — caretAtEndTest
-    // Java tests that ^ with MULTILINE matches at the start of a new line after \r (bare CR).
+    // JDK RegExTest.java — caretAtEndTest: Java tests that ^ with MULTILINE matches at the start of a new line after \r (bare CR).
     describe("CRLF boundary in multiline mode (JDK caretAtEndTest-inspired)", () => {
       it("should recognise ^ at position 0 and after bare CR in multiline mode", () => {
         const partial = new PartialMatchRegExp(/^x?/gm);
@@ -2069,9 +2061,7 @@ c`)
       });
     });
 
-    // JDK RegExTest.java — wordSearchTest
-    // Java's Matcher.find(pos) advances through successive matches by position.
-    // The equivalent in JS is advancing lastIndex on a global-flag regex.
+    // JDK RegExTest.java — wordSearchTest: Java's Matcher.find(pos) advances through successive matches by position. The equivalent in JS is advancing lastIndex on a global-flag regex.
     describe("progressive find() via lastIndex (JDK wordSearchTest-inspired)", () => {
       it("should find successive word-prefixed partial matches by advancing lastIndex", () => {
         // JDK wordSearchTest: /\b/ on "word1 word2 word3" with progressive find(pos) calls
@@ -2095,9 +2085,7 @@ c`)
       });
     });
 
-    // PCRE2 testdata/testinput7, testinput15, testinput17, testinput18
-    // Many cases map directly; others (JIT controls, POSIX wrapper, allusedtext metadata)
-    // are engine/interface-specific and therefore mapped conceptually.
+    // PCRE2 testdata/testinput7, testinput15, testinput17, testinput18: Many cases map directly; others (JIT controls, POSIX wrapper, allusedtext metadata) are engine/interface-specific and therefore mapped conceptually.
     describe("PCRE2 testdata parity (ECMAScript-compatible subset)", () => {
       it("should support /abcd*/ style prefix matching (PCRE2 \\=ps / \\=ph inspired)", () => {
         const partial = new PartialMatchRegExp(/abcd*/);
@@ -2264,8 +2252,7 @@ c`)
       });
 
       it("should document that PCRE2 POSIX partial_hard behaviour has no JS equivalent", () => {
-        // PCRE2 testinput18/testoutput18: partial_hard is ignored by the POSIX wrapper.
-        // This library has no POSIX API layer, so behaviour is a normal partial regex.
+        // PCRE2 testinput18/testoutput18: partial_hard is ignored by the POSIX wrapper. This library has no POSIX API layer, so behaviour is a normal partial regex.
         const partial = new PartialMatchRegExp(/abc/);
         expect(partial.exec("ab")).toMatchAt({ match: "ab", index: 0 });
       });
