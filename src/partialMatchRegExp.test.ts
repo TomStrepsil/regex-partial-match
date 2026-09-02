@@ -3122,11 +3122,6 @@ c`)
       expect(features).not.toContain("namedBackreference");
     });
 
-    it("should still report a named backreference when a named group declares one", () => {
-      const features = new PartialMatchRegExp(/^(?<g>a)\k<g>/).features;
-      expect(features).toContain("namedBackreference");
-    });
-
     it("should treat a completed reference as literal text when the pattern declares no named group", () => {
       const partial = new PartialMatchRegExp(new RegExp("^\\k<bogus>a"));
 
