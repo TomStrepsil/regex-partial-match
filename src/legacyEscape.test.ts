@@ -59,8 +59,8 @@ describe("legacyEscapeAtoms", () => {
       expect(legacyEscapeAtoms("78")).toEqual(["\\x07", "8"]);
     });
 
-    it("consumes three digits at the top of the range", () => {
-      expect(legacyEscapeAtoms("107")).toEqual(["\\x47"]);
+    it("stops at two digits even when a third octal digit follows", () => {
+      expect(legacyEscapeAtoms("471")).toEqual(["\\x27", "1"]);
     });
   });
 
