@@ -78,7 +78,7 @@ describe("isComplete()", () => {
       expect(completenessOf(partial, "user@example.com")).toBe(true);
     });
 
-    it("reports a truncated lookbehind-qualified atom as incomplete", () => {
+    it("distinguishes a truncated lookbehind-qualified atom from a complete match", () => {
       const partial = new PartialMatchRegExp(/(?<=foo)bar/);
 
       expect(completenessOf(partial, "foob")).toBe(false);
@@ -318,14 +318,14 @@ describe("isComplete()", () => {
   });
 
   describe("patterns with backreferences", () => {
-    it("reports a truncated backreference expansion as incomplete", () => {
+    it("distinguishes a truncated backreference expansion from a complete match", () => {
       const partial = new PartialMatchRegExp(/^(ab)\1/);
 
       expect(completenessOf(partial, "aba")).toBe(false);
       expect(completenessOf(partial, "abab")).toBe(true);
     });
 
-    it("reports a truncated named backreference expansion as incomplete", () => {
+    it("distinguishes a truncated named backreference expansion from a complete match", () => {
       const partial = new PartialMatchRegExp(/^(?<pair>ab)\k<pair>/);
 
       expect(completenessOf(partial, "aba")).toBe(false);
