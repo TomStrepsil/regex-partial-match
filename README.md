@@ -190,11 +190,22 @@ e.g.
 "a".match(/(?:x|$(?![\s\S]))/); // ['', index: 1, input: "a", groups: undefined];
 ```
 
+> [!TIP]
+> [`isComplete()`](#partialmatchregexpprototypeiscompletematch-regexpexecarray-boolean) answers this without a length check, and covers more than one: it reports `false` for the empty end-of-input match, since it exists only because the input ran out, and equally for a non-empty prefix like `"hello"` against `/hello world/`, which a length check would wave through.
+>
+> It describes a match, so ask it from `exec()` rather than `test()`:
+>
+> ```js
+> const partial = new PartialMatchRegExp(/x/);
+> const match = partial.exec("a"); // ['', index: 1, input: "a", groups: undefined]
+>
+> partial.isComplete(match); // false - the match depended on the input running out
+> ```
+>
+> `false` is "not yet", not "never": for an unanchored `/x/`, `"a"` really is a viable prefix of `"ax"`. It is only when validating that which came before that it should be read as "no match".
+
 > [!NOTE]
 > A more ergonomic `test()` / `exec()` output [was explored](https://github.com/TomStrepsil/regex-partial-match/pull/51), but proved a complex problem space.
-
-> [!TIP]
-> [`isComplete()`](#partialmatchregexpprototypeiscompletematch-regexpexecarray-boolean) identifies these empty end-of-input matches without a length check: it reports `false` for them, since they exist only because the input ran out.
 
 ### Backreferences
 

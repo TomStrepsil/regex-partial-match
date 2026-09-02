@@ -4,7 +4,7 @@ import { completenessOf } from "../test/vitest.setup.ts";
 
 describe("isComplete()", () => {
   describe("distinguishing a match of the original pattern from a prefix", () => {
-    it("reports every proper prefix of a literal pattern as incomplete", () => {
+    it("distinguishes incomplete prefixes from the complete match", () => {
       const partial = new PartialMatchRegExp(/hello world/);
 
       expect(completenessOf(partial, "h")).toBe(false);
