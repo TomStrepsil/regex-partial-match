@@ -446,8 +446,8 @@ Neither of the obvious workarounds answers it:
   const pattern = /a(?=(?:b(?:x|(c))d|b))/;
   const partial = new PartialMatchRegExp(pattern);
 
-  partial.exec("ab"); // ['a', undefined] — truncated inside the assertion
-  pattern.exec("ab"); // ['a', undefined] — identical, and complete
+  partial.exec("ab");   // ['a', undefined] — truncated inside the assertion
+  pattern.exec("ab");   // ['a', undefined] — identical, and complete
   pattern.exec("abcd"); // ['a', 'c']       — what more input actually produces
   ```
 
