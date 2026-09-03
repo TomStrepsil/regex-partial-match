@@ -11,7 +11,7 @@ import {
   type TruncationProbeCache
 } from "./isComplete.ts";
 import { preferLongerCaptures } from "./preferLongerCaptures.ts";
-import type { RegexFeature } from "./walk.ts";
+import type { RegexFeature } from "./regexFeatures.ts";
 
 export type { RegexFeature };
 

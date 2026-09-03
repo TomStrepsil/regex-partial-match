@@ -2804,6 +2804,34 @@ c`)
         expect(partial.exec("aba")).toMatchAt({ match: "aba", index: 0 });
         expect(partial.exec("ababcc")).toMatchAt({ match: "ababcc", index: 0 });
       });
+
+      it("named: recognises a backward reference whose declaration and reference spell the group name differently", () => {
+        const declarationEscaped = new PartialMatchRegExp(
+          new RegExp("^(?<\\u0061>ab)\\k<a>", "u")
+        );
+
+        expect(declarationEscaped.exec("aba")).toMatchAt({
+          match: "aba",
+          index: 0
+        });
+        expect(declarationEscaped.exec("abab")).toMatchAt({
+          match: "abab",
+          index: 0
+        });
+
+        const referenceEscaped = new PartialMatchRegExp(
+          new RegExp("^(?<a>ab)\\k<\\u0061>", "u")
+        );
+
+        expect(referenceEscaped.exec("aba")).toMatchAt({
+          match: "aba",
+          index: 0
+        });
+        expect(referenceEscaped.exec("abab")).toMatchAt({
+          match: "abab",
+          index: 0
+        });
+      });
     });
 
     describe("lastIndex behaviour for backreference patterns", () => {

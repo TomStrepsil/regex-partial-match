@@ -2,27 +2,19 @@ import { legacyEscapeAsLiteral } from "./legacyEscape.ts";
 import {
   DISJUNCTION_TO_END_OF_INPUT,
   OPTIONAL_ATOM_OPENING,
-  NAMED_GROUP_OPENING,
+  NAMED_GROUP_OPENING
+} from "./atomSyntax.ts";
+import { groupNameOf, decodeGroupName } from "./groupName.ts";
+import {
   isBackreference,
   isNumericBackreference,
-  groupNameOf,
   type Backreference,
   type Part,
   type RawLookaroundInfo
-} from "./walk.ts";
+} from "./part.ts";
 
 const TRUNCATION_MARKER_NAME = "truncation";
 const FLAGS_INCOMPATIBLE_WITH_PROBING = /[dgy]/g;
-const UNICODE_ESCAPE_IN_NAME_REGEX = /\\u\{([0-9a-fA-F]+)\}|\\u([0-9a-fA-F]{4})/g;
-
-function decodeGroupName(rawName: string) {
-  return rawName.replace(
-    UNICODE_ESCAPE_IN_NAME_REGEX,
-    (_whole, braced?: string, plain?: string) =>
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- one of braced or plain is guaranteed to be defined by the regex
-      String.fromCodePoint(parseInt((braced ?? plain)!, 16))
-  );
-}
 
 function endsAtTruncationBranch(part: string) {
   return (

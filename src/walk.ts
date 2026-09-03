@@ -1,111 +1,26 @@
+import { DISJUNCTION_TO_END_OF_INPUT, OPTIONAL_ATOM_OPENING } from "./atomSyntax.ts";
+import { groupNameOf, decodeGroupName } from "./groupName.ts";
+import { FEATURE_BIT } from "./regexFeatures.ts";
+import type { Backreference, Part, RawLookaroundInfo } from "./part.ts";
+
 const OCCURRENCES_REGEX = /\{\d+,?\d*\}/y;
 const NOT_NUMBERS_REGEX = /\D/g;
-export const DISJUNCTION_TO_END_OF_INPUT = "|$(?![\\s\\S]))";
-export const OPTIONAL_ATOM_OPENING = "(?:";
-export const NAMED_GROUP_OPENING = "(?<";
 const LITERAL_K_ATOM =
   OPTIONAL_ATOM_OPENING + "k" + DISJUNCTION_TO_END_OF_INPUT;
-
-interface NumericBackreference {
-  ref: number;
-  start: number;
-  end: number;
-  forward?: boolean;
-}
-
-interface NamedBackreference {
-  ref: string;
-  start: number;
-  end: number;
-  forward?: boolean;
-}
-
-export type Backreference = NumericBackreference | NamedBackreference;
-export type Part = string | Backreference;
-
-export interface RawLookaroundInfo {
-  sourceStart: number;
-  capturingGroupsOpened: number;
-  backreferences: Backreference[];
-}
 
 const NO_RAW_LOOKAROUNDS: readonly RawLookaroundInfo[] = [];
 const NO_NAMED_GROUP_OPENINGS: readonly string[] = [];
 
-export const groupNameOf = (namedGroupOpening: string): string =>
-  namedGroupOpening.slice(NAMED_GROUP_OPENING.length, -1);
-
 const declaresGroupNamed = (
   namedGroupOpenings: readonly string[] | undefined,
   name: string
-) =>
-  namedGroupOpenings !== undefined &&
-  namedGroupOpenings.indexOf(NAMED_GROUP_OPENING + name + ">") !== -1;
-
-export const isBackreference = (part: Part): part is Backreference =>
-  typeof part !== "string";
-
-export const isNumericBackreference = (
-  part: Part
-): part is NumericBackreference =>
-  isBackreference(part) && typeof part.ref === "number";
-
-type LengthUpToOneBitMask<Counted extends unknown[] = []> =
-  Counted["length"] extends 33
-    ? never
-    : Counted["length"] | LengthUpToOneBitMask<[...Counted, unknown]>;
-
-const REGEX_FEATURES = [
-  "patternCharacter",
-  "startAnchor",
-  "endAnchor",
-  "wordBoundary",
-  "nonWordBoundary",
-  "lookahead",
-  "negativeLookahead",
-  "lookbehind",
-  "negativeLookbehind",
-  "backreference",
-  "namedBackreference",
-  "namedGroup",
-  "capturingGroup",
-  "lookaroundCapture",
-  "nonCapturingGroup",
-  "modifierGroup",
-  "modifierGroupWithRemoval",
-  "characterClass",
-  "nestedCharacterClass",
-  "classIntersection",
-  "classSubtraction",
-  "disjunction",
-  "quantifier",
-  "unicodePropertyEscape",
-  "characterClassEscape",
-  "controlEscape",
-  "controlLetterEscape",
-  "hexEscapeSequence",
-  "unicodeEscapeSequence",
-  "otherEscape"
-] as const satisfies { length: LengthUpToOneBitMask };
-
-export type RegexFeature = (typeof REGEX_FEATURES)[number];
-
-const FEATURE_BIT = {} as Record<RegexFeature, number>;
-for (let index = 0; index < REGEX_FEATURES.length; index++) {
-  FEATURE_BIT[REGEX_FEATURES[index]] = 1 << index;
-}
-
-export function hasFeature(mask: number, feature: RegexFeature): boolean {
-  return (mask & FEATURE_BIT[feature]) !== 0;
-}
-
-export function featureSet(mask: number): Set<RegexFeature> {
-  const features = new Set<RegexFeature>();
-  for (let index = 0; index < REGEX_FEATURES.length; index++) {
-    if (mask & (1 << index)) features.add(REGEX_FEATURES[index]);
-  }
-  return features;
-}
+) => {
+  if (namedGroupOpenings === undefined) return false;
+  const decodedName = decodeGroupName(name);
+  return namedGroupOpenings.some(
+    (opening) => decodeGroupName(groupNameOf(opening)) === decodedName
+  );
+};
 
 export function walk(
   regex: RegExp,

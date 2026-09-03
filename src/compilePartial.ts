@@ -1,18 +1,16 @@
 import escapeAtom from "./escapeAtom.ts";
 import { legacyEscapeAtoms } from "./legacyEscape.ts";
+import { walk } from "./walk.ts";
+import { DISJUNCTION_TO_END_OF_INPUT, OPTIONAL_ATOM_OPENING } from "./atomSyntax.ts";
+import { decodeGroupName } from "./groupName.ts";
 import {
-  walk,
   isBackreference,
   isNumericBackreference,
-  featureSet,
-  hasFeature,
-  DISJUNCTION_TO_END_OF_INPUT,
-  OPTIONAL_ATOM_OPENING,
   type Backreference,
   type Part,
-  type RawLookaroundInfo,
-  type RegexFeature
-} from "./walk.ts";
+  type RawLookaroundInfo
+} from "./part.ts";
+import { featureSet, hasFeature, type RegexFeature } from "./regexFeatures.ts";
 
 export type { RegexFeature };
 
@@ -44,7 +42,7 @@ function resolvedFromScan(backref: Backreference, capture: RegExpExecArray) {
   if (backref.forward) return undefined;
   return isNumericBackreference(backref)
     ? capture[backref.ref]
-    : capture.groups?.[backref.ref];
+    : capture.groups?.[decodeGroupName(backref.ref)];
 }
 
 function reclassifyLegacyEscapes(
