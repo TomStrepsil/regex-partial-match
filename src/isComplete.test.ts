@@ -351,7 +351,7 @@ describe("isComplete()", () => {
       );
     });
 
-    it("reports a forward reference's truncation branch as incomplete", () => {
+    it("reports incompleteness correctly in a pattern containing a forward reference, even though the reference itself never has to truncate", () => {
       const partial = new PartialMatchRegExp(/^\1a(b)/);
 
       expect(completenessOf(partial, "a")).toBe(false);

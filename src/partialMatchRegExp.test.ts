@@ -2775,17 +2775,31 @@ c`)
         expect(partial.exec("aa")).toMatchAt({ match: "aa", index: 0 });
       });
 
-      it("requires the value an enclosing quantifier's earlier iteration gave the group", () => {
+      it("resolves empty on every iteration of an enclosing quantifier, not just the first", () => {
         const partial = new PartialMatchRegExp(/^(?:\1(a))+$/);
 
         expect(partial.exec("aaa")).toMatchAt({ match: "aaa", index: 0 });
         expect(partial.exec("ab")).toBeNull();
       });
 
-      it("on the dynamic path, still requires that value for a partial prefix a full native match wouldn't exercise", () => {
+      it("exercises the dynamic path directly, since native has no full match here to shortcut through", () => {
         const partial = new PartialMatchRegExp(/^(?:\1(a))+$/);
 
-        expect(partial.exec("aa")).toMatchAt({ match: "aa", index: 0 });
+        expect(partial.exec("")).toMatchAt({ match: "", index: 0 });
+      });
+
+      it("never requires an enclosing quantifier's earlier iteration to have matched the same character", () => {
+        const partial = new PartialMatchRegExp(/^(?:\1([a-z]))+$/);
+
+        expect(partial.exec("xyz")).toMatchAt({ match: "xyz", index: 0 });
+        expect(partial.test("xyx")).toBe(true);
+      });
+
+      it("named: never requires an enclosing quantifier's earlier iteration to have matched the same character", () => {
+        const partial = new PartialMatchRegExp(/^(?:\k<x>(?<x>[a-z]))+$/);
+
+        expect(partial.exec("xyz")).toMatchAt({ match: "xyz", index: 0 });
+        expect(partial.test("xyx")).toBe(true);
       });
 
       it("named: rejects input the original rejects", () => {
