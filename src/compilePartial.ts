@@ -1,18 +1,16 @@
 import escapeAtom from "./escapeAtom.ts";
 import { legacyEscapeAtoms } from "./legacyEscape.ts";
+import { walk } from "./walk.ts";
+import { DISJUNCTION_TO_END_OF_INPUT, OPTIONAL_ATOM_OPENING } from "./atomSyntax.ts";
+import { decodeGroupName } from "./groupName.ts";
 import {
-  walk,
   isBackreference,
   isNumericBackreference,
-  featureSet,
-  hasFeature,
-  DISJUNCTION_TO_END_OF_INPUT,
-  OPTIONAL_ATOM_OPENING,
   type Backreference,
   type Part,
-  type RawLookaroundInfo,
-  type RegexFeature
-} from "./walk.ts";
+  type RawLookaroundInfo
+} from "./part.ts";
+import { featureSet, hasFeature, type RegexFeature } from "./regexFeatures.ts";
 
 export type { RegexFeature };
 
@@ -29,6 +27,22 @@ function backrefToken(backref: Backreference) {
 
 function asOptionalAtom(text: string) {
   return "(?:" + text + DISJUNCTION_TO_END_OF_INPUT;
+}
+
+function asNativeAtom(backref: Backreference) {
+  return asOptionalAtom(backrefToken(backref));
+}
+
+function asPreScanPart(part: Part) {
+  if (!isBackreference(part)) return part;
+  return part.forward ? asNativeAtom(part) : ANY_CAPTURED_TEXT;
+}
+
+function resolvedFromScan(backref: Backreference, capture: RegExpExecArray) {
+  if (backref.forward) return undefined;
+  return isNumericBackreference(backref)
+    ? capture[backref.ref]
+    : capture.groups?.[decodeGroupName(backref.ref)];
 }
 
 function reclassifyLegacyEscapes(
@@ -57,7 +71,8 @@ function spliceOriginalSource(
 ) {
   let result = "";
   let cursor = 0;
-  for (const { start, end } of backrefs) {
+  for (const { start, end, forward } of backrefs) {
+    if (forward) continue;
     result += source.slice(cursor, start) + ANY_CAPTURED_TEXT;
     cursor = end;
   }
@@ -73,7 +88,7 @@ export interface DynamicPath {
 export function renderParts(parts: readonly Part[]): string {
   let rendered = "";
   for (const part of parts) {
-    rendered += isBackreference(part) ? asOptionalAtom(backrefToken(part)) : part;
+    rendered += isBackreference(part) ? asNativeAtom(part) : part;
   }
   return rendered;
 }
@@ -181,9 +196,7 @@ export const compilePartial = (regex: RegExp): CompiledPartial => {
         flags
       ),
       preScan: new RegExp(
-        sanitisedParts
-          .map((part) => (isBackreference(part) ? ANY_CAPTURED_TEXT : part))
-          .join(""),
+        sanitisedParts.map(asPreScanPart).join(""),
         flags
       ),
       expand: (capture) => {
@@ -193,9 +206,7 @@ export const compilePartial = (regex: RegExp): CompiledPartial => {
             expanded.push(part);
             continue;
           }
-          const captured = isNumericBackreference(part)
-            ? capture[part.ref]
-            : capture.groups?.[part.ref];
+          const captured = resolvedFromScan(part, capture);
           if (captured === undefined) {
             expanded.push(part);
             continue;

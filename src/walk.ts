@@ -1,102 +1,20 @@
+import { DISJUNCTION_TO_END_OF_INPUT, OPTIONAL_ATOM_OPENING } from "./atomSyntax.ts";
+import { groupNameOf, decodeGroupName } from "./groupName.ts";
+import { FEATURE_BIT } from "./regexFeatures.ts";
+import type { Backreference, Part, RawLookaroundInfo } from "./part.ts";
+
 const OCCURRENCES_REGEX = /\{\d+,?\d*\}/y;
 const NOT_NUMBERS_REGEX = /\D/g;
-export const DISJUNCTION_TO_END_OF_INPUT = "|$(?![\\s\\S]))";
-export const OPTIONAL_ATOM_OPENING = "(?:";
-export const NAMED_GROUP_OPENING = "(?<";
 const LITERAL_K_ATOM =
   OPTIONAL_ATOM_OPENING + "k" + DISJUNCTION_TO_END_OF_INPUT;
-
-interface NumericBackreference {
-  ref: number;
-  start: number;
-  end: number;
-}
-
-interface NamedBackreference {
-  ref: string;
-  start: number;
-  end: number;
-}
-
-export type Backreference = NumericBackreference | NamedBackreference;
-export type Part = string | Backreference;
-
-export interface RawLookaroundInfo {
-  sourceStart: number;
-  capturingGroupsOpened: number;
-  backreferences: Backreference[];
-}
 
 const NO_RAW_LOOKAROUNDS: readonly RawLookaroundInfo[] = [];
 const NO_NAMED_GROUP_OPENINGS: readonly string[] = [];
 
-export const groupNameOf = (namedGroupOpening: string): string =>
-  namedGroupOpening.slice(NAMED_GROUP_OPENING.length, -1);
-
-export const isBackreference = (part: Part): part is Backreference =>
-  typeof part !== "string";
-
-export const isNumericBackreference = (
-  part: Part
-): part is NumericBackreference =>
-  isBackreference(part) && typeof part.ref === "number";
-
-type LengthUpToOneBitMask<Counted extends unknown[] = []> =
-  Counted["length"] extends 33
-    ? never
-    : Counted["length"] | LengthUpToOneBitMask<[...Counted, unknown]>;
-
-const REGEX_FEATURES = [
-  "patternCharacter",
-  "startAnchor",
-  "endAnchor",
-  "wordBoundary",
-  "nonWordBoundary",
-  "lookahead",
-  "negativeLookahead",
-  "lookbehind",
-  "negativeLookbehind",
-  "backreference",
-  "namedBackreference",
-  "namedGroup",
-  "capturingGroup",
-  "lookaroundCapture",
-  "nonCapturingGroup",
-  "modifierGroup",
-  "modifierGroupWithRemoval",
-  "characterClass",
-  "nestedCharacterClass",
-  "classIntersection",
-  "classSubtraction",
-  "disjunction",
-  "quantifier",
-  "unicodePropertyEscape",
-  "characterClassEscape",
-  "controlEscape",
-  "controlLetterEscape",
-  "hexEscapeSequence",
-  "unicodeEscapeSequence",
-  "otherEscape"
-] as const satisfies { length: LengthUpToOneBitMask };
-
-export type RegexFeature = (typeof REGEX_FEATURES)[number];
-
-const FEATURE_BIT = {} as Record<RegexFeature, number>;
-for (let index = 0; index < REGEX_FEATURES.length; index++) {
-  FEATURE_BIT[REGEX_FEATURES[index]] = 1 << index;
-}
-
-export function hasFeature(mask: number, feature: RegexFeature): boolean {
-  return (mask & FEATURE_BIT[feature]) !== 0;
-}
-
-export function featureSet(mask: number): Set<RegexFeature> {
-  const features = new Set<RegexFeature>();
-  for (let index = 0; index < REGEX_FEATURES.length; index++) {
-    if (mask & (1 << index)) features.add(REGEX_FEATURES[index]);
-  }
-  return features;
-}
+const declaresGroupNamed = (
+  closedGroupNames: ReadonlySet<string> | undefined,
+  name: string
+) => closedGroupNames?.has(decodeGroupName(name)) ?? false;
 
 export function walk(
   regex: RegExp,
@@ -116,6 +34,9 @@ export function walk(
   let featureMask = 0;
   let rawLookarounds: RawLookaroundInfo[] | undefined;
   let namedGroupOpenings: string[] | undefined;
+  let closedGroupNumbers: Set<number> | undefined;
+  let closedGroupNames: Set<string> | undefined;
+  let namedBackreferencesSeen: Array<{ ref: string; forward?: boolean }> | undefined;
   let currentRawLookaroundBackreferences: Backreference[] | undefined;
 
   function extractSlice(length: number) {
@@ -141,7 +62,12 @@ export function walk(
       const end = nextNonDigit ? nextNonDigit.index : source.length;
       const ref = forcedRef ?? Number(source.slice(start + 1, end));
       i = end;
-      const backreference = { ref, start, end };
+      const backreference = {
+        ref,
+        start,
+        end,
+        forward: !closedGroupNumbers?.has(ref)
+      };
       result.push(backreference);
       currentRawLookaroundBackreferences?.push(backreference);
     }
@@ -182,9 +108,15 @@ export function walk(
                 const start = i;
                 const ref = source.slice(i + 3, referenceEnd);
                 i = referenceEnd + 1;
-                const namedBackreference = { ref, start, end: i };
+                const namedBackreference = {
+                  ref,
+                  start,
+                  end: i,
+                  forward: !declaresGroupNamed(closedGroupNames, ref)
+                };
                 result.push(namedBackreference);
                 currentRawLookaroundBackreferences?.push(namedBackreference);
+                (namedBackreferencesSeen ??= []).push(namedBackreference);
               } else if (currentRawLookaroundBackreferences) {
                 const start = i;
                 i += 2;
@@ -392,16 +324,19 @@ export function walk(
                     featureMask |= FEATURE_BIT.capturingGroup;
                     if (withinLookaround)
                       featureMask |= FEATURE_BIT.lookaroundCapture;
-                    ++groupCount;
+                    const groupNumber = ++groupCount;
                     const opening = extractSlice(
                       source.indexOf(">", i) - i + 1
                     );
                     (namedGroupOpenings ??= []).push(opening);
+                    const declaredName = decodeGroupName(groupNameOf(opening));
                     result.push(opening);
                     result.push(
                       ...process(withinLookaround, declaresNamedGroup),
                       DISJUNCTION_TO_END_OF_INPUT
                     );
+                    (closedGroupNumbers ??= new Set()).add(groupNumber);
+                    (closedGroupNames ??= new Set()).add(declaredName);
                     break;
                   }
                 }
@@ -410,12 +345,13 @@ export function walk(
           } else {
             featureMask |= FEATURE_BIT.capturingGroup;
             if (withinLookaround) featureMask |= FEATURE_BIT.lookaroundCapture;
-            ++groupCount;
+            const groupNumber = ++groupCount;
             appendRaw(1);
             result.push(
               ...process(withinLookaround, declaresNamedGroup),
               DISJUNCTION_TO_END_OF_INPUT
             );
+            (closedGroupNumbers ??= new Set()).add(groupNumber);
           }
           break;
         case ")":
@@ -431,8 +367,27 @@ export function walk(
     return result;
   }
 
+  const parts = process(false, declaresNamedGroup);
+
+  if (namedGroupOpenings && namedBackreferencesSeen) {
+  const seenOnce = new Set<string>();
+    let duplicated: Set<string> | undefined;
+    for (const opening of namedGroupOpenings) {
+      const name = decodeGroupName(groupNameOf(opening));
+      if (seenOnce.has(name)) (duplicated ??= new Set()).add(name);
+      else seenOnce.add(name);
+    }
+    if (duplicated) {
+      for (const backreference of namedBackreferencesSeen) {
+        if (duplicated.has(decodeGroupName(backreference.ref))) {
+          backreference.forward = true;
+        }
+      }
+    }
+  }
+
   return {
-    parts: process(false, declaresNamedGroup),
+    parts,
     groupCount,
     featureMask,
     rawLookarounds: rawLookarounds ?? NO_RAW_LOOKAROUNDS,

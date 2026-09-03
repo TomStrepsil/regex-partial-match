@@ -26,10 +26,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `src/` is linted against the library methods newer than the ES2015 floor the README states. 
   - The built output's existing check parses at that floor, so it catches newer *syntax* but not a newer *method*; the RegExp properties past it are read behind runtime guards, but a plain `String.prototype` call has nothing to guard it
 - Liberally split `compilePartial.ts` into separate files
+- Split `walk.ts` into `atomSyntax.ts` (the rendering-syntax constants), `part.ts` (the `Backreference`/`Part`/`RawLookaroundInfo` types and guards), `groupName.ts` (group-name extraction and decoding), and `regexFeatures.ts` (the feature bitmask), leaving `walk.ts` with only the walk itself. `compilePartial.ts`, `truncationProbe.ts`, `isComplete.ts` and `partialMatchRegExp.ts` now import each directly from the file that owns it, rather than through `walk.ts`
 - Prefer `//` vs `new RegExp`, where possible, in tests
 
 ### Fixed
 
+- A `\1`/`\k<name>` that can't yet have participated — written before its own group, or referencing it while still open, e.g. `\1` in `/^(\1a)$/` (outside a lookbehind, which runs right-to-left and was already atomic regardless) — is now left for the engine to resolve rather than taken from the capture scan, which could hand it a value from a path it never took
 - A legacy escape denoting more than one atom is now reclassified into one optional atom *per atom*, rather than one covering the whole run. `\128` is the character `\x0a` followed by a literal `8`; wrapping both together lost the prefix position between them and re-bound any following quantifier to the pair, so `/^\128*x/` — which means `\x0a` then `8*` then `x` — rejected `"\n88x"` and `"\nx"` outright, both of which the original pattern matches in full. The same applies to `\8` and `\9`, which are identity escapes rather than octal
 - A backreference whose captured value is the empty string now expands to `(?:)` rather than to nothing, so a quantifier following it still has an atom to bind to. `new PartialMatchRegExp(/^\1*(a)/).exec("")` threw `SyntaxError: Nothing to repeat` from the per-input regex it builds
 - A `\0`-led legacy octal escape (`\0`, `\012`, …) is now walked the same way as `\1`-`\9`, reclassifying a multi-digit run atom-by-atom instead of leaking its trailing digits past the walk as literal characters, which shifted prefix positions and quantifier binding. Since there's no group `0`, the walk always tags it `ref: 0` so it's never read as a genuine backreference

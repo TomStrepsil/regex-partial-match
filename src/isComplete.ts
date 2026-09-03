@@ -4,7 +4,7 @@ import {
   type TruncationProbe
 } from "./truncationProbe.ts";
 import type { CompiledPartial } from "./compilePartial.ts";
-import type { Part } from "./walk.ts";
+import type { Part } from "./part.ts";
 
 export interface BackreferenceExpansion {
   parts: Part[];
