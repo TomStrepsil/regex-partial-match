@@ -2832,6 +2832,27 @@ c`)
           index: 0
         });
       });
+
+      it("rejects input the original rejects when the reference is to its own still-open group", () => {
+        const partial = new PartialMatchRegExp(/^(\1a)$/);
+
+        expect(partial.exec("ba")).toBeNull();
+        expect(partial.exec("a")).toMatchAt({ match: "a", index: 0 });
+      });
+
+      it("named: rejects input the original rejects when the reference is to its own still-open group", () => {
+        const partial = new PartialMatchRegExp(/^(?<a>\k<a>b)$/);
+
+        expect(partial.exec("cb")).toBeNull();
+        expect(partial.exec("b")).toMatchAt({ match: "b", index: 0 });
+      });
+
+      it("still resolves a backward reference to an already-closed group nested inside a still-open ancestor", () => {
+        const partial = new PartialMatchRegExp(/^(a(b)\2)$/);
+
+        expect(partial.exec("abb")).toMatchAt({ match: "abb", index: 0 });
+        expect(partial.exec("abx")).toBeNull();
+      });
     });
 
     describe("lastIndex behaviour for backreference patterns", () => {

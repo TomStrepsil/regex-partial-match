@@ -12,15 +12,9 @@ const NO_RAW_LOOKAROUNDS: readonly RawLookaroundInfo[] = [];
 const NO_NAMED_GROUP_OPENINGS: readonly string[] = [];
 
 const declaresGroupNamed = (
-  namedGroupOpenings: readonly string[] | undefined,
+  closedGroupNames: ReadonlySet<string> | undefined,
   name: string
-) => {
-  if (namedGroupOpenings === undefined) return false;
-  const decodedName = decodeGroupName(name);
-  return namedGroupOpenings.some(
-    (opening) => decodeGroupName(groupNameOf(opening)) === decodedName
-  );
-};
+) => closedGroupNames?.has(decodeGroupName(name)) ?? false;
 
 export function walk(
   regex: RegExp,
@@ -40,6 +34,8 @@ export function walk(
   let featureMask = 0;
   let rawLookarounds: RawLookaroundInfo[] | undefined;
   let namedGroupOpenings: string[] | undefined;
+  let closedGroupNumbers: Set<number> | undefined;
+  let closedGroupNames: Set<string> | undefined;
   let currentRawLookaroundBackreferences: Backreference[] | undefined;
 
   function extractSlice(length: number) {
@@ -65,7 +61,12 @@ export function walk(
       const end = nextNonDigit ? nextNonDigit.index : source.length;
       const ref = forcedRef ?? Number(source.slice(start + 1, end));
       i = end;
-      const backreference = { ref, start, end, forward: ref > groupCount };
+      const backreference = {
+        ref,
+        start,
+        end,
+        forward: !closedGroupNumbers?.has(ref)
+      };
       result.push(backreference);
       currentRawLookaroundBackreferences?.push(backreference);
     }
@@ -110,7 +111,7 @@ export function walk(
                   ref,
                   start,
                   end: i,
-                  forward: !declaresGroupNamed(namedGroupOpenings, ref)
+                  forward: !declaresGroupNamed(closedGroupNames, ref)
                 };
                 result.push(namedBackreference);
                 currentRawLookaroundBackreferences?.push(namedBackreference);
@@ -321,16 +322,19 @@ export function walk(
                     featureMask |= FEATURE_BIT.capturingGroup;
                     if (withinLookaround)
                       featureMask |= FEATURE_BIT.lookaroundCapture;
-                    ++groupCount;
+                    const groupNumber = ++groupCount;
                     const opening = extractSlice(
                       source.indexOf(">", i) - i + 1
                     );
                     (namedGroupOpenings ??= []).push(opening);
+                    const declaredName = decodeGroupName(groupNameOf(opening));
                     result.push(opening);
                     result.push(
                       ...process(withinLookaround, declaresNamedGroup),
                       DISJUNCTION_TO_END_OF_INPUT
                     );
+                    (closedGroupNumbers ??= new Set()).add(groupNumber);
+                    (closedGroupNames ??= new Set()).add(declaredName);
                     break;
                   }
                 }
@@ -339,12 +343,13 @@ export function walk(
           } else {
             featureMask |= FEATURE_BIT.capturingGroup;
             if (withinLookaround) featureMask |= FEATURE_BIT.lookaroundCapture;
-            ++groupCount;
+            const groupNumber = ++groupCount;
             appendRaw(1);
             result.push(
               ...process(withinLookaround, declaresNamedGroup),
               DISJUNCTION_TO_END_OF_INPUT
             );
+            (closedGroupNumbers ??= new Set()).add(groupNumber);
           }
           break;
         case ")":
