@@ -2723,6 +2723,89 @@ c`)
       });
     });
 
+    describe("forward references", () => {
+      it("rejects input the original rejects, where the referenced group has not opened yet", () => {
+        const partial = new PartialMatchRegExp(/^\1a(b)/);
+
+        expect(partial.exec("bab")).toBeNull();
+        expect(partial.exec("b")).toBeNull();
+      });
+
+      it("still accepts every prefix of a string the original matches", () => {
+        const partial = new PartialMatchRegExp(/^\1a(b)/);
+
+        expect(partial.exec("")).toMatchAt({ match: "", index: 0 });
+        expect(partial.exec("a")).toMatchAt({ match: "a", index: 0 });
+        expect(partial.exec("ab")).toMatchAt({ match: "ab", index: 0 });
+      });
+
+      it("rejects input the original rejects when the reference skips over a later group", () => {
+        const partial = new PartialMatchRegExp(/^\2(a)(b)/);
+
+        expect(partial.exec("bab")).toBeNull();
+        expect(partial.exec("ab")).toMatchAt({ match: "ab", index: 0 });
+      });
+
+      it("rejects input the original rejects when the reference is quantified", () => {
+        const partial = new PartialMatchRegExp(/^\1{1,2}.(a+)+/);
+
+        expect(partial.exec("aba")).toBeNull();
+        expect(partial.exec("aa")).toMatchAt({ match: "aa", index: 0 });
+        expect(partial.exec("aaa")).toMatchAt({ match: "aaa", index: 0 });
+      });
+
+      it("rejects input the original rejects when the reference is optional", () => {
+        const partial = new PartialMatchRegExp(/^\1?(a)b/);
+
+        expect(partial.exec("aa")).toBeNull();
+        expect(partial.exec("ab")).toMatchAt({ match: "ab", index: 0 });
+      });
+
+      it("does not let its capture scan hand a later backward reference a value it could not have", () => {
+        const partial = new PartialMatchRegExp(/^\1?(a|b)\1/);
+
+        expect(partial.exec("ab")).toBeNull();
+        expect(partial.exec("aa")).toMatchAt({ match: "aa", index: 0 });
+      });
+
+      it("named: does not let its capture scan hand a later backward reference a value it could not have", () => {
+        const partial = new PartialMatchRegExp(/^\k<n>?(?<n>a|b)\k<n>/);
+
+        expect(partial.exec("ab")).toBeNull();
+        expect(partial.exec("aa")).toMatchAt({ match: "aa", index: 0 });
+      });
+
+      it("requires the value an enclosing quantifier's earlier iteration gave the group", () => {
+        const partial = new PartialMatchRegExp(/^(?:\1(a))+$/);
+
+        expect(partial.exec("aaa")).toMatchAt({ match: "aaa", index: 0 });
+        expect(partial.exec("ab")).toBeNull();
+      });
+
+      it("named: rejects input the original rejects", () => {
+        const partial = new PartialMatchRegExp(/^\k<n>a(?<n>b)/);
+
+        expect(partial.exec("bab")).toBeNull();
+        expect(partial.exec("ab")).toMatchAt({ match: "ab", index: 0 });
+      });
+
+      it("named: rejects input the original rejects when the reference skips a later group", () => {
+        const partial = new PartialMatchRegExp(/^\k<m>(?<n>a)(?<m>b)/);
+
+        expect(partial.exec("bab")).toBeNull();
+        expect(partial.exec("ab")).toMatchAt({ match: "ab", index: 0 });
+      });
+
+      it("named: a reference after its own declaration still expands per atom", () => {
+        const partial = new PartialMatchRegExp(
+          /^(?<first>ab)\k<first>(?<second>c)\k<second>/
+        );
+
+        expect(partial.exec("aba")).toMatchAt({ match: "aba", index: 0 });
+        expect(partial.exec("ababcc")).toMatchAt({ match: "ababcc", index: 0 });
+      });
+    });
+
     describe("lastIndex behaviour for backreference patterns", () => {
       it("ignores a manually-set lastIndex on a non-global, non-sticky pattern, matching native RegExp.prototype.exec semantics", () => {
         const partial = new PartialMatchRegExp(

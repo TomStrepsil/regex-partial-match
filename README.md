@@ -215,6 +215,7 @@ The following cases remain atomic (full native value or exactly at true end of i
 
 - **Backreferences inside lookbehinds and negative lookarounds.** These are verbatim contexts — the value a lookbehind or negative lookahead requires must be fully present or fully absent, so there's no partial-prefix position to expand into.
 - **A backreference whose captured value can't be determined from a partial input.** This only affects the backreference site itself; it's strictly better than rejecting the input outright, and never accepts anything unsound.
+- **A forward reference, `\1` written before group 1 opens.** Its value can't come from the capture scan, which resolves it on a path it could never have taken, so it's left to the engine: empty where the group genuinely hasn't participated, and the group's real value where an enclosing quantifier's earlier iteration gave it one.
 
 #### Prefix-ambiguous top-level alternation
 

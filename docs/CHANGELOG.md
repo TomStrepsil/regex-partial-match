@@ -30,6 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- A forward reference (`\1` or `\k<name>` written before its own group opens) no longer takes its value from the capture scan, which resolves it on a path the reference could never have taken
 - A legacy escape denoting more than one atom is now reclassified into one optional atom *per atom*, rather than one covering the whole run. `\128` is the character `\x0a` followed by a literal `8`; wrapping both together lost the prefix position between them and re-bound any following quantifier to the pair, so `/^\128*x/` — which means `\x0a` then `8*` then `x` — rejected `"\n88x"` and `"\nx"` outright, both of which the original pattern matches in full. The same applies to `\8` and `\9`, which are identity escapes rather than octal
 - A backreference whose captured value is the empty string now expands to `(?:)` rather than to nothing, so a quantifier following it still has an atom to bind to. `new PartialMatchRegExp(/^\1*(a)/).exec("")` threw `SyntaxError: Nothing to repeat` from the per-input regex it builds
 - A `\0`-led legacy octal escape (`\0`, `\012`, …) is now walked the same way as `\1`-`\9`, reclassifying a multi-digit run atom-by-atom instead of leaking its trailing digits past the walk as literal characters, which shifted prefix positions and quantifier binding. Since there's no group `0`, the walk always tags it `ref: 0` so it's never read as a genuine backreference

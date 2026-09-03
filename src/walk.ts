@@ -10,12 +10,14 @@ interface NumericBackreference {
   ref: number;
   start: number;
   end: number;
+  forward?: boolean;
 }
 
 interface NamedBackreference {
   ref: string;
   start: number;
   end: number;
+  forward?: boolean;
 }
 
 export type Backreference = NumericBackreference | NamedBackreference;
@@ -32,6 +34,13 @@ const NO_NAMED_GROUP_OPENINGS: readonly string[] = [];
 
 export const groupNameOf = (namedGroupOpening: string): string =>
   namedGroupOpening.slice(NAMED_GROUP_OPENING.length, -1);
+
+const declaresGroupNamed = (
+  namedGroupOpenings: readonly string[] | undefined,
+  name: string
+) =>
+  namedGroupOpenings !== undefined &&
+  namedGroupOpenings.indexOf(NAMED_GROUP_OPENING + name + ">") !== -1;
 
 export const isBackreference = (part: Part): part is Backreference =>
   typeof part !== "string";
@@ -141,7 +150,7 @@ export function walk(
       const end = nextNonDigit ? nextNonDigit.index : source.length;
       const ref = forcedRef ?? Number(source.slice(start + 1, end));
       i = end;
-      const backreference = { ref, start, end };
+      const backreference = { ref, start, end, forward: ref > groupCount };
       result.push(backreference);
       currentRawLookaroundBackreferences?.push(backreference);
     }
@@ -182,7 +191,12 @@ export function walk(
                 const start = i;
                 const ref = source.slice(i + 3, referenceEnd);
                 i = referenceEnd + 1;
-                const namedBackreference = { ref, start, end: i };
+                const namedBackreference = {
+                  ref,
+                  start,
+                  end: i,
+                  forward: !declaresGroupNamed(namedGroupOpenings, ref)
+                };
                 result.push(namedBackreference);
                 currentRawLookaroundBackreferences?.push(namedBackreference);
               } else if (currentRawLookaroundBackreferences) {

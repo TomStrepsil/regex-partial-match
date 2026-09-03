@@ -351,6 +351,13 @@ describe("isComplete()", () => {
       );
     });
 
+    it("reports a forward reference's truncation branch as incomplete", () => {
+      const partial = new PartialMatchRegExp(/^\1a(b)/);
+
+      expect(completenessOf(partial, "a")).toBe(false);
+      expect(completenessOf(partial, "ab")).toBe(true);
+    });
+
     it("answers repeatedly without rebuilding its probe", () => {
       const partial = new PartialMatchRegExp(/^(ab)\1/);
       const match = partial.exec("aba")!;
