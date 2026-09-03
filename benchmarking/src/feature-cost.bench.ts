@@ -16,15 +16,15 @@
  * character class or property escape would read as cheaper than a plain
  * literal not because the switch case is cheaper, but because it leaves fewer
  * parts behind for the same source length. Equalising part count removes that
- * confound — every bench below now differs from the literal baseline only in
- * which switch case walk() took.
+ * confound, though not every variable — source length past the padding, and
+ * flags like u/v, still differ between benches.
  *
  * Read that way, raw lookaheads and lookbehinds are the most expensive
  * construct in the group, not the mid-pack result their part count alone would
- * suggest: the walker processes the body to find its extent and count the
- * capturing groups inside it, then discards those parts and keeps the source
- * slice, so it pays for a second walk on top of the one every other bench here
- * pays once.
+ * suggest: like a positive lookahead, the walker recurses into the body to
+ * find its extent and count the capturing groups inside it, but then discards
+ * that recursive work and copies the same span again as a single source
+ * slice, rather than reusing it the way a lookahead does.
  *
  * The genuinely expensive constructs are in the second group, and each for a
  * structural reason worth keeping visible:
