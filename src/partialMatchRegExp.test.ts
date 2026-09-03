@@ -2788,6 +2788,22 @@ c`)
         expect(partial.exec("")).toMatchAt({ match: "", index: 0 });
       });
 
+      it("preserves the forward reference as native on a later iteration too, not just the first", () => {
+        const partial = new PartialMatchRegExp(/^(?:\1(a)){3}b$/);
+
+        expect(partial.exec("aaa")).toMatchAt({ match: "aaa", index: 0 });
+        expect(partial.exec("aaab")).toMatchAt({ match: "aaab", index: 0 });
+        expect(partial.exec("aaaa")).toBeNull();
+      });
+
+      it("named: preserves the forward reference as native on a later iteration too, not just the first", () => {
+        const partial = new PartialMatchRegExp(/^(?:\k<n>(?<n>a)){3}b$/);
+
+        expect(partial.exec("aaa")).toMatchAt({ match: "aaa", index: 0 });
+        expect(partial.exec("aaab")).toMatchAt({ match: "aaab", index: 0 });
+        expect(partial.exec("aaaa")).toBeNull();
+      });
+
       it("never requires an enclosing quantifier's earlier iteration to have matched the same character", () => {
         const partial = new PartialMatchRegExp(/^(?:\1([a-z]))+$/);
 
