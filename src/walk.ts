@@ -36,6 +36,7 @@ export function walk(
   let namedGroupOpenings: string[] | undefined;
   let closedGroupNumbers: Set<number> | undefined;
   let closedGroupNames: Set<string> | undefined;
+  let namedBackreferencesSeen: Array<{ ref: string; forward?: boolean }> | undefined;
   let currentRawLookaroundBackreferences: Backreference[] | undefined;
 
   function extractSlice(length: number) {
@@ -115,6 +116,7 @@ export function walk(
                 };
                 result.push(namedBackreference);
                 currentRawLookaroundBackreferences?.push(namedBackreference);
+                (namedBackreferencesSeen ??= []).push(namedBackreference);
               } else if (currentRawLookaroundBackreferences) {
                 const start = i;
                 i += 2;
@@ -365,8 +367,27 @@ export function walk(
     return result;
   }
 
+  const parts = process(false, declaresNamedGroup);
+
+  if (namedGroupOpenings && namedBackreferencesSeen) {
+  const seenOnce = new Set<string>();
+    let duplicated: Set<string> | undefined;
+    for (const opening of namedGroupOpenings) {
+      const name = decodeGroupName(groupNameOf(opening));
+      if (seenOnce.has(name)) (duplicated ??= new Set()).add(name);
+      else seenOnce.add(name);
+    }
+    if (duplicated) {
+      for (const backreference of namedBackreferencesSeen) {
+        if (duplicated.has(decodeGroupName(backreference.ref))) {
+          backreference.forward = true;
+        }
+      }
+    }
+  }
+
   return {
-    parts: process(false, declaresNamedGroup),
+    parts,
     groupCount,
     featureMask,
     rawLookarounds: rawLookarounds ?? NO_RAW_LOOKAROUNDS,

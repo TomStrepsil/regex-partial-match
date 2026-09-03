@@ -2782,6 +2782,12 @@ c`)
         expect(partial.exec("ab")).toBeNull();
       });
 
+      it("on the dynamic path, still requires that value for a partial prefix a full native match wouldn't exercise", () => {
+        const partial = new PartialMatchRegExp(/^(?:\1(a))+$/);
+
+        expect(partial.exec("aa")).toMatchAt({ match: "aa", index: 0 });
+      });
+
       it("named: rejects input the original rejects", () => {
         const partial = new PartialMatchRegExp(/^\k<n>a(?<n>b)/);
 
@@ -2852,6 +2858,16 @@ c`)
 
         expect(partial.exec("abb")).toMatchAt({ match: "abb", index: 0 });
         expect(partial.exec("abx")).toBeNull();
+      });
+
+      it("named: treats a reference to a name declared more than once, in disjoint alternatives, as forward", () => {
+        const partial = new PartialMatchRegExp(
+          new RegExp("^(?:(?<x>a)|\\k<x>b(?<x>c))$")
+        );
+
+        expect(partial.exec("cbc")).toBeNull();
+        expect(partial.exec("a")).toMatchAt({ match: "a", index: 0 });
+        expect(partial.exec("bc")).toMatchAt({ match: "bc", index: 0 });
       });
     });
 
