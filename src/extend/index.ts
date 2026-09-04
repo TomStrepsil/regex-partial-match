@@ -1,4 +1,4 @@
-import PartialMatchRegExp from "../partialMatchRegExp/index.ts";
+import PartialMatchRegExp from "../partialMatchRegExp/partialMatchRegExp.ts";
 
 declare global {
   interface RegExp {

@@ -23,10 +23,11 @@
  *
  * `SMOKE_TESTS` also receives each entry point's built file as a `URL`, for
  * cases that need to check its runtime import graph rather than just its
- * exports — e.g. that `regex-partial-match/partialMatchRegExp` never reaches
- * `isComplete`, even transitively and even if some file along the way
- * imported it without re-exporting it, which a check of the loaded module's
- * own exports alone couldn't catch.
+ * exports — e.g. that `regex-partial-match/extend` and
+ * `regex-partial-match/partialMatchRegExp` never reach `isComplete`, even
+ * transitively and even if some file along the way imported it without
+ * re-exporting it, which a check of the loaded module's own exports alone
+ * couldn't catch.
  */
 
 import assert from "node:assert/strict";
@@ -110,6 +111,21 @@ function assertPartialMatchRegExpBehaves(
   );
 }
 
+async function assertNeverReachesIsComplete(
+  specifier: string,
+  builtFile: URL
+): Promise<void> {
+  const reached = await transitiveRuntimeImports(builtFile);
+  const isCompleteModule = [...reached].find((href) =>
+    href.includes("/isComplete/")
+  );
+  assert.equal(
+    isCompleteModule,
+    undefined,
+    `${specifier}'s runtime import graph reaches ${String(isCompleteModule)} — isComplete must not be reachable even transitively, whether or not it's re-exported`
+  );
+}
+
 function assertIsCompleteBehaves(
   PartialMatchRegExp: PartialMatchRegExpConstructor,
   isComplete: typeof isCompleteType
@@ -155,7 +171,7 @@ const SMOKE_TESTS: Record<
     );
   },
 
-  "./extend": () => {
+  "./extend": async (_loaded, builtFile) => {
     assert.equal(
       typeof RegExp.prototype.toPartialMatchRegex,
       "function",
@@ -166,6 +182,8 @@ const SMOKE_TESTS: Record<
       true,
       "extended regex rejects a prefix"
     );
+
+    await assertNeverReachesIsComplete("regex-partial-match/extend", builtFile);
   },
 
   "./partialMatchRegExp": async (loaded, builtFile) => {
@@ -181,14 +199,9 @@ const SMOKE_TESTS: Record<
       "isComplete leaked into the partialMatchRegExp-only entry point's exports"
     );
 
-    const reached = await transitiveRuntimeImports(builtFile);
-    const isCompleteModule = [...reached].find((href) =>
-      href.includes("/isComplete/")
-    );
-    assert.equal(
-      isCompleteModule,
-      undefined,
-      `regex-partial-match/partialMatchRegExp's runtime import graph reaches ${String(isCompleteModule)} — isComplete must not be reachable even transitively, whether or not it's re-exported`
+    await assertNeverReachesIsComplete(
+      "regex-partial-match/partialMatchRegExp",
+      builtFile
     );
   }
 };
