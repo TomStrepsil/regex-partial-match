@@ -27,7 +27,7 @@ const plainPartial = compiled.regex;
 const classPartial = new PartialMatchRegExp(pattern);
 
 const fullMatchInput = "hello world foo";
-const partialInput = "hello wor";
+const partialInput = "hello";
 
 group("dispatch overhead — full match input", () => {
   bench("native RegExp.exec", () => native.exec(fullMatchInput));

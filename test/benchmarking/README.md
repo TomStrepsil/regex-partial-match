@@ -6,7 +6,7 @@ Performance benchmarks for `regex-partial-match`, built with [mitata](https://gi
 
 ```sh
 # Pretty-print results to terminal
-npm run bench --workspace=benchmarking
+npm run bench --workspace=test/benchmarking
 ```
 
 ## 🎯 Scenarios
@@ -58,7 +58,7 @@ Two patterns are used to cover different positions within a backreference:
 
 Each pattern is measured at three stages — full match (native fast path), partial input before the backreference atom is reached, and partial input mid-backreference — plus an accumulated keystroke simulation that sums the cost over all prefixes.
 
-A fourth group covers a native complete match at a *non-zero* index, where `exec()` must confirm no earlier partial exists before trusting it (see [docs/backreferences.md](../docs/backreferences.md) — "Leftmost bound check"): once when the cheap `preScan` bound rejects outright (native wins, pipeline skipped), and once when the bound is loose enough that the full slow-path pipeline still has to run even though the native match wins in the end.
+A fourth group covers a native complete match at a *non-zero* index, where `exec()` must confirm no earlier partial exists before trusting it (see [docs/backreferences.md](../../docs/backreferences.md) — "Leftmost bound check"): once when the cheap `preScan` bound rejects outright (native wins, pipeline skipped), and once when the bound is loose enough that the full slow-path pipeline still has to run even though the native match wins in the end.
 
 ### 5. Construction cost (`construction-cost.bench.ts`)
 
@@ -102,7 +102,7 @@ Two further groups cover the constructs that decide which compiled path a patter
 
 ## 🤖 CI integration
 
-The workflow at [`.github/workflows/benchmark.yml`](../.github/workflows/benchmark.yml) runs on every push to `main` and on pull requests targeting `main`.
+The workflow at [`.github/workflows/benchmark.yml`](../../.github/workflows/benchmark.yml) runs on every push to `main` and on pull requests targeting `main`.
 
 Results are stored and compared by [`benchmark-action/github-action-benchmark`](https://github.com/benchmark-action/github-action-benchmark) using the `customSmallerIsBetter` tool. A regression alert comment is posted on the PR if any benchmark regresses beyond 150% of the stored baseline (a loose threshold to account for CI runner noise).
 
@@ -110,7 +110,7 @@ The baseline is only updated on merges to `main` — PR runs read but do not wri
 
 ## 📊 Output format
 
-`../.github/scripts/mitata-to-action-format.ts` converts mitata's JSON output to the `github-action-benchmark` schema:
+`../../.github/scripts/mitata-to-action-format.ts` converts mitata's JSON output to the `github-action-benchmark` schema:
 
 ```json
 [
