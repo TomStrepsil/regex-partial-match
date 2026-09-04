@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import PartialMatchRegExp from "./partialMatchRegExp.ts";
-import { completenessOf } from "../test/vitest.setup.ts";
+import PartialMatchRegExp, { isComplete } from "../index.ts";
+import { completenessOf } from "../../../test/vitest.setup.ts";
 
 describe("isComplete()", () => {
   describe("distinguishing a match of the original pattern from a prefix", () => {
@@ -55,11 +55,11 @@ describe("isComplete()", () => {
       const truncated = partial.exec("ab")!;
       expect(truncated).toMatchAt({ match: "a", index: 0 });
       expect(truncated[1]).toBeUndefined();
-      expect(partial.isComplete(truncated)).toBe(false);
+      expect(isComplete(partial, truncated)).toBe(false);
 
       const complete = partial.exec("abcd")!;
       expect(complete[1]).toBe("c");
-      expect(partial.isComplete(complete)).toBe(true);
+      expect(isComplete(partial, complete)).toBe(true);
     });
 
     it("answers where re-running the original pattern cannot", () => {
@@ -92,7 +92,7 @@ describe("isComplete()", () => {
       const match = partial.exec("ab")!;
 
       expect(match[1]).toBe("b");
-      expect(partial.isComplete(match)).toBe(true);
+      expect(isComplete(partial, match)).toBe(true);
     });
 
     it("shows the same capture growing once the input actually continues", () => {
@@ -273,7 +273,7 @@ describe("isComplete()", () => {
       const partial = new PartialMatchRegExp(/^(ab)c/d);
 
       const match = partial.exec("ab")!;
-      expect(partial.isComplete(match)).toBe(false);
+      expect(isComplete(partial, match)).toBe(false);
       expect(match.indices![1]).toEqual([0, 2]);
     });
 
@@ -282,7 +282,7 @@ describe("isComplete()", () => {
 
       const first = partial.exec("abab")!;
       expect(partial.lastIndex).toBe(2);
-      expect(partial.isComplete(first)).toBe(true);
+      expect(isComplete(partial, first)).toBe(true);
       expect(partial.lastIndex).toBe(2);
       expect(partial.exec("abab")).toMatchAt({ match: "ab", index: 2 });
     });
@@ -362,8 +362,8 @@ describe("isComplete()", () => {
       const partial = new PartialMatchRegExp(/^(ab)\1/);
       const match = partial.exec("aba")!;
 
-      expect(partial.isComplete(match)).toBe(false);
-      expect(partial.isComplete(match)).toBe(false);
+      expect(isComplete(partial, match)).toBe(false);
+      expect(isComplete(partial, match)).toBe(false);
     });
 
     it("returns null, with nothing to report, when no partial match exists", () => {
@@ -504,7 +504,7 @@ describe("isComplete()", () => {
       const match = partial.exec("a")!;
       const beforeAsking = [...match];
 
-      expect(partial.isComplete(match)).toBe(false);
+      expect(isComplete(partial, match)).toBe(false);
       expect([...match]).toEqual(beforeAsking);
       expect(match.groups).toEqual({ second: "" });
       expect(match.index).toBe(0);
@@ -516,7 +516,7 @@ describe("isComplete()", () => {
       const match = partial.exec("a")!;
       const ownProperties = Object.getOwnPropertyNames(match);
 
-      expect(partial.isComplete(match)).toBe(false);
+      expect(isComplete(partial, match)).toBe(false);
       expect(Object.getOwnPropertyNames(match)).toEqual(ownProperties);
     });
 

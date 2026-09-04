@@ -2,7 +2,7 @@
 
 Several widely-used regex libraries offer native partial-match support. This document maps their concepts and test cases to this library's behaviour.
 
-The parity tests added in `src/partialMatchRegExp.test.ts` ("parity with reference implementations") vary in how directly they reflect each source:
+The parity tests added in `src/partialMatchRegExp/partialMatchRegExp.test.ts` ("parity with reference implementations") vary in how directly they reflect each source:
 
 - **JDK** — test cases are explicit: the `hitEndTest`, `caretAtEndTest`, and `wordSearchTest` methods in `RegExTest.java` name specific patterns and inputs (e.g. `/^squidattack/` on `"squid"` / `"squack"`, `/^x?/m` on `"\r"`, `/\b/` on `"word1 word2 word3"`), which are reproduced directly.
 - **Lucene** — test cases are derived: `TestRegExp.java` describes what each test method exercises (patterns like `[^y]*{1,2}`, `"(a)|".repeat(50000)`, and character sets σ/Σ/ῼ/ﬗ), but the specific assertions in the test suite here are our own translations of those properties.

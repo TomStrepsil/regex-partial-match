@@ -1,17 +1,23 @@
-import { legacyEscapeAsLiteral } from "./legacyEscape.ts";
+import { legacyEscapeAsLiteral } from "../legacyEscape.ts";
 import {
   DISJUNCTION_TO_END_OF_INPUT,
   OPTIONAL_ATOM_OPENING,
   NAMED_GROUP_OPENING
-} from "./atomSyntax.ts";
-import { groupNameOf, decodeGroupName } from "./groupName.ts";
+} from "../atomSyntax.ts";
+import { groupNameOf, decodeGroupName } from "../groupName.ts";
 import {
   isBackreference,
   isNumericBackreference,
   type Backreference,
   type Part,
   type RawLookaroundInfo
-} from "./part.ts";
+} from "../part.ts";
+
+export interface TruncationProbe {
+  regex: RegExp;
+  markerName: string;
+  markerCount: number;
+}
 
 const TRUNCATION_MARKER_NAME = "truncation";
 const FLAGS_INCOMPATIBLE_WITH_PROBING = /[dgy]/g;
@@ -111,12 +117,6 @@ function rawReferenceReplacement(
       : legacyEscapeAsLiteral(spelling.slice(1));
   }
   return declaresNamedGroup ? spelling : "k" + spelling.slice(2);
-}
-
-export interface TruncationProbe {
-  regex: RegExp;
-  markerName: string;
-  markerCount: number;
 }
 
 export const buildTruncationProbe = (

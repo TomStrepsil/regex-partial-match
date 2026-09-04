@@ -12,8 +12,8 @@
  */
 
 import { bench, group } from "mitata";
-import { compilePartial } from "../../src/compilePartial.ts";
-import PartialMatchRegExp from "../../src/partialMatchRegExp.ts";
+import { compilePartial } from "../../../src/partialMatchRegExp/compilePartial.ts";
+import PartialMatchRegExp from "../../../src/partialMatchRegExp/index.ts";
 
 const pattern = /^[a-z]+(?:\s\w+){1,3}/;
 
@@ -27,7 +27,7 @@ const plainPartial = compiled.regex;
 const classPartial = new PartialMatchRegExp(pattern);
 
 const fullMatchInput = "hello world foo";
-const partialInput = "hello wor";
+const partialInput = "hello";
 
 group("dispatch overhead — full match input", () => {
   bench("native RegExp.exec", () => native.exec(fullMatchInput));

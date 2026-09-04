@@ -47,7 +47,7 @@ Keeping every rendering derived from one walk means they all agree about what co
 
 **The one pattern shape walked twice.** The walk takes `declaresNamedGroup` because a closed `\k<name>` is a named backreference only when the pattern declares a named group, and is the Annex B literal `k<name>` otherwise. The walk cannot know which at the point it meets the reference, since the declaration may come later in the source. So `compilePartial()` walks optimistically with `true`, and walks a second time with `false` in the one case where the first pass proves itself wrong: it recorded a named reference but no named group. [^1]
 
-[^1]: That is the only pattern shape walked twice — roughly two walk passes, ~1.7µs of extra construction, once per instance — and `benchmarking/src/construction-cost.bench.ts` measures it as its own group.
+[^1]: That is the only pattern shape walked twice — roughly two walk passes, ~1.7µs of extra construction, once per instance — and `test/benchmarking/src/construction-cost.bench.ts` measures it as its own group.
 
 Within a single pass:
 

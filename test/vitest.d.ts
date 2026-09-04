@@ -18,9 +18,9 @@ declare module "vitest" {
   interface Assertion {
     toMatchAt(params: ToMatchAtParams): void;
     toNotMatch(): void;
-    toMatchPartially(params: ToMatchPartiallyParams): R;
+    toMatchPartially(params: ToMatchPartiallyParams): void;
     toNotMatchPartially(
       params: ToNotMatchPartiallyParams
-    ): R;
+    ): void;
   }
 }

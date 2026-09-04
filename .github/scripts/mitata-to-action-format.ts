@@ -2,8 +2,8 @@
  * Converts mitata v1.x JSON output to the github-action-benchmark
  * customSmallerIsBetter format. Called by the benchmark workflow:
  *
- *   npm run bench --workspace=benchmarking --silent -- --json \
- *     | npx tsx .github/scripts/mitata-to-action-format.ts > benchmarking/results.json
+ *   npm run bench --workspace=test/benchmarking --silent -- --json \
+ *     | npx tsx .github/scripts/mitata-to-action-format.ts > test/benchmarking/results.json
  *
  * Input (stdin): mitata run() result — { benchmarks: [...], layout: [...] }
  * Output (stdout): JSON array of:

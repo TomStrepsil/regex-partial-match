@@ -20,17 +20,31 @@
  *
  * Adding an entry point to "exports" without adding a case to SMOKE_TESTS
  * fails this script.
+ *
+ * `SMOKE_TESTS` also receives each entry point's built file as a `URL`, for
+ * cases that need to check its runtime import graph rather than just its
+ * exports — e.g. that `regex-partial-match/extend` and
+ * `regex-partial-match/partialMatchRegExp` never reach `isComplete`, even
+ * transitively and even if some file along the way imported it without
+ * re-exporting it, which a check of the loaded module's own exports alone
+ * couldn't catch.
  */
 
 import assert from "node:assert/strict";
 import { readdir, readFile } from "node:fs/promises";
 import { createRequire } from "node:module";
+import { fileURLToPath } from "node:url";
+import { build } from "esbuild";
 import { Linter } from "eslint";
-import type PartialMatchRegExpInstance from "../../src/partialMatchRegExp.ts";
+import type PartialMatchRegExpInstance from "../../src/partialMatchRegExp/index.ts";
+import type isCompleteType from "../../src/partialMatchRegExp/isComplete/index.ts";
 
 const SUPPORTED_ECMA_VERSION = 2015;
 
 const BUILT_OUTPUT = new URL("../../lib/", import.meta.url);
+
+const packageName = "regex-partial-match";
+const require = createRequire(import.meta.url);
 
 type LoadedModule = Record<string, unknown>;
 
@@ -39,44 +53,125 @@ type PartialMatchRegExpConstructor = new (
   flags?: string
 ) => PartialMatchRegExpInstance;
 
-const SMOKE_TESTS: Record<string, (loaded: LoadedModule) => void> = {
-  ".": (loaded) => {
+interface ExportEntry {
+  types?: string;
+  import?: string;
+  default?: string;
+}
+
+/**
+ * The full set of built files reachable from `entry` by following relative
+ * `import`/`export ... from` specifiers, recursively — i.e. what actually
+ * loads at runtime when `entry` is imported, not just what it re-exports.
+ *
+ * esbuild has to resolve and read every one of these before it can even
+ * begin deciding what to tree-shake, so `metafile.inputs` names exactly this
+ * set regardless of what a bundle built from `entry` would keep or drop —
+ * the same reasoning a manual `esbuild --bundle` check would apply by hand,
+ * automated instead of eyeballed.
+ */
+async function transitiveRuntimeImports(entry: URL): Promise<Set<string>> {
+  const { metafile } = await build({
+    entryPoints: [fileURLToPath(entry)],
+    absWorkingDir: fileURLToPath(BUILT_OUTPUT),
+    bundle: true,
+    write: false,
+    metafile: true,
+    platform: "neutral",
+    format: "esm",
+    logLevel: "silent"
+  });
+  return new Set(
+    Object.keys(metafile.inputs).map(
+      (relativePath) => new URL(relativePath, BUILT_OUTPUT).href
+    )
+  );
+}
+
+function builtEntryUrl(entry: ExportEntry): URL {
+  const path = entry.import ?? entry.default;
+  assert.ok(path, `"exports" entry has neither "import" nor "default"`);
+  return new URL(path.replace(/^\.\/lib\//, ""), BUILT_OUTPUT);
+}
+
+function assertPartialMatchRegExpBehaves(
+  PartialMatchRegExp: PartialMatchRegExpConstructor
+): void {
+  const partial = new PartialMatchRegExp(/^(\w+) \1 end$/);
+  assert.equal(partial.test("abc ab"), true, "does not accept a prefix");
+  assert.equal(
+    partial.test("abc abc end"),
+    true,
+    "does not accept a full match"
+  );
+  assert.equal(
+    partial.test("abc xyz end"),
+    false,
+    "accepts an impossible input"
+  );
+}
+
+async function assertNeverReachesIsComplete(
+  specifier: string,
+  builtFile: URL
+): Promise<void> {
+  const reached = await transitiveRuntimeImports(builtFile);
+  const isCompleteModule = [...reached].find((href) =>
+    href.includes("/isComplete/")
+  );
+  assert.equal(
+    isCompleteModule,
+    undefined,
+    `${specifier}'s runtime import graph reaches ${String(isCompleteModule)} — isComplete must not be reachable even transitively, whether or not it's re-exported`
+  );
+}
+
+function assertIsCompleteBehaves(
+  PartialMatchRegExp: PartialMatchRegExpConstructor,
+  isComplete: typeof isCompleteType
+): void {
+  const partial = new PartialMatchRegExp(/^(\w+) \1 end$/);
+
+  const prefix = partial.exec("abc ab");
+  assert.ok(prefix, "no match for a prefix");
+  assert.equal(
+    isComplete(partial, prefix),
+    false,
+    "does not identify the prefix as incomplete"
+  );
+
+  const full = partial.exec("abc abc end");
+  assert.ok(full, "no match for a full match");
+  assert.equal(
+    isComplete(partial, full),
+    true,
+    "does not identify the full match as complete"
+  );
+}
+
+const SMOKE_TESTS: Record<
+  string,
+  (loaded: LoadedModule, builtFile: URL) => void | Promise<void>
+> = {
+  ".": async (loaded, builtFile) => {
     const PartialMatchRegExp = loaded.default as
       | PartialMatchRegExpConstructor
       | undefined;
     assert.ok(PartialMatchRegExp, "no default export");
+    assertPartialMatchRegExpBehaves(PartialMatchRegExp);
 
-    const partial = new PartialMatchRegExp(/^(\w+) \1 end$/);
-    assert.equal(partial.test("abc ab"), true, "does not accept a prefix");
-    assert.equal(
-      partial.test("abc abc end"),
-      true,
-      "does not accept a full match"
-    );
-    assert.equal(
-      partial.test("abc xyz end"),
-      false,
-      "accepts an impossible input"
-    );
+    const isComplete = loaded.isComplete as typeof isCompleteType | undefined;
+    assert.ok(isComplete, "no isComplete named export");
+    assertIsCompleteBehaves(PartialMatchRegExp, isComplete);
 
-    const prefix = partial.exec("abc ab");
-    assert.ok(prefix, "no match for a prefix");
-    assert.equal(
-      partial.isComplete(prefix),
-      false,
-      "does not identify the prefix as incomplete"
-    );
-
-    const full = partial.exec("abc abc end");
-    assert.ok(full, "no match for a full match");
-    assert.equal(
-      partial.isComplete(full),
-      true,
-      "does not identify the full match as complete"
+    const reached = await transitiveRuntimeImports(builtFile);
+    assert.ok(
+      [...reached].some((href) => href.includes("/isComplete/")),
+      "the default entry point's runtime import graph never reaches isComplete, though it re-exports it — transitiveRuntimeImports() may be broken, since the other direction is what ./partialMatchRegExp relies on"
     );
   },
 
-  "./extend": () => {
+  "./extend": async (_loaded, builtFile) => {
     assert.equal(
       typeof RegExp.prototype.toPartialMatchRegex,
       "function",
@@ -86,6 +181,27 @@ const SMOKE_TESTS: Record<string, (loaded: LoadedModule) => void> = {
       /^hello world$/.toPartialMatchRegex().test("hel"),
       true,
       "extended regex rejects a prefix"
+    );
+
+    await assertNeverReachesIsComplete("regex-partial-match/extend", builtFile);
+  },
+
+  "./partialMatchRegExp": async (loaded, builtFile) => {
+    const PartialMatchRegExp = loaded.default as
+      | PartialMatchRegExpConstructor
+      | undefined;
+    assert.ok(PartialMatchRegExp, "no default export");
+    assertPartialMatchRegExpBehaves(PartialMatchRegExp);
+
+    assert.equal(
+      loaded.isComplete,
+      undefined,
+      "isComplete leaked into the partialMatchRegExp-only entry point's exports"
+    );
+
+    await assertNeverReachesIsComplete(
+      "regex-partial-match/partialMatchRegExp",
+      builtFile
     );
   }
 };
@@ -121,15 +237,15 @@ async function assertBuiltOutputParsesAtSupportedEcmaVersion(): Promise<void> {
   }
 }
 
-async function readExportedSubpaths(): Promise<string[]> {
+async function readExportsManifest(): Promise<Record<string, ExportEntry>> {
   const manifest = await readFile(
     new URL("../../package.json", import.meta.url),
     "utf8"
   );
   const { exports } = JSON.parse(manifest) as {
-    exports: Record<string, unknown>;
+    exports: Record<string, ExportEntry>;
   };
-  return Object.keys(exports);
+  return exports;
 }
 
 function toSpecifier(packageName: string, subpath: string): string {
@@ -137,14 +253,11 @@ function toSpecifier(packageName: string, subpath: string): string {
 }
 
 async function main(): Promise<void> {
-  const packageName = "regex-partial-match";
-  const require = createRequire(import.meta.url);
-
   await assertBuiltOutputParsesAtSupportedEcmaVersion();
 
-  const subpaths = await readExportedSubpaths();
+  const exportsManifest = await readExportsManifest();
 
-  for (const subpath of subpaths) {
+  for (const [subpath, entry] of Object.entries(exportsManifest)) {
     const specifier = toSpecifier(packageName, subpath);
     const smokeTest = SMOKE_TESTS[subpath];
     assert.ok(
@@ -152,14 +265,18 @@ async function main(): Promise<void> {
       `"exports" declares ${subpath} but SMOKE_TESTS has no case for it`
     );
 
-    smokeTest((await import(specifier)) as LoadedModule);
+    const builtFile = builtEntryUrl(entry);
+
+    await smokeTest((await import(specifier)) as LoadedModule, builtFile);
     console.log(`  ✓ import("${specifier}")`);
 
-    smokeTest(require(specifier) as LoadedModule);
+    await smokeTest(require(specifier) as LoadedModule, builtFile);
     console.log(`  ✓ require("${specifier}")`);
   }
 
-  console.log(`Smoke tested ${String(subpaths.length)} entry points from lib/`);
+  console.log(
+    `Smoke tested ${String(Object.keys(exportsManifest).length)} entry points from lib/`
+  );
 }
 
 await main();

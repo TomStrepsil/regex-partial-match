@@ -1,27 +1,15 @@
 import {
   buildTruncationProbe,
-  tookTruncationBranch,
-  type TruncationProbe
+  tookTruncationBranch
 } from "./truncationProbe.ts";
-import type { CompiledPartial } from "./compilePartial.ts";
-import type { Part } from "./part.ts";
+import type { CompiledPartial } from "../compilePartial.ts";
+import {
+  backreferenceExpansion,
+  type ExpandedMatch
+} from "../backreferenceExpansion.ts";
+import type { TruncationProbeCache } from "./truncationProbeCache.ts";
 
-export interface BackreferenceExpansion {
-  parts: Part[];
-  probe: TruncationProbe | undefined;
-}
-
-export const backreferenceExpansion = Symbol("backreferenceExpansion");
-
-export interface ExpandedMatch extends RegExpExecArray {
-  [backreferenceExpansion]?: BackreferenceExpansion;
-}
-
-export interface TruncationProbeCache {
-  probe: TruncationProbe | undefined;
-}
-
-export function isComplete(
+export default function isMatchComplete(
   compiled: CompiledPartial,
   match: RegExpExecArray,
   flags: string,

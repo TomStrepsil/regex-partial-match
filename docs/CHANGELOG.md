@@ -9,9 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- `isComplete(match: RegExpExecArray): boolean` on `PartialMatchRegExp`, reporting whether a match `exec()` returned is a match of the original pattern or merely a prefix of it — the distinction partial matching is named for, which the result previously discarded
+- `isComplete(partial: PartialMatchRegExp, match: RegExpExecArray): boolean`, reporting whether a match `exec()` returned is a match of the original pattern or merely a prefix of it — the distinction partial matching is named for, which the result previously discarded
   - Answered by re-running the compiled pattern sticky at `match.index` with an empty named group in front of each `|$(?![\s\S])` truncation branch, so any marker returned defined is a branch the match actually took. Supported on both the static and the backreference paths
   - Requires ES2018+ regardless of the pattern, since that probe uses named capturing groups internally
+  - A free function — `import { isComplete } from "regex-partial-match"` — rather than a method on `PartialMatchRegExp`: a class method's code ships with every instance whether or not it's called, so putting it there would have put its ES2018+ probe machinery in every consumer's bundle. A named export doesn't fully solve this for a consumer that can't tree-shake (e.g. Deno) and has no use for `isComplete`, so `regex-partial-match/partialMatchRegExp` also exports `PartialMatchRegExp` alone, bypassing the barrel that pulls `isComplete` in
 - Benchmark scenarios for `isComplete()` and for per-feature construction cost
 - `test:coverage` script
 

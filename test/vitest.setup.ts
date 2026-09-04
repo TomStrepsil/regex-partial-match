@@ -1,5 +1,6 @@
 import { expect } from "vitest";
-import type PartialMatchRegExp from "../src/partialMatchRegExp.ts";
+import type PartialMatchRegExp from "../src/partialMatchRegExp/index.ts";
+import isComplete from "../src/partialMatchRegExp/isComplete/index.ts";
 import type { ToMatchAtParams, ToMatchPartiallyParams, ToNotMatchPartiallyParams } from "./vitest.d.js";
 
 export function completenessOf(
@@ -7,7 +8,7 @@ export function completenessOf(
   input: string
 ): boolean | null {
   const match = regex.exec(input);
-  return match === null ? null : regex.isComplete(match);
+  return match === null ? null : isComplete(regex, match);
 }
 
 expect.extend({
