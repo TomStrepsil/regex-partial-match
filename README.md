@@ -473,7 +473,7 @@ The information only exists during matching. `isComplete()` recovers it by re-ru
 **Cost:** one anchored `exec` per call, plus the twin's construction on the first call that needs it. `exec()` and `test()` are untouched: the expansion a backreference match is answered from is held on the match itself, under a private symbol, so it costs a single field write and is collected with the match. Repeatedly asking about the *same* match is cheap; asking once per match on a backreference pattern pays for a new twin each time.
 
 > [!CAUTION]
-> `isComplete()` itself always requires ES2018+, regardless of the pattern: its truncation probe is built from named capturing groups internally, even for a pattern as plain as `/^abc/`. See [Browser Compatibility](#browser-compatibility) — every other method holds to the ES2015 floor stated there. That's also why it's a free function rather than a method on `PartialMatchRegExp`: a class method's code ships with every instance of the class, whether or not it's called, but a function reached only by its own name can be left out — see [A note on Tree-Shaking](#a-note-on-tree-shaking) for the subpath that does.
+> `isComplete()` itself always requires ES2018+, regardless of the pattern: its truncation probe is built from named capturing groups internally, even for a pattern as plain as `/^abc/`. See [Browser Compatibility](#browser-compatibility) — every other method holds to the ES2015 floor stated there.
 
 #### What it cannot see
 
