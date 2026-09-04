@@ -39,7 +39,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - The truncation probe's raw-lookaround renumbering had the same gap, treating such a run inside `(?!…)`/`(?<=…)`/`(?<!…)` as a real backreference whenever any group preceded it — visible only through `isComplete()`, since `exec()`/`test()` never rebuild that text
 - A quantifier following a backreference now applies to the whole expansion of its captured text, not just its last character: `\1*` after capturing `"ab"` grouped its per-character atoms as `(?:a|…)(?:b|…)*`, so the `*` bound only to `b` and rejected valid prefixes like `"ababa"`
 - `feature-cost.bench.ts`'s "hex and unicode escapes" bench actually exercised `\cC`, a control-letter escape, not `\uXXXX`; split it into its own `\cC` bench so removing the mislabelled one didn't drop coverage
-- `feature-cost.bench.ts`'s first bench group tracked emitted part count more than construct cost, reading a character class as cheaper than a plain literal and raw negative lookahead as mid-pack rather than the group's priciest construct. Each pattern's tail is now padded to a common part count, computed and asserted at bench load rather than maintained by hand. Benchmark-methodology only; no library behaviour changed
+- `feature-cost.bench.ts`'s first bench group tracked emitted part count more than construct cost, reading a character class as cheaper than a plain literal and raw negative lookahead as mid-pack rather than the group's priciest construct. Each pattern's tail is now padded to a common part count, computed and asserted at bench load rather than maintained by hand
+- `hot-loop.bench.ts`'s `matchAll` group built `PartialMatchRegExp` inside the timed closure, conflating construction cost with iteration cost; the instance is now hoisted to module scope like its manual-exec sibling
 
 ## [1.2.0] - 2026-08-31
 

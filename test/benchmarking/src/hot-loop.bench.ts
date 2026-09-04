@@ -24,6 +24,7 @@ const text = (
 
 const nativeGlobal = /\b\w+\b/g;
 const partialGlobal = new PartialMatchRegExp(/\b\w+\b/, "g");
+const partialGlobalForMatchAll = new PartialMatchRegExp(/\b\w+\b/, "g");
 
 function execAll(re: RegExp, input: string): void {
   re.lastIndex = 0;
@@ -47,6 +48,7 @@ group("hot loop — String.prototype.matchAll (~700 matches)", () => {
     for (const m of text.matchAll(/\b\w+\b/g)) void m;
   });
   bench("PartialMatchRegExp matchAll", () => {
-    for (const m of text.matchAll(new PartialMatchRegExp(/\b\w+\b/, "g"))) void m;
+    partialGlobalForMatchAll.lastIndex = 0;
+    for (const m of text.matchAll(partialGlobalForMatchAll)) void m;
   });
 });
