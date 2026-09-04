@@ -38,10 +38,10 @@ partial.test("goodbye"); // false - cannot match
 
 ### Telling a prefix from a complete match
 
-`test()` and `exec()` answer "could this match?", which is `true` for a prefix and for a complete match alike. [`isComplete()`](#partialmatchregexpprototypeiscompletematch-regexpexecarray-boolean) separates the two — testing the original pattern instead doesn't[^1] — giving the three states progressive validation actually needs:
+`test()` and `exec()` answer "could this match?", which is `true` for a prefix and for a complete match alike. [`isComplete()`](#iscompletepartial-partialmatchregexp-match-regexpexecarray-boolean) separates the two, testing the original pattern instead doesn't [^1], giving the three states progressive validation actually needs:
 
 ```javascript
-import PartialMatchRegExp from "regex-partial-match";
+import PartialMatchRegExp, { isComplete } from "regex-partial-match";
 
 const partial = new PartialMatchRegExp(/^\d{4}-\d{2}-\d{2}/);
 
@@ -49,7 +49,7 @@ function state(input) {
   const match = partial.exec(input);
 
   if (match === null) return "invalid";
-  return partial.isComplete(match) ? "complete" : "incomplete";
+  return isComplete(partial, match) ? "complete" : "incomplete";
 }
 
 state("20xx"); // 'invalid'    - reject
@@ -60,6 +60,14 @@ state("2024-06-15"); // 'complete'   - accept, enable submit
 
 [^1]: 
     Testing the original, untransformed pattern looks like it should answer this — "did the input fully satisfy the original pattern?" — but it asks a different question: whether the original matches *at all* here, not whether *this* match got there by truncation. The two agree almost always, but a truncation branch firing inside a zero-width assertion can make both return an identical result by different paths. See [Why the question can't be answered from the outside](#why-the-question-cant-be-answered-from-the-outside) for the case where they diverge.
+
+### A note on Tree-Shaking
+
+If your environment doesn't tree-shake (e.g. Deno, or unbundled Node) and you have no use for `isComplete`, import `PartialMatchRegExp` from its own subpath instead of the default entry, to avoid pulling in `isComplete`'s code:
+
+```javascript
+import PartialMatchRegExp from "regex-partial-match/partialMatchRegExp";
+```
 
 ### Extending RegExp.prototype
 
@@ -138,7 +146,7 @@ The library is compiled to **ES2015** (ECMAScript 6). Certain regular expression
 - [**`v` (unicodeSets) flag**](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/unicodeSets) - ES2024+
 - [**Modifiers**](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Modifier) (`(?ims:...)`, `(?-ims:...)`, `(?i-ms:...)`) - ES2025+
 
-Each of these applies only when the *original* pattern uses the feature — everything else, including construction, `exec()` and `test()`, holds to the ES2015 floor. [`isComplete()`](#partialmatchregexpprototypeiscompletematch-regexpexecarray-boolean) is the one exception: it always requires **ES2018+**, regardless of the pattern, since its internal probe uses named capturing groups.
+Each of these applies only when the *original* pattern uses the feature — everything else, including construction, `exec()` and `test()`, holds to the ES2015 floor. [`isComplete()`](#iscompletepartial-partialmatchregexp-match-regexpexecarray-boolean) is the one exception: it always requires **ES2018+**, regardless of the pattern, since its internal probe uses named capturing groups.
 
 ## ⚠️ Caveats
 
@@ -191,15 +199,17 @@ e.g.
 ```
 
 > [!TIP]
-> [`isComplete()`](#partialmatchregexpprototypeiscompletematch-regexpexecarray-boolean) answers this without a length check, and covers more than one: it reports `false` for the empty end-of-input match, since it exists only because the input ran out, and equally for a non-empty prefix like `"hello"` against `/hello world/`, which a length check would wave through.
+> [`isComplete()`](#iscompletepartial-partialmatchregexp-match-regexpexecarray-boolean) answers this without a length check, and covers more than one: it reports `false` for the empty end-of-input match, since it exists only because the input ran out, and equally for a non-empty prefix like `"hello"` against `/hello world/`, which a length check would wave through.
 >
 > It describes a match, so ask it from `exec()` rather than `test()`:
 >
 > ```js
+> import PartialMatchRegExp, { isComplete } from "regex-partial-match";
+>
 > const partial = new PartialMatchRegExp(/x/);
 > const match = partial.exec("a"); // ['', index: 1, input: "a", groups: undefined]
 >
-> partial.isComplete(match); // false - the match depended on the input running out
+> isComplete(partial, match); // false - the match depended on the input running out
 > ```
 >
 > `false` is "not yet", not "never": for an unanchored `/x/`, `"a"` really is a viable prefix of `"ax"`. It is only when validating that which came before that it should be read as "no match".
@@ -387,7 +397,7 @@ Useful for parsing log files, network streams, or any chunked data where records
 
 Extends `RegExp`. An instance behaves like a normal `RegExp` — `instanceof RegExp` is `true`, and `.test()`, `.exec()`, `.match()`, `.matchAll()`, `.replace()`, etc. all work as expected — but also matches any input string that is a valid prefix of the original pattern, in addition to full matches.
 
-Available via the default entry point of the package.
+Available via the default entry point of the package, or via `regex-partial-match/partialMatchRegExp` — see [A note on Tree-Shaking](#a-note-on-tree-shaking).
 
 **Parameters:**
 
@@ -406,13 +416,16 @@ When using `import 'regex-partial-match/extend'`, this method is added to `RegEx
 
 - A new `PartialMatchRegExp` that matches partial strings, created from the `RegExp` instance the method was called on.
 
-### `PartialMatchRegExp.prototype.isComplete(match: RegExpExecArray): boolean`
+### `isComplete(partial: PartialMatchRegExp, match: RegExpExecArray): boolean`
 
-Reports whether a match this instance produced is a **match** of the original pattern, or merely a **prefix** of it. `exec()` alone cannot say: it returns the same shape of array for `"h"`, `"hello"` and `"hello world"` against `/hello world/`.
+Reports whether a match `partial` produced is a **match** of the original pattern, or merely a **prefix** of it. `exec()` alone cannot say: it returns the same shape of array for `"h"`, `"hello"` and `"hello world"` against `/hello world/`.
+
+Available as a named export of the default entry point: `import { isComplete } from 'regex-partial-match'`. Its probe requires ES2018+, so in an environment that doesn't tree-shake and has no use for it, import `PartialMatchRegExp` from `regex-partial-match/partialMatchRegExp` instead of the default entry to avoid bundling `isComplete`'s code — see [A note on Tree-Shaking](#a-note-on-tree-shaking).
 
 **Parameters:**
 
-- `match` - A match returned by this instance's `exec()`
+- `partial` - The `PartialMatchRegExp` instance that produced `match`
+- `match` - A match returned by `partial.exec()`
 
 **Returns:**
 
@@ -420,18 +433,18 @@ Reports whether a match this instance produced is a **match** of the original pa
 - `false` when the match depended on the input running out — it took one of the `|$(?![\s\S])` branches described in [How It Works](#how-it-works). More input is needed, and the match's captures are **provisional**: a truncated path can capture values that no complete match ever produces.
 
 ```javascript
-import PartialMatchRegExp from "regex-partial-match";
+import PartialMatchRegExp, { isComplete } from "regex-partial-match";
 
 const partial = new PartialMatchRegExp(/hello world/);
 const prefix = partial.exec("hello");
 
 prefix[0]; // 'hello'
-partial.isComplete(prefix); // false — a prefix, not a match
+isComplete(partial, prefix); // false — a prefix, not a match
 
 const complete = partial.exec("hello world");
 
 complete[0]; // 'hello world'
-partial.isComplete(complete); // true
+isComplete(partial, complete); // true
 ```
 
 > [!NOTE]
@@ -460,7 +473,7 @@ The information only exists during matching. `isComplete()` recovers it by re-ru
 **Cost:** one anchored `exec` per call, plus the twin's construction on the first call that needs it. `exec()` and `test()` are untouched: the expansion a backreference match is answered from is held on the match itself, under a private symbol, so it costs a single field write and is collected with the match. Repeatedly asking about the *same* match is cheap; asking once per match on a backreference pattern pays for a new twin each time.
 
 > [!CAUTION]
-> `isComplete()` itself always requires ES2018+, regardless of the pattern: its truncation probe is built from named capturing groups internally, even for a pattern as plain as `/^abc/`. See [Browser Compatibility](#browser-compatibility) — every other method holds to the ES2015 floor stated there.
+> `isComplete()` itself always requires ES2018+, regardless of the pattern: its truncation probe is built from named capturing groups internally, even for a pattern as plain as `/^abc/`. See [Browser Compatibility](#browser-compatibility) — every other method holds to the ES2015 floor stated there. That's also why it's a free function rather than a method on `PartialMatchRegExp`: a class method's code ships with every instance of the class, whether or not it's called, but a function reached only by its own name can be left out — see [A note on Tree-Shaking](#a-note-on-tree-shaking) for the subpath that does.
 
 #### What it cannot see
 
@@ -471,12 +484,12 @@ const partial = new PartialMatchRegExp(/a(?=(b+))/);
 const match = partial.exec("ab");
 
 match[1]; // 'b'
-partial.isComplete(match); // true
+isComplete(partial, match); // true
 
 /a(?=(b+))/.exec("abbX")[1]; // 'bb' — the same capture, over more input
 ```
 
-This isn't a defect: every atom in the `"ab"` match matched literally, so `isComplete()` answers correctly by its own definition. It just doesn't mean *cannot change with more input* — the same distinction the [note above](#partialmatchregexpprototypeiscompletematch-regexpexecarray-boolean) draws for `/hello \w+/`, one level further in.
+This isn't a defect: every atom in the `"ab"` match matched literally, so `isComplete()` answers correctly by its own definition. It just doesn't mean *cannot change with more input* — the same distinction the [note above](#iscompletepartial-partialmatchregexp-match-regexpexecarray-boolean) draws for `/hello \w+/`, one level further in.
 
 A chunk-invariant scanner needs a second, independent check: whether any capture's end coincides with the end of the buffer, computable from [`d`-flag](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/hasIndices) indices without this library's help. Defer a match when either check says to.
 

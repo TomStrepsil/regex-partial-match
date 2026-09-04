@@ -12,8 +12,6 @@ import {
 } from "./part.ts";
 import { featureSet, hasFeature, type RegexFeature } from "./regexFeatures.ts";
 
-export type { RegexFeature };
-
 const MAYBE_HAS_BACKREFERENCE_REGEX = /\\[0-9]|\\k</;
 const ANY_CAPTURED_TEXT = "(?:[\\s\\S]*?)";
 const QUANTIFIABLE_EMPTY_ATOM = "(?:)";

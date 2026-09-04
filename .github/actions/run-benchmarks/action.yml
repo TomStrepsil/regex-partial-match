@@ -15,7 +15,7 @@ runs:
   using: composite
   steps:
     - name: Run benchmarks
-      run: corepack npm run bench --workspace=benchmarking --silent -- --json > /tmp/bench-raw.json
+      run: corepack npm run bench --workspace=test/benchmarking --silent -- --json > /tmp/bench-raw.json
       shell: bash
 
     - name: Convert to action format

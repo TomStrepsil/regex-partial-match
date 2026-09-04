@@ -26,11 +26,15 @@ import assert from "node:assert/strict";
 import { readdir, readFile } from "node:fs/promises";
 import { createRequire } from "node:module";
 import { Linter } from "eslint";
-import type PartialMatchRegExpInstance from "../../src/partialMatchRegExp.ts";
+import type PartialMatchRegExpInstance from "../../src/partialMatchRegExp/index.ts";
+import type isCompleteType from "../../src/partialMatchRegExp/isComplete/index.ts";
 
 const SUPPORTED_ECMA_VERSION = 2015;
 
 const BUILT_OUTPUT = new URL("../../lib/", import.meta.url);
+
+const packageName = "regex-partial-match";
+const require = createRequire(import.meta.url);
 
 type LoadedModule = Record<string, unknown>;
 
@@ -39,41 +43,57 @@ type PartialMatchRegExpConstructor = new (
   flags?: string
 ) => PartialMatchRegExpInstance;
 
+function assertPartialMatchRegExpBehaves(
+  PartialMatchRegExp: PartialMatchRegExpConstructor
+): void {
+  const partial = new PartialMatchRegExp(/^(\w+) \1 end$/);
+  assert.equal(partial.test("abc ab"), true, "does not accept a prefix");
+  assert.equal(
+    partial.test("abc abc end"),
+    true,
+    "does not accept a full match"
+  );
+  assert.equal(
+    partial.test("abc xyz end"),
+    false,
+    "accepts an impossible input"
+  );
+}
+
+function assertIsCompleteBehaves(
+  PartialMatchRegExp: PartialMatchRegExpConstructor,
+  isComplete: typeof isCompleteType
+): void {
+  const partial = new PartialMatchRegExp(/^(\w+) \1 end$/);
+
+  const prefix = partial.exec("abc ab");
+  assert.ok(prefix, "no match for a prefix");
+  assert.equal(
+    isComplete(partial, prefix),
+    false,
+    "does not identify the prefix as incomplete"
+  );
+
+  const full = partial.exec("abc abc end");
+  assert.ok(full, "no match for a full match");
+  assert.equal(
+    isComplete(partial, full),
+    true,
+    "does not identify the full match as complete"
+  );
+}
+
 const SMOKE_TESTS: Record<string, (loaded: LoadedModule) => void> = {
   ".": (loaded) => {
     const PartialMatchRegExp = loaded.default as
       | PartialMatchRegExpConstructor
       | undefined;
     assert.ok(PartialMatchRegExp, "no default export");
+    assertPartialMatchRegExpBehaves(PartialMatchRegExp);
 
-    const partial = new PartialMatchRegExp(/^(\w+) \1 end$/);
-    assert.equal(partial.test("abc ab"), true, "does not accept a prefix");
-    assert.equal(
-      partial.test("abc abc end"),
-      true,
-      "does not accept a full match"
-    );
-    assert.equal(
-      partial.test("abc xyz end"),
-      false,
-      "accepts an impossible input"
-    );
-
-    const prefix = partial.exec("abc ab");
-    assert.ok(prefix, "no match for a prefix");
-    assert.equal(
-      partial.isComplete(prefix),
-      false,
-      "does not identify the prefix as incomplete"
-    );
-
-    const full = partial.exec("abc abc end");
-    assert.ok(full, "no match for a full match");
-    assert.equal(
-      partial.isComplete(full),
-      true,
-      "does not identify the full match as complete"
-    );
+    const isComplete = loaded.isComplete as typeof isCompleteType | undefined;
+    assert.ok(isComplete, "no isComplete named export");
+    assertIsCompleteBehaves(PartialMatchRegExp, isComplete);
   },
 
   "./extend": () => {
@@ -86,6 +106,20 @@ const SMOKE_TESTS: Record<string, (loaded: LoadedModule) => void> = {
       /^hello world$/.toPartialMatchRegex().test("hel"),
       true,
       "extended regex rejects a prefix"
+    );
+  },
+
+  "./partialMatchRegExp": (loaded) => {
+    const PartialMatchRegExp = loaded.default as
+      | PartialMatchRegExpConstructor
+      | undefined;
+    assert.ok(PartialMatchRegExp, "no default export");
+    assertPartialMatchRegExpBehaves(PartialMatchRegExp);
+
+    assert.equal(
+      loaded.isComplete,
+      undefined,
+      "isComplete leaked into the partialMatchRegExp-only entry point — the point of this subpath is to avoid it"
     );
   }
 };
@@ -137,9 +171,6 @@ function toSpecifier(packageName: string, subpath: string): string {
 }
 
 async function main(): Promise<void> {
-  const packageName = "regex-partial-match";
-  const require = createRequire(import.meta.url);
-
   await assertBuiltOutputParsesAtSupportedEcmaVersion();
 
   const subpaths = await readExportedSubpaths();

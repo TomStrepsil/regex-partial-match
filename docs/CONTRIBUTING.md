@@ -135,10 +135,10 @@ git push origin {issue}_your-feature-name
 
 ### Writing Tests
 
-Tests are colocated next to the source code in `src/`. Follow these patterns:
+Tests are colocated next to the source code in `src/`: `foo.ts` gets `foo.test.ts` beside it, and a published entry point's folder (`partialMatchRegExp/`, `extend/`) gets `index.test.ts` beside its `index.ts`. Follow these patterns:
 
 ```typescript
-import PartialMatchRegExp from "./partialMatchRegExp.ts";
+import PartialMatchRegExp from "./partialMatchRegExp/partialMatchRegExp.ts";
 
 describe("feature name", () => {
   it("should do something specific", () => {
@@ -166,7 +166,7 @@ describe("feature name", () => {
 
 ### Adding a `RegexFeature`
 
-Append the tag to `REGEX_FEATURES` in `src/regexFeatures.ts`, and record it during the walk with `featureMask |= FEATURE_BIT.yourTag`. The `RegexFeature` union, the bit each tag occupies, and the `Set` handed to consumers are all derived from that one list.
+Append the tag to `REGEX_FEATURES` in `src/partialMatchRegExp/regexFeatures.ts`, and record it during the walk with `featureMask |= FEATURE_BIT.yourTag`. The `RegexFeature` union, the bit each tag occupies, and the `Set` handed to consumers are all derived from that one list.
 
 Those bits live in a single 32-bit mask, so the list has room for 32 tags — 30 are used. A 33rd would silently alias the first (`1 << 32 === 1`), so `LengthUpToOneBitMask` fails the build before it can: past 32, the mask has to become a pair of numbers.
 

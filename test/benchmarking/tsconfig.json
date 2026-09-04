@@ -1,9 +1,9 @@
 {
-  "extends": "../tsconfig.json",
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
     "moduleDetection": "force",
     "noEmit": true,
-    "rootDir": "..",
+    "rootDir": "../..",
     "types": ["node"]
   },
   "include": ["src/**/*", "scripts/**/*"],

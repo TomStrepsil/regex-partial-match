@@ -33,17 +33,22 @@
     }
   ],
   "type": "module",
-  "main": "lib/partialMatchRegExp.js",
+  "main": "lib/partialMatchRegExp/index.js",
   "exports": {
     ".": {
-      "types": "./lib/partialMatchRegExp.d.ts",
-      "import": "./lib/partialMatchRegExp.js",
-      "default": "./lib/partialMatchRegExp.js"
+      "types": "./lib/partialMatchRegExp/index.d.ts",
+      "import": "./lib/partialMatchRegExp/index.js",
+      "default": "./lib/partialMatchRegExp/index.js"
     },
     "./extend": {
-      "types": "./lib/extend.d.ts",
-      "import": "./lib/extend.js",
-      "default": "./lib/extend.js"
+      "types": "./lib/extend/index.d.ts",
+      "import": "./lib/extend/index.js",
+      "default": "./lib/extend/index.js"
+    },
+    "./partialMatchRegExp": {
+      "types": "./lib/partialMatchRegExp/partialMatchRegExp.d.ts",
+      "import": "./lib/partialMatchRegExp/partialMatchRegExp.js",
+      "default": "./lib/partialMatchRegExp/partialMatchRegExp.js"
     }
   },
   "files": [
@@ -54,9 +59,11 @@
     "url": "git+https://github.com/TomStrepsil/regex-partial-match.git"
   },
   "workspaces": [
-    "benchmarking"
+    "test/benchmarking"
   ],
-  "sideEffects": false,
+  "sideEffects": [
+    "./lib/extend/index.js"
+  ],
   "scripts": {
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
