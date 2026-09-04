@@ -45,7 +45,8 @@ group("hot loop — manual global exec (~700 matches)", () => {
 
 group("hot loop — String.prototype.matchAll (~700 matches)", () => {
   bench("native matchAll", () => {
-    for (const m of text.matchAll(/\b\w+\b/g)) void m;
+    nativeGlobal.lastIndex = 0;
+    for (const m of text.matchAll(nativeGlobal)) void m;
   });
   bench("PartialMatchRegExp matchAll", () => {
     partialGlobalForMatchAll.lastIndex = 0;
