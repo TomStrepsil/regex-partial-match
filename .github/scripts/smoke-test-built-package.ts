@@ -20,11 +20,20 @@
  *
  * Adding an entry point to "exports" without adding a case to SMOKE_TESTS
  * fails this script.
+ *
+ * `SMOKE_TESTS` also receives each entry point's built file as a `URL`, for
+ * cases that need to check its runtime import graph rather than just its
+ * exports — e.g. that `regex-partial-match/partialMatchRegExp` never reaches
+ * `isComplete`, even transitively and even if some file along the way
+ * imported it without re-exporting it, which a check of the loaded module's
+ * own exports alone couldn't catch.
  */
 
 import assert from "node:assert/strict";
 import { readdir, readFile } from "node:fs/promises";
 import { createRequire } from "node:module";
+import { fileURLToPath } from "node:url";
+import { build } from "esbuild";
 import { Linter } from "eslint";
 import type PartialMatchRegExpInstance from "../../src/partialMatchRegExp/index.ts";
 import type isCompleteType from "../../src/partialMatchRegExp/isComplete/index.ts";
@@ -42,6 +51,47 @@ type PartialMatchRegExpConstructor = new (
   pattern: RegExp | string,
   flags?: string
 ) => PartialMatchRegExpInstance;
+
+interface ExportEntry {
+  types?: string;
+  import?: string;
+  default?: string;
+}
+
+/**
+ * The full set of built files reachable from `entry` by following relative
+ * `import`/`export ... from` specifiers, recursively — i.e. what actually
+ * loads at runtime when `entry` is imported, not just what it re-exports.
+ *
+ * esbuild has to resolve and read every one of these before it can even
+ * begin deciding what to tree-shake, so `metafile.inputs` names exactly this
+ * set regardless of what a bundle built from `entry` would keep or drop —
+ * the same reasoning a manual `esbuild --bundle` check would apply by hand,
+ * automated instead of eyeballed.
+ */
+async function transitiveRuntimeImports(entry: URL): Promise<Set<string>> {
+  const { metafile } = await build({
+    entryPoints: [fileURLToPath(entry)],
+    absWorkingDir: fileURLToPath(BUILT_OUTPUT),
+    bundle: true,
+    write: false,
+    metafile: true,
+    platform: "neutral",
+    format: "esm",
+    logLevel: "silent"
+  });
+  return new Set(
+    Object.keys(metafile.inputs).map(
+      (relativePath) => new URL(relativePath, BUILT_OUTPUT).href
+    )
+  );
+}
+
+function builtEntryUrl(entry: ExportEntry): URL {
+  const path = entry.import ?? entry.default;
+  assert.ok(path, `"exports" entry has neither "import" nor "default"`);
+  return new URL(path.replace(/^\.\/lib\//, ""), BUILT_OUTPUT);
+}
 
 function assertPartialMatchRegExpBehaves(
   PartialMatchRegExp: PartialMatchRegExpConstructor
@@ -83,8 +133,11 @@ function assertIsCompleteBehaves(
   );
 }
 
-const SMOKE_TESTS: Record<string, (loaded: LoadedModule) => void> = {
-  ".": (loaded) => {
+const SMOKE_TESTS: Record<
+  string,
+  (loaded: LoadedModule, builtFile: URL) => void | Promise<void>
+> = {
+  ".": async (loaded, builtFile) => {
     const PartialMatchRegExp = loaded.default as
       | PartialMatchRegExpConstructor
       | undefined;
@@ -94,6 +147,12 @@ const SMOKE_TESTS: Record<string, (loaded: LoadedModule) => void> = {
     const isComplete = loaded.isComplete as typeof isCompleteType | undefined;
     assert.ok(isComplete, "no isComplete named export");
     assertIsCompleteBehaves(PartialMatchRegExp, isComplete);
+
+    const reached = await transitiveRuntimeImports(builtFile);
+    assert.ok(
+      [...reached].some((href) => href.includes("/isComplete/")),
+      "the default entry point's runtime import graph never reaches isComplete, though it re-exports it — transitiveRuntimeImports() may be broken, since the other direction is what ./partialMatchRegExp relies on"
+    );
   },
 
   "./extend": () => {
@@ -109,7 +168,7 @@ const SMOKE_TESTS: Record<string, (loaded: LoadedModule) => void> = {
     );
   },
 
-  "./partialMatchRegExp": (loaded) => {
+  "./partialMatchRegExp": async (loaded, builtFile) => {
     const PartialMatchRegExp = loaded.default as
       | PartialMatchRegExpConstructor
       | undefined;
@@ -119,7 +178,17 @@ const SMOKE_TESTS: Record<string, (loaded: LoadedModule) => void> = {
     assert.equal(
       loaded.isComplete,
       undefined,
-      "isComplete leaked into the partialMatchRegExp-only entry point — the point of this subpath is to avoid it"
+      "isComplete leaked into the partialMatchRegExp-only entry point's exports"
+    );
+
+    const reached = await transitiveRuntimeImports(builtFile);
+    const isCompleteModule = [...reached].find((href) =>
+      href.includes("/isComplete/")
+    );
+    assert.equal(
+      isCompleteModule,
+      undefined,
+      `regex-partial-match/partialMatchRegExp's runtime import graph reaches ${String(isCompleteModule)} — isComplete must not be reachable even transitively, whether or not it's re-exported`
     );
   }
 };
@@ -155,15 +224,15 @@ async function assertBuiltOutputParsesAtSupportedEcmaVersion(): Promise<void> {
   }
 }
 
-async function readExportedSubpaths(): Promise<string[]> {
+async function readExportsManifest(): Promise<Record<string, ExportEntry>> {
   const manifest = await readFile(
     new URL("../../package.json", import.meta.url),
     "utf8"
   );
   const { exports } = JSON.parse(manifest) as {
-    exports: Record<string, unknown>;
+    exports: Record<string, ExportEntry>;
   };
-  return Object.keys(exports);
+  return exports;
 }
 
 function toSpecifier(packageName: string, subpath: string): string {
@@ -173,9 +242,9 @@ function toSpecifier(packageName: string, subpath: string): string {
 async function main(): Promise<void> {
   await assertBuiltOutputParsesAtSupportedEcmaVersion();
 
-  const subpaths = await readExportedSubpaths();
+  const exportsManifest = await readExportsManifest();
 
-  for (const subpath of subpaths) {
+  for (const [subpath, entry] of Object.entries(exportsManifest)) {
     const specifier = toSpecifier(packageName, subpath);
     const smokeTest = SMOKE_TESTS[subpath];
     assert.ok(
@@ -183,14 +252,18 @@ async function main(): Promise<void> {
       `"exports" declares ${subpath} but SMOKE_TESTS has no case for it`
     );
 
-    smokeTest((await import(specifier)) as LoadedModule);
+    const builtFile = builtEntryUrl(entry);
+
+    await smokeTest((await import(specifier)) as LoadedModule, builtFile);
     console.log(`  ✓ import("${specifier}")`);
 
-    smokeTest(require(specifier) as LoadedModule);
+    await smokeTest(require(specifier) as LoadedModule, builtFile);
     console.log(`  ✓ require("${specifier}")`);
   }
 
-  console.log(`Smoke tested ${String(subpaths.length)} entry points from lib/`);
+  console.log(
+    `Smoke tested ${String(Object.keys(exportsManifest).length)} entry points from lib/`
+  );
 }
 
 await main();

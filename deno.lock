@@ -4,7 +4,8 @@
     "npm:@eslint/js@^9.17.0": "9.39.5",
     "npm:@eslint/markdown@^7.5.1": "7.5.1",
     "npm:@types/node@^25.9.3": "25.9.5",
-    "npm:@vitest/coverage-v8@^4.1.11": "4.1.11_vitest@4.1.11_@types+node@25.9.5_jiti@2.7.0_tsx@4.23.13_vite@8.2.2__@types+node@25.9.5__jiti@2.7.0__tsx@4.23.13",
+    "npm:@vitest/coverage-v8@^4.1.11": "4.1.11_vitest@4.1.11_esbuild@0.28.2",
+    "npm:esbuild@~0.28.1": "0.28.2",
     "npm:eslint@^9.17.0": "9.39.5_jiti@2.7.0",
     "npm:jiti@^2.6.1": "2.7.0",
     "npm:lint-staged@^15.2.11": "15.5.2",
@@ -13,7 +14,7 @@
     "npm:tsx@^4.19.0": "4.23.13",
     "npm:typescript-eslint@^8.18.1": "8.69.0_eslint@9.39.5__jiti@2.7.0_typescript@6.0.3_jiti@2.7.0",
     "npm:typescript@^6.0.3": "6.0.3",
-    "npm:vitest@^4.0.15": "4.1.11_@types+node@25.9.5_@vitest+coverage-v8@4.1.11_vite@8.2.2__@types+node@25.9.5__jiti@2.7.0__tsx@4.23.13_jiti@2.7.0_tsx@4.23.13"
+    "npm:vitest@^4.0.15": "4.1.11_@types+node@25.9.5_@vitest+coverage-v8@4.1.11_esbuild@0.28.2"
   },
   "npm": {
     "@babel/helper-string-parser@7.29.7": {
@@ -498,7 +499,7 @@
         "eslint-visitor-keys@5.0.1"
       ]
     },
-    "@vitest/coverage-v8@4.1.11_vitest@4.1.11_@types+node@25.9.5_jiti@2.7.0_tsx@4.23.13_vite@8.2.2__@types+node@25.9.5__jiti@2.7.0__tsx@4.23.13": {
+    "@vitest/coverage-v8@4.1.11_vitest@4.1.11_esbuild@0.28.2": {
       "integrity": "sha512-8MVGEFnJIcdGjcbfKmeq8z0pZHH0JlVtoVZH9Q/qwUp6wyFnEJUBMrw9DCaj+ra3vShGmhavjalMIhPNxZAUcw==",
       "dependencies": [
         "@bcoe/v8-coverage",
@@ -525,7 +526,7 @@
         "tinyrainbow"
       ]
     },
-    "@vitest/mocker@4.1.11_vite@8.2.2__@types+node@25.9.5__jiti@2.7.0__tsx@4.23.13_@types+node@25.9.5_jiti@2.7.0_tsx@4.23.13": {
+    "@vitest/mocker@4.1.11_vite@8.2.2__@types+node@25.9.5__esbuild@0.28.2__jiti@2.7.0__tsx@4.23.13_esbuild@0.28.2": {
       "integrity": "sha512-2XJVD55d1o5AZous5CCGKS74g/riOj9odEt2bQpCVZeblHyHdnMeFl4jl0XjU21stf4mbjUkew2eXQZt65g5CQ==",
       "dependencies": [
         "@vitest/spy",
@@ -1944,10 +1945,11 @@
         "punycode"
       ]
     },
-    "vite@8.2.2_@types+node@25.9.5_jiti@2.7.0_tsx@4.23.13": {
+    "vite@8.2.2_@types+node@25.9.5_esbuild@0.28.2_jiti@2.7.0_tsx@4.23.13": {
       "integrity": "sha512-cFKLV/PRgAUlIRm5WjMjJ86jrftzpqcgH+Us+DS8mI3CDNiH30Whrz8uHL3+MOLPAgqbMBAqWdAHAphOAM+z/Q==",
       "dependencies": [
         "@types/node",
+        "esbuild",
         "jiti",
         "lightningcss",
         "picomatch@4.0.7",
@@ -1961,12 +1963,13 @@
       ],
       "optionalPeers": [
         "@types/node",
+        "esbuild",
         "jiti",
         "tsx"
       ],
       "bin": true
     },
-    "vitest@4.1.11_@types+node@25.9.5_@vitest+coverage-v8@4.1.11_vite@8.2.2__@types+node@25.9.5__jiti@2.7.0__tsx@4.23.13_jiti@2.7.0_tsx@4.23.13": {
+    "vitest@4.1.11_@types+node@25.9.5_@vitest+coverage-v8@4.1.11_esbuild@0.28.2": {
       "integrity": "sha512-fhACrNXUidIbGSBr5FlbuBkO7VWC1ZyLl0DO4CU2DrQoAPxX84Ysxs+HeGQpii5lZWV1Q4gBZTTu49mF+A6Edw==",
       "dependencies": [
         "@types/node",
@@ -2042,6 +2045,7 @@
         "npm:@eslint/markdown@^7.5.1",
         "npm:@types/node@^25.9.3",
         "npm:@vitest/coverage-v8@^4.1.11",
+        "npm:esbuild@~0.28.1",
         "npm:eslint@^9.17.0",
         "npm:jiti@^2.6.1",
         "npm:lint-staged@^15.2.11",
