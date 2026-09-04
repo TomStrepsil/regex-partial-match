@@ -420,7 +420,7 @@ When using `import 'regex-partial-match/extend'`, this method is added to `RegEx
 
 Reports whether a match `partial` produced is a **match** of the original pattern, or merely a **prefix** of it. `exec()` alone cannot say: it returns the same shape of array for `"h"`, `"hello"` and `"hello world"` against `/hello world/`.
 
-Available as a named export of the default entry point: `import { isComplete } from 'regex-partial-match'`. Its probe requires ES2018+, so in an environment that doesn't tree-shake and has no use for it, import `PartialMatchRegExp` from `regex-partial-match/partialMatchRegExp` instead of the default entry to avoid bundling `isComplete`'s code — see [A note on Tree-Shaking](#a-note-on-tree-shaking).
+Available as a named export of the default entry point: `import { isComplete } from 'regex-partial-match'`. Its probe requires ES2018+, so in an environment that doesn't tree-shake and has no use for it, import `PartialMatchRegExp` from `regex-partial-match/partialMatchRegExp` instead of the default entry to avoid bundling `isComplete`'s code; see [A note on Tree-Shaking](#a-note-on-tree-shaking).
 
 **Parameters:**
 
