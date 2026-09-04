@@ -138,7 +138,7 @@ git push origin {issue}_your-feature-name
 Tests are colocated next to the source code in `src/`: `foo.ts` gets `foo.test.ts` beside it, and a published entry point's folder (`partialMatchRegExp/`, `extend/`) gets `index.test.ts` beside its `index.ts`. Follow these patterns:
 
 ```typescript
-import PartialMatchRegExp from "./partialMatchRegExp/partialMatchRegExp.ts";
+import PartialMatchRegExp from "./partialMatchRegExp.ts";
 
 describe("feature name", () => {
   it("should do something specific", () => {
