@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1788542400389,
+  "lastUpdate": 1788542982145,
   "repoUrl": "https://github.com/TomStrepsil/regex-partial-match",
   "entries": {
     "regex-partial-match": [
@@ -10545,6 +10545,576 @@ window.BENCHMARK_DATA = {
             "range": "± 1.23",
             "unit": "ns/iter",
             "extra": "min: 65.47ns  p75: 68.29ns  p99: 92.10ns"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "10725179+TomStrepsil@users.noreply.github.com",
+            "name": "Tom Pereira",
+            "username": "TomStrepsil"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "12461f63618977bb4b97528e74f0945767f1f3bf",
+          "message": "[88] fixup feature-cost.bench (#91)\n\n* fixup feature-cost.bench",
+          "timestamp": "2026-09-04T18:10:12+01:00",
+          "tree_id": "a95b9697d4932f938d8f49fb4b7ded1620ea8813",
+          "url": "https://github.com/TomStrepsil/regex-partial-match/commit/12461f63618977bb4b97528e74f0945767f1f3bf"
+        },
+        "date": 1788542981436,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "dispatch overhead — full match input — native RegExp.exec",
+            "value": 44.33,
+            "range": "± 0.25",
+            "unit": "ns/iter",
+            "extra": "min: 41.06ns  p75: 42.77ns  p99: 88.61ns"
+          },
+          {
+            "name": "dispatch overhead — full match input — plain partial RegExp (no class wrapper)",
+            "value": 94.03,
+            "range": "± 2.19",
+            "unit": "ns/iter",
+            "extra": "min: 86.48ns  p75: 91.72ns  p99: 140.30ns"
+          },
+          {
+            "name": "dispatch overhead — full match input — PartialMatchRegExp.exec",
+            "value": 92.71,
+            "range": "± 1.78",
+            "unit": "ns/iter",
+            "extra": "min: 88.45ns  p75: 93.15ns  p99: 125.03ns"
+          },
+          {
+            "name": "dispatch overhead — partial input (returns null on native) — native RegExp.exec",
+            "value": 24.53,
+            "range": "± 0.17",
+            "unit": "ns/iter",
+            "extra": "min: 23.09ns  p75: 24.48ns  p99: 27.57ns"
+          },
+          {
+            "name": "dispatch overhead — partial input (returns null on native) — plain partial RegExp (no class wrapper)",
+            "value": 78.19,
+            "range": "± 1.3",
+            "unit": "ns/iter",
+            "extra": "min: 76.27ns  p75: 79.14ns  p99: 107.91ns"
+          },
+          {
+            "name": "dispatch overhead — partial input (returns null on native) — PartialMatchRegExp.exec",
+            "value": 84.28,
+            "range": "± 1.4",
+            "unit": "ns/iter",
+            "extra": "min: 78.28ns  p75: 81.48ns  p99: 130.21ns"
+          },
+          {
+            "name": "hot loop — manual global exec (~700 matches) — native RegExp (global exec loop)",
+            "value": 52432.32,
+            "range": "± 551",
+            "unit": "ns/iter",
+            "extra": "min: 48873.00ns  p75: 51608.00ns  p99: 85609.00ns"
+          },
+          {
+            "name": "hot loop — manual global exec (~700 matches) — PartialMatchRegExp (global exec loop)",
+            "value": 68916.24,
+            "range": "± 595.5",
+            "unit": "ns/iter",
+            "extra": "min: 65158.00ns  p75: 67601.00ns  p99: 110667.00ns"
+          },
+          {
+            "name": "hot loop — String.prototype.matchAll (~700 matches) — native matchAll",
+            "value": 56965.83,
+            "range": "± 576",
+            "unit": "ns/iter",
+            "extra": "min: 53230.00ns  p75: 56215.00ns  p99: 72128.00ns"
+          },
+          {
+            "name": "hot loop — String.prototype.matchAll (~700 matches) — PartialMatchRegExp matchAll",
+            "value": 149157,
+            "range": "± 1582.5",
+            "unit": "ns/iter",
+            "extra": "min: 140882.00ns  p75: 147242.00ns  p99: 231419.00ns"
+          },
+          {
+            "name": "keystroke simulation — phone number (18 chars) — native RegExp.test per keystroke (fails until full input)",
+            "value": 355.13,
+            "range": "± 1.28",
+            "unit": "ns/iter",
+            "extra": "min: 351.83ns  p75: 355.02ns  p99: 374.60ns"
+          },
+          {
+            "name": "keystroke simulation — phone number (18 chars) — plain partial RegExp.test per keystroke",
+            "value": 1352.36,
+            "range": "± 4.72",
+            "unit": "ns/iter",
+            "extra": "min: 1339.94ns  p75: 1355.55ns  p99: 1382.16ns"
+          },
+          {
+            "name": "keystroke simulation — phone number (18 chars) — PartialMatchRegExp.test per keystroke",
+            "value": 1878.98,
+            "range": "± 4.88",
+            "unit": "ns/iter",
+            "extra": "min: 1860.05ns  p75: 1878.42ns  p99: 1929.55ns"
+          },
+          {
+            "name": "keystroke simulation — ISO date (10 chars) — native RegExp.test per keystroke (fails until full input)",
+            "value": 204.7,
+            "range": "± 1.17",
+            "unit": "ns/iter",
+            "extra": "min: 199.51ns  p75: 205.16ns  p99: 220.59ns"
+          },
+          {
+            "name": "keystroke simulation — ISO date (10 chars) — plain partial RegExp.test per keystroke",
+            "value": 392.99,
+            "range": "± 1.92",
+            "unit": "ns/iter",
+            "extra": "min: 384.44ns  p75: 391.80ns  p99: 409.35ns"
+          },
+          {
+            "name": "keystroke simulation — ISO date (10 chars) — PartialMatchRegExp.test per keystroke",
+            "value": 689.08,
+            "range": "± 2.04",
+            "unit": "ns/iter",
+            "extra": "min: 677.43ns  p75: 685.18ns  p99: 748.73ns"
+          },
+          {
+            "name": "backref — single exec, repeated-word pattern — native exec (full match only)",
+            "value": 41.21,
+            "range": "± 0.21",
+            "unit": "ns/iter",
+            "extra": "min: 39.78ns  p75: 40.55ns  p99: 57.47ns"
+          },
+          {
+            "name": "backref — single exec, repeated-word pattern — PartialMatchRegExp — full match (native fast path)",
+            "value": 69.39,
+            "range": "± 1.27",
+            "unit": "ns/iter",
+            "extra": "min: 67.30ns  p75: 70.27ns  p99: 105.58ns"
+          },
+          {
+            "name": "backref — single exec, repeated-word pattern — PartialMatchRegExp — partial pre-backref (slow path)",
+            "value": 2071.89,
+            "range": "± 20",
+            "unit": "ns/iter",
+            "extra": "min: 1893.00ns  p75: 2023.00ns  p99: 3305.00ns"
+          },
+          {
+            "name": "backref — single exec, repeated-word pattern — PartialMatchRegExp — partial mid-backref (slow path)",
+            "value": 1738.72,
+            "range": "± 6.08",
+            "unit": "ns/iter",
+            "extra": "min: 1722.26ns  p75: 1738.57ns  p99: 1814.30ns"
+          },
+          {
+            "name": "backref — single exec, HTML tag pattern — native exec (full match only)",
+            "value": 102.39,
+            "range": "± 1.34",
+            "unit": "ns/iter",
+            "extra": "min: 96.05ns  p75: 103.16ns  p99: 132.38ns"
+          },
+          {
+            "name": "backref — single exec, HTML tag pattern — PartialMatchRegExp — full match (native fast path)",
+            "value": 125.7,
+            "range": "± 1.64",
+            "unit": "ns/iter",
+            "extra": "min: 119.25ns  p75: 126.03ns  p99: 169.43ns"
+          },
+          {
+            "name": "backref — single exec, HTML tag pattern — PartialMatchRegExp — partial mid-backref (slow path)",
+            "value": 7802.22,
+            "range": "± 110.5",
+            "unit": "ns/iter",
+            "extra": "min: 7341.00ns  p75: 7742.00ns  p99: 12720.00ns"
+          },
+          {
+            "name": "backref — leftmost bound check (native match at a later index) — bound rejects quickly — native wins, no pipeline",
+            "value": 123.37,
+            "range": "± 1.29",
+            "unit": "ns/iter",
+            "extra": "min: 118.79ns  p75: 122.25ns  p99: 174.34ns"
+          },
+          {
+            "name": "backref — leftmost bound check (native match at a later index) — bound doesn't reject — full pipeline still runs",
+            "value": 1791.06,
+            "range": "± 7.57",
+            "unit": "ns/iter",
+            "extra": "min: 1774.14ns  p75: 1793.25ns  p99: 1849.13ns"
+          },
+          {
+            "name": "backref — keystroke simulation (accumulated exec cost) — repeated word: 7 keystrokes",
+            "value": 10086.49,
+            "range": "± 35.86",
+            "unit": "ns/iter",
+            "extra": "min: 9999.31ns  p75: 10113.87ns  p99: 10132.31ns"
+          },
+          {
+            "name": "backref — keystroke simulation (accumulated exec cost) — HTML tag: 90 keystrokes",
+            "value": 622388.35,
+            "range": "± 5463.5",
+            "unit": "ns/iter",
+            "extra": "min: 603820.00ns  p75: 623120.00ns  p99: 751193.00ns"
+          },
+          {
+            "name": "construction — simple pattern (no groups, no backreferences) — native new RegExp()",
+            "value": 87.98,
+            "range": "± 1.15",
+            "unit": "ns/iter",
+            "extra": "min: 85.91ns  p75: 88.78ns  p99: 99.53ns"
+          },
+          {
+            "name": "construction — simple pattern (no groups, no backreferences) — compilePartial()",
+            "value": 3421.32,
+            "range": "± 22.21",
+            "unit": "ns/iter",
+            "extra": "min: 3377.05ns  p75: 3427.12ns  p99: 3590.61ns"
+          },
+          {
+            "name": "construction — simple pattern (no groups, no backreferences) — new PartialMatchRegExp()",
+            "value": 4144.12,
+            "range": "± 193.7",
+            "unit": "ns/iter",
+            "extra": "min: 3927.64ns  p75: 4325.94ns  p99: 4641.79ns"
+          },
+          {
+            "name": "construction — phone pattern (character classes, optional groups) — native new RegExp()",
+            "value": 133.22,
+            "range": "± 1.21",
+            "unit": "ns/iter",
+            "extra": "min: 129.21ns  p75: 133.75ns  p99: 147.52ns"
+          },
+          {
+            "name": "construction — phone pattern (character classes, optional groups) — compilePartial()",
+            "value": 5096.01,
+            "range": "± 25.97",
+            "unit": "ns/iter",
+            "extra": "min: 5022.58ns  p75: 5082.71ns  p99: 5309.43ns"
+          },
+          {
+            "name": "construction — phone pattern (character classes, optional groups) — new PartialMatchRegExp()",
+            "value": 5813.16,
+            "range": "± 159.41",
+            "unit": "ns/iter",
+            "extra": "min: 5559.68ns  p75: 5953.28ns  p99: 6037.62ns"
+          },
+          {
+            "name": "construction — HTML tag pattern (capturing group + backreference) — native new RegExp()",
+            "value": 147.42,
+            "range": "± 1.03",
+            "unit": "ns/iter",
+            "extra": "min: 144.21ns  p75: 147.73ns  p99: 164.96ns"
+          },
+          {
+            "name": "construction — HTML tag pattern (capturing group + backreference) — compilePartial()",
+            "value": 12092.9,
+            "range": "± 410.48",
+            "unit": "ns/iter",
+            "extra": "min: 10214.54ns  p75: 12503.89ns  p99: 12717.70ns"
+          },
+          {
+            "name": "construction — HTML tag pattern (capturing group + backreference) — new PartialMatchRegExp()",
+            "value": 12454.78,
+            "range": "± 149.35",
+            "unit": "ns/iter",
+            "extra": "min: 11160.62ns  p75: 12721.34ns  p99: 12896.34ns"
+          },
+          {
+            "name": "construction — legacy numeric escape reclassification — native new RegExp()",
+            "value": 91.69,
+            "range": "± 1.27",
+            "unit": "ns/iter",
+            "extra": "min: 86.02ns  p75: 89.34ns  p99: 160.10ns"
+          },
+          {
+            "name": "construction — legacy numeric escape reclassification — compilePartial()",
+            "value": 6169.72,
+            "range": "± 554.14",
+            "unit": "ns/iter",
+            "extra": "min: 5680.63ns  p75: 6813.62ns  p99: 6869.21ns"
+          },
+          {
+            "name": "construction — legacy numeric escape reclassification — new PartialMatchRegExp()",
+            "value": 6876.74,
+            "range": "± 556.13",
+            "unit": "ns/iter",
+            "extra": "min: 6200.49ns  p75: 7588.78ns  p99: 7643.48ns"
+          },
+          {
+            "name": "construction — legacy named escape fallback (double walk()) — native new RegExp()",
+            "value": 97.67,
+            "range": "± 1.19",
+            "unit": "ns/iter",
+            "extra": "min: 95.26ns  p75: 98.30ns  p99: 114.16ns"
+          },
+          {
+            "name": "construction — legacy named escape fallback (double walk()) — compilePartial()",
+            "value": 11392.38,
+            "range": "± 16.77",
+            "unit": "ns/iter",
+            "extra": "min: 10571.65ns  p75: 11482.78ns  p99: 11535.28ns"
+          },
+          {
+            "name": "construction — legacy named escape fallback (double walk()) — new PartialMatchRegExp()",
+            "value": 12253.44,
+            "range": "± 68.86",
+            "unit": "ns/iter",
+            "extra": "min: 11589.86ns  p75: 12372.74ns  p99: 12468.44ns"
+          },
+          {
+            "name": "isComplete — static path (ISO date) — construct + exec (baseline, never asks)",
+            "value": 4712.33,
+            "range": "± 142.48",
+            "unit": "ns/iter",
+            "extra": "min: 4462.04ns  p75: 4790.60ns  p99: 5312.89ns"
+          },
+          {
+            "name": "isComplete — static path (ISO date) — construct + exec + isComplete (includes probe build)",
+            "value": 9631.43,
+            "range": "± 145.5",
+            "unit": "ns/iter",
+            "extra": "min: 8513.00ns  p75: 9084.00ns  p99: 19419.00ns"
+          },
+          {
+            "name": "isComplete — static path (ISO date) — construct + exec + isComplete (complete, includes probe build)",
+            "value": 9226.15,
+            "range": "± 89.68",
+            "unit": "ns/iter",
+            "extra": "min: 8976.93ns  p75: 9179.16ns  p99: 9763.24ns"
+          },
+          {
+            "name": "isComplete — static path (ISO date) — isComplete — incomplete match, warm probe",
+            "value": 646.83,
+            "range": "± 1.93",
+            "unit": "ns/iter",
+            "extra": "min: 634.50ns  p75: 643.03ns  p99: 694.83ns"
+          },
+          {
+            "name": "isComplete — static path (ISO date) — isComplete — complete match, warm probe",
+            "value": 700.23,
+            "range": "± 2.23",
+            "unit": "ns/iter",
+            "extra": "min: 689.42ns  p75: 697.27ns  p99: 753.23ns"
+          },
+          {
+            "name": "isComplete — backreference path (repeated word) — construct + exec (baseline, never asks)",
+            "value": 10010.82,
+            "range": "± 475.32",
+            "unit": "ns/iter",
+            "extra": "min: 9169.56ns  p75: 10405.83ns  p99: 10532.48ns"
+          },
+          {
+            "name": "isComplete — backreference path (repeated word) — construct + exec + isComplete (includes probe build)",
+            "value": 15789.22,
+            "range": "± 250.5",
+            "unit": "ns/iter",
+            "extra": "min: 13661.00ns  p75: 14582.00ns  p99: 29434.00ns"
+          },
+          {
+            "name": "isComplete — backreference path (repeated word) — isComplete — same match, expansion probe cached",
+            "value": 782.37,
+            "range": "± 2.43",
+            "unit": "ns/iter",
+            "extra": "min: 770.42ns  p75: 777.83ns  p99: 848.78ns"
+          },
+          {
+            "name": "isComplete — backreference path (repeated word) — exec + isComplete — fresh match, probe rebuilt per match",
+            "value": 6723.06,
+            "range": "± 45.89",
+            "unit": "ns/iter",
+            "extra": "min: 6627.00ns  p75: 6751.33ns  p99: 6963.80ns"
+          },
+          {
+            "name": "isComplete — raw lookaround backreference renumbering — construct + exec (baseline, never asks)",
+            "value": 10808.71,
+            "range": "± 213.16",
+            "unit": "ns/iter",
+            "extra": "min: 10256.25ns  p75: 10963.00ns  p99: 11058.76ns"
+          },
+          {
+            "name": "isComplete — raw lookaround backreference renumbering — construct + exec + isComplete (includes probe build)",
+            "value": 15825.61,
+            "range": "± 235",
+            "unit": "ns/iter",
+            "extra": "min: 13961.00ns  p75: 14882.00ns  p99: 29224.00ns"
+          },
+          {
+            "name": "isComplete — raw lookaround backreference renumbering — isComplete — warm instance",
+            "value": 783.93,
+            "range": "± 2.42",
+            "unit": "ns/iter",
+            "extra": "min: 773.42ns  p75: 782.19ns  p99: 834.03ns"
+          },
+          {
+            "name": "feature cost — construction, one construct per bench — literal characters (baseline)",
+            "value": 5313.64,
+            "range": "± 159.94",
+            "unit": "ns/iter",
+            "extra": "min: 5109.18ns  p75: 5446.32ns  p99: 5565.24ns"
+          },
+          {
+            "name": "feature cost — construction, one construct per bench — character class",
+            "value": 5442.03,
+            "range": "± 201.61",
+            "unit": "ns/iter",
+            "extra": "min: 5188.81ns  p75: 5605.79ns  p99: 5710.81ns"
+          },
+          {
+            "name": "feature cost — construction, one construct per bench — quantifier",
+            "value": 5258.05,
+            "range": "± 170.14",
+            "unit": "ns/iter",
+            "extra": "min: 5058.67ns  p75: 5413.43ns  p99: 5536.20ns"
+          },
+          {
+            "name": "feature cost — construction, one construct per bench — disjunction",
+            "value": 6800.7,
+            "range": "± 74.12",
+            "unit": "ns/iter",
+            "extra": "min: 6533.79ns  p75: 6903.78ns  p99: 6975.92ns"
+          },
+          {
+            "name": "feature cost — construction, one construct per bench — non-capturing group",
+            "value": 6922,
+            "range": "± 88.7",
+            "unit": "ns/iter",
+            "extra": "min: 6593.74ns  p75: 7015.12ns  p99: 7159.82ns"
+          },
+          {
+            "name": "feature cost — construction, one construct per bench — capturing group",
+            "value": 6898.69,
+            "range": "± 80.47",
+            "unit": "ns/iter",
+            "extra": "min: 6610.59ns  p75: 7024.51ns  p99: 7103.86ns"
+          },
+          {
+            "name": "feature cost — construction, one construct per bench — named group",
+            "value": 7345.02,
+            "range": "± 87.16",
+            "unit": "ns/iter",
+            "extra": "min: 7002.50ns  p75: 7436.86ns  p99: 7542.18ns"
+          },
+          {
+            "name": "feature cost — construction, one construct per bench — lookahead",
+            "value": 6914.15,
+            "range": "± 107.79",
+            "unit": "ns/iter",
+            "extra": "min: 6645.31ns  p75: 7029.93ns  p99: 7172.92ns"
+          },
+          {
+            "name": "feature cost — construction, one construct per bench — negative lookahead (raw)",
+            "value": 7414.57,
+            "range": "± 141.61",
+            "unit": "ns/iter",
+            "extra": "min: 7011.55ns  p75: 7532.76ns  p99: 7676.48ns"
+          },
+          {
+            "name": "feature cost — construction, one construct per bench — lookbehind (raw)",
+            "value": 7171.06,
+            "range": "± 103.68",
+            "unit": "ns/iter",
+            "extra": "min: 6780.52ns  p75: 7261.42ns  p99: 7448.61ns"
+          },
+          {
+            "name": "feature cost — construction, one construct per bench — control escapes",
+            "value": 5517.92,
+            "range": "± 175.56",
+            "unit": "ns/iter",
+            "extra": "min: 5276.09ns  p75: 5656.72ns  p99: 5757.65ns"
+          },
+          {
+            "name": "feature cost — construction, one construct per bench — control-letter escape",
+            "value": 5490.26,
+            "range": "± 190.7",
+            "unit": "ns/iter",
+            "extra": "min: 5165.77ns  p75: 5625.42ns  p99: 5767.71ns"
+          },
+          {
+            "name": "feature cost — construction, one construct per bench — hex and unicode escapes",
+            "value": 5504.81,
+            "range": "± 118.69",
+            "unit": "ns/iter",
+            "extra": "min: 5332.40ns  p75: 5615.83ns  p99: 5663.66ns"
+          },
+          {
+            "name": "feature cost — construction, one construct per bench — unicode property escape (u)",
+            "value": 5516.38,
+            "range": "± 139.2",
+            "unit": "ns/iter",
+            "extra": "min: 5306.43ns  p75: 5618.86ns  p99: 5766.34ns"
+          },
+          {
+            "name": "feature cost — construction, one construct per bench — nested character class (v)",
+            "value": 5570.05,
+            "range": "± 137.14",
+            "unit": "ns/iter",
+            "extra": "min: 5361.04ns  p75: 5669.24ns  p99: 5811.19ns"
+          },
+          {
+            "name": "feature cost — construction, backreferences and legacy escapes — capturing group, no reference (static path)",
+            "value": 6543.56,
+            "range": "± 161.86",
+            "unit": "ns/iter",
+            "extra": "min: 6263.12ns  p75: 6663.82ns  p99: 6793.36ns"
+          },
+          {
+            "name": "feature cost — construction, backreferences and legacy escapes — numeric backreference (dynamic path)",
+            "value": 9532.51,
+            "range": "± 732.98",
+            "unit": "ns/iter",
+            "extra": "min: 8182.46ns  p75: 10219.24ns  p99: 10498.27ns"
+          },
+          {
+            "name": "feature cost — construction, backreferences and legacy escapes — named backreference (dynamic path)",
+            "value": 10299.92,
+            "range": "± 922.95",
+            "unit": "ns/iter",
+            "extra": "min: 8852.43ns  p75: 11040.69ns  p99: 11308.22ns"
+          },
+          {
+            "name": "feature cost — construction, backreferences and legacy escapes — reclassified octal escape (static)",
+            "value": 7665.51,
+            "range": "± 494.44",
+            "unit": "ns/iter",
+            "extra": "min: 7023.57ns  p75: 8113.45ns  p99: 8482.00ns"
+          },
+          {
+            "name": "feature cost — construction, backreferences and legacy escapes — reclassified \\k literal (static)",
+            "value": 13183.84,
+            "range": "± 50.86",
+            "unit": "ns/iter",
+            "extra": "min: 12867.49ns  p75: 13233.51ns  p99: 13309.91ns"
+          },
+          {
+            "name": "feature cost — exec, legacy escape vs genuine backreference — legacy \\k literal — partial input",
+            "value": 35.42,
+            "range": "± 0.17",
+            "unit": "ns/iter",
+            "extra": "min: 34.01ns  p75: 34.76ns  p99: 46.95ns"
+          },
+          {
+            "name": "feature cost — exec, legacy escape vs genuine backreference — legacy \\k literal — full match",
+            "value": 34.33,
+            "range": "± 0.15",
+            "unit": "ns/iter",
+            "extra": "min: 32.95ns  p75: 33.59ns  p99: 51.12ns"
+          },
+          {
+            "name": "feature cost — exec, legacy escape vs genuine backreference — genuine backreference — partial input",
+            "value": 1761.03,
+            "range": "± 6.63",
+            "unit": "ns/iter",
+            "extra": "min: 1736.07ns  p75: 1761.44ns  p99: 1817.86ns"
+          },
+          {
+            "name": "feature cost — exec, legacy escape vs genuine backreference — genuine backreference — full match",
+            "value": 70.11,
+            "range": "± 1.25",
+            "unit": "ns/iter",
+            "extra": "min: 67.92ns  p75: 70.91ns  p99: 99.10ns"
           }
         ]
       }
