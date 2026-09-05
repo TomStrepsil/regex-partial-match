@@ -30,6 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Split `walk.ts` into `atomSyntax.ts` (the rendering-syntax constants), `part.ts` (the `Backreference`/`Part`/`RawLookaroundInfo` types and guards), `groupName.ts` (group-name extraction and decoding), and `regexFeatures.ts` (the feature bitmask), leaving `walk.ts` with only the walk itself. `compilePartial.ts`, `truncationProbe.ts`, `isComplete.ts` and `partialMatchRegExp.ts` now import each directly from the file that owns it, rather than through `walk.ts`
 - Prefer `//` vs `new RegExp`, where possible, in tests
 - Added more contradictory patterns to main README, and indicate that these may have shown up in fuzz as partial matches nevertheless
+- `toMatchPartially()` now also checks the full string, not just its proper prefixes; the `exec()` assertions this made redundant have been removed
 
 ### Fixed
 
