@@ -32,7 +32,7 @@ Both paths share the same contract as the rest of the library:
 
 ## 🏗️ Architecture: one walk, many renderings
 
-`walk(...)`, which `compilePartial.ts` calls, walks a pattern's source once (with a single exception noted below) building a `Part[]`:
+`walk(...)`, which `compilePartial/index.ts` calls, walks a pattern's source once (with a single exception noted below) building a `Part[]`:
 
 ```ts
 type Part = string | Backreference;
