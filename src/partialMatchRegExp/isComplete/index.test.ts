@@ -332,6 +332,13 @@ describe("isComplete()", () => {
       expect(completenessOf(partial, "abab")).toBe(true);
     });
 
+    it("reports a backreference that ran out of input as incomplete, even where the capture scan settled on a shorter value than the match did", () => {
+      const partial = new PartialMatchRegExp(/^(ab?|ac?)\1/);
+
+      expect(completenessOf(partial, "aca")).toBe(false);
+      expect(completenessOf(partial, "acac")).toBe(true);
+    });
+
     it("reports a truncated atom before the backreference as incomplete", () => {
       expect(completenessOf(new PartialMatchRegExp(/^(ab)\1/), "a")).toBe(
         false

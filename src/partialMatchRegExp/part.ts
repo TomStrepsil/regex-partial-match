@@ -3,6 +3,7 @@ interface NumericBackreference {
   start: number;
   end: number;
   forward?: boolean;
+  caseInsensitive: boolean;
 }
 
 interface NamedBackreference {
@@ -10,6 +11,7 @@ interface NamedBackreference {
   start: number;
   end: number;
   forward?: boolean;
+  caseInsensitive: boolean;
 }
 
 export type Backreference = NumericBackreference | NamedBackreference;

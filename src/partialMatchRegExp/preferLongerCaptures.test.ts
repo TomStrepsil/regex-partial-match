@@ -77,9 +77,9 @@ describe("preferLongerCaptures", () => {
     });
 
     it("keeps a trailing optional group's capture through a nested backreference group", () => {
-      const partial = new PartialMatchRegExp(/^((a)\2)\1(b)?/);
-      expect(partial.exec("aaab")).toMatchObject({
-        0: "aaab",
+      const partial = new PartialMatchRegExp(/^((a)\2)\1(b)?\1/);
+      expect(partial.exec("aaaab")).toMatchObject({
+        0: "aaaab",
         1: "aa",
         2: "a",
         3: "b"
@@ -87,9 +87,9 @@ describe("preferLongerCaptures", () => {
     });
 
     it("keeps a multi-character trailing optional group's capture through a nested backreference group", () => {
-      const partial = new PartialMatchRegExp(/^((a)\2)\1(bb)?/);
-      expect(partial.exec("aaabb")).toMatchObject({
-        0: "aaabb",
+      const partial = new PartialMatchRegExp(/^((a)\2)\1(bb)?\1/);
+      expect(partial.exec("aaaabb")).toMatchObject({
+        0: "aaaabb",
         1: "aa",
         2: "a",
         3: "bb"

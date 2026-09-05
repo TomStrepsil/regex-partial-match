@@ -10,7 +10,7 @@ Please be respectful and constructive in all interactions. We aim to maintain a 
 
 ### Prerequisites
 
-- Node.js >= 23
+- Node.js >= 24.12
 - git
 
 ### Setting Up Your Development Environment

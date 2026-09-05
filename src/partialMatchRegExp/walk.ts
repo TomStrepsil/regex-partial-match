@@ -1,4 +1,7 @@
-import { DISJUNCTION_TO_END_OF_INPUT, OPTIONAL_ATOM_OPENING } from "./atomSyntax.ts";
+import {
+  DISJUNCTION_TO_END_OF_INPUT,
+  OPTIONAL_ATOM_OPENING
+} from "./atomSyntax.ts";
 import { groupNameOf, decodeGroupName } from "./groupName.ts";
 import { FEATURE_BIT } from "./regexFeatures.ts";
 import type { Backreference, Part, RawLookaroundInfo } from "./part.ts";
@@ -36,14 +39,20 @@ export function walk(
   let namedGroupOpenings: string[] | undefined;
   let closedGroupNumbers: Set<number> | undefined;
   let closedGroupNames: Set<string> | undefined;
-  let namedBackreferencesSeen: Array<{ ref: string; forward?: boolean }> | undefined;
+  let namedBackreferencesSeen:
+    | Array<{ ref: string; forward?: boolean }>
+    | undefined;
   let currentRawLookaroundBackreferences: Backreference[] | undefined;
 
   function extractSlice(length: number) {
     return source.slice(i, (i += length));
   }
 
-  function process(withinLookaround: boolean, declaresNamedGroup: boolean) {
+  function process(
+    withinLookaround: boolean,
+    declaresNamedGroup: boolean,
+    caseInsensitive: boolean
+  ) {
     const result: Part[] = [];
 
     function appendOptional(length: number) {
@@ -66,7 +75,8 @@ export function walk(
         ref,
         start,
         end,
-        forward: !closedGroupNumbers?.has(ref)
+        forward: !closedGroupNumbers?.has(ref),
+        caseInsensitive
       };
       result.push(backreference);
       currentRawLookaroundBackreferences?.push(backreference);
@@ -80,7 +90,7 @@ export function walk(
       const backreferences: Backreference[] =
         currentRawLookaroundBackreferences ?? [];
       if (isOutermost) currentRawLookaroundBackreferences = backreferences;
-      process(true, declaresNamedGroup);
+      process(true, declaresNamedGroup, caseInsensitive);
       if (isOutermost) {
         (rawLookarounds ??= []).push({
           sourceStart: start,
@@ -112,7 +122,8 @@ export function walk(
                   ref,
                   start,
                   end: i,
-                  forward: !declaresGroupNamed(closedGroupNames, ref)
+                  forward: !declaresGroupNamed(closedGroupNames, ref),
+                  caseInsensitive
                 };
                 result.push(namedBackreference);
                 currentRawLookaroundBackreferences?.push(namedBackreference);
@@ -123,7 +134,8 @@ export function walk(
                 currentRawLookaroundBackreferences.push({
                   ref: "",
                   start,
-                  end: i
+                  end: i,
+                  caseInsensitive
                 });
               } else {
                 result.push(LITERAL_K_ATOM);
@@ -277,7 +289,11 @@ export function walk(
                 result.push("(?:");
                 i += 3;
                 result.push(
-                  ...process(withinLookaround, declaresNamedGroup),
+                  ...process(
+                    withinLookaround,
+                    declaresNamedGroup,
+                    caseInsensitive
+                  ),
                   DISJUNCTION_TO_END_OF_INPUT
                 );
                 break;
@@ -285,7 +301,10 @@ export function walk(
                 featureMask |= FEATURE_BIT.lookahead;
                 result.push("(?=");
                 i += 3;
-                result.push(...process(true, declaresNamedGroup), ")");
+                result.push(
+                  ...process(true, declaresNamedGroup, caseInsensitive),
+                  ")"
+                );
                 break;
               case "-":
               case "i":
@@ -294,13 +313,25 @@ export function walk(
                 const flagsStart = i + 2,
                   colonIndex = source.indexOf(":", flagsStart);
                 const modifiers = source.slice(flagsStart, colonIndex);
-                featureMask |= modifiers.includes("-")
+                const [additions, removals] = modifiers.split("-") as [
+                  string,
+                  string | undefined
+                ];
+                featureMask |= removals
                   ? FEATURE_BIT.modifierGroupWithRemoval
                   : FEATURE_BIT.modifierGroup;
+                const modifierGroupCaseInsensitive = removals?.includes("i")
+                  ? false
+                  : caseInsensitive || additions.includes("i");
+
                 result.push("(?" + modifiers + ":");
                 i = colonIndex + 1;
                 result.push(
-                  ...process(withinLookaround, declaresNamedGroup),
+                  ...process(
+                    withinLookaround,
+                    declaresNamedGroup,
+                    modifierGroupCaseInsensitive
+                  ),
                   ")"
                 );
                 break;
@@ -332,7 +363,11 @@ export function walk(
                     const declaredName = decodeGroupName(groupNameOf(opening));
                     result.push(opening);
                     result.push(
-                      ...process(withinLookaround, declaresNamedGroup),
+                      ...process(
+                        withinLookaround,
+                        declaresNamedGroup,
+                        caseInsensitive
+                      ),
                       DISJUNCTION_TO_END_OF_INPUT
                     );
                     (closedGroupNumbers ??= new Set()).add(groupNumber);
@@ -348,7 +383,7 @@ export function walk(
             const groupNumber = ++groupCount;
             appendRaw(1);
             result.push(
-              ...process(withinLookaround, declaresNamedGroup),
+              ...process(withinLookaround, declaresNamedGroup, caseInsensitive),
               DISJUNCTION_TO_END_OF_INPUT
             );
             (closedGroupNumbers ??= new Set()).add(groupNumber);
@@ -367,10 +402,10 @@ export function walk(
     return result;
   }
 
-  const parts = process(false, declaresNamedGroup);
+  const parts = process(false, declaresNamedGroup, regex.flags.includes("i"));
 
   if (namedGroupOpenings && namedBackreferencesSeen) {
-  const seenOnce = new Set<string>();
+    const seenOnce = new Set<string>();
     let duplicated: Set<string> | undefined;
     for (const opening of namedGroupOpenings) {
       const name = decodeGroupName(groupNameOf(opening));

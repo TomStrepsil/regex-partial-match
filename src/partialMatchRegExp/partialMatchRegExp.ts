@@ -1,9 +1,6 @@
-import {
-  compilePartial,
-  renderParts,
-  type CompiledPartial,
-  type DynamicPath
-} from "./compilePartial.ts";
+import compilePartial from "./compilePartial/index.ts";
+import renderParts from "./compilePartial/renderParts.ts";
+import type { CompiledPartial, DynamicPath } from "./compilePartial/compiled.ts";
 import {
   backreferenceExpansion,
   type ExpandedMatch
@@ -88,7 +85,8 @@ class PartialMatchRegExp extends RegExp {
     dynamic: DynamicPath,
     input: string
   ): RegExpExecArray | null {
-    const { originalCaptureScan, preScan, expand } = dynamic;
+    const { originalCaptureScan, preScan, expand, expansionFitsCaptures } =
+      dynamic;
 
     const honoursLastIndex = this.global || this.sticky;
     const start = honoursLastIndex ? this.lastIndex : 0;
@@ -110,9 +108,20 @@ class PartialMatchRegExp extends RegExp {
       execFrom(preScan, input, start);
     if (capture === null) return originalMatch;
 
-    const expandedParts = expand(capture);
-    const expanded = new RegExp(renderParts(expandedParts), this.flags);
-    const match = execFrom(expanded, input, start);
+    let expandedFrom = capture;
+    let expandedParts = expand(expandedFrom);
+    let expanded = new RegExp(renderParts(expandedParts), this.flags);
+    let match = execFrom(expanded, input, start);
+
+    if (match !== null && !expansionFitsCaptures(expandedFrom, match, input)) {
+      expandedFrom = match;
+      expandedParts = expand(expandedFrom);
+      expanded = new RegExp(renderParts(expandedParts), this.flags);
+      match = execFrom(expanded, input, start);
+      if (match !== null && !expansionFitsCaptures(expandedFrom, match, input))
+        match = null;
+    }
+
     if (match === null || isAtOrBefore(originalMatch, match.index))
       return originalMatch;
 
