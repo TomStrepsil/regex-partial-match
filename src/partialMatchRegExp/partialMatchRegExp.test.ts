@@ -2867,9 +2867,7 @@ c`)
       });
 
       it("named: treats a reference to a name declared more than once, in disjoint alternatives, as forward", () => {
-        const partial = new PartialMatchRegExp(
-          /^(?:(?<x>a)|\k<x>b(?<x>c))$/
-        );
+        const partial = new PartialMatchRegExp(/^(?:(?<x>a)|\k<x>b(?<x>c))$/);
 
         expect(partial.exec("cbc")).toBeNull();
         expect(partial.exec("a")).toMatchAt({ match: "a", index: 0 });
@@ -3124,6 +3122,41 @@ c`)
         });
       });
 
+      describe("a backreference scoped by an inline modifier group", () => {
+        it("accepts a match consistent with a locally-enabled fold, though the pattern has no i flag of its own", () => {
+          const partial = new PartialMatchRegExp(/^([ab])\1([ab])(?i:\2)$/);
+
+          expect(partial.exec("aabB")).toMatchAt({ match: "aabB", index: 0 });
+        });
+
+        it("rejects a mismatch the local fold can't paper over, though the pattern has no i flag of its own", () => {
+          const partial = new PartialMatchRegExp(/^([ab])\1([ab])(?i:\2)$/);
+
+          expect(partial.exec("aaba")).toBeNull();
+        });
+
+        it("retains the pattern's own u flag folding for a locally-enabled fold", () => {
+          // U+212A KELVIN SIGN folds to "k" only under the u/v flag's case folding
+          const partial = new PartialMatchRegExp(/^([Kb])\1([Kb])(?i:\2)$/u);
+
+          expect(partial.exec("bbKk")).toMatchAt({ match: "bbKk", index: 0 });
+        });
+
+        it("accepts a match consistent with a locally-disabled fold, though the pattern's own flag is i", () => {
+          const partial = new PartialMatchRegExp(/^([ab])\1([ab])(?-i:\2)$/i);
+
+          expect(partial.exec("aabb")).toMatchAt({ match: "aabb", index: 0 });
+          expect(partial.exec("AAbb")).toMatchAt({ match: "AAbb", index: 0 });
+        });
+
+        // Requires https://github.com/nodejs/node/pull/60732
+        it("rejects a mismatch a locally-disabled fold can't paper over, though the pattern's own flag is i", () => {
+          const partial = new PartialMatchRegExp(/^([ab])\1([ab])(?-i:\2)$/i);
+
+          expect(partial.exec("aAaA")).toBeNull();
+        });
+      });
+
       it("rejects unreachable input when the group is repeated by a quantifier", () => {
         const partial = new PartialMatchRegExp(/^(?:([ab])\1)+$/);
 
@@ -3150,6 +3183,14 @@ c`)
 
         expect(partial.exec("bab")).toBeNull();
         expect(partial.exec("bb")).toMatchAt({ match: "bb", index: 0 });
+      });
+
+      it("checks agreement for a large case-folded capture in linear time", () => {
+        const partial = new PartialMatchRegExp(/^([ab]+)\1$/i);
+        const half = "ab".repeat(3000);
+        const input = half + half.toUpperCase();
+
+        expect(partial.exec(input)).toMatchAt({ match: input, index: 0 });
       });
 
       it("keeps the match when the expanded regex resolves a different alternative, leaving the scan's group unmatched", () => {
@@ -3267,9 +3308,7 @@ c`)
       });
 
       it("a static twin of the same pattern (no backreference) already agrees on the earlier index", () => {
-        const partial = new PartialMatchRegExp(
-          /("[^"]*")|(\{)|(\})/
-        );
+        const partial = new PartialMatchRegExp(/("[^"]*")|(\{)|(\})/);
         expect(partial.exec(' a: "}{')).toMatchAt({ match: '"}{', index: 4 });
       });
 
@@ -3398,7 +3437,9 @@ c`)
     });
 
     it("should never treat a leading-zero run as a genuine backreference, even with enough groups", () => {
-      const partial = new PartialMatchRegExp(new RegExp("^(a)(b)(c)(d)(e)(f)(g)(h)(i)(j)(k)(l)\\012x"));
+      const partial = new PartialMatchRegExp(
+        new RegExp("^(a)(b)(c)(d)(e)(f)(g)(h)(i)(j)(k)(l)\\012x")
+      );
 
       expect(partial.exec("abcdefghijkl\nx")).toMatchAt({
         match: "abcdefghijkl\nx",
@@ -3449,13 +3490,17 @@ c`)
     });
 
     it("should not report a named backreference for a reference no named group declares", () => {
-      const features = new PartialMatchRegExp(new RegExp("^\\k<none>x")).features;
+      const features = new PartialMatchRegExp(new RegExp("^\\k<none>x"))
+        .features;
       expect(features).not.toContain("namedBackreference");
     });
 
     it("should treat a completed reference as literal text when the pattern declares no named group", () => {
       const partial = new PartialMatchRegExp(new RegExp("^\\k<bogus>a"));
-      expect(partial.exec("k<bogus>")).toMatchAt({ match: "k<bogus>", index: 0 });
+      expect(partial.exec("k<bogus>")).toMatchAt({
+        match: "k<bogus>",
+        index: 0
+      });
       expect(partial.exec("k<bogus>a")).toMatchAt({
         match: "k<bogus>a",
         index: 0

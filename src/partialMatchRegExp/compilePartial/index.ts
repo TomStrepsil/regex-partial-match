@@ -8,6 +8,7 @@ import asPreScanPart from "./asPreScanPart.ts";
 import resolvedFromScan from "./resolvedFromScan.ts";
 import startsWithUnderFlags from "./startsWithUnderFlags.ts";
 import longestBakedPrefixEndingInput from "./longestBakedPrefixEndingInput.ts";
+import flagsAtBackreference from "./flagsAtBackreference.ts";
 import reclassifyLegacyEscapes from "./reclassifyLegacyEscapes.ts";
 import spliceOriginalSource from "./spliceOriginalSource.ts";
 import toStatic from "./toStatic.ts";
@@ -72,8 +73,14 @@ export default function compilePartial(regex: RegExp): CompiledPartial {
           const baked = resolvedFromScan(backref, expandedFrom);
           if (baked === undefined) continue;
           const resolved = resolvedFromScan(backref, match) ?? "";
-          const consumed = longestBakedPrefixEndingInput(baked, input, flags);
-          if (!startsWithUnderFlags(resolved, consumed, flags)) return false;
+          const backrefFlags = flagsAtBackreference(backref, flags);
+          const consumed = longestBakedPrefixEndingInput(
+            baked,
+            input,
+            backrefFlags
+          );
+          if (!startsWithUnderFlags(resolved, consumed, backrefFlags))
+            return false;
         }
         return true;
       },

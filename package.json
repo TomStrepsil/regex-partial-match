@@ -5,7 +5,7 @@
   "devEngines": {
     "runtime": {
       "name": "node",
-      "version": ">=23"
+      "version": ">=24.12"
     },
     "packageManager": {
       "name": "npm",
