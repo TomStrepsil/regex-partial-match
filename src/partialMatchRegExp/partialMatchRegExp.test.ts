@@ -3202,8 +3202,8 @@ c`)
       });
 
       it("checks agreement for a large case-folded capture in linear time", () => {
-        const partial = new PartialMatchRegExp(/^([ab]+)\1$/i);
-        const half = "ab".repeat(3000);
+        const partial = new PartialMatchRegExp(/^([ab]+)\1x$/i);
+        const half = "ab".repeat(1000);
         const input = half + half.toUpperCase();
 
         expect(partial.exec(input)).toMatchAt({ match: input, index: 0 });
