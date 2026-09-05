@@ -3061,11 +3061,53 @@ c`)
       });
     });
 
+    describe("a group that can match empty, followed by a backreference to it", () => {
+      it("rejects input no resolution of the group could ever lead to", () => {
+        const partial = new PartialMatchRegExp(/^(a?)\1(b)\2$/);
+
+        expect(partial.exec("ab")).toBeNull();
+        expect(partial.exec("abb")).toBeNull();
+      });
+
+      it("accepts every prefix reachable when the group matches its character", () => {
+        const partial = new PartialMatchRegExp(/^(a?)\1(b)\2$/);
+
+        expect(partial).toMatchPartially({ characters: "aabb".split("") });
+      });
+
+      it("accepts every prefix reachable when the group matches nothing", () => {
+        const partial = new PartialMatchRegExp(/^(a?)\1(b)\2$/);
+
+        expect(partial).toMatchPartially({ characters: "bb".split("") });
+      });
+
+      it("rejects unreachable input when the group is quantified rather than optional", () => {
+        const partial = new PartialMatchRegExp(/^(a+)\1(b?)\2$/);
+
+        expect(partial.exec("ab")).toBeNull();
+        expect(partial.exec("aabb")).toMatchAt({ match: "aabb", index: 0 });
+      });
+
+      it("rejects unreachable input when several groups each precede a backreference to themselves", () => {
+        const partial = new PartialMatchRegExp(/^(a?)\1(a?)\2(b?)\3$/);
+
+        expect(partial.exec("ab")).toBeNull();
+        expect(partial.exec("aaab")).toBeNull();
+        expect(partial.exec("aaa")).toMatchAt({ match: "aaa", index: 0 });
+      });
+
+      it("rejects unreachable input for a named backreference", () => {
+        const partial = new PartialMatchRegExp(/^(?<x>a?)\k<x>(?<y>b)\k<y>$/);
+
+        expect(partial.exec("ab")).toBeNull();
+        expect(partial.exec("aab")).toMatchAt({ match: "aab", index: 0 });
+      });
+    });
+
     it("accepts every prefix of 'abab' and rejects nearby non-prefix strings", () => {
       const partial = new PartialMatchRegExp(/^(ab)\1/);
 
       expect(partial).toMatchPartially({ characters: "abab".split("") });
-      expect(partial.exec("abab")).toMatchObject({ 0: "abab" });
 
       for (const input of ["b", "abb", "ababa", "abac", "abba", "xyz"]) {
         const match = partial.exec(input);

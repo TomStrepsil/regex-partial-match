@@ -14,8 +14,9 @@ import { featureSet, hasFeature, type RegexFeature } from "./regexFeatures.ts";
 
 const MAYBE_HAS_BACKREFERENCE_REGEX = /\\[0-9]|\\k</;
 const ANY_CAPTURED_TEXT = "(?:[\\s\\S]*?)";
-const QUANTIFIABLE_EMPTY_ATOM = "(?:)";
+const NEVER = "(?!)";
 const GROUP_CLOSING = ")";
+const ALTERNATION = "|";
 
 function backrefToken(backref: Backreference) {
   return isNumericBackreference(backref)
@@ -26,6 +27,8 @@ function backrefToken(backref: Backreference) {
 function asOptionalAtom(text: string) {
   return "(?:" + text + DISJUNCTION_TO_END_OF_INPUT;
 }
+
+const ONLY_AT_END_OF_INPUT = asOptionalAtom(NEVER);
 
 function asNativeAtom(backref: Backreference) {
   return asOptionalAtom(backrefToken(backref));
@@ -205,20 +208,16 @@ export const compilePartial = (regex: RegExp): CompiledPartial => {
             continue;
           }
           const captured = resolvedFromScan(part, capture);
-          if (captured === undefined) {
+          if (captured === undefined || captured === "") {
             expanded.push(part);
             continue;
           }
           const atoms = isUnicode ? Array.from(captured) : captured.split("");
-          if (atoms.length === 0) {
-            expanded.push(QUANTIFIABLE_EMPTY_ATOM);
-            continue;
-          }
-          expanded.push(OPTIONAL_ATOM_OPENING);
+          expanded.push(OPTIONAL_ATOM_OPENING, part, ALTERNATION);
           for (const atom of atoms) {
             expanded.push(asOptionalAtom(escapeAtom(atom)));
           }
-          expanded.push(GROUP_CLOSING);
+          expanded.push(ONLY_AT_END_OF_INPUT, GROUP_CLOSING);
         }
         return expanded;
       }
