@@ -3122,6 +3122,22 @@ c`)
         });
       });
 
+      it.each(["u", "v"])(
+        "checks agreement per code point under the %s flag, not per UTF-16 code unit",
+        (flag) => {
+          // U+10400/U+10428 are an astral case-fold pair whose surrogate halves don't themselves agree; comparing code units instead of code points would miss the fold and wrongly treat the two as disagreeing
+          const partial = new PartialMatchRegExp(
+            new RegExp("^([𐐀b])\\1([𐐀b])\\2$", "i" + flag)
+          );
+
+          expect(partial.exec("𐐀𐐀b𐐨")).toBeNull();
+          expect(partial.exec("𐐀𐐀𐐀𐐨")).toMatchAt({
+            match: "𐐀𐐀𐐀𐐨",
+            index: 0
+          });
+        }
+      );
+
       describe("a backreference scoped by an inline modifier group", () => {
         it("accepts a match consistent with a locally-enabled fold, though the pattern has no i flag of its own", () => {
           const partial = new PartialMatchRegExp(/^([ab])\1([ab])(?i:\2)$/);

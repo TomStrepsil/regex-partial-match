@@ -19,14 +19,18 @@ export default function longestBakedPrefixEndingInput(
 ) {
   if (baked === "") return "";
 
-  const sentinelIndex = baked.length;
-  const totalLength = baked.length + 1 + input.length;
+  const isUnicode = flags.includes("u") || flags.includes("v");
+  const bakedAtoms = isUnicode ? Array.from(baked) : baked.split("");
+  const inputAtoms = isUnicode ? Array.from(input) : input.split("");
+
+  const sentinelIndex = bakedAtoms.length;
+  const totalLength = bakedAtoms.length + 1 + inputAtoms.length;
   const atIndex = (index: number) =>
     index < sentinelIndex
-      ? baked[index]
+      ? bakedAtoms[index]
       : index === sentinelIndex
         ? SENTINEL
-        : input[index - sentinelIndex - 1];
+        : inputAtoms[index - sentinelIndex - 1];
 
   const longestBorder = [0];
   for (let index = 1; index < totalLength; index++) {
@@ -41,5 +45,5 @@ export default function longestBakedPrefixEndingInput(
     longestBorder.push(matched);
   }
 
-  return baked.slice(0, longestBorder[totalLength - 1]);
+  return bakedAtoms.slice(0, longestBorder[totalLength - 1]).join("");
 }
