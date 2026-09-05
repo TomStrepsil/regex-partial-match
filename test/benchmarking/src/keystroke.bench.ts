@@ -16,7 +16,7 @@
  */
 
 import { bench, group } from "mitata";
-import { compilePartial } from "../../../src/partialMatchRegExp/compilePartial.ts";
+import compilePartial from "../../../src/partialMatchRegExp/compilePartial/index.ts";
 import PartialMatchRegExp from "../../../src/partialMatchRegExp/index.ts";
 
 function staticPartial(pattern: RegExp): RegExp {

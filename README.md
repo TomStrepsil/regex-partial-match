@@ -96,8 +96,10 @@ The library has been stress-tested with various regular expression features in i
 - `/\b\B/` - impossible to match both a word boundary and a non-word boundary
 - `/$^/` - end cannot come before start
 - `x{2}?` - lazy quantifiers are mutually exclusive to fixed-length assertions
+- `/[]/` - an empty character class matches nothing
+- `/(?=b)(?=c)/` - the next character cannot be two different characters
 
-Such combinations have not been tested.
+Contradictory patterns are not comprehensively supported and may partially match inappropriately.
 
 > [!NOTE]
 > See [Partial Match Parity](/docs/partial-match-parity.md) for full details on how the library compares to reference implementations
@@ -228,6 +230,8 @@ The following cases remain atomic (full native value or exactly at true end of i
 - **A forward reference, outside a lookbehind** — `\1` written before group 1 opens, or referencing it while it's still open (a self-reference inside the group's own body, e.g. `\1` in `/^(\1a)$/`). Its value can't come from the capture scan, which resolves it on a path it could never have taken, so it's left to the engine — which, per ECMAScript, always resolves it to empty there (it can't have participated yet, even on a later iteration of an enclosing quantifier). This costs nothing in practice: there's no real value being withheld. (Inside a lookbehind — already covered above — matching runs right-to-left, so a reference written first can still follow its own group's capture; that's exactly why the whole body stays atomic regardless of `forward`.)
 - **A `\k<name>` referencing a name declared more than once**, which ECMAScript permits only across disjoint alternatives. This one is stricter than the rest — see [docs/backreferences.md](./docs/backreferences.md#duplicate-named-groups) for why, and for the workaround.
 
+ The case-folding a backreference's expansion agrees against tracks a locally-scoped `(?i:...)`/`(?-i:...)` [modifier](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Modifier) around that specific backreference, rather than only the pattern's own flags. This holds for a backreference the local scope makes *more* case-insensitive than the pattern is, or *less*. V8 versions before [the fix](https://issues.chromium.org/issues/447583670) released in Node.js 24.12 can still mishandle the locally-disabled case when the surrounding pattern has `i`; Chromium/Electron support depends on their bundled V8 version.
+
 #### Prefix-ambiguous top-level alternation
 
 When a pattern uses top-level alternation where one branch is a strict prefix of another (e.g. `^(ab)\1|^(abc)\2`), the internal capture scan may select the shorter branch — because it uses `(?:[\s\S]*?)` which accepts zero characters — causing the final partial regex to fail for inputs that are valid prefixes of the longer branch. In such cases `exec` returns `null` even though the input is a valid partial match:
@@ -258,6 +262,7 @@ See [docs/backreferences.md](./docs/backreferences.md) for why this happens (the
 
 [^3]: 
     To remain lightweight, no runtime type validation is applied, so non-TypeScript consumers will be reliant on underlying errors thrown if used incorrectly.
+
 
 ### Positive Lookbehinds
 

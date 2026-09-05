@@ -83,7 +83,7 @@ expect.extend({
     const failures: string[] = [];
     const stringIndex = String(index);
 
-    for (let i = 1; i < characters.length; i++) {
+    for (let i = 1; i <= characters.length; i++) {
       const partialString = characters.slice(0, i).join("");
       const result = received.exec(partialString);
 

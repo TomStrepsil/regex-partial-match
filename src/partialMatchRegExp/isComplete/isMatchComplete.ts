@@ -2,7 +2,7 @@ import {
   buildTruncationProbe,
   tookTruncationBranch
 } from "./truncationProbe.ts";
-import type { CompiledPartial } from "../compilePartial.ts";
+import type { CompiledPartial } from "../compilePartial/compiled.ts";
 import {
   backreferenceExpansion,
   type ExpandedMatch
