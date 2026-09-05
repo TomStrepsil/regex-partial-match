@@ -3165,7 +3165,7 @@ c`)
           expect(partial.exec("AAbb")).toMatchAt({ match: "AAbb", index: 0 });
         });
 
-        // Requires https://github.com/nodejs/node/pull/60732
+        // Requires https://github.com/nodejs/node/pull/60030
         it("rejects a mismatch a locally-disabled fold can't paper over, though the pattern's own flag is i", () => {
           const partial = new PartialMatchRegExp(/^([ab])\1([ab])(?-i:\2)$/i);
 
