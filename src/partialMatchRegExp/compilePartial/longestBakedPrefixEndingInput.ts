@@ -3,13 +3,26 @@ import caseFoldFlags from "./caseFoldFlags.ts";
 
 const SENTINEL = null;
 
-function atomsAgree(a: string | null, b: string | null, flags: string) {
+function foldMatchersFor(atoms: readonly string[], flags: string) {
+  const matchers = Object.create(null) as Partial<Record<string, RegExp>>;
+  if (!flags.includes("i")) return matchers;
+  const foldFlags = caseFoldFlags(flags);
+  for (const atom of atoms) {
+    if (!(atom in matchers)) {
+      matchers[atom] = new RegExp("^" + escapeAtom(atom), foldFlags);
+    }
+  }
+  return matchers;
+}
+
+function atomsAgree(
+  a: string | null,
+  b: string | null,
+  foldMatchers: Readonly<Partial<Record<string, RegExp>>>
+) {
   if (a === SENTINEL || b === SENTINEL) return false;
   if (a === b) return true;
-  return (
-    flags.includes("i") &&
-    new RegExp("^" + escapeAtom(a), caseFoldFlags(flags)).test(b)
-  );
+  return foldMatchers[a]?.test(b) ?? false;
 }
 
 export default function longestBakedPrefixEndingInput(
@@ -22,6 +35,7 @@ export default function longestBakedPrefixEndingInput(
   const isUnicode = flags.includes("u") || flags.includes("v");
   const bakedAtoms = isUnicode ? Array.from(baked) : baked.split("");
   const inputAtoms = isUnicode ? Array.from(input) : input.split("");
+  const foldMatchers = foldMatchersFor(bakedAtoms, flags);
 
   const sentinelIndex = bakedAtoms.length;
   const totalLength = bakedAtoms.length + 1 + inputAtoms.length;
@@ -37,11 +51,11 @@ export default function longestBakedPrefixEndingInput(
     let matched = longestBorder[index - 1];
     while (
       matched > 0 &&
-      !atomsAgree(atIndex(matched), atIndex(index), flags)
+      !atomsAgree(atIndex(matched), atIndex(index), foldMatchers)
     ) {
       matched = longestBorder[matched - 1];
     }
-    if (atomsAgree(atIndex(matched), atIndex(index), flags)) matched++;
+    if (atomsAgree(atIndex(matched), atIndex(index), foldMatchers)) matched++;
     longestBorder.push(matched);
   }
 
