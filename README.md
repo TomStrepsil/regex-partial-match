@@ -99,7 +99,7 @@ The library has been stress-tested with various regular expression features in i
 - `/[]/` - an empty character class matches nothing
 - `/(?=b)(?=c)/` - the next character cannot be two different characters
 
-Such combinations have not been tested, and may partially match inappropriately.
+Contradictory patterns are not comprehensively supported and may partially match inappropriately.
 
 > [!NOTE]
 > See [Partial Match Parity](/docs/partial-match-parity.md) for full details on how the library compares to reference implementations

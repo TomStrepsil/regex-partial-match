@@ -1,9 +1,6 @@
-import {
-  compilePartial,
-  renderParts,
-  type CompiledPartial,
-  type DynamicPath
-} from "./compilePartial.ts";
+import compilePartial from "./compilePartial/index.ts";
+import renderParts from "./compilePartial/renderParts.ts";
+import type { CompiledPartial, DynamicPath } from "./compilePartial/compiled.ts";
 import {
   backreferenceExpansion,
   type ExpandedMatch

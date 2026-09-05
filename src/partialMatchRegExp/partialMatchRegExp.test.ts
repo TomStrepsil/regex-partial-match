@@ -3105,6 +3105,25 @@ c`)
         expect(partial).toMatchPartially({ characters: "aabb".split("") });
       });
 
+      it("checks agreement under the pattern's own case-folding, not a case-sensitive comparison", () => {
+        const partial = new PartialMatchRegExp(/^([ab])\1([ab])\2$/i);
+
+        expect(partial.exec("aabA")).toBeNull();
+        expect(partial.exec("AABB")).toMatchAt({ match: "AABB", index: 0 });
+        expect(partial.exec("aAbB")).toMatchAt({ match: "aAbB", index: 0 });
+      });
+
+      it("checks agreement under the u flag's case folding, which is broader than the flagless fold", () => {
+        // U+212A KELVIN SIGN folds to "k" only under the u/v flag's case folding
+        const partial = new PartialMatchRegExp(/^([Kb])\1([Kb])\2$/iu);
+
+        expect(partial.exec("KKbk")).toBeNull();
+        expect(partial.exec("kKbb")).toMatchAt({
+          match: "kKbb",
+          index: 0
+        });
+      });
+
       it("rejects unreachable input when the group is repeated by a quantifier", () => {
         const partial = new PartialMatchRegExp(/^(?:([ab])\1)+$/);
 
