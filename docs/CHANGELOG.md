@@ -31,7 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Prefer `//` vs `new RegExp`, where possible, in tests
 - Added more contradictory patterns to main README, and indicate that these may have shown up in fuzz as partial matches nevertheless
 - `toMatchPartially()` now also checks the full string, not just its proper prefixes; the `exec()` assertions this made redundant have been removed
-- `devEngines.runtime` now requires Node.js ≥24.12, for the V8 fix behind [nodejs/node#60030](https://github.com/nodejs/node/issues/60030); the regression test for it is skipped below that version
+- `devEngines.runtime` now requires Node.js ≥24.12, for the V8 fix behind [nodejs/node#60030](https://github.com/nodejs/node/issues/60030)
 
 ### Fixed
 
