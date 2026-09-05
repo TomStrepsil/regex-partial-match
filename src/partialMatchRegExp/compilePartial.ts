@@ -46,6 +46,14 @@ function resolvedFromScan(backref: Backreference, capture: RegExpExecArray) {
     : capture.groups?.[decodeGroupName(backref.ref)];
 }
 
+function longestBakedPrefixEndingInput(baked: string, input: string) {
+  for (let length = baked.length; length > 0; length--) {
+    const consumed = baked.slice(0, length);
+    if (input.endsWith(consumed)) return consumed;
+  }
+  return "";
+}
+
 function reclassifyLegacyEscapes(
   parts: Part[],
   source: string,
@@ -84,6 +92,11 @@ export interface DynamicPath {
   originalCaptureScan: RegExp;
   preScan: RegExp;
   expand: (capture: RegExpExecArray) => Part[];
+  expansionFitsCaptures: (
+    expandedFrom: RegExpExecArray,
+    match: RegExpExecArray,
+    input: string
+  ) => boolean;
 }
 
 export function renderParts(parts: readonly Part[]): string {
@@ -200,6 +213,16 @@ export const compilePartial = (regex: RegExp): CompiledPartial => {
         sanitisedParts.map(asPreScanPart).join(""),
         flags
       ),
+      expansionFitsCaptures: (expandedFrom, match, input) => {
+        for (const backref of backreferences) {
+          const baked = resolvedFromScan(backref, expandedFrom);
+          if (baked === undefined) continue;
+          const resolved = resolvedFromScan(backref, match) ?? "";
+          if (!resolved.startsWith(longestBakedPrefixEndingInput(baked, input)))
+            return false;
+        }
+        return true;
+      },
       expand: (capture) => {
         const expanded: Part[] = [];
         for (const part of sanitisedParts) {

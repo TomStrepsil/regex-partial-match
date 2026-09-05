@@ -2892,12 +2892,21 @@ c`)
 
       it("named: treats a reference to a name declared more than once, in disjoint alternatives, as forward", () => {
         const partial = new PartialMatchRegExp(
-          new RegExp("^(?:(?<x>a)|\\k<x>b(?<x>c))$")
+          /^(?:(?<x>a)|\k<x>b(?<x>c))$/
         );
 
         expect(partial.exec("cbc")).toBeNull();
         expect(partial.exec("a")).toMatchAt({ match: "a", index: 0 });
         expect(partial.exec("bc")).toMatchAt({ match: "bc", index: 0 });
+      });
+
+      it("named: still resolves a reference to a name declared once, though another name in the same pattern is duplicated", () => {
+        const partial = new PartialMatchRegExp(
+          /^(?:(?<x>a)|(?<x>b))(?<y>cd)\k<y>$/
+        );
+
+        expect(partial.exec("acdc")).toMatchAt({ match: "acdc", index: 0 });
+        expect(partial.exec("acdcd")).toMatchAt({ match: "acdcd", index: 0 });
       });
     });
 
@@ -3047,7 +3056,7 @@ c`)
 
     describe("a backreference whose captured value is empty", () => {
       it("should still render an atom a following quantifier can bind to", () => {
-        const partial = new PartialMatchRegExp(new RegExp("^\\1*(a)"));
+        const partial = new PartialMatchRegExp(/^\1*(a)/);
 
         expect(partial.exec("")).toMatchAt({ match: "", index: 0 });
         expect(partial.exec("a")).toMatchAt({ match: "a", index: 0 });
@@ -3101,6 +3110,68 @@ c`)
 
         expect(partial.exec("ab")).toBeNull();
         expect(partial.exec("aab")).toMatchAt({ match: "aab", index: 0 });
+      });
+    });
+
+    describe("a capture the expanded match resolves differently from the capture scan", () => {
+      it("rejects input whose backreference ran out against the scan's value rather than its own", () => {
+        const partial = new PartialMatchRegExp(/^([ab])\1([ab])\2$/);
+
+        expect(partial.exec("aaba")).toBeNull();
+        expect(partial.exec("aaab")).toBeNull();
+        expect(partial.exec("bbab")).toBeNull();
+        expect(partial.exec("bbba")).toBeNull();
+      });
+
+      it("accepts the prefixes that remain reachable", () => {
+        const partial = new PartialMatchRegExp(/^([ab])\1([ab])\2$/);
+
+        expect(partial).toMatchPartially({ characters: "aabb".split("") });
+      });
+
+      it("rejects unreachable input when the group is repeated by a quantifier", () => {
+        const partial = new PartialMatchRegExp(/^(?:([ab])\1)+$/);
+
+        expect(partial.exec("ab")).toBeNull();
+        expect(partial).toMatchPartially({ characters: "aabb".split("") });
+      });
+
+      it("keeps a match the scan's value plays no part in, rather than holding that value against it", () => {
+        const partial = new PartialMatchRegExp(/([bc])\1/);
+
+        expect(partial.exec("bc")).toMatchAt({ match: "c", index: 1 });
+        expect(partial.exec("bcc")).toMatchAt({ match: "cc", index: 1 });
+      });
+
+      it("keeps such a match when the group the scan resolved is nested", () => {
+        const partial = new PartialMatchRegExp(/((.))\1/);
+
+        expect(partial.exec("ab")).toMatchAt({ match: "b", index: 1 });
+        expect(partial.exec("abb")).toMatchAt({ match: "bb", index: 1 });
+      });
+
+      it("gives up rather than trusting a re-derived expansion that disagrees in its turn", () => {
+        const partial = new PartialMatchRegExp(/(a*.)\1/);
+
+        expect(partial.exec("bab")).toBeNull();
+        expect(partial.exec("bb")).toMatchAt({ match: "bb", index: 0 });
+      });
+
+      it("keeps the match when the expanded regex resolves a different alternative, leaving the scan's group unmatched", () => {
+        const partial = new PartialMatchRegExp(/^(ab)\1|^(abc)\2/);
+
+        expect(partial.exec("abc")).toMatchObject({
+          0: "abc",
+          1: undefined,
+          2: "abc"
+        });
+      });
+
+      it("re-derives the expansion from the capture the match found, rather than abandoning the match", () => {
+        const partial = new PartialMatchRegExp(/^(ab?)\1(b)\2$/);
+
+        expect(partial.exec("ab")).toMatchAt({ match: "ab", index: 0 });
+        expect(partial.exec("abab")).toMatchObject({ 0: "abab", 1: "ab" });
       });
     });
 
@@ -3344,7 +3415,7 @@ c`)
     });
 
     it("should tag a bare \\0 as backreference-shaped, same as any other digit escape", () => {
-      const features = new PartialMatchRegExp(new RegExp("^\\0")).features;
+      const features = new PartialMatchRegExp(/^\0/).features;
 
       expect(features).toContain("backreference");
       expect(features).not.toContain("otherEscape");

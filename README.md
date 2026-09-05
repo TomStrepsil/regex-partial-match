@@ -96,8 +96,10 @@ The library has been stress-tested with various regular expression features in i
 - `/\b\B/` - impossible to match both a word boundary and a non-word boundary
 - `/$^/` - end cannot come before start
 - `x{2}?` - lazy quantifiers are mutually exclusive to fixed-length assertions
+- `/[]/` - an empty character class matches nothing
+- `/(?=b)(?=c)/` - the next character cannot be two different characters
 
-Such combinations have not been tested.
+Such combinations have not been tested, and may partially match inappropriately.
 
 > [!NOTE]
 > See [Partial Match Parity](/docs/partial-match-parity.md) for full details on how the library compares to reference implementations
