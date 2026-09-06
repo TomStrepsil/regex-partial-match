@@ -1,9 +1,5 @@
 import { legacyEscapeAsLiteral } from "../legacyEscape.ts";
-import {
-  DISJUNCTION_TO_END_OF_INPUT,
-  OPTIONAL_ATOM_OPENING,
-  NAMED_GROUP_OPENING
-} from "../atomSyntax.ts";
+import { DISJUNCTION_TO_END_OF_INPUT, OPTIONAL_ATOM_OPENING } from "../atomSyntax.ts";
 import { groupNameOf, decodeGroupName } from "../groupName.ts";
 import {
   isBackreference,
@@ -12,6 +8,7 @@ import {
   type Part,
   type RawLookaroundInfo
 } from "../part.ts";
+import { roleOf, type PartRole } from "./partRole.ts";
 
 export interface TruncationProbe {
   regex: RegExp;
@@ -22,50 +19,32 @@ export interface TruncationProbe {
 const TRUNCATION_MARKER_NAME = "truncation";
 const FLAGS_INCOMPATIBLE_WITH_PROBING = /[dgy]/g;
 
-function endsAtTruncationBranch(part: string) {
-  return (
-    part === DISJUNCTION_TO_END_OF_INPUT ||
-    (part.startsWith(OPTIONAL_ATOM_OPENING) &&
-      part.endsWith(DISJUNCTION_TO_END_OF_INPUT))
-  );
-}
-
-function isSimpleGroupOpen(part: string) {
-  return (
-    part === "(" ||
-    (part.startsWith(NAMED_GROUP_OPENING) &&
-      !"=!".includes(part[NAMED_GROUP_OPENING.length]))
-  );
-}
-
-function isRawLookaround(part: string) {
-  return (
-    part.startsWith("(?!") ||
-    part.startsWith(NAMED_GROUP_OPENING + "=") ||
-    part.startsWith(NAMED_GROUP_OPENING + "!")
-  );
-}
-
 function groupShiftTable(
-  parts: readonly Part[],
-  rawLookarounds: readonly RawLookaroundInfo[]
+  rawLookarounds: readonly RawLookaroundInfo[],
+  roles: readonly PartRole[]
 ) {
   const shiftForGroup: number[] = [0];
   let markerCount = 0;
   let rawLookaroundIndex = 0;
 
-  for (const part of parts) {
-    if (isBackreference(part)) {
-      markerCount++;
-    } else if (isSimpleGroupOpen(part)) {
-      shiftForGroup.push(markerCount);
-    } else if (isRawLookaround(part)) {
-      const { capturingGroupsOpened } = rawLookarounds[rawLookaroundIndex++];
-      for (let i = 0; i < capturingGroupsOpened; i++) {
+  for (const role of roles) {
+    switch (role) {
+      case "backreference":
+      case "truncationEnd":
+        markerCount++;
+        break;
+      case "groupOpen":
         shiftForGroup.push(markerCount);
+        break;
+      case "rawLookaround": {
+        const { capturingGroupsOpened } = rawLookarounds[rawLookaroundIndex++];
+        for (let i = 0; i < capturingGroupsOpened; i++) {
+          shiftForGroup.push(markerCount);
+        }
+        break;
       }
-    } else if (endsAtTruncationBranch(part)) {
-      markerCount++;
+      case "plain":
+        break;
     }
   }
 
@@ -134,11 +113,12 @@ export const buildTruncationProbe = (
     markerName += "_";
   }
 
-  const shiftForGroup = groupShiftTable(parts, rawLookarounds);
+  const roles = parts.map(roleOf);
+  const shiftForGroup = groupShiftTable(rawLookarounds, roles);
 
   let markerCount = 0;
   let rawLookaroundIndex = 0;
-  const probed = parts.map((part) => {
+  const probed = parts.map((part, index) => {
     if (isBackreference(part)) {
       const marker = "|(?<" + markerName + String(markerCount++) + ">)";
       return (
@@ -148,7 +128,7 @@ export const buildTruncationProbe = (
         DISJUNCTION_TO_END_OF_INPUT.slice(1)
       );
     }
-    if (isRawLookaround(part)) {
+    if (roles[index] === "rawLookaround") {
       return renumberRawBackreferences(
         part,
         rawLookarounds[rawLookaroundIndex++],
@@ -156,7 +136,7 @@ export const buildTruncationProbe = (
         declaresNamedGroup
       );
     }
-    if (!endsAtTruncationBranch(part)) return part;
+    if (roles[index] !== "truncationEnd") return part;
 
     const marker = "|(?<" + markerName + String(markerCount++) + ">)";
     return (
