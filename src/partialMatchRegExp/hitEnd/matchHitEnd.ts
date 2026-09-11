@@ -9,22 +9,24 @@ import {
 } from "../backreferenceExpansion.ts";
 import type { TruncationProbeCache } from "./truncationProbeCache.ts";
 
-export default function isMatchComplete(
+export default function matchHitEnd(
   compiled: CompiledPartial,
   match: RegExpExecArray,
   flags: string,
   cache: TruncationProbeCache
 ): boolean {
-  if (compiled.kind === "dynamic") {
-    const expansion = (match as ExpandedMatch)[backreferenceExpansion];
-    if (expansion === undefined) return true;
+  const expansion =
+    compiled.kind === "dynamic"
+      ? (match as ExpandedMatch)[backreferenceExpansion]
+      : undefined;
+  if (expansion !== undefined) {
     expansion.probe ??= buildTruncationProbe(
       expansion.parts,
       compiled.rawLookarounds,
       compiled.namedGroupOpenings,
       flags
     );
-    return !tookTruncationBranch(expansion.probe, match.input, match.index);
+    return tookTruncationBranch(expansion.probe, match.input, match.index);
   }
 
   cache.probe ??= buildTruncationProbe(
@@ -33,5 +35,5 @@ export default function isMatchComplete(
     compiled.namedGroupOpenings,
     flags
   );
-  return !tookTruncationBranch(cache.probe, match.input, match.index);
+  return tookTruncationBranch(cache.probe, match.input, match.index);
 }

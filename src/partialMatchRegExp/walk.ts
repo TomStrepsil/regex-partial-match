@@ -3,6 +3,7 @@ import {
   OPTIONAL_ATOM_OPENING
 } from "./atomSyntax.ts";
 import { groupNameOf, decodeGroupName } from "./groupName.ts";
+import { legacyEscapeAtoms } from "./legacyEscape.ts";
 import { FEATURE_BIT } from "./regexFeatures.ts";
 import type { Backreference, Part, RawLookaroundInfo } from "./part.ts";
 
@@ -21,10 +22,10 @@ const declaresGroupNamed = (
 
 export function walk(
   regex: RegExp,
-  declaresNamedGroup: boolean
+  declaresNamedGroup: boolean,
+  groupLimit: number
 ): {
   parts: Part[];
-  groupCount: number;
   featureMask: number;
   rawLookarounds: readonly RawLookaroundInfo[];
   namedGroupOpenings: readonly string[];
@@ -43,6 +44,7 @@ export function walk(
     | Array<{ ref: string; forward?: boolean }>
     | undefined;
   let currentRawLookaroundBackreferences: Backreference[] | undefined;
+  let truncatableAtomEmitted = false;
 
   function extractSlice(length: number) {
     return source.slice(i, (i += length));
@@ -51,11 +53,13 @@ export function walk(
   function process(
     withinLookaround: boolean,
     declaresNamedGroup: boolean,
-    caseInsensitive: boolean
+    caseInsensitive: boolean,
+    multiline: boolean
   ) {
     const result: Part[] = [];
 
     function appendOptional(length: number) {
+      truncatableAtomEmitted = true;
       result.push("(?:" + extractSlice(length) + DISJUNCTION_TO_END_OF_INPUT);
     }
 
@@ -78,8 +82,15 @@ export function walk(
         forward: !closedGroupNumbers?.has(ref),
         caseInsensitive
       };
-      result.push(backreference);
       currentRawLookaroundBackreferences?.push(backreference);
+      if (ref >= 1 && ref <= groupLimit) {
+        truncatableAtomEmitted = true;
+        result.push(backreference);
+        return;
+      }
+      for (const atom of legacyEscapeAtoms(source.slice(start + 1, end))) {
+        result.push(OPTIONAL_ATOM_OPENING + atom + DISJUNCTION_TO_END_OF_INPUT);
+      }
     }
 
     function appendRawLookaround(prefixLength: number) {
@@ -90,7 +101,7 @@ export function walk(
       const backreferences: Backreference[] =
         currentRawLookaroundBackreferences ?? [];
       if (isOutermost) currentRawLookaroundBackreferences = backreferences;
-      process(true, declaresNamedGroup, caseInsensitive);
+      process(true, declaresNamedGroup, caseInsensitive, multiline);
       if (isOutermost) {
         (rawLookarounds ??= []).push({
           sourceStart: start,
@@ -125,6 +136,7 @@ export function walk(
                   forward: !declaresGroupNamed(closedGroupNames, ref),
                   caseInsensitive
                 };
+                truncatableAtomEmitted = true;
                 result.push(namedBackreference);
                 currentRawLookaroundBackreferences?.push(namedBackreference);
                 (namedBackreferencesSeen ??= []).push(namedBackreference);
@@ -254,7 +266,8 @@ export function walk(
         }
         case "^":
           featureMask |= FEATURE_BIT.startAnchor;
-          appendRaw(1);
+          if (multiline && truncatableAtomEmitted) appendOptional(1);
+          else appendRaw(1);
           break;
         case "$":
           featureMask |= FEATURE_BIT.endAnchor;
@@ -292,7 +305,8 @@ export function walk(
                   ...process(
                     withinLookaround,
                     declaresNamedGroup,
-                    caseInsensitive
+                    caseInsensitive,
+                    multiline
                   ),
                   DISJUNCTION_TO_END_OF_INPUT
                 );
@@ -302,7 +316,12 @@ export function walk(
                 result.push("(?=");
                 i += 3;
                 result.push(
-                  ...process(true, declaresNamedGroup, caseInsensitive),
+                  ...process(
+                    true,
+                    declaresNamedGroup,
+                    caseInsensitive,
+                    multiline
+                  ),
                   ")"
                 );
                 break;
@@ -323,6 +342,9 @@ export function walk(
                 const modifierGroupCaseInsensitive = removals?.includes("i")
                   ? false
                   : caseInsensitive || additions.includes("i");
+                const modifierGroupMultiline = removals?.includes("m")
+                  ? false
+                  : multiline || additions.includes("m");
 
                 result.push("(?" + modifiers + ":");
                 i = colonIndex + 1;
@@ -330,7 +352,8 @@ export function walk(
                   ...process(
                     withinLookaround,
                     declaresNamedGroup,
-                    modifierGroupCaseInsensitive
+                    modifierGroupCaseInsensitive,
+                    modifierGroupMultiline
                   ),
                   ")"
                 );
@@ -366,7 +389,8 @@ export function walk(
                       ...process(
                         withinLookaround,
                         declaresNamedGroup,
-                        caseInsensitive
+                        caseInsensitive,
+                        multiline
                       ),
                       DISJUNCTION_TO_END_OF_INPUT
                     );
@@ -383,7 +407,12 @@ export function walk(
             const groupNumber = ++groupCount;
             appendRaw(1);
             result.push(
-              ...process(withinLookaround, declaresNamedGroup, caseInsensitive),
+              ...process(
+                withinLookaround,
+                declaresNamedGroup,
+                caseInsensitive,
+                multiline
+              ),
               DISJUNCTION_TO_END_OF_INPUT
             );
             (closedGroupNumbers ??= new Set()).add(groupNumber);
@@ -402,7 +431,12 @@ export function walk(
     return result;
   }
 
-  const parts = process(false, declaresNamedGroup, regex.flags.includes("i"));
+  const parts = process(
+    false,
+    declaresNamedGroup,
+    regex.flags.includes("i"),
+    regex.flags.includes("m")
+  );
 
   if (namedGroupOpenings && namedBackreferencesSeen) {
     const seenOnce = new Set<string>();
@@ -423,7 +457,6 @@ export function walk(
 
   return {
     parts,
-    groupCount,
     featureMask,
     rawLookarounds: rawLookarounds ?? NO_RAW_LOOKAROUNDS,
     namedGroupOpenings: namedGroupOpenings ?? NO_NAMED_GROUP_OPENINGS

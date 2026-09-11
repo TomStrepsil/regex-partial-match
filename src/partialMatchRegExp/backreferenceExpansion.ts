@@ -1,5 +1,5 @@
 import type { Part } from "./part.ts";
-import type { TruncationProbe } from "./isComplete/truncationProbe.ts";
+import type { TruncationProbe } from "./hitEnd/truncationProbe.ts";
 
 export interface BackreferenceExpansion {
   parts: Part[];

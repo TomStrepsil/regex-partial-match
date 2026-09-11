@@ -77,11 +77,11 @@ Three patterns span the complexity range the walker branches on:
 | Simple (`/^hello+$/`) | No groups, no character classes, no backreferences               |
 | Phone number          | Several character classes and optional groups, no backreferences |
 | HTML tag              | Capturing group + backreference — exercises the dynamic path     |
-| Legacy escape         | `\7` and `\k<none>` — exercises the reclassification pass        |
+| Legacy escape         | `\7` and `\k<none>` — exercises the Annex B classification       |
 
-### 6. `isComplete()` (`is-complete.bench.ts`)
+### 6. `hitEnd()` (`hit-end.bench.ts`)
 
-`isComplete()` re-runs a twin of the compiled pattern to recover whether a match took a truncation branch. The twin is built lazily, so the cost splits in two and both halves are tracked: the one-off probe build, and the steady-state cost of one anchored `exec` per call thereafter. In each group the probe build is the delta between the first two benches, which differ only by the `isComplete()` call.
+`hitEnd()` re-runs a twin of the compiled pattern to recover whether a match took a truncation branch. The twin is built lazily, so the cost splits in two and both halves are tracked: the one-off probe build, and the steady-state cost of one anchored `exec` per call thereafter. In each group the probe build is the delta between the first two benches, which differ only by the `hitEnd()` call.
 
 The two paths cache the probe at different granularities, which is why they are measured separately:
 
@@ -98,7 +98,7 @@ Scenario 5 tracks whole realistic patterns end to end; this one isolates *which 
 
 Every pattern in the first group is the same shape — an anchor, the construct under test, a literal tail — and the tail is padded with plain literal characters until every pattern compiles to the same emitted part count. Construction cost tracks that part count as closely as it tracks source length, so leaving it uncontrolled would rank patterns by how few parts their construct collapses into rather than by what the construct costs: a character class or property escape would read as cheaper than a plain literal purely because it leaves fewer parts behind. Equalising part count removes that confound, though not every variable — source length past the padding, and flags like `u`/`v`, still differ between benches. It does reclassify raw lookaheads and lookbehinds as the most expensive constructs in the group rather than the mid-pack result their part count alone suggests: like a positive lookahead, the walker recurses into the body to find its extent and count the capturing groups inside it, but then discards that recursive work and copies the same span again as a single source slice, rather than reusing it the way a lookahead does.
 
-Two further groups cover the constructs that decide which compiled path a pattern lands on. A backreference forces the dynamic path; a legacy escape (`\7` past the group count, or `\k<name>` in a pattern declaring no named group) is an Annex B literal and must not. That distinction costs something at construction — more for `\k<name>`, which pays for the second walk — but is worth better than an order of magnitude at `exec()`, since the dynamic path rebuilds a `RegExp` per call. So it is measured at both.
+Two further groups cover the constructs that decide which compiled path a pattern lands on. A backreference forces the dynamic path; a legacy escape (`\7` past the group count, or `\k<name>` in a pattern declaring no named group) is an Annex B literal and must not. That distinction costs something at construction — a native group pre-count taken once per instance, shared by both spellings — but is worth better than an order of magnitude at `exec()`, since the dynamic path rebuilds a `RegExp` per call. So it is measured at both.
 
 ## 🤖 CI integration
 

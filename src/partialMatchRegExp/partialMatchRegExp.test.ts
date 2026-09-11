@@ -1857,6 +1857,27 @@ c`)
         }
       });
 
+      it("should leave a leading caret verbatim, so the start anchor still suppresses the empty match at end of input", () => {
+        const partial = new PartialMatchRegExp(/^x/m);
+
+        expect(partial.test("")).toBe(true);
+        expect(partial.test("x")).toBe(true);
+        expect(partial.test("a")).toBe(false);
+        expect(partial.test("a\nb")).toBe(false);
+        expect(partial.test("a\n")).toBe(true);
+      });
+
+      it("should keep a viable prefix where a caret is judged at a truncated end, which a line terminator still to arrive would satisfy", () => {
+        const partial = new PartialMatchRegExp(/\W^/m);
+
+        expect(partial.exec("a")).toMatchAt({ match: "", index: 1 });
+        expect(/\W^/m.exec("a\n")).toMatchAt({ match: "\n", index: 1 });
+      });
+
+      it("should refuse a caret no continuation can reach once the multiline flag is absent", () => {
+        expect(new PartialMatchRegExp(/\W^/).exec("a")).toBeNull();
+      });
+
       it("should support matching an unanchored pattern wherever its literal text occurs, unaffected by line boundaries", () => {
         const pattern = new PartialMatchRegExp(/foo/m);
         expect(pattern.test("f")).toBe(true);
@@ -2536,7 +2557,7 @@ c`)
         invalidInputs: ["b", "ba", "abc"],
         expected: (str: string) => ({
           0: str,
-          1: str.slice(0, 2)
+          1: { a: "a", ab: "ab", aba: "a", abab: "ab", ababab: "ab" }[str]
         })
       },
       {
@@ -2556,7 +2577,7 @@ c`)
         invalidInputs: ["b", "ba", "abc"],
         expected: (str: string) => ({
           0: str,
-          1: str.slice(0, 2)
+          1: { a: "a", ab: "ab", aba: "a", abab: "ab", ababab: "ab" }[str]
         })
       },
       {
@@ -2637,7 +2658,7 @@ c`)
         invalidInputs: ["abce", "abcabd"],
         expected: (str: string) => ({
           0: str.match(/^(abc)+\1/)?.[0] ?? str,
-          1: "abc"
+          1: { abca: "a", abcab: "ab" }[str] ?? "abc"
         })
       },
       {
@@ -3194,11 +3215,18 @@ c`)
         expect(partial.exec("abb")).toMatchAt({ match: "bb", index: 1 });
       });
 
-      it("gives up rather than trusting a re-derived expansion that disagrees in its turn", () => {
+      it("re-derives from the first expansion's own index rather than rescanning from the start", () => {
         const partial = new PartialMatchRegExp(/(a*.)\1/);
 
-        expect(partial.exec("bab")).toBeNull();
+        expect(partial.exec("bab")).toMatchAt({ match: "ab", index: 1 });
         expect(partial.exec("bb")).toMatchAt({ match: "bb", index: 0 });
+      });
+
+      it("re-derives from that index when the first expansion baked an optional group the viable index never held", () => {
+        const partial = new PartialMatchRegExp(/(a?[^])\1/);
+
+        expect(partial.exec("bab")).toMatchAt({ match: "ab", index: 1 });
+        expect(partial.exec("abab")).toMatchAt({ match: "abab", index: 0 });
       });
 
       it("checks agreement for a large case-folded capture in linear time", () => {
@@ -3271,6 +3299,45 @@ c`)
       expect(partial.exec("ab")).toBeNull();
     });
 
+    describe("captures of an expanded match", () => {
+      it("reports the capture the group's own last iteration reached, with match.groups and d-flag indices agreeing", () => {
+        expect(
+          new PartialMatchRegExp(/^(?<word>abc)+\k<word>/d).exec("abcab")
+        ).toMatchObject({
+          0: "abcab",
+          1: "ab",
+          groups: { word: "ab" },
+          indices: { 0: [0, 5], 1: [3, 5], groups: { word: [3, 5] } }
+        });
+      });
+
+      it("reflects the pipeline match's own position when an earlier partial wins over a later native complete match", () => {
+        const partial = new PartialMatchRegExp(
+          /((?<q>["']).*?\k<q>)|(\{)|(\})/d
+        );
+
+        expect(partial.exec(' a: "}{')).toMatchObject({
+          0: '"}{',
+          index: 4,
+          indices: { 0: [4, 7], groups: { q: [4, 5] } }
+        });
+      });
+
+      it("keeps a trailing optional group's capture when the scan settled for a shorter match without it", () => {
+        expect(new PartialMatchRegExp(/^(a)\1(b)?\1/).exec("aab")).toMatchObject({
+          0: "aab",
+          1: "a",
+          2: "b"
+        });
+      });
+
+      it("keeps a trailing optional group's capture through a nested backreference group", () => {
+        expect(
+          new PartialMatchRegExp(/^((a)\2)\1(bb)?\1/).exec("aaaabb")
+        ).toMatchObject({ 0: "aaaabb", 1: "aa", 2: "a", 3: "bb" });
+      });
+    });
+
     describe("non-greedy (lazy) quantifier semantics", () => {
       it("lazy quantifier produces a shorter match than greedy on the same input", () => {
         const greedy = new PartialMatchRegExp(/^(abc)+\1/);
@@ -3279,12 +3346,12 @@ c`)
         expect(lazy.exec("abcabcabc")?.[0]).toBe("abcabc");
       });
 
-      it("lazy and greedy agree on partial inputs shorter than a full backref cycle", () => {
+      it("lazy and greedy agree on the extent of partial inputs shorter than a full backref cycle, and each reports the capture its own last iteration reached", () => {
         const greedy = new PartialMatchRegExp(/^(abc)+\1/);
         const lazy = new PartialMatchRegExp(/^(abc)+?\1/);
         expect(greedy.exec("abcab")?.[0]).toBe("abcab");
         expect(lazy.exec("abcab")?.[0]).toBe("abcab");
-        expect(greedy.exec("abcab")?.[1]).toBe("abc");
+        expect(greedy.exec("abcab")?.[1]).toBe("ab");
         expect(lazy.exec("abcab")?.[1]).toBe("abc");
       });
     });

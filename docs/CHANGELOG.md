@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Breaking:** `isComplete()` is replaced by `hitEnd()`, following the JDK's [`Matcher.hitEnd()`](https://docs.oracle.com/javase/8/docs/api/java/util/regex/Matcher.html#hitEnd--): `true` when the match read the end of the input, so more input could change it. `isComplete(partial, match)` becomes `!hitEnd(partial, match)`, except that a greedy quantifier, `$`, `\b` or `\B` that read the end now also reports `true`
+  - A repeated group on an incomplete backreference match reports the iteration it reached, not its last complete one: `/(abc)+\1/` on `"abcab"` gives `m[1] === "ab"`
+
+### Fixed
+
+- A `^` under the `m` flag no longer rejects input a continuation would complete: `/\W^/m` on `"a"`
+- A backreference pattern no longer returns `null` where its re-derived captures fit a later index: `/(a?[^])\1/` on `"bab"` matches `"ab"` at index 1
+
 ## [1.3.0] - 2026-09-06
 
 ### Added

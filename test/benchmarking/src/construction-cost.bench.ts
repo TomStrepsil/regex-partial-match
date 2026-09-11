@@ -18,8 +18,8 @@
  *   - simple:  no groups, no character classes, no backreferences
  *   - phone:   several character classes and optional groups, no backreferences
  *   - HTML tag: capturing group + backreference, exercises the dynamic path
- *   - legacy numeric escape: an out-of-range \N, reclassified after a single walk()
- *   - legacy named escape: a \k<name> naming no group, which costs a second walk()
+ *   - legacy numeric escape: an out-of-range \N, classified from a native group pre-count
+ *   - legacy named escape: a \k<name> naming no group, classified from the same pre-count
  */
 
 import { bench, group } from "mitata";
@@ -29,9 +29,9 @@ import PartialMatchRegExp from "../../../src/partialMatchRegExp/index.ts";
 const simplePattern = /^hello+$/;
 const phonePattern = /^\+?1?\s?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/;
 const htmlTagPattern = /^<([a-zA-Z][\w-]*)(?:\s[^<>]*)?>[^<]+<\/\1>$/;
-// \7 is past the group count, so it's an Annex B legacy escape rather than a reference. Reclassifying it doesn't change what walk() itself discovers — only one walk() runs — so this group isolates the reclassification pass's own cost.
+// \7 is past the group count, so it's an Annex B legacy escape rather than a reference; the walk classifies it on the spot from a native pre-count of the pattern's groups.
 const legacyNumericEscapePattern = new RegExp("^(abc)\\7d$");
-// \k<none> names a group the pattern never declares. walk() can't tell that until it's seen the whole pattern, so compilePartial() re-walks once it knows — this group's cost is roughly two walk() passes, not one plus reclassification.
+// \k<none> names a group the pattern never declares; the same pre-count tells the walk no named group exists, so it's walked as the Annex B literal `k<none>`.
 const legacyNamedEscapePattern = new RegExp("^(abc)d\\k<none>e$");
 
 group("construction — simple pattern (no groups, no backreferences)", () => {
@@ -52,7 +52,7 @@ group("construction — HTML tag pattern (capturing group + backreference)", () 
   bench("new PartialMatchRegExp()", () => new PartialMatchRegExp(htmlTagPattern));
 });
 
-group("construction — legacy numeric escape reclassification", () => {
+group("construction — legacy numeric escape (\\N past the group count)", () => {
   bench("native new RegExp()", () => new RegExp(legacyNumericEscapePattern));
   bench("compilePartial()", () => compilePartial(legacyNumericEscapePattern));
   bench("new PartialMatchRegExp()", () =>
@@ -60,7 +60,7 @@ group("construction — legacy numeric escape reclassification", () => {
   );
 });
 
-group("construction — legacy named escape fallback (double walk())", () => {
+group("construction — legacy named escape (\\k<name> naming no group)", () => {
   bench("native new RegExp()", () => new RegExp(legacyNamedEscapePattern));
   bench("compilePartial()", () => compilePartial(legacyNamedEscapePattern));
   bench("new PartialMatchRegExp()", () =>

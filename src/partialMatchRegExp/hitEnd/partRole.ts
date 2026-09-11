@@ -23,8 +23,8 @@ function isGroupOpen(part: string): boolean {
 function isRawLookaroundOpen(part: string): boolean {
   return (
     part.startsWith("(?!") ||
-    part.startsWith(NAMED_GROUP_OPENING + "=") ||
-    part.startsWith(NAMED_GROUP_OPENING + "!")
+    (part.startsWith(NAMED_GROUP_OPENING) &&
+      "=!".includes(part[NAMED_GROUP_OPENING.length]))
   );
 }
 

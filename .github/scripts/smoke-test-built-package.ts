@@ -24,7 +24,7 @@
  * `SMOKE_TESTS` also receives each entry point's built file as a `URL`, for
  * cases that need to check its runtime import graph rather than just its
  * exports — e.g. that `regex-partial-match/extend` and
- * `regex-partial-match/partialMatchRegExp` never reach `isComplete`, even
+ * `regex-partial-match/partialMatchRegExp` never reach `hitEnd`, even
  * transitively and even if some file along the way imported it without
  * re-exporting it, which a check of the loaded module's own exports alone
  * couldn't catch.
@@ -37,7 +37,7 @@ import { fileURLToPath } from "node:url";
 import { build } from "esbuild";
 import { Linter } from "eslint";
 import type PartialMatchRegExpInstance from "../../src/partialMatchRegExp/index.ts";
-import type isCompleteType from "../../src/partialMatchRegExp/isComplete/index.ts";
+import type hitEndType from "../../src/partialMatchRegExp/hitEnd/index.ts";
 
 const SUPPORTED_ECMA_VERSION = 2015;
 
@@ -111,41 +111,39 @@ function assertPartialMatchRegExpBehaves(
   );
 }
 
-async function assertNeverReachesIsComplete(
+async function assertNeverReachesHitEnd(
   specifier: string,
   builtFile: URL
 ): Promise<void> {
   const reached = await transitiveRuntimeImports(builtFile);
-  const isCompleteModule = [...reached].find((href) =>
-    href.includes("/isComplete/")
-  );
+  const hitEndModule = [...reached].find((href) => href.includes("/hitEnd/"));
   assert.equal(
-    isCompleteModule,
+    hitEndModule,
     undefined,
-    `${specifier}'s runtime import graph reaches ${String(isCompleteModule)} — isComplete must not be reachable even transitively, whether or not it's re-exported`
+    `${specifier}'s runtime import graph reaches ${String(hitEndModule)} — hitEnd must not be reachable even transitively, whether or not it's re-exported`
   );
 }
 
-function assertIsCompleteBehaves(
+function assertHitEndBehaves(
   PartialMatchRegExp: PartialMatchRegExpConstructor,
-  isComplete: typeof isCompleteType
+  hitEnd: typeof hitEndType
 ): void {
-  const partial = new PartialMatchRegExp(/^(\w+) \1 end$/);
+  const partial = new PartialMatchRegExp(/(\w+) \1 end/);
 
   const prefix = partial.exec("abc ab");
   assert.ok(prefix, "no match for a prefix");
   assert.equal(
-    isComplete(partial, prefix),
-    false,
-    "does not identify the prefix as incomplete"
+    hitEnd(partial, prefix),
+    true,
+    "does not report that the prefix ran out of input"
   );
 
-  const full = partial.exec("abc abc end");
-  assert.ok(full, "no match for a full match");
+  const settled = partial.exec("abc abc end.");
+  assert.ok(settled, "no match for a settled match");
   assert.equal(
-    isComplete(partial, full),
-    true,
-    "does not identify the full match as complete"
+    hitEnd(partial, settled),
+    false,
+    "reports a settled match as having run out of input"
   );
 }
 
@@ -160,14 +158,14 @@ const SMOKE_TESTS: Record<
     assert.ok(PartialMatchRegExp, "no default export");
     assertPartialMatchRegExpBehaves(PartialMatchRegExp);
 
-    const isComplete = loaded.isComplete as typeof isCompleteType | undefined;
-    assert.ok(isComplete, "no isComplete named export");
-    assertIsCompleteBehaves(PartialMatchRegExp, isComplete);
+    const hitEnd = loaded.hitEnd as typeof hitEndType | undefined;
+    assert.ok(hitEnd, "no hitEnd named export");
+    assertHitEndBehaves(PartialMatchRegExp, hitEnd);
 
     const reached = await transitiveRuntimeImports(builtFile);
     assert.ok(
-      [...reached].some((href) => href.includes("/isComplete/")),
-      "the default entry point's runtime import graph never reaches isComplete, though it re-exports it — transitiveRuntimeImports() may be broken, since the other direction is what ./partialMatchRegExp relies on"
+      [...reached].some((href) => href.includes("/hitEnd/")),
+      "the default entry point's runtime import graph never reaches hitEnd, though it re-exports it — transitiveRuntimeImports() may be broken, since the other direction is what ./partialMatchRegExp relies on"
     );
   },
 
@@ -183,7 +181,7 @@ const SMOKE_TESTS: Record<
       "extended regex rejects a prefix"
     );
 
-    await assertNeverReachesIsComplete("regex-partial-match/extend", builtFile);
+    await assertNeverReachesHitEnd("regex-partial-match/extend", builtFile);
   },
 
   "./partialMatchRegExp": async (loaded, builtFile) => {
@@ -194,12 +192,12 @@ const SMOKE_TESTS: Record<
     assertPartialMatchRegExpBehaves(PartialMatchRegExp);
 
     assert.equal(
-      loaded.isComplete,
+      loaded.hitEnd,
       undefined,
-      "isComplete leaked into the partialMatchRegExp-only entry point's exports"
+      "hitEnd leaked into the partialMatchRegExp-only entry point's exports"
     );
 
-    await assertNeverReachesIsComplete(
+    await assertNeverReachesHitEnd(
       "regex-partial-match/partialMatchRegExp",
       builtFile
     );

@@ -1,7 +1,7 @@
 /**
- * Scenario 6: isComplete() — truncation probe build and per-call cost
+ * Scenario 6: hitEnd() — truncation probe build and per-call cost
  *
- * isComplete() answers a question exec() throws away: did this match depend on
+ * hitEnd() answers a question exec() throws away: did this match depend on
  * the input running out, or is it a match of the original pattern? It does so
  * by re-running a twin of the compiled pattern, sticky at match.index, with an
  * empty named group in front of each truncation branch. The twin is built
@@ -28,9 +28,9 @@
 
 import { bench, group } from "mitata";
 import PartialMatchRegExp from "../../../src/partialMatchRegExp/index.ts";
-import isComplete from "../../../src/partialMatchRegExp/isComplete/index.ts";
+import hitEnd from "../../../src/partialMatchRegExp/hitEnd/index.ts";
 
-// A bench whose match is null would time isComplete() answering nothing at all, and would read as a large improvement rather than a broken setup.
+// A bench whose match is null would time hitEnd() answering nothing at all, and would read as a large improvement rather than a broken setup.
 function matchOrThrow(
   partial: PartialMatchRegExp,
   input: string
@@ -46,56 +46,56 @@ const isoDate = /^\d{4}-\d{2}-\d{2}/;
 const isoDateIncomplete = "2024-06";
 const isoDateComplete = "2024-12-31";
 
-group("isComplete — static path (ISO date)", () => {
+group("hitEnd — static path (ISO date)", () => {
   bench("construct + exec (baseline, never asks)", () =>
     new PartialMatchRegExp(isoDate).exec(isoDateIncomplete)
   );
-  bench("construct + exec + isComplete (includes probe build)", () => {
+  bench("construct + exec + hitEnd (includes probe build)", () => {
     const partial = new PartialMatchRegExp(isoDate);
     const match = partial.exec(isoDateIncomplete);
-    return match && isComplete(partial, match);
+    return match && hitEnd(partial, match);
   });
-  bench("construct + exec + isComplete (complete, includes probe build)", () => {
+  bench("construct + exec + hitEnd (complete, includes probe build)", () => {
     const partial = new PartialMatchRegExp(isoDate);
     const match = partial.exec(isoDateComplete);
-    return match && isComplete(partial, match);
+    return match && hitEnd(partial, match);
   });
-  bench("isComplete — incomplete match, warm probe", function* () {
+  bench("hitEnd — incomplete match, warm probe", function* () {
     const partial = new PartialMatchRegExp(isoDate);
     const match = matchOrThrow(partial, isoDateIncomplete);
-    isComplete(partial, match);
-    yield () => isComplete(partial, match);
+    hitEnd(partial, match);
+    yield () => hitEnd(partial, match);
   });
-  bench("isComplete — complete match, warm probe", function* () {
+  bench("hitEnd — complete match, warm probe", function* () {
     const partial = new PartialMatchRegExp(isoDate);
     const match = matchOrThrow(partial, isoDateComplete);
-    isComplete(partial, match);
-    yield () => isComplete(partial, match);
+    hitEnd(partial, match);
+    yield () => hitEnd(partial, match);
   });
 });
 
-// "foo fo" — ends inside the backreference, so exec() takes the expansion path and records an expansion the probe can be built from. A full match returns via the native fast path with no expansion at all, and isComplete() answers from that alone.
+// "foo fo" — ends inside the backreference, so exec() takes the expansion path and records an expansion the probe can be built from. A full match returns via the native fast path with no expansion at all, and hitEnd() answers from that alone.
 const repeatedWord = /^(\w+) \1$/;
 const repeatedWordMidRef = "foo fo";
 
 const repeatedWordPartial = new PartialMatchRegExp(repeatedWord);
 const repeatedWordMatch = matchOrThrow(repeatedWordPartial, repeatedWordMidRef);
 
-group("isComplete — backreference path (repeated word)", () => {
+group("hitEnd — backreference path (repeated word)", () => {
   bench("construct + exec (baseline, never asks)", () =>
     new PartialMatchRegExp(repeatedWord).exec(repeatedWordMidRef)
   );
-  bench("construct + exec + isComplete (includes probe build)", () => {
+  bench("construct + exec + hitEnd (includes probe build)", () => {
     const partial = new PartialMatchRegExp(repeatedWord);
     const match = partial.exec(repeatedWordMidRef);
-    return match && isComplete(partial, match);
+    return match && hitEnd(partial, match);
   });
-  bench("isComplete — same match, expansion probe cached", () =>
-    isComplete(repeatedWordPartial, repeatedWordMatch)
+  bench("hitEnd — same match, expansion probe cached", () =>
+    hitEnd(repeatedWordPartial, repeatedWordMatch)
   );
-  bench("exec + isComplete — fresh match, probe rebuilt per match", () => {
+  bench("exec + hitEnd — fresh match, probe rebuilt per match", () => {
     const match = repeatedWordPartial.exec(repeatedWordMidRef);
-    return match && isComplete(repeatedWordPartial, match);
+    return match && hitEnd(repeatedWordPartial, match);
   });
 });
 
@@ -106,16 +106,16 @@ const rawLookaroundInput = "vab";
 const rawLookaroundPartial = new PartialMatchRegExp(rawLookaroundBackref);
 const rawLookaroundMatch = matchOrThrow(rawLookaroundPartial, rawLookaroundInput);
 
-group("isComplete — raw lookaround backreference renumbering", () => {
+group("hitEnd — raw lookaround backreference renumbering", () => {
   bench("construct + exec (baseline, never asks)", () =>
     new PartialMatchRegExp(rawLookaroundBackref).exec(rawLookaroundInput)
   );
-  bench("construct + exec + isComplete (includes probe build)", () => {
+  bench("construct + exec + hitEnd (includes probe build)", () => {
     const partial = new PartialMatchRegExp(rawLookaroundBackref);
     const match = partial.exec(rawLookaroundInput);
-    return match && isComplete(partial, match);
+    return match && hitEnd(partial, match);
   });
-  bench("isComplete — warm instance", () =>
-    isComplete(rawLookaroundPartial, rawLookaroundMatch)
+  bench("hitEnd — warm instance", () =>
+    hitEnd(rawLookaroundPartial, rawLookaroundMatch)
   );
 });

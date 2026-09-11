@@ -2,7 +2,6 @@ import type { Part, RawLookaroundInfo } from "../part.ts";
 import { featureSet, type RegexFeature } from "../regexFeatures.ts";
 
 export interface DynamicPath {
-  originalCaptureScan: RegExp;
   preScan: RegExp;
   expand: (capture: RegExpExecArray) => Part[];
   expansionFitsCaptures: (
@@ -16,6 +15,7 @@ abstract class Compiled {
   private _features?: ReadonlySet<RegexFeature>;
 
   constructor(
+    readonly parts: readonly Part[],
     readonly rawLookarounds: readonly RawLookaroundInfo[],
     readonly namedGroupOpenings: readonly string[],
     private readonly _featureMask: number
@@ -31,12 +31,12 @@ export class CompiledStatic extends Compiled {
 
   constructor(
     readonly regex: RegExp,
-    readonly parts: string[],
+    parts: string[],
     rawLookarounds: readonly RawLookaroundInfo[],
     namedGroupOpenings: readonly string[],
     featureMask: number
   ) {
-    super(rawLookarounds, namedGroupOpenings, featureMask);
+    super(parts, rawLookarounds, namedGroupOpenings, featureMask);
   }
 }
 
@@ -45,11 +45,12 @@ export class CompiledDynamic extends Compiled {
 
   constructor(
     readonly dynamic: DynamicPath,
+    parts: readonly Part[],
     rawLookarounds: readonly RawLookaroundInfo[],
     namedGroupOpenings: readonly string[],
     featureMask: number
   ) {
-    super(rawLookarounds, namedGroupOpenings, featureMask);
+    super(parts, rawLookarounds, namedGroupOpenings, featureMask);
   }
 }
 
