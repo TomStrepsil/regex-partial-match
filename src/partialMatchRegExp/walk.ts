@@ -17,8 +17,7 @@ import {
   type Part,
   type RawLookaroundInfo
 } from "./part.ts";
-import appendMultilineCaret from "./appendMultilineCaret.ts"
-import type { LookaheadSpan } from "./appendMultilineCaret.ts";
+import appendMultilineCaret, { type LookaheadSpan } from "./appendMultilineCaret.ts"
 
 const isQuantifierAhead = (source: string, index: number) => {
   const character = source[index];

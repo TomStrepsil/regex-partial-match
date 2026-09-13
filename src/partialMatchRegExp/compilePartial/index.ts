@@ -1,6 +1,9 @@
 import escapeAtom from "../escapeAtom.ts";
 import { walk } from "../walk.ts";
-import { OPTIONAL_ATOM_OPENING } from "../constants.ts";
+import {
+  FLAGS_IRRELEVANT_TO_REBUILD,
+  OPTIONAL_ATOM_OPENING
+} from "../constants.ts";
 import { isBackreference, type Part } from "../part.ts";
 import asOptionalAtom from "../asOptionalAtom.ts";
 import asPreScanPart from "./asPreScanPart.ts";
@@ -12,7 +15,6 @@ import toStatic from "./toStatic.ts";
 import { CompiledDynamic, type CompiledPartial } from "./compiled.ts";
 
 const MAYBE_HAS_BACKREFERENCE_REGEX = /\\[0-9]|\\k</;
-const FLAGS_IRRELEVANT_TO_GROUP_SHAPE = /[dgy]/g;
 const NEVER = "(?!)";
 const GROUP_CLOSING = ")";
 const ALTERNATION = "|";
@@ -26,7 +28,7 @@ const UNCONSTRAINED_GROUP_SHAPE = {
 function groupShape(regex: RegExp) {
   const emptyMatch = new RegExp(
     "|" + regex.source,
-    regex.flags.replace(FLAGS_IRRELEVANT_TO_GROUP_SHAPE, "")
+    regex.flags.replace(FLAGS_IRRELEVANT_TO_REBUILD, "")
   ).exec("");
   return {
     groupLimit: emptyMatch === null ? 0 : emptyMatch.length - 1,

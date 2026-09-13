@@ -1,6 +1,7 @@
 import { legacyEscapeAsLiteral } from "../legacyEscape.ts";
 import {
   DISJUNCTION_TO_END_OF_INPUT,
+  FLAGS_IRRELEVANT_TO_REBUILD,
   OPTIONAL_ATOM_OPENING,
   QUANTIFIER_PART
 } from "../constants.ts";
@@ -21,7 +22,6 @@ export interface TruncationProbe {
 }
 
 const TRUNCATION_MARKER_NAME = "truncation";
-const FLAGS_INCOMPATIBLE_WITH_PROBING = /[dgy]/g;
 const END_OF_INPUT = DISJUNCTION_TO_END_OF_INPUT.slice(1, -1);
 const END_ANCHOR = "$";
 const OPTIONAL_QUANTIFIER = "?";
@@ -227,7 +227,7 @@ export const buildTruncationProbe = (
   return {
     regex: new RegExp(
       probed.join(""),
-      flags.replace(FLAGS_INCOMPATIBLE_WITH_PROBING, "") + "y"
+      flags.replace(FLAGS_IRRELEVANT_TO_REBUILD, "") + "y"
     ),
     markerName,
     markerCount

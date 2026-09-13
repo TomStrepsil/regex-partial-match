@@ -14,8 +14,7 @@ import {
 } from "../backreferenceExpansion.ts";
 import type { TruncationProbeCache } from "./truncationProbeCache.ts";
 import type { Part } from "../part.ts";
-
-const FLAGS_IRRELEVANT_TO_SCANNING = /[dgy]/g;
+import { FLAGS_IRRELEVANT_TO_REBUILD } from "../constants.ts";
 
 export default function matchHitEnd(
   compiled: CompiledPartial,
@@ -74,7 +73,7 @@ function expansionAtMatch(
   const { preScan, expand } = compiled.dynamic;
   cache.stickyPreScan ??= new RegExp(
     preScan.source,
-    flags.replace(FLAGS_IRRELEVANT_TO_SCANNING, "") + "y"
+    flags.replace(FLAGS_IRRELEVANT_TO_REBUILD, "") + "y"
   );
   cache.stickyPreScan.lastIndex = match.index;
   const capture = cache.stickyPreScan.exec(match.input);
