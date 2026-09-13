@@ -233,7 +233,8 @@ export const tookTruncationBranch = (
 ): boolean => {
   const { regex, markerName, markerCount } = probe;
   regex.lastIndex = index;
-  const markers = regex.exec(input)?.groups ?? {};
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- if markerCount > 0, groups will be defined
+  const markers = regex.exec(input)!.groups!;
   for (let marker = 0; marker < markerCount; marker++) {
     if (markers[markerName + String(marker)] !== undefined) return true;
   }
