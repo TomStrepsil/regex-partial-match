@@ -2,7 +2,7 @@ import escapeAtom from "../escapeAtom.ts";
 import { walk } from "../walk.ts";
 import { OPTIONAL_ATOM_OPENING } from "../atomSyntax.ts";
 import { isBackreference, type Part } from "../part.ts";
-import asOptionalAtom from "./asOptionalAtom.ts";
+import asOptionalAtom from "../asOptionalAtom.ts";
 import asPreScanPart from "./asPreScanPart.ts";
 import resolvedFromScan from "./resolvedFromScan.ts";
 import startsWithUnderFlags from "./startsWithUnderFlags.ts";

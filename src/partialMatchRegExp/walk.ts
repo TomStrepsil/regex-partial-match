@@ -1,24 +1,73 @@
 import {
   DISJUNCTION_TO_END_OF_INPUT,
-  OPTIONAL_ATOM_OPENING
+  OPTIONAL_ATOM_OPENING,
+  QUANTIFIER_PART,
+  endsAtTruncationBranch,
+  isRawLookaround
 } from "./atomSyntax.ts";
+import asOptionalAtom from "./asOptionalAtom.ts";
 import { groupNameOf, decodeGroupName } from "./groupName.ts";
 import { legacyEscapeAtoms } from "./legacyEscape.ts";
 import { FEATURE_BIT } from "./regexFeatures.ts";
-import type { Backreference, Part, RawLookaroundInfo } from "./part.ts";
+import {
+  isBackreference,
+  type Backreference,
+  type Part,
+  type RawLookaroundInfo
+} from "./part.ts";
 
 const OCCURRENCES_REGEX = /\{\d+,?\d*\}/y;
 const NOT_NUMBERS_REGEX = /\D/g;
-const LITERAL_K_ATOM =
-  OPTIONAL_ATOM_OPENING + "k" + DISJUNCTION_TO_END_OF_INPUT;
-
-const NO_RAW_LOOKAROUNDS: readonly RawLookaroundInfo[] = [];
-const NO_NAMED_GROUP_OPENINGS: readonly string[] = [];
+const LITERAL_K = "k";
+const START_ANCHOR = "^";
+const END_ANCHOR = "$";
+const GROUP_CLOSING = ")";
+const LOOKAHEAD_OPENING = "(?=";
+const CARET_AT_UNCERTAIN_POSITION = asOptionalAtom(START_ANCHOR);
 
 const declaresGroupNamed = (
   closedGroupNames: ReadonlySet<string> | undefined,
   name: string
 ) => closedGroupNames?.has(decodeGroupName(name)) ?? false;
+
+const isTransparentToCaret = (part: Part) =>
+  typeof part === "string" && (part === END_ANCHOR || isRawLookaround(part));
+
+function appendMultilineCaret(
+  result: Part[],
+  lastGroupOpen: number,
+  lastGroupClose: number
+) {
+  let anchor = result.length - 1;
+  while (anchor >= 0 && isTransparentToCaret(result[anchor])) anchor--;
+  if (anchor < 0) {
+    result.push(START_ANCHOR);
+    return;
+  }
+
+  const previous = result[anchor];
+  if (anchor === lastGroupClose) {
+    result.splice(lastGroupOpen + 1, 0, OPTIONAL_ATOM_OPENING);
+    result.splice(
+      anchor + 1,
+      1,
+      GROUP_CLOSING + START_ANCHOR,
+      DISJUNCTION_TO_END_OF_INPUT
+    );
+  } else if (isBackreference(previous)|| QUANTIFIER_PART.test(previous)) {
+    result.splice(anchor + 1, 0, CARET_AT_UNCERTAIN_POSITION);
+  } else if (
+    previous !== DISJUNCTION_TO_END_OF_INPUT &&
+    endsAtTruncationBranch(previous)
+  ) {
+    result[anchor] =
+      previous.slice(0, -DISJUNCTION_TO_END_OF_INPUT.length) +
+      START_ANCHOR +
+      DISJUNCTION_TO_END_OF_INPUT;
+  } else {
+    result.push(START_ANCHOR);
+  }
+}
 
 export function walk(
   regex: RegExp,
@@ -44,7 +93,6 @@ export function walk(
     | Array<{ ref: string; forward?: boolean }>
     | undefined;
   let currentRawLookaroundBackreferences: Backreference[] | undefined;
-  let truncatableAtomEmitted = false;
 
   function extractSlice(length: number) {
     return source.slice(i, (i += length));
@@ -57,10 +105,10 @@ export function walk(
     multiline: boolean
   ) {
     const result: Part[] = [];
+    let lastGroupOpen, lastGroupClose;
 
     function appendOptional(length: number) {
-      truncatableAtomEmitted = true;
-      result.push("(?:" + extractSlice(length) + DISJUNCTION_TO_END_OF_INPUT);
+      result.push(asOptionalAtom(extractSlice(length)));
     }
 
     function appendRaw(length: number) {
@@ -84,12 +132,11 @@ export function walk(
       };
       currentRawLookaroundBackreferences?.push(backreference);
       if (ref >= 1 && ref <= groupLimit) {
-        truncatableAtomEmitted = true;
         result.push(backreference);
         return;
       }
       for (const atom of legacyEscapeAtoms(source.slice(start + 1, end))) {
-        result.push(OPTIONAL_ATOM_OPENING + atom + DISJUNCTION_TO_END_OF_INPUT);
+        result.push(asOptionalAtom(atom));
       }
     }
 
@@ -136,7 +183,6 @@ export function walk(
                   forward: !declaresGroupNamed(closedGroupNames, ref),
                   caseInsensitive
                 };
-                truncatableAtomEmitted = true;
                 result.push(namedBackreference);
                 currentRawLookaroundBackreferences?.push(namedBackreference);
                 (namedBackreferencesSeen ??= []).push(namedBackreference);
@@ -150,8 +196,8 @@ export function walk(
                   caseInsensitive
                 });
               } else {
-                result.push(LITERAL_K_ATOM);
                 i += 2;
+                result.push(asOptionalAtom(LITERAL_K));
               }
               break;
             }
@@ -266,8 +312,12 @@ export function walk(
         }
         case "^":
           featureMask |= FEATURE_BIT.startAnchor;
-          if (multiline && truncatableAtomEmitted) appendOptional(1);
-          else appendRaw(1);
+          i++;
+          if (multiline) {
+            appendMultilineCaret(result, lastGroupOpen, lastGroupClose);
+          } else {
+            result.push(START_ANCHOR);
+          }
           break;
         case "$":
           featureMask |= FEATURE_BIT.endAnchor;
@@ -297,34 +347,45 @@ export function walk(
         case "(":
           if (source[i + 1] == "?") {
             switch (source[i + 2]) {
-              case ":":
+              case ":": {
                 featureMask |= FEATURE_BIT.nonCapturingGroup;
-                result.push("(?:");
                 i += 3;
+                lastGroupOpen = result.length;
+                const body = process(
+                  withinLookaround,
+                  declaresNamedGroup,
+                  caseInsensitive,
+                  multiline
+                );
+                lastGroupClose = lastGroupOpen + body.length + 1;
                 result.push(
-                  ...process(
-                    withinLookaround,
-                    declaresNamedGroup,
-                    caseInsensitive,
-                    multiline
-                  ),
+                  OPTIONAL_ATOM_OPENING,
+                  ...body,
                   DISJUNCTION_TO_END_OF_INPUT
                 );
                 break;
-              case "=":
+              }
+              case "=": {
                 featureMask |= FEATURE_BIT.lookahead;
-                result.push("(?=");
                 i += 3;
-                result.push(
-                  ...process(
-                    true,
-                    declaresNamedGroup,
-                    caseInsensitive,
-                    multiline
-                  ),
-                  ")"
+                const body = process(
+                  true,
+                  declaresNamedGroup,
+                  caseInsensitive,
+                  multiline
                 );
+                if (source[i] === START_ANCHOR) {
+                  featureMask |= FEATURE_BIT.startAnchor;
+                  i++;
+                  if (multiline) {
+                    appendMultilineCaret(result, lastGroupOpen, lastGroupClose);
+                  } else {
+                    result.push(START_ANCHOR);
+                  }
+                }
+                result.push(LOOKAHEAD_OPENING, ...body, GROUP_CLOSING);
                 break;
+              }
               case "-":
               case "i":
               case "s":
@@ -346,17 +407,16 @@ export function walk(
                   ? false
                   : multiline || additions.includes("m");
 
-                result.push("(?" + modifiers + ":");
                 i = colonIndex + 1;
-                result.push(
-                  ...process(
-                    withinLookaround,
-                    declaresNamedGroup,
-                    modifierGroupCaseInsensitive,
-                    modifierGroupMultiline
-                  ),
-                  ")"
+                lastGroupOpen = result.length;
+                const body = process(
+                  withinLookaround,
+                  declaresNamedGroup,
+                  modifierGroupCaseInsensitive,
+                  modifierGroupMultiline
                 );
+                lastGroupClose = lastGroupOpen + body.length + 1;
+                result.push("(?" + modifiers + ":", ...body, GROUP_CLOSING);
                 break;
               }
               case "!":
@@ -384,16 +444,15 @@ export function walk(
                     );
                     (namedGroupOpenings ??= []).push(opening);
                     const declaredName = decodeGroupName(groupNameOf(opening));
-                    result.push(opening);
-                    result.push(
-                      ...process(
-                        withinLookaround,
-                        declaresNamedGroup,
-                        caseInsensitive,
-                        multiline
-                      ),
-                      DISJUNCTION_TO_END_OF_INPUT
+                    lastGroupOpen = result.length;
+                    const body = process(
+                      withinLookaround,
+                      declaresNamedGroup,
+                      caseInsensitive,
+                      multiline
                     );
+                    lastGroupClose = lastGroupOpen + body.length + 1;
+                    result.push(opening, ...body, DISJUNCTION_TO_END_OF_INPUT);
                     (closedGroupNumbers ??= new Set()).add(groupNumber);
                     (closedGroupNames ??= new Set()).add(declaredName);
                     break;
@@ -405,16 +464,16 @@ export function walk(
             featureMask |= FEATURE_BIT.capturingGroup;
             if (withinLookaround) featureMask |= FEATURE_BIT.lookaroundCapture;
             const groupNumber = ++groupCount;
-            appendRaw(1);
-            result.push(
-              ...process(
-                withinLookaround,
-                declaresNamedGroup,
-                caseInsensitive,
-                multiline
-              ),
-              DISJUNCTION_TO_END_OF_INPUT
+            const opening = extractSlice(1);
+            lastGroupOpen = result.length;
+            const body = process(
+              withinLookaround,
+              declaresNamedGroup,
+              caseInsensitive,
+              multiline
             );
+            lastGroupClose = lastGroupOpen + body.length + 1;
+            result.push(opening, ...body, DISJUNCTION_TO_END_OF_INPUT);
             (closedGroupNumbers ??= new Set()).add(groupNumber);
           }
           break;
@@ -458,7 +517,7 @@ export function walk(
   return {
     parts,
     featureMask,
-    rawLookarounds: rawLookarounds ?? NO_RAW_LOOKAROUNDS,
-    namedGroupOpenings: namedGroupOpenings ?? NO_NAMED_GROUP_OPENINGS
+    rawLookarounds: rawLookarounds ?? [],
+    namedGroupOpenings: namedGroupOpenings ?? []
   };
 }

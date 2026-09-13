@@ -1,5 +1,9 @@
 import { legacyEscapeAsLiteral } from "../legacyEscape.ts";
-import { DISJUNCTION_TO_END_OF_INPUT, OPTIONAL_ATOM_OPENING } from "../atomSyntax.ts";
+import {
+  DISJUNCTION_TO_END_OF_INPUT,
+  OPTIONAL_ATOM_OPENING,
+  QUANTIFIER_PART
+} from "../atomSyntax.ts";
 import { groupNameOf, decodeGroupName } from "../groupName.ts";
 import {
   isBackreference,
@@ -22,14 +26,13 @@ const END_OF_INPUT = DISJUNCTION_TO_END_OF_INPUT.slice(1, -1);
 const END_ANCHOR = "$";
 const OPTIONAL_QUANTIFIER = "?";
 const EXACT_QUANTIFIER = /^\{\d+\}$/;
-const QUANTIFIER = /^(?:[*+?]|\{\d+,?\d*\})$/;
 const WORD_BOUNDARY_ATOMS = [
   OPTIONAL_ATOM_OPENING + "\\b" + DISJUNCTION_TO_END_OF_INPUT,
   OPTIONAL_ATOM_OPENING + "\\B" + DISJUNCTION_TO_END_OF_INPUT
 ];
 
 const isQuantifier = (part: Part | undefined) =>
-  typeof part === "string" && QUANTIFIER.test(part);
+  typeof part === "string" && QUANTIFIER_PART.test(part);
 
 /**
  * A greedy quantifier that stops at the end of input has tried, and failed, to

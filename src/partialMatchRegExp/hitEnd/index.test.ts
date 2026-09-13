@@ -130,6 +130,22 @@ describe("hitEnd()", () => {
       expect(hitEndOf(partial, "aab")).toBe(false);
     });
 
+    it("sees a backreference in a higher-priority alternative run out part way through its captured text, behind a native match", () => {
+      const partial = new PartialMatchRegExp(/(ab)\1|a/);
+
+      expect(partial.exec("aba")).toMatchAt({ match: "a", index: 0 });
+      expect(hitEndOf(partial, "aba")).toBe(true);
+      expect(partial.exec("abab")).toMatchAt({ match: "abab", index: 0 });
+    });
+
+    it("sees a longer backreference in a higher-priority alternative run out part way through its captured text", () => {
+      const partial = new PartialMatchRegExp(/(abc)\1|a/);
+
+      expect(partial.exec("abcab")).toMatchAt({ match: "a", index: 0 });
+      expect(hitEndOf(partial, "abcab")).toBe(true);
+      expect(partial.exec("abcabc")).toMatchAt({ match: "abcabc", index: 0 });
+    });
+
     it("sees a truncation inside a lookahead in an earlier iteration of a quantified group whose own quantifier stopped at the end", () => {
       const partial = new PartialMatchRegExp(/(b|a(?=bb))+/);
 
@@ -183,6 +199,76 @@ describe("hitEnd()", () => {
 
     it("leaves a caret under a negating multiline modifier raw, where no continuation can reach it", () => {
       expect(new PartialMatchRegExp(/\W(?-m:^)/m).exec("a")).toBeNull();
+    });
+
+    it.each([
+      ["a character class escape", /\W^/m],
+      ["a non-capturing group", /(?:-|\n)^/m],
+      ["a capturing group", /(-|\n)^/m],
+      ["a modifier group", /(?i:-|\n)^/m]
+    ])(
+      "reports a caret that held after %s took a line terminator as settled, and one refused at the end after it took another character as having hit the end",
+      (_, pattern) => {
+        const partial = new PartialMatchRegExp(pattern);
+
+        expect(hitEndOf(partial, "\n")).toBe(false);
+        expect(hitEndOf(partial, "-")).toBe(true);
+      }
+    );
+
+    it("reports a caret after a greedy quantifier as having hit the end even where it held, since the quantifier read the end", () => {
+      expect(hitEndOf(new PartialMatchRegExp(/\W*^/m), "\n")).toBe(true);
+    });
+  });
+
+  describe("a backreference in a higher-priority alternative, behind a native match", () => {
+    it.each([
+      [/(ab)\1|a/, "aba", "abab"],
+      [/(abc)\1|a/, "abca", "abcabc"],
+      [/(abc)\1|a/, "abcab", "abcabc"],
+      [/(?<g>ab)\k<g>|a/, "aba", "abab"],
+      [/^(ab)\1|^a/, "aba", "abab"],
+      [/(ab)\1|a/i, "abA", "abAB"],
+      [/(a|ab)\1|a/, "aba", "abab"],
+      [/(ab)(?:\1|a)/, "aba", "abab"]
+    ])(
+      "%s on %j reads the end part way through the capture, and %j changes the match",
+      (pattern, input, continued) => {
+        const partial = new PartialMatchRegExp(pattern);
+        const match = partial.exec(input)!;
+        const extended = partial.exec(continued)!;
+
+        expect(hitEnd(partial, match)).toBe(true);
+        expect([extended.index, extended[0]]).not.toEqual([match.index, match[0]]);
+      }
+    );
+
+    it("re-expands behind a native match whose captures the pre-scan did not predict", () => {
+      const partial = new PartialMatchRegExp(/((\S{1,2})??)\B\1{1,}?/m);
+
+      expect(partial.exec("aaa")).toMatchAt({ match: "aa", index: 0 });
+      expect(hitEndOf(partial, "aaa")).toBe(true);
+      expect(partial.exec("aaaa")).toMatchAt({ match: "aaaa", index: 0 });
+    });
+
+    it("re-expands a one-character capture, which the un-expanded probe cannot see the match consume", () => {
+      const partial = new PartialMatchRegExp(/([^b]+?)\1*\s/v);
+
+      expect(partial.exec("\na\n")).toMatchAt({ match: "\na\n", index: 0 });
+      expect(hitEndOf(partial, "\na\n")).toBe(true);
+      expect(partial.exec("\na\na\n")).toMatchAt({
+        match: "\na\na\n",
+        index: 0
+      });
+    });
+
+    it("settles a native match the higher-priority alternative completed", () => {
+      expect(hitEndOf(new PartialMatchRegExp(/(ab)\1|a/), "abab")).toBe(false);
+      expect(hitEndOf(new PartialMatchRegExp(/(ab)(?:\1|a)/), "abab")).toBe(false);
+    });
+
+    it("settles a native match no lower-priority alternative can displace", () => {
+      expect(hitEndOf(new PartialMatchRegExp(/a|(ab)\1/), "aba")).toBe(false);
     });
   });
 

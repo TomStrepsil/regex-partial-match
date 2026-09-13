@@ -47,7 +47,11 @@ class PartialMatchRegExp extends RegExp {
   constructor(pattern: RegExp | string, flags?: string) {
     super(pattern, flags);
     this[compiledPartial] = compilePartial(this);
-    this[truncationProbeCache] = { probe: undefined };
+    this[truncationProbeCache] = {
+      probe: undefined,
+      stickyPreScan: undefined,
+      expansion: undefined
+    };
   }
 
   /**

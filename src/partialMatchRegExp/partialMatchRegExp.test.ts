@@ -1878,6 +1878,204 @@ c`)
         expect(new PartialMatchRegExp(/\W^/).exec("a")).toBeNull();
       });
 
+      it("should hold the start-anchor mitigation for a caret opening a later alternative, where nothing on its own branch consumed first", () => {
+        expect(new PartialMatchRegExp(/^a|^b/m).test("c")).toBe(false);
+        expect(new PartialMatchRegExp(/^foo$|^bar$/m).test("x\ny")).toBe(false);
+      });
+
+      it("should hold the start-anchor mitigation for a caret preceded only by a lookaround, which consumes nothing", () => {
+        expect(new PartialMatchRegExp(/(?!a)^x/m).test("a\nb")).toBe(false);
+        expect(new PartialMatchRegExp(/(?=\w)^x/m).test("a\nb")).toBe(false);
+      });
+
+      it("should refuse a caret whose preceding atom consumed a character that is not a line terminator", () => {
+        expect(new PartialMatchRegExp(/\W^/m).exec("-")).toMatchAt({
+          match: "",
+          index: 1
+        });
+        expect(new PartialMatchRegExp(/\s^#/m).exec("x ")).toNotMatch();
+        expect(new PartialMatchRegExp(/[^]^x/m).exec("ab")).toNotMatch();
+        expect(new PartialMatchRegExp(/(?:a|\n)^b/m).exec("a")).toNotMatch();
+      });
+
+      it("should treat a legacy octal escape before a caret as the line terminator it encodes", () => {
+        const matchOf = (pattern: RegExp) =>
+          new PartialMatchRegExp(pattern).exec("a");
+        const emptyAtEndOfInput = { match: "", index: 1 };
+
+        expect(matchOf(/\n^/m)).toMatchAt(emptyAtEndOfInput);
+        expect(matchOf(new RegExp("\\12^", "m"))).toMatchAt(emptyAtEndOfInput);
+        expect(matchOf(new RegExp("\\012^", "m"))).toMatchAt(emptyAtEndOfInput);
+
+        expect(matchOf(/\r^/m)).toMatchAt(emptyAtEndOfInput);
+        expect(matchOf(new RegExp("\\15^", "m"))).toMatchAt(emptyAtEndOfInput);
+        expect(matchOf(new RegExp("\\015^", "m"))).toMatchAt(emptyAtEndOfInput);
+      });
+
+      it("should treat a legacy \\k escape before a caret as the literal k it encodes", () => {
+        const emptyAtEndOfInput = { match: "", index: 1 };
+
+        expect(new PartialMatchRegExp(/k^/m).exec("a")).toMatchAt(emptyAtEndOfInput);
+        expect(
+          new PartialMatchRegExp(new RegExp("\\k^", "m")).exec("a")
+        ).toMatchAt(emptyAtEndOfInput);
+      });
+
+      describe("a caret is judged by the part directly before it on its own path", () => {
+        const consumingParts: [string, RegExp][] = [
+          ["a character class escape", /\W^/m],
+          ["a literal", /\n^/m],
+          ["a character class", /[^]^/m],
+          ["a legacy octal escape", new RegExp("\\12^", "m")],
+          ["a non-capturing group", /(?:-|\n)^/m],
+          ["a capturing group", /(-|\n)^/m],
+          ["a named group", /(?<t>-|\n)^/m],
+          ["a modifier group", /(?i:-|\n)^/m],
+          ["a group with an alternative that runs out inside it", /(?:-x|\n)^/m]
+        ];
+
+        it.each(consumingParts)(
+          "after %s is taken against a character that is not a line terminator, the caret is refused and only the empty match at the end survives",
+          (_, pattern) => {
+            expect(new PartialMatchRegExp(pattern).exec("-")).toMatchAt({
+              match: "",
+              index: 1
+            });
+          }
+        );
+
+        it.each(consumingParts)(
+          "after %s is taken against a line terminator, the caret holds",
+          (_, pattern) => {
+            expect(new PartialMatchRegExp(pattern).exec("\n")).toMatchAt({
+              match: "\n",
+              index: 0
+            });
+          }
+        );
+
+        it.each(consumingParts)(
+          "after %s, the caret is judged at each position the part is taken, not once for the pattern",
+          (_, pattern) => {
+            expect(new PartialMatchRegExp(pattern).exec("-\n")).toMatchAt({
+              match: "\n",
+              index: 1
+            });
+          }
+        );
+
+        it("keeps the captures of a group whose body the caret is folded into", () => {
+          const capturing = new PartialMatchRegExp(/(-|\n)^/m);
+          const named = new PartialMatchRegExp(/(?<t>-|\n)^/m);
+
+          expect(capturing.exec("\n")?.[1]).toBe("\n");
+          expect(named.exec("\n")?.groups?.t).toBe("\n");
+        });
+
+        it("refuses the caret where an alternative of the group before it ran out of input", () => {
+          expect(new PartialMatchRegExp(/(?:-x|\n)^/m).exec("-x")).toMatchAt({
+            match: "",
+            index: 2
+          });
+        });
+
+        it.each([
+          ["a star", /\W*^/m],
+          ["a plus", /\W+^/m]
+        ])(
+          "after %s, the position can still move, so a run to the end stays viable at its own index",
+          (_, pattern) => {
+            expect(new PartialMatchRegExp(pattern).exec("-")).toMatchAt({
+              match: "-",
+              index: 0
+            });
+            expect(new PartialMatchRegExp(pattern).exec("--")).toMatchAt({
+              match: "--",
+              index: 0
+            });
+          }
+        );
+
+        it("after a lazy quantifier, the caret is judged where the quantifier stopped", () => {
+          expect(new PartialMatchRegExp(/\W*?^/m).exec("-")).toMatchAt({
+            match: "",
+            index: 0
+          });
+        });
+
+        it("after a backreference, the caret is judged against the text the backreference consumed", () => {
+          const partial = new PartialMatchRegExp(/(\W)\1^/m);
+
+          expect(partial.exec("\n\n")).toMatchAt({ match: "\n\n", index: 0 });
+          expect(partial.exec("\n")).toMatchAt({ match: "\n", index: 0 });
+        });
+
+        it.each([
+          ["a positive lookahead", /(?=\w)^x/m],
+          ["a negative lookahead", /(?!a)^x/m],
+          ["a positive lookbehind", /(?<=a)^x/m],
+          ["a negative lookbehind", /(?<!z)^x/m],
+          ["an alternative boundary", /^x|^y/m]
+        ])(
+          "after %s, nothing on the caret's own path consumed input, so its position is fixed and the start anchor still refuses the empty match at the end",
+          (_, pattern) => {
+            expect(new PartialMatchRegExp(pattern).test("a\nb")).toBe(false);
+          }
+        );
+
+        it("follows a multiline modifier into and out of scope", () => {
+          expect(new PartialMatchRegExp(/(?m:\W^)/).exec("-")).toMatchAt({
+            match: "",
+            index: 1
+          });
+          expect(new PartialMatchRegExp(/(?m:\W^)/).exec("\n")).toMatchAt({
+            match: "\n",
+            index: 0
+          });
+          expect(new PartialMatchRegExp(/\W(?-m:^)/m).exec("-")).toBeNull();
+        });
+
+        describe("accepted limits", () => {
+          it("accepts in the safe direction after a bounded quantifier saturated at the end, where the position could not in fact move", () => {
+            expect(new PartialMatchRegExp(/\W{2}^/m).exec("--")).toMatchAt({
+              match: "--",
+              index: 0
+            });
+            expect(new PartialMatchRegExp(/\W{1,2}^/m).exec("--")).toMatchAt({
+              match: "--",
+              index: 0
+            });
+            expect(new PartialMatchRegExp(/(\W)\1^/m).exec("--")).toMatchAt({
+              match: "--",
+              index: 0
+            });
+          });
+
+          it("judges a caret behind a chain of assertions that includes a lookahead verbatim", () => {
+            expect(new PartialMatchRegExp(/\W(?=x)$^/m).exec("-")).toBeNull();
+          });
+        });
+
+        it.each([
+          ["an end anchor", /\W$^/m],
+          ["a positive lookahead", /\W(?=\n)^/m],
+          ["a negative lookahead", /\W(?!x)^/m],
+          ["a negative lookbehind", /\W(?<!x)^/m]
+        ])(
+          "reaches back over %s to the atom, since assertions at one position commute",
+          (_, pattern) => {
+            expect(new PartialMatchRegExp(pattern).exec("-")).toMatchAt({
+              match: "",
+              index: 1
+            });
+            expect(new PartialMatchRegExp(pattern).exec("\n")).toMatchAt({
+              match: "\n",
+              index: 0
+            });
+          }
+        );
+      });
+
       it("should support matching an unanchored pattern wherever its literal text occurs, unaffected by line boundaries", () => {
         const pattern = new PartialMatchRegExp(/foo/m);
         expect(pattern.test("f")).toBe(true);

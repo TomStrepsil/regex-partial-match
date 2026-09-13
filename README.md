@@ -108,13 +108,14 @@ The transform answers a two-valued question — does the input match the wrapped
 
 The over-acceptance only arises on a path that is contradictory at that point, and it is always in the safe direction for a validator: keep buffering. It has one visible side effect — a contradictory *branch* can win an earlier index than a later, viable one, as in `/^b\ba|a/` on `"b"`. Nothing short of a full matcher can decide the three-valued question, so this is stated as a limit rather than patched case by case.
 
-The one assertion that can run the other way — false at a truncated end, true one character later — is `^` under the `m` flag, because a line start depends on the character *before* it, which the truncated atom was still waiting for. That direction is unsafe for a validator, since it refuses input a continuation would complete, so `^` gets a truncation branch of its own wherever multiline is in effect *and* a truncatable atom precedes it:
+The one assertion that can run the other way — false at a truncated end, true one character later — is `^` under the `m` flag. A line start depends on the character *before* it, which is always in hand, so a caret is decidable even at the end of the input — unless the atom before it took a truncation branch, in which case the caret is being judged at the wrong position: in the full input that atom would have consumed something and the caret would have been evaluated later. Refusing it there is unsafe for a validator, since it rejects input a continuation would complete. So under `m` a caret is folded into the taken branch of the nearest consuming part before it on its own path:
 
 ```javascript
-/\W^/m → /(?:\W|$(?![\s\S]))(?:^|$(?![\s\S]))/
+/\W^/m     → /(?:\W^|$(?![\s\S]))/
+/(a|\n)^/m → /((?:a|\n)^|$(?![\s\S]))/
 ```
 
-`/\W^/m` therefore keeps `"a"` as viable at index 1, where the continuation `"\n"` does double duty, satisfying `\W` and creating the line start. The branch is added only where the caret's *position* can still move. Nothing consuming precedes the `^` in `/^x/m`, so its position is fixed at wherever the match starts, the preceding character is already in hand, and the caret stays verbatim — which is what keeps the start anchor's [empty-match mitigation](#test-behaviour-and-non-matching-results-from-exec-and-match) working. Outside `m` the branch is never added, because past index 0 a caret is false whatever arrives: `/\W^/` can never match, and the transform still reports nothing viable. A `(?m:...)` group turns the rule on and a `(?-m:...)` group turns it back off, following the same nesting as the `i` flag.
+Taken, the atom is followed by the caret and the real character decides; truncated, the caret is skipped along with the rest of the atom. `/\W^/m` therefore keeps `"a"` viable at index 1, where the continuation `"\n"` does double duty, satisfying `\W` and creating the line start — and still refuses `"-"` at index 0, where `\W` was taken and the character before the caret is known. After a quantifier or a backreference the position genuinely can move, so the caret takes a branch of its own, `(?:^|$(?![\s\S]))`, which over-accepts only for a bounded quantifier saturated at the end. Where nothing consuming precedes the caret on its path — at the start of the pattern or of an alternative, or behind only lookarounds — its position is fixed and it stays verbatim, which is what keeps the start anchor's [empty-match mitigation](#test-behaviour-and-non-matching-results-from-exec-and-match) working for `/^x/m` and `/^a|^b/m` alike. Assertions at one position commute, so a `$` or a lookaround between the atom and the caret is looked through. Outside `m` the caret is never touched, because past index 0 it is false whatever arrives: `/\W^/` can never match, and the transform still reports nothing viable. A `(?m:...)` group turns the rule on and a `(?-m:...)` group turns it back off, following the same nesting as the `i` flag.
 
 A lookbehind body judged at a truncated end is the remaining case in that direction, and is covered under [Positive Lookbehinds](#positive-lookbehinds).
 
@@ -290,11 +291,11 @@ partial.test("abca"); // false — but "abca" is a valid prefix of "abcabc" via 
 See [docs/backreferences.md](./docs/backreferences.md) for why this happens (the internal capture scan resolving the wrong alternative first).
 
 [^3]: 
-    A bare `$` alone isn't sufficient here: under the `m` (multiline) flag — including one turned on locally via a `(?m:...)` [modifier](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Modifier) — `$` also matches immediately before *any* line terminator, not just the true end of input. That would let a `"\n"` the source pattern never allowed for be silently accepted as if the input had simply run out, e.g. `new PartialMatchRegExp(/^foobar/m)` would wrongly accept `"foo\nbaz"`. Appending `(?![\s\S])` narrows the disjunction down to strict end-of-input, regardless of multiline state.
+    A bare `$` alone isn't sufficient here: under the `m` (multiline) flag, including one turned on locally via a `(?m:...)` [modifier](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Modifier), `$` also matches immediately before *any* line terminator, not just the true end of input. That would let a `"\n"` the source pattern never allowed for be silently accepted as if the input had simply run out, e.g. `new PartialMatchRegExp(/^foobar/m)` would wrongly accept `"foo\nbaz"`. Appending `(?![\s\S])` narrows the disjunction down to strict end-of-input, regardless of multiline state.
 
     See [chromium issue 536420076](https://issues.chromium.org/u/2/issues/536420076) for the underlying V8 bug that requires `$` to precede `(?![\s\S])` rather than using the lookahead alone.
 
-    A shorter option, `(?-m:$)` — disabling multiline locally so `$` means strict end-of-input on its own — also sidesteps the bug and saves a few bytes per atom. However, modifier groups are new enough that support isn't universal, and feature-detecting them would add a fallback branch the test suite can't exercise honestly, since every engine that can realistically be tested against already supports them.
+    A shorter option, `(?-m:$)` (disabling multiline locally so `$` means strict end-of-input on its own) also sidesteps the bug and saves a few bytes per atom. However, modifier groups are new enough that support isn't universal, and feature-detecting them would add a fallback branch the test suite can't exercise honestly, since every engine that can realistically be tested against already supports them.
 
 [^4]: 
     To remain lightweight, no runtime type validation is applied, so non-TypeScript consumers will be reliant on underlying errors thrown if used incorrectly.
@@ -318,7 +319,7 @@ In [unicode-aware mode](https://developer.mozilla.org/en-US/docs/Web/JavaScript/
 
 ### [Sticky](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/sticky) Flag (`y`)
 
-The sticky flag is fully supported for its intended use case: **scanning within a single fixed string**. Partial matches are found only at `lastIndex`; the engine does not scan forward, and `lastIndex` advances on success or resets to `0` on failure — exactly as native sticky regexes behave.
+The sticky flag is fully supported for its intended use case: **scanning within a single fixed string**. Partial matches are found only at `lastIndex`; the engine does not scan forward, and `lastIndex` advances on success or resets to `0` on failure; exactly as native sticky regexes behave.
 
 ```javascript
 import PartialMatchRegExp from "regex-partial-match";
@@ -345,7 +346,7 @@ partial.test("hel"); // true (lastIndex was reset to 0 by the previous failure)
 
 There is no way to distinguish "scanning forward in the same string" from "testing a new, longer string", so this cannot be fixed in code. For progressive input validation, use a regex **without** the `y` flag and always test against the full input so far.
 
-The `gy` flag combination is also fully supported: `exec()`/`test()` behave as sticky, while `match()`, `matchAll()`, `replace()`, and `replaceAll()` iterate via `exec()` as global — matching [the language specification](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/sticky).
+The `gy` flag combination is also fully supported: `exec()`/`test()` behave as sticky, while `match()`, `matchAll()`, `replace()`, and `replaceAll()` iterate via `exec()` as global; matching [the language specification](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/sticky).
 
 ### "String properties"
 
@@ -436,9 +437,9 @@ Useful for parsing log files, network streams, or any chunked data where records
 
 ### `new PartialMatchRegExp(pattern: RegExp | string, flags?: string)`
 
-Extends `RegExp`. An instance behaves like a normal `RegExp` — `instanceof RegExp` is `true`, and `.test()`, `.exec()`, `.match()`, `.matchAll()`, `.replace()`, etc. all work as expected — but also matches any input string that is a valid prefix of the original pattern, in addition to full matches.
+Extends `RegExp`. An instance behaves like a normal `RegExp`; `instanceof RegExp` is `true`, and `.test()`, `.exec()`, `.match()`, `.matchAll()`, `.replace()` etc. all work as expected, but also matches any input string that is a valid prefix of the original pattern, in addition to full matches.
 
-Available via the default entry point of the package, or via `regex-partial-match/partialMatchRegExp` — see [A note on Tree-Shaking](#a-note-on-tree-shaking).
+Available via the default entry point of the package, or via `regex-partial-match/partialMatchRegExp`; see [A note on Tree-Shaking](#a-note-on-tree-shaking).
 
 **Parameters:**
 
@@ -512,7 +513,7 @@ The information only exists during matching. `hitEnd()` recovers it by re-runnin
 
 Recognising a truncation branch, a raw lookaround, or a group open back out of the rendered pattern is one classification, shared by every pass that needs it, rather than re-derived independently wherever it's needed.
 
-The twin is built lazily, on first use, and never escapes the library — the array, `groups`, numbering and `d`-flag indices you hold are the ones `exec()` produced. It is cached once per instance for a pattern without [backreferences](#backreferences); for one with them the pattern is re-expanded per input, so the twin belongs to the expansion behind one particular match and a later match builds its own — and a match the native pattern found outright is probed with the un-expanded twin, which follows the transformed pattern's own alternative order, so a higher-priority alternative that ran out of input behind a native match is still reported (`/(a)\1b|a/` on `"aa"` returns `"a"` and `hitEnd()` is `true`).
+The twin is built lazily, on first use, and never escapes the library — the array, `groups`, numbering and `d`-flag indices you hold are the ones `exec()` produced. It is cached once per instance for a pattern without [backreferences](#backreferences); for one with them the pattern is re-expanded per input, so the twin belongs to the expansion behind one particular match. A match the native pattern found outright has no expansion behind it, so the capture scan is re-run sticky at its index and the twin built from what that resolves, which is how a backreference that ran out part way through its capture is seen (`/(ab)\1|a/` on `"aba"` returns `"a"` and `hitEnd()` is `true`); the last expansion is kept per instance, so a caller whose capture is stable as the input grows builds that twin once. Where the scan resolves nothing, the un-expanded twin is used, which follows the transformed pattern's own alternative order, so a higher-priority alternative that ran out of input behind a native match is still reported (`/(a)\1b|a/` on `"aa"` returns `"a"` and `hitEnd()` is `true`).
 
 > [!NOTE]
 > `hitEnd()` itself always requires ES2018+, regardless of the pattern: its truncation probe is built from named capturing groups internally, even for a pattern as plain as `/^abc/`. See [Browser Compatibility](#browser-compatibility) — every other method holds to the ES2015 floor stated there.

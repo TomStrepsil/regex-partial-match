@@ -39,6 +39,14 @@ describe("roleOf (pins the exact Part shapes walk() renders, so a future renderi
     expect(roleOf("(?:a|$(?![\\s\\S]))")).toBe("truncationEnd");
   });
 
+  it("classifies an optional atom with a multiline caret folded into its taken branch", () => {
+    expect(roleOf("(?:\\W^|$(?![\\s\\S]))")).toBe("truncationEnd");
+  });
+
+  it("classifies the closing of a group body wrapped for a following caret as plain", () => {
+    expect(roleOf(")^")).toBe("plain");
+  });
+
   it("classifies a character class wrapped for truncation", () => {
     expect(roleOf("(?:[abc]|$(?![\\s\\S]))")).toBe("truncationEnd");
   });
