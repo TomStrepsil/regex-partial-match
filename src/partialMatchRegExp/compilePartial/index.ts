@@ -31,7 +31,8 @@ function groupShape(regex: RegExp) {
     regex.flags.replace(FLAGS_IRRELEVANT_TO_REBUILD, "")
   ).exec("");
   return {
-    groupLimit: emptyMatch === null ? 0 : emptyMatch.length - 1,
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- match must succeed, since pattern starts with empty alternative
+    groupLimit: emptyMatch!.length - 1,
     declaresNamedGroup: emptyMatch?.groups !== undefined
   };
 }
