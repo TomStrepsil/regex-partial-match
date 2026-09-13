@@ -1,6 +1,6 @@
 import escapeAtom from "../escapeAtom.ts";
 import { walk } from "../walk.ts";
-import { OPTIONAL_ATOM_OPENING } from "../atomSyntax.ts";
+import { OPTIONAL_ATOM_OPENING } from "../constants.ts";
 import { isBackreference, type Part } from "../part.ts";
 import asOptionalAtom from "../asOptionalAtom.ts";
 import asPreScanPart from "./asPreScanPart.ts";

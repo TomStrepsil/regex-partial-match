@@ -3,7 +3,7 @@ import {
   DISJUNCTION_TO_END_OF_INPUT,
   OPTIONAL_ATOM_OPENING,
   QUANTIFIER_PART
-} from "../atomSyntax.ts";
+} from "../constants.ts";
 import { groupNameOf, decodeGroupName } from "../groupName.ts";
 import {
   isBackreference,

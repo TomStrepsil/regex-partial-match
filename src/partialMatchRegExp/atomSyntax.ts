@@ -1,8 +1,8 @@
-export const DISJUNCTION_TO_END_OF_INPUT = "|$(?![\\s\\S]))";
-export const OPTIONAL_ATOM_OPENING = "(?:";
-export const NAMED_GROUP_OPENING = "(?<";
-export const ANY_CAPTURED_TEXT = "(?:[\\s\\S]*?)";
-export const QUANTIFIER_PART = /^(?:[*+?]|\{\d+,?\d*\})$/;
+import {
+  DISJUNCTION_TO_END_OF_INPUT,
+  OPTIONAL_ATOM_OPENING,
+  NAMED_GROUP_OPENING
+} from "./constants.ts";
 
 export function isRawLookaround(part: string): boolean {
   return (

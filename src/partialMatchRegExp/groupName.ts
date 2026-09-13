@@ -1,4 +1,4 @@
-import { NAMED_GROUP_OPENING } from "./atomSyntax.ts";
+import { NAMED_GROUP_OPENING } from "./constants.ts";
 
 const UNICODE_ESCAPE_IN_NAME_REGEX = /\\u\{([0-9a-fA-F]+)\}|\\u([0-9a-fA-F]{4})/g;
 

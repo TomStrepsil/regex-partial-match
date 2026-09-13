@@ -2051,8 +2051,11 @@ c`)
             });
           });
 
-          it("judges a caret behind a chain of assertions that includes a lookahead verbatim", () => {
-            expect(new PartialMatchRegExp(/\W(?=x)$^/m).exec("-")).toBeNull();
+          it("folds a contradictory lookahead-and-$ chain the same way it already folds a plain literal, since transparency does not change the fold's own accepted direction", () => {
+            expect(new PartialMatchRegExp(/\W(?=x)$^/m).exec("-")).toMatchAt({
+              match: "",
+              index: 1
+            });
           });
         });
 
@@ -2074,6 +2077,106 @@ c`)
             });
           }
         );
+
+        it.each([
+          ["two positive lookaheads", /\W(?=\n)(?=\n)^/m],
+          ["a positive lookahead then an end anchor", /\W(?=\n)$^/m],
+          ["an end anchor then a positive lookahead", /\W$(?=\n)^/m],
+          ["a positive lookahead then a negative lookahead", /\W(?=\n)(?!x)^/m],
+          ["a negative lookahead then a positive lookahead", /\W(?!x)(?=\n)^/m],
+          ["three positive lookaheads", /\W(?=\n)(?=\n)(?=\n)^/m]
+        ])(
+          "reaches back through a chain of %s to the atom, since assertions at one position commute",
+          (_, pattern) => {
+            expect(new PartialMatchRegExp(pattern).exec("-")).toMatchAt({
+              match: "",
+              index: 1
+            });
+            expect(new PartialMatchRegExp(pattern).exec("\n")).toMatchAt({
+              match: "\n",
+              index: 0
+            });
+          }
+        );
+
+        it("is order-independent when a positive and a negative lookahead both precede the caret", () => {
+          expect(new PartialMatchRegExp(/x(?=a)(?!b)^y/m).exec("x")).toMatchAt(
+            { match: "", index: 1 }
+          );
+          expect(new PartialMatchRegExp(/x(?!a)(?=b)^y/m).exec("x")).toMatchAt(
+            { match: "", index: 1 }
+          );
+        });
+
+        it("pops the lookahead chain correctly when a group sits between an earlier lookahead and the caret's own chain", () => {
+          expect(
+            new PartialMatchRegExp(/(x)(?=\n)(?=\n)^y/m).exec("x")
+          ).toMatchAt({ match: "", index: 1 });
+        });
+
+        describe("a caret leading a lookahead body", () => {
+          it("is judged against the part before the lookahead in the enclosing sequence", () => {
+            expect(new PartialMatchRegExp(/x(?=^y)/m).exec("x")).toMatchAt({
+              match: "",
+              index: 1
+            });
+          });
+
+          it("folds into a truncatable atom before the lookahead, keeping the rest of the body", () => {
+            expect(new PartialMatchRegExp(/[^](?=^)/m).exec("a")).toMatchAt({
+              match: "",
+              index: 1
+            });
+            expect(new PartialMatchRegExp(/[^](?=^y)/m).exec("a")).toMatchAt({
+              match: "",
+              index: 1
+            });
+          });
+
+          it("wraps a group before the lookahead", () => {
+            expect(new PartialMatchRegExp(/(x)(?=^y)/m).exec("x")).toMatchAt({
+              match: "",
+              index: 1
+            });
+          });
+
+          it("inserts an uncertain-position caret after a backreference or quantifier before the lookahead", () => {
+            expect(
+              new PartialMatchRegExp(/(\W)\1(?=^y)/m).exec("--")
+            ).toMatchAt({ match: "--", index: 0 });
+            expect(new PartialMatchRegExp(/\W*(?=^y)/m).exec("-")).toMatchAt({
+              match: "-",
+              index: 0
+            });
+          });
+
+          it("bubbles out through a nested lookahead to the true enclosing sequence", () => {
+            expect(
+              new PartialMatchRegExp(/x(?=(?=^y))/m).exec("x")
+            ).toMatchAt({ match: "", index: 1 });
+          });
+
+          it("still holds the start-anchor mitigation when nothing precedes the lookahead", () => {
+            expect(new PartialMatchRegExp(/(?=^y)/m).test("a\nb")).toBe(false);
+          });
+
+          it("stays inside the lookahead when the lookahead itself is quantified, since bubbling it out would drop the option to skip the lookahead entirely", () => {
+            expect(new PartialMatchRegExp(/(?=^)?$/m).exec("a")).toMatchAt({
+              match: "",
+              index: 1
+            });
+            expect(new PartialMatchRegExp(/[^](?=^)?/m).exec("a")).toMatchAt({
+              match: "a",
+              index: 0
+            });
+          });
+
+          it("stops the bubble at a quantified lookahead partway up a nested chain", () => {
+            expect(
+              new PartialMatchRegExp(/x(?=(?=^y)?)/m).exec("x")
+            ).toMatchAt({ match: "x", index: 0 });
+          });
+        });
       });
 
       it("should support matching an unanchored pattern wherever its literal text occurs, unaffected by line boundaries", () => {

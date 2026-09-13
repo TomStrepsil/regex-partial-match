@@ -1,4 +1,4 @@
-import { ANY_CAPTURED_TEXT } from "../atomSyntax.ts";
+import { ANY_CAPTURED_TEXT } from "../constants.ts";
 import { isBackreference, type Part } from "../part.ts";
 import asNativeAtom from "./asNativeAtom.ts";
 

@@ -1,73 +1,34 @@
 import {
   DISJUNCTION_TO_END_OF_INPUT,
+  GROUP_CLOSING,
   OPTIONAL_ATOM_OPENING,
-  QUANTIFIER_PART,
-  endsAtTruncationBranch,
-  isRawLookaround
-} from "./atomSyntax.ts";
+  NOT_NUMBERS_REGEX,
+  OCCURRENCES_REGEX,
+  LOOKAHEAD_OPENING,
+  LITERAL_K,
+  START_ANCHOR
+} from "./constants.ts";
 import asOptionalAtom from "./asOptionalAtom.ts";
 import { groupNameOf, decodeGroupName } from "./groupName.ts";
 import { legacyEscapeAtoms } from "./legacyEscape.ts";
 import { FEATURE_BIT } from "./regexFeatures.ts";
 import {
-  isBackreference,
   type Backreference,
   type Part,
   type RawLookaroundInfo
 } from "./part.ts";
+import appendMultilineCaret from "./appendMultilineCaret.ts"
+import type { LookaheadSpan } from "./appendMultilineCaret.ts";
 
-const OCCURRENCES_REGEX = /\{\d+,?\d*\}/y;
-const NOT_NUMBERS_REGEX = /\D/g;
-const LITERAL_K = "k";
-const START_ANCHOR = "^";
-const END_ANCHOR = "$";
-const GROUP_CLOSING = ")";
-const LOOKAHEAD_OPENING = "(?=";
-const CARET_AT_UNCERTAIN_POSITION = asOptionalAtom(START_ANCHOR);
-
-const declaresGroupNamed = (
-  closedGroupNames: ReadonlySet<string> | undefined,
-  name: string
-) => closedGroupNames?.has(decodeGroupName(name)) ?? false;
-
-const isTransparentToCaret = (part: Part) =>
-  typeof part === "string" && (part === END_ANCHOR || isRawLookaround(part));
-
-function appendMultilineCaret(
-  result: Part[],
-  lastGroupOpen: number,
-  lastGroupClose: number
-) {
-  let anchor = result.length - 1;
-  while (anchor >= 0 && isTransparentToCaret(result[anchor])) anchor--;
-  if (anchor < 0) {
-    result.push(START_ANCHOR);
-    return;
+const isQuantifierAhead = (source: string, index: number) => {
+  const character = source[index];
+  if ("*+?".includes(character)) {
+    return true;
   }
-
-  const previous = result[anchor];
-  if (anchor === lastGroupClose) {
-    result.splice(lastGroupOpen + 1, 0, OPTIONAL_ATOM_OPENING);
-    result.splice(
-      anchor + 1,
-      1,
-      GROUP_CLOSING + START_ANCHOR,
-      DISJUNCTION_TO_END_OF_INPUT
-    );
-  } else if (isBackreference(previous)|| QUANTIFIER_PART.test(previous)) {
-    result.splice(anchor + 1, 0, CARET_AT_UNCERTAIN_POSITION);
-  } else if (
-    previous !== DISJUNCTION_TO_END_OF_INPUT &&
-    endsAtTruncationBranch(previous)
-  ) {
-    result[anchor] =
-      previous.slice(0, -DISJUNCTION_TO_END_OF_INPUT.length) +
-      START_ANCHOR +
-      DISJUNCTION_TO_END_OF_INPUT;
-  } else {
-    result.push(START_ANCHOR);
-  }
-}
+  if (character !== "{") return false;
+  OCCURRENCES_REGEX.lastIndex = index;
+  return OCCURRENCES_REGEX.test(source);
+};
 
 export function walk(
   regex: RegExp,
@@ -106,6 +67,7 @@ export function walk(
   ) {
     const result: Part[] = [];
     let lastGroupOpen, lastGroupClose;
+    let lookaheadSpans: LookaheadSpan[] | undefined;
 
     function appendOptional(length: number) {
       result.push(asOptionalAtom(extractSlice(length)));
@@ -180,7 +142,7 @@ export function walk(
                   ref,
                   start,
                   end: i,
-                  forward: !declaresGroupNamed(closedGroupNames, ref),
+                  forward: !closedGroupNames?.has(decodeGroupName(ref)),
                   caseInsensitive
                 };
                 result.push(namedBackreference);
@@ -314,7 +276,12 @@ export function walk(
           featureMask |= FEATURE_BIT.startAnchor;
           i++;
           if (multiline) {
-            appendMultilineCaret(result, lastGroupOpen, lastGroupClose);
+            appendMultilineCaret(
+              result,
+              lastGroupOpen ?? -1,
+              lastGroupClose ?? -1,
+              lookaheadSpans
+            );
           } else {
             result.push(START_ANCHOR);
           }
@@ -368,21 +335,28 @@ export function walk(
               case "=": {
                 featureMask |= FEATURE_BIT.lookahead;
                 i += 3;
-                const body = process(
+                let body = process(
                   true,
                   declaresNamedGroup,
                   caseInsensitive,
                   multiline
                 );
-                if (source[i] === START_ANCHOR) {
-                  featureMask |= FEATURE_BIT.startAnchor;
-                  i++;
-                  if (multiline) {
-                    appendMultilineCaret(result, lastGroupOpen, lastGroupClose);
-                  } else {
-                    result.push(START_ANCHOR);
-                  }
+                if (
+                  multiline &&
+                  body[0] === START_ANCHOR &&
+                  !isQuantifierAhead(source, i)
+                ) {
+                  body = body.slice(1);
+                  appendMultilineCaret(
+                    result,
+                    lastGroupOpen ?? -1,
+                    lastGroupClose ?? -1,
+                    lookaheadSpans
+                  );
                 }
+                const lookaheadOpen = result.length;
+                const lookaheadClose = lookaheadOpen + body.length + 1;
+                (lookaheadSpans ??= []).push([lookaheadOpen, lookaheadClose]);
                 result.push(LOOKAHEAD_OPENING, ...body, GROUP_CLOSING);
                 break;
               }
