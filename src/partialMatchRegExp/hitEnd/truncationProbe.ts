@@ -188,11 +188,8 @@ export const buildTruncationProbe = (
         break;
       case "truncationEnd":
         probed.push(
-          isWordBoundaryAtom(part)
-            ? part.slice(0, -DISJUNCTION_TO_END_OF_INPUT.length) +
-                readAtEnd() +
-                truncationBranch()
-            : part.slice(0, -DISJUNCTION_TO_END_OF_INPUT.length) +
+          part.slice(0, -DISJUNCTION_TO_END_OF_INPUT.length) +
+                (isWordBoundaryAtom(part) ? readAtEnd() : "") +
                 truncationBranch()
         );
         break;
