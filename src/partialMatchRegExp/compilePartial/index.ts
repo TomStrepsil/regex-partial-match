@@ -2,8 +2,13 @@ import escapeAtom from "../escapeAtom.ts";
 import { walk } from "../walk.ts";
 import {
   FLAGS_IRRELEVANT_TO_REBUILD,
-  OPTIONAL_ATOM_OPENING
-} from "../constants.ts";
+  OPTIONAL_ATOM_OPENING,
+  GROUP_CLOSING,
+  MAYBE_HAS_BACKREFERENCE_REGEX,
+  UNCONSTRAINED_GROUP_SHAPE,
+  ALTERNATION,
+  ONLY_AT_END_OF_INPUT
+} from "./constants.ts";
 import { isBackreference, type Part } from "../part.ts";
 import asOptionalAtom from "../asOptionalAtom.ts";
 import asPreScanPart from "./asPreScanPart.ts";
@@ -13,17 +18,6 @@ import longestBakedPrefixEndingInput from "./longestBakedPrefixEndingInput.ts";
 import flagsAtBackreference from "./flagsAtBackreference.ts";
 import toStatic from "./toStatic.ts";
 import { CompiledDynamic, type CompiledPartial } from "./compiled.ts";
-
-const MAYBE_HAS_BACKREFERENCE_REGEX = /\\[0-9]|\\k</;
-const NEVER = "(?!)";
-const GROUP_CLOSING = ")";
-const ALTERNATION = "|";
-
-const ONLY_AT_END_OF_INPUT = asOptionalAtom(NEVER);
-const UNCONSTRAINED_GROUP_SHAPE = {
-  groupLimit: Infinity,
-  declaresNamedGroup: true
-};
 
 function groupShape(regex: RegExp) {
   const emptyMatch = new RegExp(
@@ -40,7 +34,9 @@ function groupShape(regex: RegExp) {
 export default function compilePartial(regex: RegExp): CompiledPartial {
   const flags = regex.flags;
   const isUnicode = regex.unicode || regex.unicodeSets;
-  const maybeHasBackreference = MAYBE_HAS_BACKREFERENCE_REGEX.test(regex.source);
+  const maybeHasBackreference = MAYBE_HAS_BACKREFERENCE_REGEX.test(
+    regex.source
+  );
   const { groupLimit, declaresNamedGroup } =
     maybeHasBackreference && !isUnicode
       ? groupShape(regex)
