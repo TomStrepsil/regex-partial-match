@@ -34,11 +34,6 @@ const WORD_BOUNDARY_ATOMS = [
 const isQuantifier = (part: Part | undefined) =>
   typeof part === "string" && QUANTIFIER_PART.test(part);
 
-/**
- * A greedy quantifier that stops at the end of input has tried, and failed, to
- * read one more iteration there; an exact `{n}` never tries, and a lazy one
- * stops as soon as what follows allows.
- */
 function isGreedyReadAtEnd(parts: readonly Part[], index: number) {
   const part = parts[index];
   return (
