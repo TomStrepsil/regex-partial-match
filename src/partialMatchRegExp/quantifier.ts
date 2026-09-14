@@ -1,7 +1,7 @@
 import type { Part } from "./part.ts";
 
-export const OCCURRENCES_REGEX = /\{\d+,?\d*\}/y;
-export const QUANTIFIER_PART = /^(?:[*+?]|\{\d+,?\d*\})$/;
+export const OCCURRENCES_REGEX = /\{\d+(?:,\d*)?\}/y;
+export const QUANTIFIER_PART = /^(?:[*+?]|\{\d+(?:,\d*)?\})$/;
 const LAZY_MARK = "?";
 
 export const isQuantifier = (part: Part | undefined) =>
