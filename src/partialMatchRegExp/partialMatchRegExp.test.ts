@@ -357,6 +357,12 @@ describe("PartialMatchRegExp", () => {
       expect(features).not.toContain("modifierGroup");
     });
 
+    it("detects a modifier group with an empty removal list as add-only", () => {
+      const features = new PartialMatchRegExp(new RegExp("(?i-:foo)")).features;
+      expect(features).toContain("modifierGroup");
+      expect(features).not.toContain("modifierGroupWithRemoval");
+    });
+
     it("detects a remove-only modifier group as add-and-remove", () => {
       expect(new PartialMatchRegExp(/(?-s:foo)/).features).toContain(
         "modifierGroupWithRemoval"
@@ -1913,12 +1919,10 @@ c`)
       });
 
       it("should treat a legacy \\k escape before a caret as the literal k it encodes", () => {
-        const emptyAtEndOfInput = { match: "", index: 1 };
-
-        expect(new PartialMatchRegExp(/k^/m).exec("a")).toMatchAt(emptyAtEndOfInput);
+        expect(new PartialMatchRegExp(/k^/m).exec("a")).toBeNull();
         expect(
           new PartialMatchRegExp(new RegExp("\\k^", "m")).exec("a")
-        ).toMatchAt(emptyAtEndOfInput);
+        ).toBeNull();
       });
 
       describe("a caret is judged by the part directly before it on its own path", () => {
@@ -1964,12 +1968,31 @@ c`)
           }
         );
 
-        it("keeps the captures of a group whose body the caret is folded into", () => {
-          const capturing = new PartialMatchRegExp(/(-|\n)^/m);
-          const named = new PartialMatchRegExp(/(?<t>-|\n)^/m);
+        describe("captures on a partial match are the closest to what a full match reports", () => {
+          it("keeps the captures of a group whose body the caret is folded into", () => {
+            const capturing = new PartialMatchRegExp(/(-|\n)^/m);
+            const named = new PartialMatchRegExp(/(?<t>-|\n)^/m);
 
-          expect(capturing.exec("\n")?.[1]).toBe("\n");
-          expect(named.exec("\n")?.groups?.t).toBe("\n");
+            expect(capturing.exec("\n")?.[1]).toBe("\n");
+            expect(named.exec("\n")?.groups?.t).toBe("\n");
+          });
+
+          it("reports an empty capture for a group the caret wraps, where the input ran out before the group consumed anything", () => {
+            const capturing = new PartialMatchRegExp(/(\n)^/m).exec("a");
+
+            expect(capturing).toMatchAt({ match: "", index: 1 });
+            expect(capturing?.[1]).toBe("");
+            expect(
+              new PartialMatchRegExp(/(?<t>\n)^/m).exec("a")?.groups?.t
+            ).toBe("");
+          });
+
+          it("keeps the capture of a group that consumes nothing when a second caret is judged behind it", () => {
+            const partial = new PartialMatchRegExp(/\W*(\b)^^/m);
+
+            expect(partial.exec("-")).toMatchAt({ match: "-", index: 0 });
+            expect(partial.exec("-")?.[1]).toBe("");
+          });
         });
 
         it("refuses the caret where an alternative of the group before it ran out of input", () => {
@@ -2035,8 +2058,201 @@ c`)
           expect(new PartialMatchRegExp(/\W(?-m:^)/m).exec("-")).toBeNull();
         });
 
+        it("keeps a caret after a group that turns multiline off in the enclosing multiline scope", () => {
+          expect(new PartialMatchRegExp(/^(?-m:\n)^a/m).exec("\na")).toMatchAt({
+            match: "\na",
+            index: 0
+          });
+          expect(new PartialMatchRegExp(/(?-m:\n)^/m).exec("\n")).toMatchAt({
+            match: "\n",
+            index: 0
+          });
+          expect(new PartialMatchRegExp(/(?-m:\n)^x/m).exec("\n")).toMatchAt({
+            match: "\n",
+            index: 0
+          });
+        });
+
+        it.each([/(?:a|\n)^^/m, /(\n)^^/m])(
+          "judges a second caret against the group the first one wrapped, in %s",
+          (pattern) => {
+            expect(new PartialMatchRegExp(pattern).exec("a")).toMatchAt({
+              match: "",
+              index: 1
+            });
+          }
+        );
+
+        it.each([/(\n)(?=\n)^^/m, /(\n)(?=\n)^(?=\n)^/m, /(\n)(?=^|b)^/m])(
+          "keeps lookahead spans aligned after a caret wraps the group before them, in %s",
+          (pattern) => {
+            expect(new PartialMatchRegExp(pattern).exec("a")).toMatchAt({
+              match: "",
+              index: 1
+            });
+          }
+        );
+
+        it("judges a caret after a caret inserted at an uncertain position", () => {
+          expect(new PartialMatchRegExp(/\W*^^/m).exec("-")).toMatchAt({
+            match: "-",
+            index: 0
+          });
+        });
+
+        it("leaves a lookahead before a caret inserted at an uncertain position in place", () => {
+          const partial = new PartialMatchRegExp(/(?=\W)\W*^(?=\n)^/m);
+
+          expect(partial.exec("-")).toMatchAt({ match: "-", index: 0 });
+          expect(partial.exec("a")).toMatchAt({ match: "", index: 1 });
+        });
+
+        it.each([
+          [/ba^/m, "b"],
+          [/\Wa^/m, "-"],
+          [/\n-^/m, "\n"],
+          [/x(?=^y)/m, "x"]
+        ])(
+          "refuses a caret after an atom that cannot end a line, since no continuation can start a line there: %s on %j",
+          (pattern, input) => {
+            expect(new PartialMatchRegExp(pattern).exec(input)).toBeNull();
+          }
+        );
+
+        it.each([
+          [/^a+^b/m, "a"],
+          [/^[a-z]+^b/m, "abc"],
+          [/\na+^/m, "\n"],
+          [/a+?^b/m, "a"],
+          [/\S+^b/m, "a"],
+          [/\p{L}+^b/mu, "a"],
+          [/[\p{L}--[b]]+^c/mv, "a"]
+        ])(
+          "refuses a caret after a quantified atom that cannot end a line: %s on %j",
+          (pattern, input) => {
+            expect(new PartialMatchRegExp(pattern).exec(input)).toBeNull();
+          }
+        );
+
+        it.each([
+          [/\W*(a)^/m, "-"],
+          [/(a)^/m, "a"],
+          [/a*(a)^/m, "a"],
+          [/\W(a+)^/m, "-"],
+          [/\W(a{2,})^/m, "-a"]
+        ])(
+          "refuses a caret after a group whose body cannot end a line: %s on %j",
+          (pattern, input) => {
+            expect(new PartialMatchRegExp(pattern).exec(input)).toBeNull();
+          }
+        );
+
+        it("holds the caret after a quantified atom that cannot end a line only where it repeated zero times", () => {
+          expect(new PartialMatchRegExp(/\na*^/m).exec("\na")).toMatchAt({
+            match: "\n",
+            index: 0
+          });
+          expect(new PartialMatchRegExp(/\na{0,2}^/m).exec("\na")).toMatchAt({
+            match: "\n",
+            index: 0
+          });
+          expect(new PartialMatchRegExp(/\Wa*^/m).exec("a")).toMatchAt({
+            match: "",
+            index: 1
+          });
+        });
+
+        it("judges . by the dot-all scope it is walked in", () => {
+          expect(new PartialMatchRegExp(/.+^b/m).exec("a")).toBeNull();
+          expect(new PartialMatchRegExp(/.+^b/ms).exec("a")).toMatchAt({
+            match: "a",
+            index: 0
+          });
+          expect(new PartialMatchRegExp(/(?s:.+^b)/m).exec("a")).toMatchAt({
+            match: "a",
+            index: 0
+          });
+          expect(new PartialMatchRegExp(/(?-s:.+^b)/ms).exec("a")).toBeNull();
+        });
+
+        it("keeps the caret uncertain after a part that can end a line", () => {
+          expect(new PartialMatchRegExp(/[^a]+^b/m).exec("b")).toMatchAt({
+            match: "b",
+            index: 0
+          });
+          expect(new PartialMatchRegExp(/\W(?:\n|b)^/m).exec("-")).toMatchAt({
+            match: "-",
+            index: 0
+          });
+          expect(new PartialMatchRegExp(/\W(\n+)^/m).exec("-")).toMatchAt({
+            match: "-",
+            index: 0
+          });
+        });
+
+        it("looks through a group whose body ends in an atom that cannot end a line, where the caret holds only if the atom repeated zero times", () => {
+          const zeroOrMore = new PartialMatchRegExp(/\W(a*)^/m);
+
+          expect(zeroOrMore.exec("-")).toMatchAt({ match: "", index: 1 });
+          expect(zeroOrMore.exec("\n")).toMatchAt({ match: "\n", index: 0 });
+          expect(zeroOrMore.exec("\n")?.[1]).toBe("");
+          expect(new PartialMatchRegExp(/\W(\na*)^/m).exec("-\na")).toMatchAt({
+            match: "-\n",
+            index: 0
+          });
+        });
+
+        it("looks through a group that consumes nothing", () => {
+          expect(new PartialMatchRegExp(/\W(\b)^/m).exec("-")).toMatchAt({
+            match: "",
+            index: 1
+          });
+          expect(new PartialMatchRegExp(/\W(\b)^/m).exec("\n")).toMatchAt({
+            match: "\n",
+            index: 0
+          });
+          expect(new PartialMatchRegExp(/\W(?-m:^)^/m).exec("-")).toBeNull();
+          expect(new PartialMatchRegExp(/\W*(\b)^/m).exec("-")).toMatchAt({
+            match: "-",
+            index: 0
+          });
+        });
+
+        describe("a caret leading a multiline modifier group body", () => {
+          it("is judged against the part before the group", () => {
+            expect(new PartialMatchRegExp(/\W(?m:^)/).exec("a")).toMatchAt({
+              match: "",
+              index: 1
+            });
+            expect(new PartialMatchRegExp(/\W(?m:^)/).exec("\n")).toMatchAt({
+              match: "\n",
+              index: 0
+            });
+            expect(new PartialMatchRegExp(/[^a]{1,}(?m:^)/u).exec("a")).toMatchAt({
+              match: "",
+              index: 1
+            });
+            expect(new PartialMatchRegExp(/\W(?i:^x)/m).exec("a")).toMatchAt({
+              match: "",
+              index: 1
+            });
+          });
+
+          it("still holds the start-anchor mitigation when nothing precedes the group", () => {
+            expect(new PartialMatchRegExp(/(?m:^x)/).test("a\nb")).toBe(false);
+            expect(new PartialMatchRegExp(/(?m:^x)/).test("a")).toBe(false);
+          });
+
+          it("stays inside a quantified modifier group", () => {
+            expect(new PartialMatchRegExp(/\W(?m:^)?/).exec("-")).toMatchAt({
+              match: "-",
+              index: 0
+            });
+          });
+        });
+
         describe("accepted limits", () => {
-          it("accepts in the safe direction after a bounded quantifier saturated at the end, where the position could not in fact move", () => {
+          it("accepts in the safe direction after a bounded quantifier saturated at the end, or a backreference, where the position could not in fact move", () => {
             expect(new PartialMatchRegExp(/\W{2}^/m).exec("--")).toMatchAt({
               match: "--",
               index: 0
@@ -2051,6 +2267,37 @@ c`)
             });
           });
 
+          it.each([
+            [/^(a)\1^b/m, "aa"],
+            [/(a)\1^/m, "a"],
+            [/(a)+^b/m, "a"],
+            [/(?s:.)+^b/m, "a"],
+            [/\W(?:a|b)^/m, "-"],
+            [/\W((a))^/m, "-"],
+            [/(b)(?-m:^)^/m, "b"],
+            [/(?i:b)(\b)^/m, "b"],
+            [/(\W)\1(\b)^/m, "--"]
+          ])(
+            "accepts in the safe direction after a backreference, a quantified or alternating or nested group, or a zero-width group behind another group: %s on %j",
+            (pattern, input) => {
+              expect(new PartialMatchRegExp(pattern).exec(input)).toMatchAt({
+                match: input,
+                index: 0
+              });
+            }
+          );
+
+          it("does not refuse a caret after a backreference to a group that may not have participated", () => {
+            expect(new PartialMatchRegExp(/\n(a)?\1^/m).exec("\n")).toMatchAt({
+              match: "\n",
+              index: 0
+            });
+          });
+
+          it("leaves a caret leading an alternative of a lookahead body verbatim, refusing a prefix a line terminator still to arrive would satisfy", () => {
+            expect(new PartialMatchRegExp(/\W(?=^a|^b)/m).exec("-")).toBeNull();
+          });
+
           it("folds a contradictory lookahead-and-$ chain the same way it already folds a plain literal, since transparency does not change the fold's own accepted direction", () => {
             expect(new PartialMatchRegExp(/\W(?=x)$^/m).exec("-")).toMatchAt({
               match: "",
@@ -2063,7 +2310,9 @@ c`)
           ["an end anchor", /\W$^/m],
           ["a positive lookahead", /\W(?=\n)^/m],
           ["a negative lookahead", /\W(?!x)^/m],
-          ["a negative lookbehind", /\W(?<!x)^/m]
+          ["a negative lookbehind", /\W(?<!x)^/m],
+          ["a word boundary", /\W\b^/m],
+          ["a non-word boundary", /\W\B^/m]
         ])(
           "reaches back over %s to the atom, since assertions at one position commute",
           (_, pattern) => {
@@ -2100,23 +2349,23 @@ c`)
         );
 
         it("is order-independent when a positive and a negative lookahead both precede the caret", () => {
-          expect(new PartialMatchRegExp(/x(?=a)(?!b)^y/m).exec("x")).toMatchAt(
+          expect(new PartialMatchRegExp(/\W(?=\n)(?!b)^y/m).exec("-")).toMatchAt(
             { match: "", index: 1 }
           );
-          expect(new PartialMatchRegExp(/x(?!a)(?=b)^y/m).exec("x")).toMatchAt(
+          expect(new PartialMatchRegExp(/\W(?!b)(?=\n)^y/m).exec("-")).toMatchAt(
             { match: "", index: 1 }
           );
         });
 
         it("pops the lookahead chain correctly when a group sits between an earlier lookahead and the caret's own chain", () => {
           expect(
-            new PartialMatchRegExp(/(x)(?=\n)(?=\n)^y/m).exec("x")
+            new PartialMatchRegExp(/(\W)(?=\n)(?=\n)^y/m).exec("-")
           ).toMatchAt({ match: "", index: 1 });
         });
 
         describe("a caret leading a lookahead body", () => {
           it("is judged against the part before the lookahead in the enclosing sequence", () => {
-            expect(new PartialMatchRegExp(/x(?=^y)/m).exec("x")).toMatchAt({
+            expect(new PartialMatchRegExp(/\W(?=^y)/m).exec("-")).toMatchAt({
               match: "",
               index: 1
             });
@@ -2134,7 +2383,7 @@ c`)
           });
 
           it("wraps a group before the lookahead", () => {
-            expect(new PartialMatchRegExp(/(x)(?=^y)/m).exec("x")).toMatchAt({
+            expect(new PartialMatchRegExp(/(\W)(?=^y)/m).exec("-")).toMatchAt({
               match: "",
               index: 1
             });
@@ -2150,9 +2399,38 @@ c`)
             });
           });
 
+          it("stays inside a lookahead body with a top-level alternation, since hoisting it out would apply it to every alternative", () => {
+            expect(new PartialMatchRegExp(/^a(?=^|b)/m).exec("ab")).toMatchAt({
+              match: "a",
+              index: 0
+            });
+            expect(new PartialMatchRegExp(/x(?=^a|b)/m).exec("xb")).toMatchAt({
+              match: "x",
+              index: 0
+            });
+            expect(new PartialMatchRegExp(/\W*(?=^|b)/m).exec("-b")).toMatchAt({
+              match: "-",
+              index: 0
+            });
+          });
+
+          it("still hoists out of a body whose alternation is nested in a group", () => {
+            expect(new PartialMatchRegExp(/\W(?=^(?:a|b))/m).exec("-")).toMatchAt({
+              match: "",
+              index: 1
+            });
+          });
+
+          it("hoists out of a lookahead followed by a brace that does not quantify it", () => {
+            const partial = new PartialMatchRegExp(new RegExp("\\W(?=^){", "m"));
+
+            expect(partial.exec("-")).toMatchAt({ match: "", index: 1 });
+            expect(partial.exec("\n{")).toMatchAt({ match: "\n{", index: 0 });
+          });
+
           it("bubbles out through a nested lookahead to the true enclosing sequence", () => {
             expect(
-              new PartialMatchRegExp(/x(?=(?=^y))/m).exec("x")
+              new PartialMatchRegExp(/\W(?=(?=^y))/m).exec("-")
             ).toMatchAt({ match: "", index: 1 });
           });
 
@@ -2169,6 +2447,9 @@ c`)
               match: "a",
               index: 0
             });
+            expect(
+              new PartialMatchRegExp(new RegExp("[^](?=^){0,1}", "m")).exec("a")
+            ).toMatchAt({ match: "a", index: 0 });
           });
 
           it("stops the bubble at a quantified lookahead partway up a nested chain", () => {
@@ -3423,6 +3704,16 @@ c`)
         const partial = new PartialMatchRegExp(/^([ab])\1([ab])\2$/);
 
         expect(partial).toMatchPartially({ characters: "aabb".split("") });
+      });
+
+      it("accepted limit: refuses a viable prefix when re-expanding from the expanded match's capture disagrees again, since the input's own ending cannot say how much of the backreference was consumed", () => {
+        const partial = new PartialMatchRegExp(/(.?(\W))+?\1/);
+
+        expect(partial.exec("-b-")).toBeNull();
+        expect(/(.?(\W))+?\1/.exec("-b-b-")).toMatchAt({
+          match: "-b-b-",
+          index: 0
+        });
       });
 
       it("checks agreement under the pattern's own case-folding, not a case-sensitive comparison", () => {

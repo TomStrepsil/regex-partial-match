@@ -1,5 +1,5 @@
 import { isNumericBackreference, type Backreference } from "../part.ts";
-import asOptionalAtom from "../asOptionalAtom.ts";
+import { asOptionalAtom } from "../atomSyntax.ts";
 
 function backrefToken(backref: Backreference) {
   return isNumericBackreference(backref)

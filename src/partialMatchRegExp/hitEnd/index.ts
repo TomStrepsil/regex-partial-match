@@ -16,7 +16,8 @@ import matchHitEnd from "./matchHitEnd.ts";
  * `|$(?![\s\S])` truncation branch, a greedy quantifier stopped there with
  * nothing left to read, or `$`, `\b` or `\B` held there — so more input could
  * extend it, change which alternative wins, or invalidate it, and its
- * captures are provisional.
+ * captures are the closest to what a full match would report rather than
+ * final.
  *
  * `false` is not "is a match": `/hello \w+/` matches `"hello world"` in full
  * and still reports `true`, since `\w+` read the end looking for more. An

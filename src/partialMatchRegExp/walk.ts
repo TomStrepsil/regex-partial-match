@@ -1,14 +1,12 @@
+import { NOT_NUMBERS_REGEX, LITERAL_K } from "./constants.ts";
 import {
+  asOptionalAtom,
   DISJUNCTION_TO_END_OF_INPUT,
   GROUP_CLOSING,
-  OPTIONAL_ATOM_OPENING,
-  NOT_NUMBERS_REGEX,
-  OCCURRENCES_REGEX,
   LOOKAHEAD_OPENING,
-  LITERAL_K,
+  OPTIONAL_ATOM_OPENING,
   START_ANCHOR
-} from "./constants.ts";
-import asOptionalAtom from "./asOptionalAtom.ts";
+} from "./atomSyntax.ts";
 import { groupNameOf, decodeGroupName } from "./groupName.ts";
 import { legacyEscapeAtoms } from "./legacyEscape.ts";
 import { FEATURE_BIT } from "./regexFeatures.ts";
@@ -17,17 +15,17 @@ import {
   type Part,
   type RawLookaroundInfo
 } from "./part.ts";
-import appendMultilineCaret, { type LookaheadSpan } from "./appendMultilineCaret.ts"
-
-const isQuantifierAhead = (source: string, index: number) => {
-  const character = source[index];
-  if ("*+?".includes(character)) {
-    return true;
-  }
-  if (character !== "{") return false;
-  OCCURRENCES_REGEX.lastIndex = index;
-  return OCCURRENCES_REGEX.test(source);
-};
+import appendMultilineCaret, { type LookaheadSpan } from "./appendMultilineCaret.ts";
+import { OCCURRENCES_REGEX, isQuantifierAhead } from "./quantifier.ts";
+import {
+  CASE_INSENSITIVE,
+  MULTILINE,
+  UNICODE,
+  UNICODE_SETS,
+  WITHIN_LOOKAROUND,
+  scopeOf,
+  scopeWithModifiers
+} from "./scope.ts";
 
 export function walk(
   regex: RegExp,
@@ -40,7 +38,6 @@ export function walk(
   namedGroupOpenings: readonly string[];
 } {
   const source = regex.source;
-  const isUnicode = regex.unicode || regex.unicodeSets;
 
   let i = 0;
   let groupCount = 0;
@@ -53,20 +50,20 @@ export function walk(
     | Array<{ ref: string; forward?: boolean }>
     | undefined;
   let currentRawLookaroundBackreferences: Backreference[] | undefined;
+  let lastBodyAlternates = false;
 
   function extractSlice(length: number) {
     return source.slice(i, (i += length));
   }
 
-  function process(
-    withinLookaround: boolean,
-    declaresNamedGroup: boolean,
-    caseInsensitive: boolean,
-    multiline: boolean
-  ) {
+  function process(scope: number) {
     const result: Part[] = [];
-    let lastGroupOpen, lastGroupClose;
+    let lastGroupOpen = -1;
+    let lastGroupClose = -1;
+    let lastGroupScope = scope;
+    let lastGroupAlternates = false;
     let lookaheadSpans: LookaheadSpan[] | undefined;
+    let alternates = false;
 
     function appendOptional(length: number) {
       result.push(asOptionalAtom(extractSlice(length)));
@@ -89,7 +86,7 @@ export function walk(
         start,
         end,
         forward: !closedGroupNumbers?.has(ref),
-        caseInsensitive
+        caseInsensitive: (scope & CASE_INSENSITIVE) !== 0
       };
       currentRawLookaroundBackreferences?.push(backreference);
       if (ref >= 1 && ref <= groupLimit) {
@@ -109,7 +106,7 @@ export function walk(
       const backreferences: Backreference[] =
         currentRawLookaroundBackreferences ?? [];
       if (isOutermost) currentRawLookaroundBackreferences = backreferences;
-      process(true, declaresNamedGroup, caseInsensitive, multiline);
+      process(scope | WITHIN_LOOKAROUND);
       if (isOutermost) {
         (rawLookarounds ??= []).push({
           sourceStart: start,
@@ -142,7 +139,7 @@ export function walk(
                   start,
                   end: i,
                   forward: !closedGroupNames?.has(decodeGroupName(ref)),
-                  caseInsensitive
+                  caseInsensitive: (scope & CASE_INSENSITIVE) !== 0
                 };
                 result.push(namedBackreference);
                 currentRawLookaroundBackreferences?.push(namedBackreference);
@@ -154,7 +151,7 @@ export function walk(
                   ref: "",
                   start,
                   end: i,
-                  caseInsensitive
+                  caseInsensitive: (scope & CASE_INSENSITIVE) !== 0
                 });
               } else {
                 i += 2;
@@ -164,7 +161,7 @@ export function walk(
             }
             case "u":
               featureMask |= FEATURE_BIT.unicodeEscapeSequence;
-              if (isUnicode && source[i + 2] === "{") {
+              if (scope & UNICODE && source[i + 2] === "{") {
                 appendOptional(source.indexOf("}", i) - i + 1);
               } else {
                 appendOptional(6);
@@ -172,7 +169,7 @@ export function walk(
               break;
             case "p":
             case "P":
-              if (isUnicode) {
+              if (scope & UNICODE) {
                 featureMask |= FEATURE_BIT.unicodePropertyEscape;
                 appendOptional(source.indexOf("}", i) - i + 1);
               } else {
@@ -200,7 +197,7 @@ export function walk(
               appendOptional(2);
               break;
             case "0":
-              if (isUnicode) {
+              if (scope & UNICODE) {
                 featureMask |= FEATURE_BIT.otherEscape;
                 appendOptional(2);
               } else {
@@ -246,7 +243,7 @@ export function walk(
                 previousSetOperatorCharacter = undefined;
                 continue;
               case "[":
-                if (regex.unicodeSets) {
+                if (scope & UNICODE_SETS) {
                   featureMask |= FEATURE_BIT.nestedCharacterClass;
                   depth++;
                 }
@@ -255,12 +252,12 @@ export function walk(
                 depth--;
                 break;
               case "&":
-                if (regex.unicodeSets && previousSetOperatorCharacter === "&") {
+                if (scope & UNICODE_SETS && previousSetOperatorCharacter === "&") {
                   featureMask |= FEATURE_BIT.classIntersection;
                 }
                 break;
               case "-":
-                if (regex.unicodeSets && previousSetOperatorCharacter === "-") {
+                if (scope & UNICODE_SETS && previousSetOperatorCharacter === "-") {
                   featureMask |= FEATURE_BIT.classSubtraction;
                 }
                 break;
@@ -274,12 +271,15 @@ export function walk(
         case "^":
           featureMask |= FEATURE_BIT.startAnchor;
           i++;
-          if (multiline) {
-            appendMultilineCaret(
+          if (scope & MULTILINE) {
+            lastGroupClose = appendMultilineCaret(
               result,
-              lastGroupOpen ?? -1,
-              lastGroupClose ?? -1,
-              lookaheadSpans
+              lastGroupOpen,
+              lastGroupClose,
+              lastGroupScope,
+              lastGroupAlternates,
+              lookaheadSpans,
+              scope
             );
           } else {
             result.push(START_ANCHOR);
@@ -291,6 +291,7 @@ export function walk(
           break;
         case "|":
           featureMask |= FEATURE_BIT.disjunction;
+          alternates = true;
           appendRaw(1);
           break;
         case "*":
@@ -317,13 +318,10 @@ export function walk(
                 featureMask |= FEATURE_BIT.nonCapturingGroup;
                 i += 3;
                 lastGroupOpen = result.length;
-                const body = process(
-                  withinLookaround,
-                  declaresNamedGroup,
-                  caseInsensitive,
-                  multiline
-                );
+                const body = process(scope);
                 lastGroupClose = lastGroupOpen + body.length + 1;
+                lastGroupScope = scope;
+                lastGroupAlternates = lastBodyAlternates;
                 result.push(
                   OPTIONAL_ATOM_OPENING,
                   ...body,
@@ -334,23 +332,22 @@ export function walk(
               case "=": {
                 featureMask |= FEATURE_BIT.lookahead;
                 i += 3;
-                let body = process(
-                  true,
-                  declaresNamedGroup,
-                  caseInsensitive,
-                  multiline
-                );
+                const body = process(scope | WITHIN_LOOKAROUND);
                 if (
-                  multiline &&
+                  scope & MULTILINE &&
                   body[0] === START_ANCHOR &&
+                  !lastBodyAlternates &&
                   !isQuantifierAhead(source, i)
                 ) {
-                  body = body.slice(1);
-                  appendMultilineCaret(
+                  body.shift();
+                  lastGroupClose = appendMultilineCaret(
                     result,
-                    lastGroupOpen ?? -1,
-                    lastGroupClose ?? -1,
-                    lookaheadSpans
+                    lastGroupOpen,
+                    lastGroupClose,
+                    lastGroupScope,
+                    lastGroupAlternates,
+                    lookaheadSpans,
+                    scope
                   );
                 }
                 const lookaheadOpen = result.length;
@@ -366,29 +363,36 @@ export function walk(
                 const flagsStart = i + 2,
                   colonIndex = source.indexOf(":", flagsStart);
                 const modifiers = source.slice(flagsStart, colonIndex);
-                const [additions, removals] = modifiers.split("-") as [
-                  string,
-                  string | undefined
-                ];
-                featureMask |= removals
-                  ? FEATURE_BIT.modifierGroupWithRemoval
-                  : FEATURE_BIT.modifierGroup;
-                const modifierGroupCaseInsensitive = removals?.includes("i")
-                  ? false
-                  : caseInsensitive || additions.includes("i");
-                const modifierGroupMultiline = removals?.includes("m")
-                  ? false
-                  : multiline || additions.includes("m");
+                const removalIndex = modifiers.indexOf("-");
+                featureMask |=
+                  removalIndex === -1 || removalIndex === modifiers.length - 1
+                    ? FEATURE_BIT.modifierGroup
+                    : FEATURE_BIT.modifierGroupWithRemoval;
+                const modifierScope = scopeWithModifiers(scope, modifiers);
 
                 i = colonIndex + 1;
+                const body = process(modifierScope);
+                if (
+                  modifierScope & MULTILINE &&
+                  body[0] === START_ANCHOR &&
+                  !lastBodyAlternates &&
+                  !isQuantifierAhead(source, i)
+                ) {
+                  body.shift();
+                  lastGroupClose = appendMultilineCaret(
+                    result,
+                    lastGroupOpen,
+                    lastGroupClose,
+                    lastGroupScope,
+                    lastGroupAlternates,
+                    lookaheadSpans,
+                    scope
+                  );
+                }
                 lastGroupOpen = result.length;
-                const body = process(
-                  withinLookaround,
-                  declaresNamedGroup,
-                  modifierGroupCaseInsensitive,
-                  modifierGroupMultiline
-                );
                 lastGroupClose = lastGroupOpen + body.length + 1;
+                lastGroupScope = modifierScope;
+                lastGroupAlternates = lastBodyAlternates;
                 result.push("(?" + modifiers + ":", ...body, GROUP_CLOSING);
                 break;
               }
@@ -409,7 +413,7 @@ export function walk(
                   default: {
                     featureMask |= FEATURE_BIT.namedGroup;
                     featureMask |= FEATURE_BIT.capturingGroup;
-                    if (withinLookaround)
+                    if (scope & WITHIN_LOOKAROUND)
                       featureMask |= FEATURE_BIT.lookaroundCapture;
                     const groupNumber = ++groupCount;
                     const opening = extractSlice(
@@ -418,13 +422,10 @@ export function walk(
                     (namedGroupOpenings ??= []).push(opening);
                     const declaredName = decodeGroupName(groupNameOf(opening));
                     lastGroupOpen = result.length;
-                    const body = process(
-                      withinLookaround,
-                      declaresNamedGroup,
-                      caseInsensitive,
-                      multiline
-                    );
+                    const body = process(scope);
                     lastGroupClose = lastGroupOpen + body.length + 1;
+                    lastGroupScope = scope;
+                    lastGroupAlternates = lastBodyAlternates;
                     result.push(opening, ...body, DISJUNCTION_TO_END_OF_INPUT);
                     (closedGroupNumbers ??= new Set()).add(groupNumber);
                     (closedGroupNames ??= new Set()).add(declaredName);
@@ -435,40 +436,35 @@ export function walk(
             }
           } else {
             featureMask |= FEATURE_BIT.capturingGroup;
-            if (withinLookaround) featureMask |= FEATURE_BIT.lookaroundCapture;
+            if (scope & WITHIN_LOOKAROUND)
+              featureMask |= FEATURE_BIT.lookaroundCapture;
             const groupNumber = ++groupCount;
             const opening = extractSlice(1);
             lastGroupOpen = result.length;
-            const body = process(
-              withinLookaround,
-              declaresNamedGroup,
-              caseInsensitive,
-              multiline
-            );
+            const body = process(scope);
             lastGroupClose = lastGroupOpen + body.length + 1;
+            lastGroupScope = scope;
+            lastGroupAlternates = lastBodyAlternates;
             result.push(opening, ...body, DISJUNCTION_TO_END_OF_INPUT);
             (closedGroupNumbers ??= new Set()).add(groupNumber);
           }
           break;
         case ")":
           ++i;
+          lastBodyAlternates = alternates;
           return result;
         default:
           featureMask |= FEATURE_BIT.patternCharacter;
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- i < source.length is the loop invariant, so codePointAt(i) is always defined
-          appendOptional(isUnicode && source.codePointAt(i)! > 0xffff ? 2 : 1);
+          appendOptional(scope & UNICODE && source.codePointAt(i)! > 0xffff ? 2 : 1);
           break;
       }
     }
+    lastBodyAlternates = alternates;
     return result;
   }
 
-  const parts = process(
-    false,
-    declaresNamedGroup,
-    regex.flags.includes("i"),
-    regex.flags.includes("m")
-  );
+  const parts = process(scopeOf(regex));
 
   if (namedGroupOpenings && namedBackreferencesSeen) {
     const seenOnce = new Set<string>();

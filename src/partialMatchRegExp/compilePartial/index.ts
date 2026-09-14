@@ -2,15 +2,17 @@ import escapeAtom from "../escapeAtom.ts";
 import { walk } from "../walk.ts";
 import {
   FLAGS_IRRELEVANT_TO_REBUILD,
-  OPTIONAL_ATOM_OPENING,
-  GROUP_CLOSING,
   MAYBE_HAS_BACKREFERENCE_REGEX,
   UNCONSTRAINED_GROUP_SHAPE,
-  ALTERNATION,
-  ONLY_AT_END_OF_INPUT
+  ALTERNATION
 } from "./constants.ts";
+import {
+  GROUP_CLOSING,
+  ONLY_AT_END_OF_INPUT,
+  OPTIONAL_ATOM_OPENING,
+  asOptionalAtom
+} from "../atomSyntax.ts";
 import { isBackreference, type Part } from "../part.ts";
-import asOptionalAtom from "../asOptionalAtom.ts";
 import asPreScanPart from "./asPreScanPart.ts";
 import resolvedFromScan from "./resolvedFromScan.ts";
 import startsWithUnderFlags from "./startsWithUnderFlags.ts";

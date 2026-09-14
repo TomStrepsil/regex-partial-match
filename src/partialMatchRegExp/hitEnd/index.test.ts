@@ -219,6 +219,93 @@ describe("hitEnd()", () => {
     it("reports a caret after a greedy quantifier as having hit the end even where it held, since the quantifier read the end", () => {
       expect(hitEndOf(new PartialMatchRegExp(/\W*^/m), "\n")).toBe(true);
     });
+
+    it("reports a zero-repeat quantifier before a caret as having hit the end only where it stopped at the end", () => {
+      const partial = new PartialMatchRegExp(/\na*^/m);
+
+      expect(hitEndOf(partial, "\n")).toBe(true);
+      expect(hitEndOf(partial, "\na")).toBe(false);
+    });
+
+    it("sees a word boundary between a caret and its atom read the end of input", () => {
+      expect(hitEndOf(new PartialMatchRegExp(/\n\B^/m), "\n")).toBe(true);
+      expect(/\n\B^/m.exec("\na")).toBeNull();
+      expect(hitEndOf(new PartialMatchRegExp(/\W\B^/m), "\n")).toBe(true);
+      expect(hitEndOf(new PartialMatchRegExp(/\B^/m), "")).toBe(true);
+      expect(new PartialMatchRegExp(/\B^/m).exec("a")).toBeNull();
+    });
+
+    it("sees a caret leading a multiline modifier group body read the end of input", () => {
+      const partial = new PartialMatchRegExp(/\W*(?m:^)/);
+
+      expect(hitEndOf(partial, "-")).toBe(true);
+      expect(partial.exec("-\n")).toMatchAt({ match: "-\n", index: 0 });
+    });
+
+    it("settles a caret that held after a group turning multiline off", () => {
+      expect(hitEndOf(new PartialMatchRegExp(/(?-m:\n)^/m), "\n")).toBe(false);
+    });
+
+    it("settles a match that did not take a lookahead alternative led by a caret", () => {
+      expect(hitEndOf(new PartialMatchRegExp(/\W*(?=^|b)/m), "-b")).toBe(false);
+    });
+  });
+
+  describe("a probe shared across matches", () => {
+    it("builds a new probe for a match whose captures expand to different text than the last match asked about", () => {
+      const partial = new PartialMatchRegExp(/(\w\w)(?:\1|cc)/);
+      const expanded = partial.exec("cc")!;
+      const native = partial.exec("aacc")!;
+
+      for (let round = 0; round < 2; round++) {
+        expect(hitEnd(partial, expanded)).toBe(true);
+        expect(hitEnd(partial, native)).toBe(false);
+      }
+    });
+
+    it("builds a new probe for a match whose captures expand to a different length than the last match asked about", () => {
+      const partial = new PartialMatchRegExp(/(\w\w?)(?:\1|cc)/);
+      const expanded = partial.exec("c")!;
+      const native = partial.exec("aacc")!;
+
+      for (let round = 0; round < 2; round++) {
+        expect(hitEnd(partial, expanded)).toBe(true);
+        expect(hitEnd(partial, native)).toBe(false);
+      }
+    });
+
+    it("answers for fresh matches whose captures expand alike", () => {
+      const partial = new PartialMatchRegExp(/(\w\w)(?:\1|cc)/);
+
+      expect(hitEndOf(partial, "cc")).toBe(true);
+      expect(hitEndOf(partial, "cc")).toBe(true);
+      expect(hitEndOf(partial, "aacc")).toBe(false);
+      expect(hitEndOf(partial, "aacc")).toBe(false);
+    });
+  });
+
+  describe("a probe that cannot reproduce the match", () => {
+    it("reports a match the probe cannot reproduce as having hit the end, since only a lookahead that ran out of input can make it diverge", () => {
+      const partial = new PartialMatchRegExp(/(?=(a|-b){1,2})\1/);
+
+      expect(partial.exec("a-")).toMatchAt({ match: "a", index: 0 });
+      expect(hitEndOf(partial, "a-")).toBe(true);
+      expect(partial.exec("a-b")).toMatchAt({ match: "-b", index: 1 });
+      expect(hitEndOf(partial, "a-x")).toBe(false);
+    });
+
+    it("settles a native match whose probe the multiline caret rules must let match", () => {
+      const partial = new PartialMatchRegExp(/(b)(?=^|b)\1/m);
+
+      expect(hitEndOf(partial, "bb")).toBe(false);
+      expect(hitEndOf(partial, "bbx")).toBe(false);
+      expect(
+        hitEndOf(
+          new PartialMatchRegExp(new RegExp("(\\n)(?-m:\\n)^\\1", "m")),
+          "\n\n\n"
+        )
+      ).toBe(false);
+    });
   });
 
   describe("a backreference in a higher-priority alternative, behind a native match", () => {
@@ -523,6 +610,13 @@ describe("hitEnd()", () => {
 
       expect(partial.exec("xxabab")).toMatchAt({ match: "abab", index: 2 });
       expect(hitEndOf(partial, "xxabab")).toBe(false);
+    });
+
+    it("answers from the unexpanded probe when the capture scan cannot reproduce a native match, which a lookahead the scan resolves differently can cause", () => {
+      const partial = new PartialMatchRegExp(/(x)(?=\1(y|.))(?!\2)/);
+
+      expect(partial.exec("xxy")).toMatchAt({ match: "x", index: 0 });
+      expect(hitEndOf(partial, "xxy")).toBe(false);
     });
 
     it("reports a backreference to an unmatched group as settled", () => {

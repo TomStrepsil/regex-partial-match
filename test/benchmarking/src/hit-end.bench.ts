@@ -16,10 +16,12 @@
  *   - static path:        one probe per instance, cached on the instance, so
  *                         every later call on that instance is steady state
  *   - backreference path: the pattern is re-expanded per input, so the probe
- *                         belongs to the expansion behind one specific match.
- *                         A second call on the *same match* is cached; a fresh
- *                         match builds a fresh probe. The last two benches in
- *                         that group are the difference between those.
+ *                         belongs to the expansion behind a match. The instance
+ *                         keeps the probe of the last expansion asked about, so
+ *                         fresh matches whose captures expand alike share it,
+ *                         and a capture that differs builds a new one. The last
+ *                         three benches in that group are the difference
+ *                         between those.
  *
  * The "construct + exec" benches are baselines for the ones below them: the
  * probe build is the delta between a group's first and second bench, since
@@ -77,6 +79,7 @@ group("hitEnd — static path (ISO date)", () => {
 // "foo fo" — ends inside the backreference, so exec() takes the expansion path and records an expansion the probe can be built from. A full match returns via the native fast path with no expansion at all, and hitEnd() answers from that alone.
 const repeatedWord = /^(\w+) \1$/;
 const repeatedWordMidRef = "foo fo";
+const repeatedWordOtherMidRef = "bar ba";
 
 const repeatedWordPartial = new PartialMatchRegExp(repeatedWord);
 const repeatedWordMatch = matchOrThrow(repeatedWordPartial, repeatedWordMidRef);
@@ -93,9 +96,20 @@ group("hitEnd — backreference path (repeated word)", () => {
   bench("hitEnd — same match, expansion probe cached", () =>
     hitEnd(repeatedWordPartial, repeatedWordMatch)
   );
-  bench("exec + hitEnd — fresh match, probe rebuilt per match", () => {
+  bench("exec + hitEnd — fresh match, same capture, probe shared", () => {
     const match = repeatedWordPartial.exec(repeatedWordMidRef);
     return match && hitEnd(repeatedWordPartial, match);
+  });
+  bench("exec + hitEnd — fresh match, alternating capture, probe rebuilt per match", function* () {
+    const partial = new PartialMatchRegExp(repeatedWord);
+    let alternate = false;
+    yield () => {
+      alternate = !alternate;
+      const match = partial.exec(
+        alternate ? repeatedWordOtherMidRef : repeatedWordMidRef
+      );
+      return match && hitEnd(partial, match);
+    };
   });
 });
 

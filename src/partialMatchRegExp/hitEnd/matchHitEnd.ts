@@ -9,7 +9,6 @@ import type {
 } from "../compilePartial/compiled.ts";
 import {
   backreferenceExpansion,
-  type BackreferenceExpansion,
   type ExpandedMatch
 } from "../backreferenceExpansion.ts";
 import type { TruncationProbeCache } from "./truncationProbeCache.ts";
@@ -35,12 +34,16 @@ function dynamicProbe(
   flags: string,
   cache: TruncationProbeCache
 ): TruncationProbe {
-  const expansion =
+  const parts =
     (match as ExpandedMatch)[backreferenceExpansion] ??
-    expansionAtMatch(compiled, match, flags, cache);
-  return expansion === undefined
-    ? unexpandedProbe(compiled, flags, cache)
-    : (expansion.probe ??= probeOf(compiled, expansion.parts, flags));
+    expandedPartsAt(compiled, match, flags, cache);
+  if (parts === undefined) return unexpandedProbe(compiled, flags, cache);
+  const cached = cache.expansion;
+  if (cached !== undefined && sameParts(cached.parts, parts)) {
+    return cached.probe;
+  }
+  cache.expansion = { parts, probe: probeOf(compiled, parts, flags) };
+  return cache.expansion.probe;
 }
 
 function unexpandedProbe(
@@ -64,12 +67,12 @@ function probeOf(
   );
 }
 
-function expansionAtMatch(
+function expandedPartsAt(
   compiled: CompiledDynamic,
   match: RegExpExecArray,
   flags: string,
   cache: TruncationProbeCache
-): BackreferenceExpansion | undefined {
+): Part[] | undefined {
   const { preScan, expand } = compiled.dynamic;
   cache.stickyPreScan ??= new RegExp(
     preScan.source,
@@ -80,12 +83,7 @@ function expansionAtMatch(
   if (capture === null) return undefined;
 
   const parts = expand(capture);
-  if (parts.length === compiled.parts.length) return undefined;
-
-  const { expansion } = cache;
-  if (expansion !== undefined && sameParts(expansion.parts, parts))
-    return expansion;
-  return (cache.expansion = { parts, probe: undefined });
+  return parts.length === compiled.parts.length ? undefined : parts;
 }
 
 function sameParts(cached: readonly Part[], parts: readonly Part[]): boolean {

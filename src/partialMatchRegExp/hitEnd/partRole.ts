@@ -1,8 +1,8 @@
 import {
+  NAMED_GROUP_OPENING,
   endsAtTruncationBranch,
   isRawLookaround
 } from "../atomSyntax.ts";
-import { NAMED_GROUP_OPENING } from "../constants.ts";
 import { isBackreference, type Part } from "../part.ts";
 
 export type PartRole =
@@ -15,8 +15,7 @@ export type PartRole =
 function isGroupOpen(part: string): boolean {
   return (
     part === "(" ||
-    (part.startsWith(NAMED_GROUP_OPENING) &&
-      !"=!".includes(part[NAMED_GROUP_OPENING.length]))
+    (part.startsWith(NAMED_GROUP_OPENING) && !isRawLookaround(part))
   );
 }
 

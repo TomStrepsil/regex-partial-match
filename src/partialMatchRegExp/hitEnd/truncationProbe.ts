@@ -1,10 +1,13 @@
 import { legacyEscapeAsLiteral } from "../legacyEscape.ts";
+import { FLAGS_IRRELEVANT_TO_REBUILD } from "../constants.ts";
 import {
   DISJUNCTION_TO_END_OF_INPUT,
-  FLAGS_IRRELEVANT_TO_REBUILD,
+  END_ANCHOR,
   OPTIONAL_ATOM_OPENING,
-  QUANTIFIER_PART
-} from "../constants.ts";
+  isOptionalAtom,
+  isWordBoundaryAtom
+} from "../atomSyntax.ts";
+import { isQuantifier, quantifierEndingAt } from "../quantifier.ts";
 import { groupNameOf, decodeGroupName } from "../groupName.ts";
 import {
   isBackreference,
@@ -13,7 +16,7 @@ import {
   type Part,
   type RawLookaroundInfo
 } from "../part.ts";
-import { roleOf, type PartRole } from "./partRole.ts";
+import { roleOf } from "./partRole.ts";
 
 export interface TruncationProbe {
   regex: RegExp;
@@ -23,16 +26,21 @@ export interface TruncationProbe {
 
 const TRUNCATION_MARKER_NAME = "truncation";
 const END_OF_INPUT = DISJUNCTION_TO_END_OF_INPUT.slice(1, -1);
-const END_ANCHOR = "$";
 const OPTIONAL_QUANTIFIER = "?";
 const EXACT_QUANTIFIER = /^\{\d+\}$/;
-const WORD_BOUNDARY_ATOMS = [
-  OPTIONAL_ATOM_OPENING + "\\b" + DISJUNCTION_TO_END_OF_INPUT,
-  OPTIONAL_ATOM_OPENING + "\\B" + DISJUNCTION_TO_END_OF_INPUT
-];
 
-const isQuantifier = (part: Part | undefined) =>
-  typeof part === "string" && QUANTIFIER_PART.test(part);
+const MARKING = {
+  none: 0,
+  groupOpen: 1,
+  rawLookaround: 2,
+  truncationBranch: 3,
+  wordBoundary: 4,
+  endAnchor: 5,
+  readAtEnd: 6,
+  optionalAtEnd: 7
+} as const;
+
+type Marking = (typeof MARKING)[keyof typeof MARKING];
 
 function isGreedyReadAtEnd(parts: readonly Part[], index: number) {
   const part = parts[index];
@@ -40,49 +48,69 @@ function isGreedyReadAtEnd(parts: readonly Part[], index: number) {
     isQuantifier(part) &&
     !EXACT_QUANTIFIER.test(part as string) &&
     parts[index + 1] !== OPTIONAL_QUANTIFIER &&
-    !(part === OPTIONAL_QUANTIFIER && isQuantifier(parts[index - 1]))
+    quantifierEndingAt(parts, index) === index
   );
 }
 
-function isWordBoundaryAtom(part: Part) {
-  return part === WORD_BOUNDARY_ATOMS[0] || part === WORD_BOUNDARY_ATOMS[1];
+function markingOf(parts: readonly Part[], index: number): Marking {
+  const part = parts[index];
+  switch (roleOf(part)) {
+    case "backreference":
+      return MARKING.truncationBranch;
+    case "rawLookaround":
+      return MARKING.rawLookaround;
+    case "groupOpen":
+      return MARKING.groupOpen;
+    case "truncationEnd":
+      return isWordBoundaryAtom(part)
+        ? MARKING.wordBoundary
+        : MARKING.truncationBranch;
+    case "plain": {
+      if (part === END_ANCHOR) return MARKING.endAnchor;
+      if (!isGreedyReadAtEnd(parts, index)) return MARKING.none;
+      const previous = parts[index - 1];
+      return part === OPTIONAL_QUANTIFIER &&
+        (isBackreference(previous) || isOptionalAtom(previous))
+        ? MARKING.optionalAtEnd
+        : MARKING.readAtEnd;
+    }
+  }
 }
 
-function markersAdded(parts: readonly Part[], index: number, role: PartRole) {
-  const part = parts[index];
-  switch (role) {
-    case "backreference":
-      return 1;
-    case "rawLookaround":
-    case "groupOpen":
+const markingsOf = (parts: readonly Part[]) =>
+  parts.map((_, index) => markingOf(parts, index));
+
+function markersAddedBy(marking: Marking) {
+  switch (marking) {
+    case MARKING.none:
+    case MARKING.groupOpen:
+    case MARKING.rawLookaround:
       return 0;
-    case "truncationEnd":
-      return isWordBoundaryAtom(part) ? 2 : 1;
-    case "plain":
-      return part === END_ANCHOR || isGreedyReadAtEnd(parts, index) ? 1 : 0;
+    case MARKING.wordBoundary:
+      return 2;
+    default:
+      return 1;
   }
 }
 
 function groupShiftTable(
-  parts: readonly Part[],
-  rawLookarounds: readonly RawLookaroundInfo[],
-  roles: readonly PartRole[]
+  markings: readonly Marking[],
+  rawLookarounds: readonly RawLookaroundInfo[]
 ) {
   const shiftForGroup: number[] = [0];
   let markerCount = 0;
   let rawLookaroundIndex = 0;
 
-  for (let index = 0; index < parts.length; index++) {
-    const role = roles[index];
-    if (role === "groupOpen") {
+  for (const marking of markings) {
+    if (marking === MARKING.groupOpen) {
       shiftForGroup.push(markerCount);
-    } else if (role === "rawLookaround") {
+    } else if (marking === MARKING.rawLookaround) {
       const { capturingGroupsOpened } = rawLookarounds[rawLookaroundIndex++];
       for (let opened = 0; opened < capturingGroupsOpened; opened++) {
         shiftForGroup.push(markerCount);
       }
     }
-    markerCount += markersAdded(parts, index, role);
+    markerCount += markersAddedBy(marking);
   }
 
   return shiftForGroup;
@@ -150,8 +178,8 @@ export const buildTruncationProbe = (
     markerName += "_";
   }
 
-  const roles = parts.map(roleOf);
-  const shiftForGroup = groupShiftTable(parts, rawLookarounds, roles);
+  const markings = markingsOf(parts);
+  const shiftForGroup = groupShiftTable(markings, rawLookarounds);
 
   let markerCount = 0;
   let rawLookaroundIndex = 0;
@@ -170,8 +198,8 @@ export const buildTruncationProbe = (
       );
       continue;
     }
-    switch (roles[index]) {
-      case "rawLookaround":
+    switch (markings[index]) {
+      case MARKING.rawLookaround:
         probed.push(
           renumberRawBackreferences(
             part,
@@ -181,37 +209,35 @@ export const buildTruncationProbe = (
           )
         );
         break;
-      case "truncationEnd":
+      case MARKING.truncationBranch:
         probed.push(
-          part.slice(0, -DISJUNCTION_TO_END_OF_INPUT.length) +
-                (isWordBoundaryAtom(part) ? readAtEnd() : "") +
-                truncationBranch()
+          part.slice(0, -DISJUNCTION_TO_END_OF_INPUT.length) + truncationBranch()
         );
         break;
-      case "groupOpen":
-        probed.push(part);
+      case MARKING.wordBoundary:
+        probed.push(
+          part.slice(0, -DISJUNCTION_TO_END_OF_INPUT.length) +
+            readAtEnd() +
+            truncationBranch()
+        );
         break;
-      case "plain":
-        if (part === END_ANCHOR) {
-          probed.push(END_ANCHOR + "(?:" + marker() + "(?![\\s\\S])|)");
-        } else if (!isGreedyReadAtEnd(parts, index)) {
-          probed.push(part);
-        } else if (
-          part === OPTIONAL_QUANTIFIER &&
-          (isBackreference(parts[index - 1]) ||
-            roles[index - 1] === "truncationEnd") &&
-          parts[index - 1] !== DISJUNCTION_TO_END_OF_INPUT
-        ) {
-          probed[probed.length - 1] =
-            OPTIONAL_ATOM_OPENING +
-            probed[probed.length - 1] +
-            "|" +
-            marker() +
-            END_OF_INPUT +
-            "|)";
-        } else {
-          probed.push(part + readAtEnd());
-        }
+      case MARKING.endAnchor:
+        probed.push(END_ANCHOR + "(?:" + marker() + "(?![\\s\\S])|)");
+        break;
+      case MARKING.readAtEnd:
+        probed.push(part + readAtEnd());
+        break;
+      case MARKING.optionalAtEnd:
+        probed[probed.length - 1] =
+          OPTIONAL_ATOM_OPENING +
+          probed[probed.length - 1] +
+          "|" +
+          marker() +
+          END_OF_INPUT +
+          "|)";
+        break;
+      default:
+        probed.push(part);
         break;
     }
   }
@@ -233,8 +259,10 @@ export const tookTruncationBranch = (
 ): boolean => {
   const { regex, markerName, markerCount } = probe;
   regex.lastIndex = index;
+  const probed = regex.exec(input);
+  if (probed === null) return true;
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- if markerCount > 0, groups will be defined
-  const markers = regex.exec(input)!.groups!;
+  const markers = probed.groups!;
   for (let marker = 0; marker < markerCount; marker++) {
     if (markers[markerName + String(marker)] !== undefined) return true;
   }

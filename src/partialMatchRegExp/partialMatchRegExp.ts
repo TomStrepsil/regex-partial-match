@@ -126,10 +126,7 @@ class PartialMatchRegExp extends RegExp {
       return originalMatch;
 
     if (honoursLastIndex) this.lastIndex = expanded.lastIndex;
-    (match as ExpandedMatch)[backreferenceExpansion] = {
-      parts: expandedParts,
-      probe: undefined
-    };
+    (match as ExpandedMatch)[backreferenceExpansion] = expandedParts;
     return match;
   }
 }

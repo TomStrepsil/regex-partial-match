@@ -1,11 +1,3 @@
-export const OCCURRENCES_REGEX = /\{\d+,?\d*\}/y;
 export const NOT_NUMBERS_REGEX = /\D/g;
 export const FLAGS_IRRELEVANT_TO_REBUILD = /[dgy]/g;
 export const LITERAL_K = "k";
-export const START_ANCHOR = "^";
-export const GROUP_CLOSING = ")";
-export const LOOKAHEAD_OPENING = "(?=";
-export const DISJUNCTION_TO_END_OF_INPUT = "|$(?![\\s\\S]))";
-export const OPTIONAL_ATOM_OPENING = "(?:";
-export const NAMED_GROUP_OPENING = "(?<";
-export const QUANTIFIER_PART = /^(?:[*+?]|\{\d+,?\d*\})$/;
