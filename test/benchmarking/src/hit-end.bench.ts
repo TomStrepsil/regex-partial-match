@@ -26,6 +26,13 @@
  * The "construct + exec" benches are baselines for the ones below them: the
  * probe build is the delta between a group's first and second bench, since
  * both pay the same construction and exec cost.
+ *
+ * Three groups cover marking kinds this refactor added over isComplete()'s
+ * probe, none of which the groups above exercise: a word boundary at a
+ * truncation point (two markers instead of one), a greedy open-ended
+ * quantifier or a trailing $ reading the end on their own, and an optional
+ * atom right at the end (spliced in by rewriting the previous probed segment
+ * rather than appending a marker).
  */
 
 import { bench, group } from "mitata";
@@ -71,6 +78,105 @@ group("hitEnd — static path (ISO date)", () => {
   bench("hitEnd — complete match, warm probe", function* () {
     const partial = new PartialMatchRegExp(isoDate);
     const match = matchOrThrow(partial, isoDateComplete);
+    hitEnd(partial, match);
+    yield () => hitEnd(partial, match);
+  });
+});
+
+// A word boundary at a truncation point is the one marking hitEnd() adds that isComplete() never had: it splices in two markers (a read-at-end plus the truncation branch) rather than one, so its probe is bigger than a plain truncation atom's at both construction and match time.
+const wordBoundary = /^ab\b/;
+const wordBoundaryIncomplete = "ab";
+const wordBoundaryComplete = "ab-";
+
+group("hitEnd — word boundary at truncation end", () => {
+  bench("construct + exec (baseline, never asks)", () =>
+    new PartialMatchRegExp(wordBoundary).exec(wordBoundaryIncomplete)
+  );
+  bench("construct + exec + hitEnd (includes probe build)", () => {
+    const partial = new PartialMatchRegExp(wordBoundary);
+    const match = partial.exec(wordBoundaryIncomplete);
+    return match && hitEnd(partial, match);
+  });
+  bench("construct + exec + hitEnd (complete, includes probe build)", () => {
+    const partial = new PartialMatchRegExp(wordBoundary);
+    const match = partial.exec(wordBoundaryComplete);
+    return match && hitEnd(partial, match);
+  });
+  bench("hitEnd — incomplete match, warm probe", function* () {
+    const partial = new PartialMatchRegExp(wordBoundary);
+    const match = matchOrThrow(partial, wordBoundaryIncomplete);
+    hitEnd(partial, match);
+    yield () => hitEnd(partial, match);
+  });
+  bench("hitEnd — complete match, warm probe", function* () {
+    const partial = new PartialMatchRegExp(wordBoundary);
+    const match = matchOrThrow(partial, wordBoundaryComplete);
+    hitEnd(partial, match);
+    yield () => hitEnd(partial, match);
+  });
+});
+
+// isComplete() had no notion of a greedy open-ended quantifier or a trailing $ reading the end on their own — both are markings hitEnd() introduced (readAtEnd, endAnchor), and a realistic pattern exercises three of them in one probe: two unbounded `+`, one `{2,}`, and the `$`.
+const emailLike = /^[a-z]+@[a-z]+\.[a-z]{2,}$/;
+const emailLikeIncomplete = "user@example";
+const emailLikeComplete = "user@example.com";
+
+group("hitEnd — open-ended quantifiers and end anchor (email-like pattern)", () => {
+  bench("construct + exec (baseline, never asks)", () =>
+    new PartialMatchRegExp(emailLike).exec(emailLikeIncomplete)
+  );
+  bench("construct + exec + hitEnd (includes probe build)", () => {
+    const partial = new PartialMatchRegExp(emailLike);
+    const match = partial.exec(emailLikeIncomplete);
+    return match && hitEnd(partial, match);
+  });
+  bench("construct + exec + hitEnd (complete, includes probe build)", () => {
+    const partial = new PartialMatchRegExp(emailLike);
+    const match = partial.exec(emailLikeComplete);
+    return match && hitEnd(partial, match);
+  });
+  bench("hitEnd — incomplete match, warm probe", function* () {
+    const partial = new PartialMatchRegExp(emailLike);
+    const match = matchOrThrow(partial, emailLikeIncomplete);
+    hitEnd(partial, match);
+    yield () => hitEnd(partial, match);
+  });
+  bench("hitEnd — complete match, warm probe", function* () {
+    const partial = new PartialMatchRegExp(emailLike);
+    const match = matchOrThrow(partial, emailLikeComplete);
+    hitEnd(partial, match);
+    yield () => hitEnd(partial, match);
+  });
+});
+
+// An optional atom right at the end (optionalAtEnd) is spliced in by rewriting the previous probed segment in place, rather than appending a marker the way every other marking does — the one construction path worth its own bench.
+const optionalAtEnd = /^abc?/;
+const optionalAtEndUntaken = "ab";
+const optionalAtEndTaken = "abc";
+
+group("hitEnd — optional atom at truncation end", () => {
+  bench("construct + exec (baseline, never asks)", () =>
+    new PartialMatchRegExp(optionalAtEnd).exec(optionalAtEndUntaken)
+  );
+  bench("construct + exec + hitEnd (includes probe build)", () => {
+    const partial = new PartialMatchRegExp(optionalAtEnd);
+    const match = partial.exec(optionalAtEndUntaken);
+    return match && hitEnd(partial, match);
+  });
+  bench("construct + exec + hitEnd (taken, includes probe build)", () => {
+    const partial = new PartialMatchRegExp(optionalAtEnd);
+    const match = partial.exec(optionalAtEndTaken);
+    return match && hitEnd(partial, match);
+  });
+  bench("hitEnd — untaken atom, warm probe", function* () {
+    const partial = new PartialMatchRegExp(optionalAtEnd);
+    const match = matchOrThrow(partial, optionalAtEndUntaken);
+    hitEnd(partial, match);
+    yield () => hitEnd(partial, match);
+  });
+  bench("hitEnd — taken atom, warm probe", function* () {
+    const partial = new PartialMatchRegExp(optionalAtEnd);
+    const match = matchOrThrow(partial, optionalAtEndTaken);
     hitEnd(partial, match);
     yield () => hitEnd(partial, match);
   });

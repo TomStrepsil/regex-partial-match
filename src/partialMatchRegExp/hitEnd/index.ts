@@ -36,9 +36,11 @@ import matchHitEnd from "./matchHitEnd.ts";
  * named capturing groups internally, unlike `exec()` and `test()`.
  *
  * Conservative where the JDK is exact in one place: a bounded greedy
- * quantifier (`?`, `{n,m}`) on a group fully taken at the end of the input
- * reports `true`. Cannot see a read of the end inside a raw lookaround, or
- * inside a lookahead in an earlier iteration of a quantified group.
+ * quantifier (`?`, `{n,m}`) fully taken at the end of the input reports
+ * `true` — on a group, and the same way for an unequal-bound `{n,m}`
+ * directly on a single atom once it's saturated at its maximum. Cannot see
+ * a read of the end inside a raw lookaround, or inside a lookahead in an
+ * earlier iteration of a quantified group.
  *
  * @example
  * ```typescript

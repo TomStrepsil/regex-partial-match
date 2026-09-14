@@ -495,7 +495,7 @@ hitEnd(greedy, greedy.exec("hello world")); // true  — \w+ read the end lookin
 ```
 
 > [!NOTE]
-> Where the JDK is exact, `hitEnd()` is conservative in one place: a bounded greedy quantifier (`?`, `{n,m}`) on a *group* that was fully taken at the end of the input reports `true`, although the engine attempted no further read there — `/(ab)?/` on `"ab"` is `true` here and `false` in Java. Outside the two limits in [What it cannot see](#what-it-cannot-see), it is never wrong in the other direction.
+> Where the JDK is exact, `hitEnd()` is conservative in one place: a bounded greedy quantifier (`?`, `{n,m}`) fully taken at the end of the input reports `true`, although the engine attempted no further read there — on a *group* (`/(ab)?/` on `"ab"` is `true` here and `false` in Java), and the same way for an unequal-bound `{n,m}` directly on a single atom once it's saturated at its maximum (`/a{1,2}/` on `"aa"` is `true`, though no continuation can add a third `a`). Outside the two limits in [What it cannot see](#what-it-cannot-see), it is never wrong in the other direction.
 
 #### Why the question can't be answered from the outside
 
