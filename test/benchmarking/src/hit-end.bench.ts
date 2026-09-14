@@ -182,7 +182,7 @@ group("hitEnd — optional atom at truncation end", () => {
   });
 });
 
-// "foo fo" — ends inside the backreference, so exec() takes the expansion path and records an expansion the probe can be built from. A full match returns via the native fast path with no expansion at all, and hitEnd() answers from that alone.
+// "foo fo" — ends inside the backreference, so exec() takes the expansion path and records an expansion on the match, letting hitEnd() build (or reuse) its probe from that without rescanning. A full match returns via the native fast path with no expansion recorded, so hitEnd() instead re-runs the sticky pre-scan itself to derive one, then builds or reuses a probe for it the same way.
 const repeatedWord = /^(\w+) \1$/;
 const repeatedWordMidRef = "foo fo";
 const repeatedWordOtherMidRef = "bar ba";

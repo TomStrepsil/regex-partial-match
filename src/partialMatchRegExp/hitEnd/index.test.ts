@@ -57,6 +57,16 @@ describe("hitEnd()", () => {
       expect(hitEndOf(new PartialMatchRegExp(/^a{02,2}/), "aa")).toBe(false);
     });
 
+    it("recognizes an exact quantifier no matter how many leading zeros pad it", () => {
+      const zeros = "0".repeat(1000);
+      expect(hitEndOf(new PartialMatchRegExp(new RegExp(`^a{${zeros}2}`)), "aa")).toBe(
+        false
+      );
+      expect(
+        hitEndOf(new PartialMatchRegExp(new RegExp(`^a{${zeros}2,${zeros}2}`)), "aa")
+      ).toBe(false);
+    });
+
     it("still reports a saturated but unequal-bound {n,m} quantifier on an atom as conservative, matching the group case", () => {
       expect(hitEndOf(new PartialMatchRegExp(/^a{1,2}/), "aa")).toBe(true);
     });

@@ -85,12 +85,12 @@ Three patterns span the complexity range the walker branches on:
 
 The two paths cache the probe at different granularities, which is why they are measured separately:
 
-| Path           | Probe cached on | Consequence                                                   |
-| -------------- | --------------- | ------------------------------------------------------------- |
-| Static         | The instance    | Every later call on that instance is steady state             |
-| Backreference  | The expansion   | Cached per *match* — a fresh match builds a fresh probe       |
+| Path          | Probe cached on                   | Consequence                                                                                         |
+| ------------- | ---------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| Static        | The instance                       | Every later call on that instance is steady state                                                    |
+| Backreference | The instance, keyed by expansion   | Fresh matches whose captures expand alike share the same probe; a capture that differs rebuilds it   |
 
-The last two benches in the backreference group are that difference, and are the ones to watch: asking about the same match repeatedly is cheap, while asking once per match is roughly an order of magnitude more expensive. A further group covers a raw lookaround, the one case where probe construction does more than splice a marker into each truncation branch — the backreferences inside it have to be renumbered past every marker added before them.
+The last three benches in the backreference group are that difference, and are the ones to watch: asking about the same match repeatedly is cheap, a fresh match with the same capture is just as cheap since it reuses the cached expansion probe, and only a fresh match with a *different* capture pays to rebuild — roughly an order of magnitude more expensive. A further group covers a raw lookaround, the one case where probe construction does more than splice a marker into each truncation branch — the backreferences inside it have to be renumbered past every marker added before them.
 
 Three more groups cover marking kinds this scenario's predecessor (`isComplete()`) never had a probe for: a word boundary at a truncation point, which splices in two markers instead of one; a greedy open-ended quantifier or a trailing `$` reading the end on its own, with no backreference or exact-count atom behind it; and an optional atom right at the end, spliced in by rewriting the previous probed segment rather than appending a marker. All three are cheap, single-instance, static-path probes, so each is measured the same way as the ISO date group above.
 
