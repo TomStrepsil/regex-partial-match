@@ -99,7 +99,7 @@ Since the library accepts only valid regular expressions [^4], this enables the 
 
 The library has been stress-tested with various regular expression features in isolation, and some in likely combination, but obviously it's an unbounded test space.
 
-The transform answers a two-valued question — does the input match the wrapped pattern — for what is really a three-valued one: could *some* continuation make the original match? The two agree except in one situation. An assertion evaluated where the input runs out — `\b`, `\B`, a mid-pattern `$`, or a lookaround body — sees the end of the input as a fixed fact rather than an unknown continuation. `\b` after a word character at end of input is true; `$` there is true; a lookahead body is accepted once it runs out. When the rest of the pattern then requires something those assertions have just ruled out, the input is accepted although no continuation can complete it:
+The transform answers a two-valued question: does the input match the wrapped pattern? for what is really a three-valued one, could *some* continuation make the original match? The two agree except in one situation. An assertion evaluated where the input runs out — `\b`, `\B`, a mid-pattern `$`, or a lookaround body — sees the end of the input as a fixed fact rather than an unknown continuation. `\b` after a word character at end of input is true; `$` there is true; a lookahead body is accepted once it runs out. When the rest of the pattern then requires something those assertions have just ruled out, the input is accepted although no continuation can complete it:
 
 - `/^\b$/` accepts `""` — `\b` wants a word character next, `$` wants none
 - `/$[^a]/` accepts `""` — `$` wants the end, `[^a]` wants a character
@@ -352,7 +352,7 @@ partial.test("hel"); // true (lastIndex was reset to 0 by the previous failure)
 
 There is no way to distinguish "scanning forward in the same string" from "testing a new, longer string", so this cannot be fixed in code. For progressive input validation, use a regex **without** the `y` flag and always test against the full input so far.
 
-The `gy` flag combination is also fully supported: `exec()`/`test()` behave as sticky, while `match()`, `matchAll()`, `replace()`, and `replaceAll()` iterate via `exec()` as global; matching [the language specification](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/sticky).
+The `gy` flag combination is also fully supported: `exec()`/`test()` behave as sticky, while `match()`, `matchAll()`, `replace()`, and `replaceAll()` iterate via `exec()` as global, matching [the language specification](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/sticky).
 
 ### "String properties"
 
