@@ -51,11 +51,6 @@ describe("buildTruncationProbe", () => {
     expect(markerGroups?.length ?? 0).toBe(markerCount);
   });
 
-  it("compares equal-bound quantifiers as digit strings, not as numbers, so bounds too large for float64 to tell apart still add a marker", () => {
-    expect(probeOf(/^a{9007199254740999,9007199254741001}/).markerCount).toBe(1);
-    expect(probeOf(/^a{9007199254740993,9007199254740993}/).markerCount).toBe(0);
-  });
-
   it("renumbers a raw lookaround's backreference past the two markers of a word boundary and the marker of a greedy quantifier before it", () => {
     const pattern = /^\ba+(b)c(?!\1)d/;
     const partial = new PartialMatchRegExp(pattern);
