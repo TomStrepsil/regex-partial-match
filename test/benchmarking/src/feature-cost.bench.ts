@@ -4,7 +4,7 @@
  * construction-cost.bench.ts tracks whole realistic patterns end to end. This
  * scenario instead isolates *which construct* the walker is paying for, one
  * bench per feature, so a change to a single switch case in walk() — or to how
- * a construct is reclassified afterwards — shows up against its neighbours
+ * a construct is classified as it is met — shows up against its neighbours
  * rather than being averaged into a realistic pattern.
  *
  * Every pattern in the first group starts as the same shape — an anchor, a
@@ -38,12 +38,12 @@
  *
  * That group's patterns aren't part-count-equalised, and don't need to be: the
  * gap between them is dominated by which compiled path a pattern lands on and
- * whether compilePartial() walks it twice, not by how many parts the walk
- * emits, so unequal part counts don't confound its conclusion the way they did
+ * whether compilePartial() takes its native group pre-count, not by how many
+ * parts the walk emits, so unequal part counts don't confound its conclusion the way they did
  * in the first group.
  *
  * A reclassified octal escape, by contrast, is only modestly above the static
- * baseline beside it: reclassification itself is cheap, and the third group
+ * baseline beside it: classifying it as an escape is cheap, and the third group
  * shows why the classification still matters — the same pattern misread as a
  * backreference would rebuild a RegExp on every exec().
  */

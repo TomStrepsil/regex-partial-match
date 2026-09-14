@@ -43,10 +43,6 @@ for (let index = 0; index < REGEX_FEATURES.length; index++) {
   FEATURE_BIT[REGEX_FEATURES[index]] = 1 << index;
 }
 
-export function hasFeature(mask: number, feature: RegexFeature): boolean {
-  return (mask & FEATURE_BIT[feature]) !== 0;
-}
-
 export function featureSet(mask: number): Set<RegexFeature> {
   const features = new Set<RegexFeature>();
   for (let index = 0; index < REGEX_FEATURES.length; index++) {

@@ -1,36 +1,43 @@
+import { NOT_NUMBERS_REGEX, LITERAL_K } from "./constants.ts";
 import {
+  asOptionalAtom,
   DISJUNCTION_TO_END_OF_INPUT,
-  OPTIONAL_ATOM_OPENING
+  GROUP_CLOSING,
+  LOOKAHEAD_OPENING,
+  OPTIONAL_ATOM_OPENING,
+  START_ANCHOR
 } from "./atomSyntax.ts";
 import { groupNameOf, decodeGroupName } from "./groupName.ts";
+import { legacyEscapeAtoms } from "./legacyEscape.ts";
 import { FEATURE_BIT } from "./regexFeatures.ts";
-import type { Backreference, Part, RawLookaroundInfo } from "./part.ts";
-
-const OCCURRENCES_REGEX = /\{\d+,?\d*\}/y;
-const NOT_NUMBERS_REGEX = /\D/g;
-const LITERAL_K_ATOM =
-  OPTIONAL_ATOM_OPENING + "k" + DISJUNCTION_TO_END_OF_INPUT;
-
-const NO_RAW_LOOKAROUNDS: readonly RawLookaroundInfo[] = [];
-const NO_NAMED_GROUP_OPENINGS: readonly string[] = [];
-
-const declaresGroupNamed = (
-  closedGroupNames: ReadonlySet<string> | undefined,
-  name: string
-) => closedGroupNames?.has(decodeGroupName(name)) ?? false;
+import {
+  type Backreference,
+  type Part,
+  type RawLookaroundInfo
+} from "./part.ts";
+import appendMultilineCaret, { type LookaheadSpan } from "./appendMultilineCaret.ts";
+import { OCCURRENCES_REGEX, isQuantifierAhead } from "./quantifier.ts";
+import {
+  CASE_INSENSITIVE,
+  MULTILINE,
+  UNICODE,
+  UNICODE_SETS,
+  WITHIN_LOOKAROUND,
+  scopeOf,
+  scopeWithModifiers
+} from "./scope.ts";
 
 export function walk(
   regex: RegExp,
-  declaresNamedGroup: boolean
+  declaresNamedGroup: boolean,
+  groupLimit: number
 ): {
   parts: Part[];
-  groupCount: number;
   featureMask: number;
   rawLookarounds: readonly RawLookaroundInfo[];
   namedGroupOpenings: readonly string[];
 } {
   const source = regex.source;
-  const isUnicode = regex.unicode || regex.unicodeSets;
 
   let i = 0;
   let groupCount = 0;
@@ -43,20 +50,23 @@ export function walk(
     | Array<{ ref: string; forward?: boolean }>
     | undefined;
   let currentRawLookaroundBackreferences: Backreference[] | undefined;
+  let lastBodyAlternates = false;
 
   function extractSlice(length: number) {
     return source.slice(i, (i += length));
   }
 
-  function process(
-    withinLookaround: boolean,
-    declaresNamedGroup: boolean,
-    caseInsensitive: boolean
-  ) {
+  function process(scope: number) {
     const result: Part[] = [];
+    let lastGroupOpen = -1;
+    let lastGroupClose = -1;
+    let lastGroupScope = scope;
+    let lastGroupAlternates = false;
+    let lookaheadSpans: LookaheadSpan[] | undefined;
+    let alternates = false;
 
     function appendOptional(length: number) {
-      result.push("(?:" + extractSlice(length) + DISJUNCTION_TO_END_OF_INPUT);
+      result.push(asOptionalAtom(extractSlice(length)));
     }
 
     function appendRaw(length: number) {
@@ -76,10 +86,16 @@ export function walk(
         start,
         end,
         forward: !closedGroupNumbers?.has(ref),
-        caseInsensitive
+        caseInsensitive: (scope & CASE_INSENSITIVE) !== 0
       };
-      result.push(backreference);
       currentRawLookaroundBackreferences?.push(backreference);
+      if (ref >= 1 && ref <= groupLimit) {
+        result.push(backreference);
+        return;
+      }
+      for (const atom of legacyEscapeAtoms(source.slice(start + 1, end))) {
+        result.push(asOptionalAtom(atom));
+      }
     }
 
     function appendRawLookaround(prefixLength: number) {
@@ -90,7 +106,7 @@ export function walk(
       const backreferences: Backreference[] =
         currentRawLookaroundBackreferences ?? [];
       if (isOutermost) currentRawLookaroundBackreferences = backreferences;
-      process(true, declaresNamedGroup, caseInsensitive);
+      process(scope | WITHIN_LOOKAROUND);
       if (isOutermost) {
         (rawLookarounds ??= []).push({
           sourceStart: start,
@@ -122,8 +138,8 @@ export function walk(
                   ref,
                   start,
                   end: i,
-                  forward: !declaresGroupNamed(closedGroupNames, ref),
-                  caseInsensitive
+                  forward: !closedGroupNames?.has(decodeGroupName(ref)),
+                  caseInsensitive: (scope & CASE_INSENSITIVE) !== 0
                 };
                 result.push(namedBackreference);
                 currentRawLookaroundBackreferences?.push(namedBackreference);
@@ -135,17 +151,17 @@ export function walk(
                   ref: "",
                   start,
                   end: i,
-                  caseInsensitive
+                  caseInsensitive: (scope & CASE_INSENSITIVE) !== 0
                 });
               } else {
-                result.push(LITERAL_K_ATOM);
                 i += 2;
+                result.push(asOptionalAtom(LITERAL_K));
               }
               break;
             }
             case "u":
               featureMask |= FEATURE_BIT.unicodeEscapeSequence;
-              if (isUnicode && source[i + 2] === "{") {
+              if (scope & UNICODE && source[i + 2] === "{") {
                 appendOptional(source.indexOf("}", i) - i + 1);
               } else {
                 appendOptional(6);
@@ -153,7 +169,7 @@ export function walk(
               break;
             case "p":
             case "P":
-              if (isUnicode) {
+              if (scope & UNICODE) {
                 featureMask |= FEATURE_BIT.unicodePropertyEscape;
                 appendOptional(source.indexOf("}", i) - i + 1);
               } else {
@@ -181,7 +197,7 @@ export function walk(
               appendOptional(2);
               break;
             case "0":
-              if (isUnicode) {
+              if (scope & UNICODE) {
                 featureMask |= FEATURE_BIT.otherEscape;
                 appendOptional(2);
               } else {
@@ -227,7 +243,7 @@ export function walk(
                 previousSetOperatorCharacter = undefined;
                 continue;
               case "[":
-                if (regex.unicodeSets) {
+                if (scope & UNICODE_SETS) {
                   featureMask |= FEATURE_BIT.nestedCharacterClass;
                   depth++;
                 }
@@ -236,12 +252,12 @@ export function walk(
                 depth--;
                 break;
               case "&":
-                if (regex.unicodeSets && previousSetOperatorCharacter === "&") {
+                if (scope & UNICODE_SETS && previousSetOperatorCharacter === "&") {
                   featureMask |= FEATURE_BIT.classIntersection;
                 }
                 break;
               case "-":
-                if (regex.unicodeSets && previousSetOperatorCharacter === "-") {
+                if (scope & UNICODE_SETS && previousSetOperatorCharacter === "-") {
                   featureMask |= FEATURE_BIT.classSubtraction;
                 }
                 break;
@@ -254,7 +270,20 @@ export function walk(
         }
         case "^":
           featureMask |= FEATURE_BIT.startAnchor;
-          appendRaw(1);
+          i++;
+          if (scope & MULTILINE) {
+            lastGroupClose = appendMultilineCaret(
+              result,
+              lastGroupOpen,
+              lastGroupClose,
+              lastGroupScope,
+              lastGroupAlternates,
+              lookaheadSpans,
+              scope
+            );
+          } else {
+            result.push(START_ANCHOR);
+          }
           break;
         case "$":
           featureMask |= FEATURE_BIT.endAnchor;
@@ -262,6 +291,7 @@ export function walk(
           break;
         case "|":
           featureMask |= FEATURE_BIT.disjunction;
+          alternates = true;
           appendRaw(1);
           break;
         case "*":
@@ -284,28 +314,48 @@ export function walk(
         case "(":
           if (source[i + 1] == "?") {
             switch (source[i + 2]) {
-              case ":":
+              case ":": {
                 featureMask |= FEATURE_BIT.nonCapturingGroup;
-                result.push("(?:");
                 i += 3;
+                lastGroupOpen = result.length;
+                const body = process(scope);
+                lastGroupClose = lastGroupOpen + body.length + 1;
+                lastGroupScope = scope;
+                lastGroupAlternates = lastBodyAlternates;
                 result.push(
-                  ...process(
-                    withinLookaround,
-                    declaresNamedGroup,
-                    caseInsensitive
-                  ),
+                  OPTIONAL_ATOM_OPENING,
+                  ...body,
                   DISJUNCTION_TO_END_OF_INPUT
                 );
                 break;
-              case "=":
+              }
+              case "=": {
                 featureMask |= FEATURE_BIT.lookahead;
-                result.push("(?=");
                 i += 3;
-                result.push(
-                  ...process(true, declaresNamedGroup, caseInsensitive),
-                  ")"
-                );
+                const body = process(scope | WITHIN_LOOKAROUND);
+                if (
+                  scope & MULTILINE &&
+                  body[0] === START_ANCHOR &&
+                  !lastBodyAlternates &&
+                  !isQuantifierAhead(source, i)
+                ) {
+                  body.shift();
+                  lastGroupClose = appendMultilineCaret(
+                    result,
+                    lastGroupOpen,
+                    lastGroupClose,
+                    lastGroupScope,
+                    lastGroupAlternates,
+                    lookaheadSpans,
+                    scope
+                  );
+                }
+                const lookaheadOpen = result.length;
+                const lookaheadClose = lookaheadOpen + body.length + 1;
+                (lookaheadSpans ??= []).push([lookaheadOpen, lookaheadClose]);
+                result.push(LOOKAHEAD_OPENING, ...body, GROUP_CLOSING);
                 break;
+              }
               case "-":
               case "i":
               case "s":
@@ -313,27 +363,37 @@ export function walk(
                 const flagsStart = i + 2,
                   colonIndex = source.indexOf(":", flagsStart);
                 const modifiers = source.slice(flagsStart, colonIndex);
-                const [additions, removals] = modifiers.split("-") as [
-                  string,
-                  string | undefined
-                ];
-                featureMask |= removals
-                  ? FEATURE_BIT.modifierGroupWithRemoval
-                  : FEATURE_BIT.modifierGroup;
-                const modifierGroupCaseInsensitive = removals?.includes("i")
-                  ? false
-                  : caseInsensitive || additions.includes("i");
+                const removalIndex = modifiers.indexOf("-");
+                featureMask |=
+                  removalIndex === -1 || removalIndex === modifiers.length - 1
+                    ? FEATURE_BIT.modifierGroup
+                    : FEATURE_BIT.modifierGroupWithRemoval;
+                const modifierScope = scopeWithModifiers(scope, modifiers);
 
-                result.push("(?" + modifiers + ":");
                 i = colonIndex + 1;
-                result.push(
-                  ...process(
-                    withinLookaround,
-                    declaresNamedGroup,
-                    modifierGroupCaseInsensitive
-                  ),
-                  ")"
-                );
+                const body = process(modifierScope);
+                if (
+                  modifierScope & MULTILINE &&
+                  body[0] === START_ANCHOR &&
+                  !lastBodyAlternates &&
+                  !isQuantifierAhead(source, i)
+                ) {
+                  body.shift();
+                  lastGroupClose = appendMultilineCaret(
+                    result,
+                    lastGroupOpen,
+                    lastGroupClose,
+                    lastGroupScope,
+                    lastGroupAlternates,
+                    lookaheadSpans,
+                    scope
+                  );
+                }
+                lastGroupOpen = result.length;
+                lastGroupClose = lastGroupOpen + body.length + 1;
+                lastGroupScope = modifierScope;
+                lastGroupAlternates = lastBodyAlternates;
+                result.push("(?" + modifiers + ":", ...body, GROUP_CLOSING);
                 break;
               }
               case "!":
@@ -353,7 +413,7 @@ export function walk(
                   default: {
                     featureMask |= FEATURE_BIT.namedGroup;
                     featureMask |= FEATURE_BIT.capturingGroup;
-                    if (withinLookaround)
+                    if (scope & WITHIN_LOOKAROUND)
                       featureMask |= FEATURE_BIT.lookaroundCapture;
                     const groupNumber = ++groupCount;
                     const opening = extractSlice(
@@ -361,15 +421,12 @@ export function walk(
                     );
                     (namedGroupOpenings ??= []).push(opening);
                     const declaredName = decodeGroupName(groupNameOf(opening));
-                    result.push(opening);
-                    result.push(
-                      ...process(
-                        withinLookaround,
-                        declaresNamedGroup,
-                        caseInsensitive
-                      ),
-                      DISJUNCTION_TO_END_OF_INPUT
-                    );
+                    lastGroupOpen = result.length;
+                    const body = process(scope);
+                    lastGroupClose = lastGroupOpen + body.length + 1;
+                    lastGroupScope = scope;
+                    lastGroupAlternates = lastBodyAlternates;
+                    result.push(opening, ...body, DISJUNCTION_TO_END_OF_INPUT);
                     (closedGroupNumbers ??= new Set()).add(groupNumber);
                     (closedGroupNames ??= new Set()).add(declaredName);
                     break;
@@ -379,30 +436,35 @@ export function walk(
             }
           } else {
             featureMask |= FEATURE_BIT.capturingGroup;
-            if (withinLookaround) featureMask |= FEATURE_BIT.lookaroundCapture;
+            if (scope & WITHIN_LOOKAROUND)
+              featureMask |= FEATURE_BIT.lookaroundCapture;
             const groupNumber = ++groupCount;
-            appendRaw(1);
-            result.push(
-              ...process(withinLookaround, declaresNamedGroup, caseInsensitive),
-              DISJUNCTION_TO_END_OF_INPUT
-            );
+            const opening = extractSlice(1);
+            lastGroupOpen = result.length;
+            const body = process(scope);
+            lastGroupClose = lastGroupOpen + body.length + 1;
+            lastGroupScope = scope;
+            lastGroupAlternates = lastBodyAlternates;
+            result.push(opening, ...body, DISJUNCTION_TO_END_OF_INPUT);
             (closedGroupNumbers ??= new Set()).add(groupNumber);
           }
           break;
         case ")":
           ++i;
+          lastBodyAlternates = alternates;
           return result;
         default:
           featureMask |= FEATURE_BIT.patternCharacter;
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- i < source.length is the loop invariant, so codePointAt(i) is always defined
-          appendOptional(isUnicode && source.codePointAt(i)! > 0xffff ? 2 : 1);
+          appendOptional(scope & UNICODE && source.codePointAt(i)! > 0xffff ? 2 : 1);
           break;
       }
     }
+    lastBodyAlternates = alternates;
     return result;
   }
 
-  const parts = process(false, declaresNamedGroup, regex.flags.includes("i"));
+  const parts = process(scopeOf(regex));
 
   if (namedGroupOpenings && namedBackreferencesSeen) {
     const seenOnce = new Set<string>();
@@ -423,9 +485,8 @@ export function walk(
 
   return {
     parts,
-    groupCount,
     featureMask,
-    rawLookarounds: rawLookarounds ?? NO_RAW_LOOKAROUNDS,
-    namedGroupOpenings: namedGroupOpenings ?? NO_NAMED_GROUP_OPENINGS
+    rawLookarounds: rawLookarounds ?? [],
+    namedGroupOpenings: namedGroupOpenings ?? []
   };
 }

@@ -1,14 +1,14 @@
 import { expect } from "vitest";
 import type PartialMatchRegExp from "../src/partialMatchRegExp/index.ts";
-import isComplete from "../src/partialMatchRegExp/isComplete/index.ts";
+import hitEnd from "../src/partialMatchRegExp/hitEnd/index.ts";
 import type { ToMatchAtParams, ToMatchPartiallyParams, ToNotMatchPartiallyParams } from "./vitest.d.js";
 
-export function completenessOf(
+export function hitEndOf(
   regex: PartialMatchRegExp,
   input: string
 ): boolean | null {
   const match = regex.exec(input);
-  return match === null ? null : isComplete(regex, match);
+  return match === null ? null : hitEnd(regex, match);
 }
 
 expect.extend({

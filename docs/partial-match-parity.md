@@ -81,7 +81,7 @@ The JDK **does** support backreferences, and `RegExTest.java` includes `backRefT
 | `wordSearchTest` (lines 483–503) | `/\b/` on `"word1 word2 word3"` with progressive `find(pos)`   | `\bwor` with `g` flag and progressive `lastIndex` — finds matches at 0, 6, 12                |
 | `backRefTest` (~line 2520)       | `(a*)bc\1`, `(abc)(def)\1` — full match via `find()`           | JDK test is full-match only; this library additionally supports partial-matching these patterns — see [Backreferences caveat](../README.md#backreferences) |
 | `ciBackRefTest` (~line 2568)     | Same patterns with `(?i)` case-insensitive flag                | JDK test is full-match only; this library additionally supports partial-matching these patterns — see [Backreferences caveat](../README.md#backreferences) |
-| `Matcher.hitEnd()`               | Semantic: did the engine exhaust input?                        | `exec(input)[0] !== ""` — non-empty result means valid prefix                                |
+| `Matcher.hitEnd()`               | Semantic: did the engine read the end of the input?            | [`hitEnd(partial, match)`](../README.md#hitendpartial-partialmatchregexp-match-regexpexecarray-boolean) — same contract, approximated: conservative for a bounded greedy quantifier fully taken at the end — on a group, or an unequal-bound `{n,m}` directly on a single atom once saturated — and reports `false` after an actual end-read for the two [documented limits](../README.md#what-it-cannot-see) |
 | `Matcher.lookingAt()`            | Prefix match from start                                        | `exec` with `^` anchor                                                                       |
 | `Matcher.matches()`              | Full-string match                                              | `exec` with `^…$` anchors                                                                    |
 | `Matcher.find()`                 | Next substring match                                           | `exec` on a `g`-flagged regex, advancing `lastIndex`                                         |
@@ -102,6 +102,14 @@ The JDK **does** support backreferences, and `RegExTest.java` includes `backRefT
 | Deep nesting / stack safety              |           ✅           |          ✅           |                   ✅                    |                 ✅                 |             ✅             |
 | Anchored full match                      |           ✅           |          ✅           |                   ✅                    |          ✅ (`matches()`)          |         ✅ (`^…$`)         |
 | Unanchored substring match               |           ✅           |          ✅           |                   ✅                    |           ✅ (`find()`)            |       ✅ (no anchor)       |
-| hitEnd() / prefix-only match             |           —            |           —           | ✅ (`\=ps` / `\=ph` subject modifiers) |                 ✅                 | ✅ (non-empty exec result) |
+| hitEnd() / prefix-only match             |           —            |           —           | ✅ (`\=ps` / `\=ph` subject modifiers) |                 ✅                 |       ✅ (`hitEnd()`)       |
 | requireEnd()                             |           —            |           —           |                    —                    |                 ✅                 |       ⚠️ Not exposed       |
 | Backreference partial matching           | ❌ unsupported dialect | ❌ excluded by design |            ⚠️ Not a focus in testdata            | ⚠️ full match only (`backRefTest`) |             ✅             |
+
+### Where `hitEnd()` and the JDK differ
+
+`Matcher` resets `hitEnd` once per `search()` or `match()`, so the JDK's flag accumulates over every attempted start position and every backtracked path. This library reconstructs the answer afterwards from markers on the path the match actually took. The two agree far more often than that difference suggests, because the transform turns a path the engine *would* have backtracked away from into a truncation branch that wins outright, alternation being ordered: `/\w+z|x/` on `"x"`, `/ab|a/` on `"a"` and `/(?:abc|a)/` on `"a"` all report `true`.
+
+Adopting the JDK's accumulating flag would only add `true` answers, at the cost of the eager yielding the library exists to provide, and a native `RegExp` gives no way to observe an attempt it has already discarded.
+
+One genuine language difference is preserved rather than closed. The JDK's `Caret` refuses `^` at the end of input even after a line terminator, noting that Perl does the same; ECMAScript matches there, so `/a\n^/m` matches `"a\n"` and `hitEnd()` reports `false`, since no continuation changes it.

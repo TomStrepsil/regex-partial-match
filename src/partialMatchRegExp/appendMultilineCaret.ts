@@ -1,0 +1,201 @@
+import {
+  DISJUNCTION_TO_END_OF_INPUT,
+  END_ANCHOR,
+  GROUP_CLOSING,
+  ONLY_AT_END_OF_INPUT,
+  OPTIONAL_ATOM_OPENING,
+  UNSATISFIABLE,
+  asOptionalAtom,
+  caretFor,
+  isCaret,
+  isOptionalAtom,
+  isRawLookaround,
+  isWordBoundaryAtom
+} from "./atomSyntax.ts";
+import canMatchLineTerminator from "./lineTerminator.ts";
+import { isBackreference, type Part } from "./part.ts";
+import { isQuantifier, minimumOf, quantifierEndingAt } from "./quantifier.ts";
+
+export type LookaheadSpan = [open: number, close: number];
+
+const CANNOT_END_LINE = -2;
+const NO_LOOKAHEAD = -1;
+
+const isTransparentToCaret = (part: Part) =>
+  typeof part === "string" &&
+  (part === END_ANCHOR ||
+    isWordBoundaryAtom(part) ||
+    isCaret(part) ||
+    isRawLookaround(part));
+
+function lookaheadOpeningClosedAt(
+  lookaheadSpans: LookaheadSpan[],
+  index: number
+) {
+  for (const span of lookaheadSpans) {
+    if (span[1] === index) return span[0];
+  }
+  return NO_LOOKAHEAD;
+}
+
+function partDecidingCaret(
+  result: Part[],
+  index: number,
+  floor: number,
+  scope: number,
+  lookaheadSpans: LookaheadSpan[] | undefined
+): number {
+  while (index > floor) {
+    const part = result[index];
+    if (lookaheadSpans !== undefined) {
+      const lookaheadOpening = lookaheadOpeningClosedAt(lookaheadSpans, index);
+      if (lookaheadOpening !== NO_LOOKAHEAD) {
+        index = lookaheadOpening - 1;
+        continue;
+      }
+    }
+    if (isTransparentToCaret(part)) {
+      index--;
+      continue;
+    }
+    if (isOptionalAtom(part)) {
+      return canMatchLineTerminator(part, scope) ? index : CANNOT_END_LINE;
+    }
+    if (!isQuantifier(part)) return index;
+    const quantifierIndex = quantifierEndingAt(result, index);
+    const atom = result[quantifierIndex - 1];
+    if (!isOptionalAtom(atom) || canMatchLineTerminator(atom, scope)) {
+      return index;
+    }
+    if (minimumOf(result[quantifierIndex] as string) > 0) {
+      return CANNOT_END_LINE;
+    }
+    result[quantifierIndex - 1] = ONLY_AT_END_OF_INPUT;
+    index = quantifierIndex - 2;
+  }
+  return floor;
+}
+
+function shiftSpans(
+  lookaheadSpans: LookaheadSpan[] | undefined,
+  after: number,
+  by: number
+) {
+  if (!lookaheadSpans) return;
+  for (const span of lookaheadSpans) {
+    if (span[0] > after) {
+      span[0] += by;
+      span[1] += by;
+    }
+  }
+}
+
+function wrapGroup(
+  result: Part[],
+  open: number,
+  close: number,
+  scope: number,
+  lookaheadSpans: LookaheadSpan[] | undefined
+) {
+  result.splice(open + 1, 0, OPTIONAL_ATOM_OPENING);
+  result.splice(
+    close + 1,
+    1,
+    GROUP_CLOSING + caretFor(scope),
+    DISJUNCTION_TO_END_OF_INPUT
+  );
+  shiftSpans(lookaheadSpans, close, 2);
+  return close + 2;
+}
+
+function appendMultilineCaret(
+  result: Part[],
+  lastGroupOpen: number,
+  lastGroupClose: number,
+  lastGroupScope: number,
+  lastGroupAlternates: boolean,
+  lookaheadSpans: LookaheadSpan[] | undefined,
+  scope: number
+): number {
+  const caret = caretFor(scope);
+  let lookedThroughGroup = false;
+  let anchor = partDecidingCaret(
+    result,
+    result.length - 1,
+    -1,
+    scope,
+    lookaheadSpans
+  );
+  if (anchor >= 0 && anchor === lastGroupClose) {
+    const bodyAnchor = lastGroupAlternates
+      ? anchor
+      : partDecidingCaret(
+          result,
+          anchor - 1,
+          lastGroupOpen,
+          lastGroupScope,
+          undefined
+        );
+    if (bodyAnchor === CANNOT_END_LINE) {
+      anchor = CANNOT_END_LINE;
+    } else if (bodyAnchor === lastGroupOpen) {
+      lookedThroughGroup = true;
+      anchor = partDecidingCaret(
+        result,
+        lastGroupOpen - 1,
+        -1,
+        scope,
+        lookaheadSpans
+      );
+    } else {
+      return wrapGroup(
+        result,
+        lastGroupOpen,
+        lastGroupClose,
+        lastGroupScope,
+        lookaheadSpans
+      );
+    }
+  }
+  if (anchor === CANNOT_END_LINE) {
+    result.push(UNSATISFIABLE);
+    return lastGroupClose;
+  }
+  if (anchor < 0) {
+    result.push(caret);
+    return lastGroupClose;
+  }
+  const previous = result[anchor];
+  if (isOptionalAtom(previous)) {
+    result[anchor] =
+      previous.slice(0, -DISJUNCTION_TO_END_OF_INPUT.length) +
+      caret +
+      DISJUNCTION_TO_END_OF_INPUT;
+    return lastGroupClose;
+  }
+  const positionUncertain =
+    isBackreference(previous) || isQuantifier(previous);
+  if (
+    lookedThroughGroup &&
+    (positionUncertain ||
+      previous === DISJUNCTION_TO_END_OF_INPUT ||
+      previous === GROUP_CLOSING)
+  ) {
+    return wrapGroup(
+      result,
+      lastGroupOpen,
+      lastGroupClose,
+      lastGroupScope,
+      lookaheadSpans
+    );
+  }
+  if (positionUncertain) {
+    result.splice(anchor + 1, 0, asOptionalAtom(caret));
+    shiftSpans(lookaheadSpans, anchor, 1);
+  } else {
+    result.push(caret);
+  }
+  return lastGroupClose;
+}
+
+export default appendMultilineCaret;

@@ -1,39 +1,58 @@
 import escapeAtom from "../escapeAtom.ts";
 import { walk } from "../walk.ts";
-import { OPTIONAL_ATOM_OPENING } from "../atomSyntax.ts";
+import {
+  FLAGS_IRRELEVANT_TO_REBUILD,
+  MAYBE_HAS_BACKREFERENCE_REGEX,
+  UNCONSTRAINED_GROUP_SHAPE,
+  ALTERNATION
+} from "./constants.ts";
+import {
+  GROUP_CLOSING,
+  ONLY_AT_END_OF_INPUT,
+  OPTIONAL_ATOM_OPENING,
+  asOptionalAtom
+} from "../atomSyntax.ts";
 import { isBackreference, type Part } from "../part.ts";
-import { hasFeature } from "../regexFeatures.ts";
-import asOptionalAtom from "./asOptionalAtom.ts";
 import asPreScanPart from "./asPreScanPart.ts";
 import resolvedFromScan from "./resolvedFromScan.ts";
 import startsWithUnderFlags from "./startsWithUnderFlags.ts";
 import longestBakedPrefixEndingInput from "./longestBakedPrefixEndingInput.ts";
 import flagsAtBackreference from "./flagsAtBackreference.ts";
-import reclassifyLegacyEscapes from "./reclassifyLegacyEscapes.ts";
-import spliceOriginalSource from "./spliceOriginalSource.ts";
 import toStatic from "./toStatic.ts";
 import { CompiledDynamic, type CompiledPartial } from "./compiled.ts";
 
-const MAYBE_HAS_BACKREFERENCE_REGEX = /\\[0-9]|\\k</;
-const NEVER = "(?!)";
-const GROUP_CLOSING = ")";
-const ALTERNATION = "|";
-
-const ONLY_AT_END_OF_INPUT = asOptionalAtom(NEVER);
+function groupShape(regex: RegExp) {
+  const emptyMatch = new RegExp(
+    "|" + regex.source,
+    regex.flags.replace(FLAGS_IRRELEVANT_TO_REBUILD, "")
+  ).exec("");
+  return {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- match must succeed, since pattern starts with empty alternative
+    groupLimit: emptyMatch!.length - 1,
+    declaresNamedGroup: emptyMatch?.groups !== undefined
+  };
+}
 
 export default function compilePartial(regex: RegExp): CompiledPartial {
   const flags = regex.flags;
-  let walked = walk(regex, true);
-  if (
-    hasFeature(walked.featureMask, "namedBackreference") &&
-    !hasFeature(walked.featureMask, "namedGroup")
-  ) {
-    walked = walk(regex, false);
-  }
-  const { parts, groupCount, featureMask, rawLookarounds, namedGroupOpenings } =
-    walked;
+  const isUnicode = regex.unicode || regex.unicodeSets;
+  const maybeHasBackreference = MAYBE_HAS_BACKREFERENCE_REGEX.test(
+    regex.source
+  );
+  const { groupLimit, declaresNamedGroup } =
+    maybeHasBackreference && !isUnicode
+      ? groupShape(regex)
+      : UNCONSTRAINED_GROUP_SHAPE;
+  const { parts, featureMask, rawLookarounds, namedGroupOpenings } = walk(
+    regex,
+    declaresNamedGroup,
+    groupLimit
+  );
 
-  if (!MAYBE_HAS_BACKREFERENCE_REGEX.test(regex.source)) {
+  const backreferences = maybeHasBackreference
+    ? parts.filter(isBackreference)
+    : [];
+  if (backreferences.length === 0) {
     return toStatic(
       parts as string[],
       flags,
@@ -43,31 +62,9 @@ export default function compilePartial(regex: RegExp): CompiledPartial {
     );
   }
 
-  const isUnicode = regex.unicode || regex.unicodeSets;
-  const sanitisedParts = isUnicode
-    ? parts
-    : reclassifyLegacyEscapes(parts, regex.source, groupCount);
-  const backreferences = sanitisedParts.filter(isBackreference);
-  if (backreferences.length === 0) {
-    return toStatic(
-      sanitisedParts as string[],
-      flags,
-      rawLookarounds,
-      namedGroupOpenings,
-      featureMask
-    );
-  }
-
   return new CompiledDynamic(
     {
-      originalCaptureScan: new RegExp(
-        spliceOriginalSource(regex.source, backreferences),
-        flags
-      ),
-      preScan: new RegExp(
-        sanitisedParts.map(asPreScanPart).join(""),
-        flags
-      ),
+      preScan: new RegExp(parts.map(asPreScanPart).join(""), flags),
       expansionFitsCaptures: (expandedFrom, match, input) => {
         for (const backref of backreferences) {
           const baked = resolvedFromScan(backref, expandedFrom);
@@ -86,7 +83,7 @@ export default function compilePartial(regex: RegExp): CompiledPartial {
       },
       expand: (capture) => {
         const expanded: Part[] = [];
-        for (const part of sanitisedParts) {
+        for (const part of parts) {
           if (!isBackreference(part)) {
             expanded.push(part);
             continue;
@@ -106,6 +103,7 @@ export default function compilePartial(regex: RegExp): CompiledPartial {
         return expanded;
       }
     },
+    parts,
     rawLookarounds,
     namedGroupOpenings,
     featureMask

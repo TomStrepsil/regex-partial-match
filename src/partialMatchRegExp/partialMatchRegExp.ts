@@ -9,8 +9,7 @@ import {
   compiledPartial,
   truncationProbeCache
 } from "./partialMatchInternals.ts";
-import type { TruncationProbeCache } from "./isComplete/truncationProbeCache.ts";
-import { preferLongerCaptures } from "./preferLongerCaptures.ts";
+import type { TruncationProbeCache } from "./hitEnd/truncationProbeCache.ts";
 import type { RegexFeature } from "./regexFeatures.ts";
 
 export type { RegexFeature };
@@ -48,7 +47,11 @@ class PartialMatchRegExp extends RegExp {
   constructor(pattern: RegExp | string, flags?: string) {
     super(pattern, flags);
     this[compiledPartial] = compilePartial(this);
-    this[truncationProbeCache] = { probe: undefined };
+    this[truncationProbeCache] = {
+      probe: undefined,
+      stickyPreScan: undefined,
+      expansion: undefined
+    };
   }
 
   /**
@@ -85,8 +88,7 @@ class PartialMatchRegExp extends RegExp {
     dynamic: DynamicPath,
     input: string
   ): RegExpExecArray | null {
-    const { originalCaptureScan, preScan, expand, expansionFitsCaptures } =
-      dynamic;
+    const { preScan, expand, expansionFitsCaptures } = dynamic;
 
     const honoursLastIndex = this.global || this.sticky;
     const start = honoursLastIndex ? this.lastIndex : 0;
@@ -102,22 +104,20 @@ class PartialMatchRegExp extends RegExp {
       if (noEarlierPartialPossible) return originalMatch;
     }
 
-    const capture =
-      execFrom(originalCaptureScan, input, start) ??
-      preScanMatch ??
-      execFrom(preScan, input, start);
+    const capture = preScanMatch ?? execFrom(preScan, input, start);
     if (capture === null) return originalMatch;
 
+    const scanningFlags = honoursLastIndex ? this.flags : this.flags + "g";
     let expandedFrom = capture;
     let expandedParts = expand(expandedFrom);
-    let expanded = new RegExp(renderParts(expandedParts), this.flags);
+    let expanded = new RegExp(renderParts(expandedParts), scanningFlags);
     let match = execFrom(expanded, input, start);
 
     if (match !== null && !expansionFitsCaptures(expandedFrom, match, input)) {
       expandedFrom = match;
       expandedParts = expand(expandedFrom);
-      expanded = new RegExp(renderParts(expandedParts), this.flags);
-      match = execFrom(expanded, input, start);
+      expanded = new RegExp(renderParts(expandedParts), scanningFlags);
+      match = execFrom(expanded, input, expandedFrom.index);
       if (match !== null && !expansionFitsCaptures(expandedFrom, match, input))
         match = null;
     }
@@ -125,12 +125,8 @@ class PartialMatchRegExp extends RegExp {
     if (match === null || isAtOrBefore(originalMatch, match.index))
       return originalMatch;
 
-    preferLongerCaptures(match, capture);
     if (honoursLastIndex) this.lastIndex = expanded.lastIndex;
-    (match as ExpandedMatch)[backreferenceExpansion] = {
-      parts: expandedParts,
-      probe: undefined
-    };
+    (match as ExpandedMatch)[backreferenceExpansion] = expandedParts;
     return match;
   }
 }

@@ -19,7 +19,7 @@ import "./hot-loop.bench.ts";
 import "./keystroke.bench.ts";
 import "./backref-slow-path.bench.ts";
 import "./construction-cost.bench.ts";
-import "./is-complete.bench.ts";
+import "./hit-end.bench.ts";
 import "./feature-cost.bench.ts";
 import { run } from "mitata";
 
