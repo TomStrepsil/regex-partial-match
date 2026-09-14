@@ -478,7 +478,7 @@ Available as a named export of the default entry point: `import { hitEnd } from 
 **Returns:**
 
 - `true` when the match read the end of the input: an atom ran out of input and took one of the `|$(?![\s\S])` branches described in [How It Works](#how-it-works); a greedy quantifier stopped at the end because there was nothing left to read; or `$`, `\b` or `\B` held there. More input could extend the match, change which alternative wins, or invalidate it, and its captures are the closest available rather than final — see [Captures on a partial match](#captures-on-a-partial-match).
-- `false` when every atom matched literally and nothing read past the last character consumed. No continuation of the input changes the match's index or text, and the captures are the ones the original pattern produces.
+- `false` when every atom matched literally and nothing read past the last character consumed. No continuation of the input changes the match's index or text, and the captures are the ones the original pattern produces — except the two cases in [What it cannot see](#what-it-cannot-see) below, where a read of the end leaves no marker and `false` is reported despite it.
 
 ```javascript
 import PartialMatchRegExp, { hitEnd } from "regex-partial-match";
@@ -495,7 +495,7 @@ hitEnd(greedy, greedy.exec("hello world")); // true  — \w+ read the end lookin
 ```
 
 > [!NOTE]
-> Where the JDK is exact, `hitEnd()` is conservative in one place: a bounded greedy quantifier (`?`, `{n,m}`) on a *group* that was fully taken at the end of the input reports `true`, although the engine attempted no further read there — `/(ab)?/` on `"ab"` is `true` here and `false` in Java. It is never wrong in the other direction.
+> Where the JDK is exact, `hitEnd()` is conservative in one place: a bounded greedy quantifier (`?`, `{n,m}`) on a *group* that was fully taken at the end of the input reports `true`, although the engine attempted no further read there — `/(ab)?/` on `"ab"` is `true` here and `false` in Java. Outside the two limits in [What it cannot see](#what-it-cannot-see), it is never wrong in the other direction.
 
 #### Why the question can't be answered from the outside
 

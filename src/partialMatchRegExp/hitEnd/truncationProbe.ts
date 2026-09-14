@@ -27,7 +27,7 @@ export interface TruncationProbe {
 const TRUNCATION_MARKER_NAME = "truncation";
 const END_OF_INPUT = DISJUNCTION_TO_END_OF_INPUT.slice(1, -1);
 const OPTIONAL_QUANTIFIER = "?";
-const EXACT_QUANTIFIER = /^\{\d+\}$/;
+const EXACT_QUANTIFIER = /^\{(?:0*([1-9]\d*|0),0*\1|\d+)\}$/;
 
 const MARKING = {
   none: 0,

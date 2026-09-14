@@ -1968,6 +1968,13 @@ c`)
           }
         );
 
+        it("treats a v-mode class string as able to end a line, since it can consume more than one character", () => {
+          expect(new PartialMatchRegExp(/[\q{a\n}]^x/mv).exec("a\n")).toMatchAt({
+            match: "a\n",
+            index: 0
+          });
+        });
+
         describe("captures on a partial match are the closest to what a full match reports", () => {
           it("keeps the captures of a group whose body the caret is folded into", () => {
             const capturing = new PartialMatchRegExp(/(-|\n)^/m);

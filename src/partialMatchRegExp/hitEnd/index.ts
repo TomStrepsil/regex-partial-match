@@ -11,13 +11,15 @@ import matchHitEnd from "./matchHitEnd.ts";
  *
  * The contract is that of the JDK's `Matcher.hitEnd()`: when this returns
  * `false`, no continuation of the input changes the match's index or text,
- * and its captures are the ones the original pattern produces. `true` means
- * the match read the end of the input — an atom ran out of input and took a
+ * and its captures are the ones the original pattern produces, except for
+ * the two limits noted under `@remarks` below, where a read of the end
+ * leaves no marker and `false` is reported despite it. `true` means the
+ * match read the end of the input — an atom ran out of input and took a
  * `|$(?![\s\S])` truncation branch, a greedy quantifier stopped there with
- * nothing left to read, or `$`, `\b` or `\B` held there — so more input could
- * extend it, change which alternative wins, or invalidate it, and its
- * captures are the closest to what a full match would report rather than
- * final.
+ * nothing left to read, or `$`, `\b` or `\B` held there — so more input
+ * could extend it, change which alternative wins, or invalidate it, and
+ * its captures are the closest to what a full match would report rather
+ * than final.
  *
  * `false` is not "is a match": `/hello \w+/` matches `"hello world"` in full
  * and still reports `true`, since `\w+` read the end looking for more. An

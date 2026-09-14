@@ -51,6 +51,15 @@ describe("hitEnd()", () => {
       expect(hitEndOf(new PartialMatchRegExp(/^\d{4}-\d{2}/), "2024-06")).toBe(false);
       expect(hitEndOf(new PartialMatchRegExp(/az/), "az")).toBe(false);
     });
+
+    it("treats an equal-bound {n,n} quantifier as the exact-length {n} it's equivalent to, leading zeros included", () => {
+      expect(hitEndOf(new PartialMatchRegExp(/^a{2,2}/), "aa")).toBe(false);
+      expect(hitEndOf(new PartialMatchRegExp(/^a{02,2}/), "aa")).toBe(false);
+    });
+
+    it("still reports a saturated but unequal-bound {n,m} quantifier on an atom as conservative, matching the group case", () => {
+      expect(hitEndOf(new PartialMatchRegExp(/^a{1,2}/), "aa")).toBe(true);
+    });
   });
 
   describe("cases the position of the match alone cannot answer", () => {

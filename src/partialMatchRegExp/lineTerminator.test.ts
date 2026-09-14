@@ -52,4 +52,16 @@ describe("canMatchLineTerminator", () => {
       expect(canMatchLineTerminator(asOptionalAtom(text), scope)).toBe(expected);
     }
   );
+
+  it("conservatively treats a v-mode class string as able to end a line, since it can consume more than one character", () => {
+    expect(
+      canMatchLineTerminator(asOptionalAtom("[\\q{a\\n}]"), UNICODE | UNICODE_SETS)
+    ).toBe(true);
+  });
+
+  it("does not mistake \\q{ for a class string outside v mode, where it has no special meaning", () => {
+    expect(
+      canMatchLineTerminator(asOptionalAtom("[\\q{2}]"), 0)
+    ).toBe(false);
+  });
 });
