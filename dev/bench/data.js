@@ -4595,84 +4595,84 @@ window.BENCHMARK_DATA = {
             "extra": "min: 11354.83ns  p75: 12281.33ns  p99: 12479.04ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — construct + exec (baseline, never asks)",
+            "name": "hitEnd — static path (ISO date) — construct + exec (baseline, never asks)",
             "value": 4556.2,
             "range": "± 98.79",
             "unit": "ns/iter",
             "extra": "min: 4439.63ns  p75: 4650.61ns  p99: 4739.47ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — construct + exec + isComplete (includes probe build)",
+            "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (includes probe build)",
             "value": 9578.73,
             "range": "± 130.00",
             "unit": "ns/iter",
             "extra": "min: 8563.00ns  p75: 9123.00ns  p99: 20100.00ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — construct + exec + isComplete (complete, includes probe build)",
+            "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (complete, includes probe build)",
             "value": 9018.64,
             "range": "± 23.05",
             "unit": "ns/iter",
             "extra": "min: 8943.48ns  p75: 9021.66ns  p99: 9084.58ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — isComplete — incomplete match, warm probe",
+            "name": "hitEnd — static path (ISO date) — hitEnd — incomplete match, warm probe",
             "value": 676.95,
             "range": "± 2.30",
             "unit": "ns/iter",
             "extra": "min: 665.98ns  p75: 674.68ns  p99: 726.04ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — isComplete — complete match, warm probe",
+            "name": "hitEnd — static path (ISO date) — hitEnd — complete match, warm probe",
             "value": 737.07,
             "range": "± 2.74",
             "unit": "ns/iter",
             "extra": "min: 721.79ns  p75: 731.32ns  p99: 858.55ns"
           },
           {
-            "name": "isComplete — backreference path (repeated word) — construct + exec (baseline, never asks)",
+            "name": "hitEnd — backreference path (repeated word) — construct + exec (baseline, never asks)",
             "value": 10042.26,
             "range": "± 781.61",
             "unit": "ns/iter",
             "extra": "min: 9040.88ns  p75: 10730.39ns  p99: 10991.06ns"
           },
           {
-            "name": "isComplete — backreference path (repeated word) — construct + exec + isComplete (includes probe build)",
+            "name": "hitEnd — backreference path (repeated word) — construct + exec + hitEnd (includes probe build)",
             "value": 15567.82,
             "range": "± 225.50",
             "unit": "ns/iter",
             "extra": "min: 13560.00ns  p75: 14422.00ns  p99: 27501.00ns"
           },
           {
-            "name": "isComplete — backreference path (repeated word) — isComplete — same match, expansion probe cached",
+            "name": "hitEnd — backreference path (repeated word) — hitEnd — same match, expansion probe cached",
             "value": 811.24,
             "range": "± 2.78",
             "unit": "ns/iter",
             "extra": "min: 799.56ns  p75: 808.85ns  p99: 863.31ns"
           },
           {
-            "name": "isComplete — backreference path (repeated word) — exec + isComplete — fresh match, probe rebuilt per match",
+            "name": "hitEnd — backreference path (repeated word) — exec + hitEnd — fresh match, alternating capture, probe rebuilt per match",
             "value": 6883.49,
             "range": "± 411.80",
             "unit": "ns/iter",
             "extra": "min: 6508.17ns  p75: 7391.05ns  p99: 7547.89ns"
           },
           {
-            "name": "isComplete — raw lookaround backreference renumbering — construct + exec (baseline, never asks)",
+            "name": "hitEnd — raw lookaround backreference renumbering — construct + exec (baseline, never asks)",
             "value": 10657.05,
             "range": "± 173.52",
             "unit": "ns/iter",
             "extra": "min: 10290.84ns  p75: 10782.46ns  p99: 10824.54ns"
           },
           {
-            "name": "isComplete — raw lookaround backreference renumbering — construct + exec + isComplete (includes probe build)",
+            "name": "hitEnd — raw lookaround backreference renumbering — construct + exec + hitEnd (includes probe build)",
             "value": 15782.54,
             "range": "± 400.97",
             "unit": "ns/iter",
             "extra": "min: 14577.33ns  p75: 15755.58ns  p99: 16554.80ns"
           },
           {
-            "name": "isComplete — raw lookaround backreference renumbering — isComplete — warm instance",
+            "name": "hitEnd — raw lookaround backreference renumbering — hitEnd — warm instance",
             "value": 819.42,
             "range": "± 2.95",
             "unit": "ns/iter",
@@ -5165,84 +5165,84 @@ window.BENCHMARK_DATA = {
             "extra": "min: 11406.67ns  p75: 12476.17ns  p99: 12534.93ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — construct + exec (baseline, never asks)",
+            "name": "hitEnd — static path (ISO date) — construct + exec (baseline, never asks)",
             "value": 4636.19,
             "range": "± 156.3",
             "unit": "ns/iter",
             "extra": "min: 4408.04ns  p75: 4743.14ns  p99: 5345.76ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — construct + exec + isComplete (includes probe build)",
+            "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (includes probe build)",
             "value": 10348.45,
             "range": "± 115.5",
             "unit": "ns/iter",
             "extra": "min: 8907.00ns  p75: 9378.00ns  p99: 27562.00ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — construct + exec + isComplete (complete, includes probe build)",
+            "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (complete, includes probe build)",
             "value": 9369.01,
             "range": "± 32.91",
             "unit": "ns/iter",
             "extra": "min: 9273.76ns  p75: 9390.69ns  p99: 9427.06ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — isComplete — incomplete match, warm probe",
+            "name": "hitEnd — static path (ISO date) — hitEnd — incomplete match, warm probe",
             "value": 723.63,
             "range": "± 3.57",
             "unit": "ns/iter",
             "extra": "min: 709.90ns  p75: 722.51ns  p99: 774.91ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — isComplete — complete match, warm probe",
+            "name": "hitEnd — static path (ISO date) — hitEnd — complete match, warm probe",
             "value": 781.33,
             "range": "± 2.25",
             "unit": "ns/iter",
             "extra": "min: 769.48ns  p75: 780.57ns  p99: 831.18ns"
           },
           {
-            "name": "isComplete — backreference path (repeated word) — construct + exec (baseline, never asks)",
+            "name": "hitEnd — backreference path (repeated word) — construct + exec (baseline, never asks)",
             "value": 10486.92,
             "range": "± 689.34",
             "unit": "ns/iter",
             "extra": "min: 9327.28ns  p75: 11085.85ns  p99: 11094.64ns"
           },
           {
-            "name": "isComplete — backreference path (repeated word) — construct + exec + isComplete (includes probe build)",
+            "name": "hitEnd — backreference path (repeated word) — construct + exec + hitEnd (includes probe build)",
             "value": 17107.44,
             "range": "± 315.5",
             "unit": "ns/iter",
             "extra": "min: 14436.00ns  p75: 15449.00ns  p99: 39013.00ns"
           },
           {
-            "name": "isComplete — backreference path (repeated word) — isComplete — same match, expansion probe cached",
+            "name": "hitEnd — backreference path (repeated word) — hitEnd — same match, expansion probe cached",
             "value": 903.6,
             "range": "± 4.02",
             "unit": "ns/iter",
             "extra": "min: 885.56ns  p75: 899.45ns  p99: 1002.24ns"
           },
           {
-            "name": "isComplete — backreference path (repeated word) — exec + isComplete — fresh match, probe rebuilt per match",
+            "name": "hitEnd — backreference path (repeated word) — exec + hitEnd — fresh match, alternating capture, probe rebuilt per match",
             "value": 7026.73,
             "range": "± 526.53",
             "unit": "ns/iter",
             "extra": "min: 6617.99ns  p75: 7694.61ns  p99: 7754.35ns"
           },
           {
-            "name": "isComplete — raw lookaround backreference renumbering — construct + exec (baseline, never asks)",
+            "name": "hitEnd — raw lookaround backreference renumbering — construct + exec (baseline, never asks)",
             "value": 10767.15,
             "range": "± 190.25",
             "unit": "ns/iter",
             "extra": "min: 10050.29ns  p75: 10939.02ns  p99: 10984.13ns"
           },
           {
-            "name": "isComplete — raw lookaround backreference renumbering — construct + exec + isComplete (includes probe build)",
+            "name": "hitEnd — raw lookaround backreference renumbering — construct + exec + hitEnd (includes probe build)",
             "value": 16978.71,
             "range": "± 200.5",
             "unit": "ns/iter",
             "extra": "min: 14837.00ns  p75: 15559.00ns  p99: 39143.00ns"
           },
           {
-            "name": "isComplete — raw lookaround backreference renumbering — isComplete — warm instance",
+            "name": "hitEnd — raw lookaround backreference renumbering — hitEnd — warm instance",
             "value": 882.94,
             "range": "± 3.25",
             "unit": "ns/iter",
@@ -5735,84 +5735,84 @@ window.BENCHMARK_DATA = {
             "extra": "min: 9243.68ns  p75: 10263.09ns  p99: 10454.58ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — construct + exec (baseline, never asks)",
+            "name": "hitEnd — static path (ISO date) — construct + exec (baseline, never asks)",
             "value": 3867.92,
             "range": "± 114.56",
             "unit": "ns/iter",
             "extra": "min: 3666.60ns  p75: 3956.30ns  p99: 4365.07ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — construct + exec + isComplete (includes probe build)",
+            "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (includes probe build)",
             "value": 7978.08,
             "range": "± 370.5",
             "unit": "ns/iter",
             "extra": "min: 6763.00ns  p75: 7859.00ns  p99: 15398.00ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — construct + exec + isComplete (complete, includes probe build)",
+            "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (complete, includes probe build)",
             "value": 7641.47,
             "range": "± 101.69",
             "unit": "ns/iter",
             "extra": "min: 7375.03ns  p75: 7717.02ns  p99: 7876.08ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — isComplete — incomplete match, warm probe",
+            "name": "hitEnd — static path (ISO date) — hitEnd — incomplete match, warm probe",
             "value": 562.48,
             "range": "± 10.98",
             "unit": "ns/iter",
             "extra": "min: 532.06ns  p75: 569.18ns  p99: 645.04ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — isComplete — complete match, warm probe",
+            "name": "hitEnd — static path (ISO date) — hitEnd — complete match, warm probe",
             "value": 638.9,
             "range": "± 22.76",
             "unit": "ns/iter",
             "extra": "min: 595.93ns  p75: 664.98ns  p99: 726.59ns"
           },
           {
-            "name": "isComplete — backreference path (repeated word) — construct + exec (baseline, never asks)",
+            "name": "hitEnd — backreference path (repeated word) — construct + exec (baseline, never asks)",
             "value": 8448.69,
             "range": "± 772.82",
             "unit": "ns/iter",
             "extra": "min: 7431.07ns  p75: 9120.65ns  p99: 9292.04ns"
           },
           {
-            "name": "isComplete — backreference path (repeated word) — construct + exec + isComplete (includes probe build)",
+            "name": "hitEnd — backreference path (repeated word) — construct + exec + hitEnd (includes probe build)",
             "value": 13319.96,
             "range": "± 616.5",
             "unit": "ns/iter",
             "extra": "min: 10834.00ns  p75: 12583.00ns  p99: 26502.00ns"
           },
           {
-            "name": "isComplete — backreference path (repeated word) — isComplete — same match, expansion probe cached",
+            "name": "hitEnd — backreference path (repeated word) — hitEnd — same match, expansion probe cached",
             "value": 692.23,
             "range": "± 22.21",
             "unit": "ns/iter",
             "extra": "min: 648.42ns  p75: 715.69ns  p99: 768.76ns"
           },
           {
-            "name": "isComplete — backreference path (repeated word) — exec + isComplete — fresh match, probe rebuilt per match",
+            "name": "hitEnd — backreference path (repeated word) — exec + hitEnd — fresh match, alternating capture, probe rebuilt per match",
             "value": 5932.15,
             "range": "± 471.5",
             "unit": "ns/iter",
             "extra": "min: 5390.19ns  p75: 6439.92ns  p99: 6836.06ns"
           },
           {
-            "name": "isComplete — raw lookaround backreference renumbering — construct + exec (baseline, never asks)",
+            "name": "hitEnd — raw lookaround backreference renumbering — construct + exec (baseline, never asks)",
             "value": 8559.1,
             "range": "± 343.98",
             "unit": "ns/iter",
             "extra": "min: 7974.29ns  p75: 8853.31ns  p99: 8919.85ns"
           },
           {
-            "name": "isComplete — raw lookaround backreference renumbering — construct + exec + isComplete (includes probe build)",
+            "name": "hitEnd — raw lookaround backreference renumbering — construct + exec + hitEnd (includes probe build)",
             "value": 12706.63,
             "range": "± 157.19",
             "unit": "ns/iter",
             "extra": "min: 12347.83ns  p75: 12762.32ns  p99: 13229.04ns"
           },
           {
-            "name": "isComplete — raw lookaround backreference renumbering — isComplete — warm instance",
+            "name": "hitEnd — raw lookaround backreference renumbering — hitEnd — warm instance",
             "value": 692.49,
             "range": "± 9.66",
             "unit": "ns/iter",
@@ -6305,84 +6305,84 @@ window.BENCHMARK_DATA = {
             "extra": "min: 9536.02ns  p75: 10529.96ns  p99: 10833.92ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — construct + exec (baseline, never asks)",
+            "name": "hitEnd — static path (ISO date) — construct + exec (baseline, never asks)",
             "value": 3743.58,
             "range": "± 128.69",
             "unit": "ns/iter",
             "extra": "min: 3518.82ns  p75: 3806.19ns  p99: 4093.06ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — construct + exec + isComplete (includes probe build)",
+            "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (includes probe build)",
             "value": 7957.22,
             "range": "± 534",
             "unit": "ns/iter",
             "extra": "min: 6891.00ns  p75: 8210.00ns  p99: 14337.00ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — construct + exec + isComplete (complete, includes probe build)",
+            "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (complete, includes probe build)",
             "value": 8000.23,
             "range": "± 168.36",
             "unit": "ns/iter",
             "extra": "min: 7377.05ns  p75: 8139.17ns  p99: 8470.86ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — isComplete — incomplete match, warm probe",
+            "name": "hitEnd — static path (ISO date) — hitEnd — incomplete match, warm probe",
             "value": 555.16,
             "range": "± 22.88",
             "unit": "ns/iter",
             "extra": "min: 519.99ns  p75: 572.18ns  p99: 670.46ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — isComplete — complete match, warm probe",
+            "name": "hitEnd — static path (ISO date) — hitEnd — complete match, warm probe",
             "value": 595.83,
             "range": "± 16.52",
             "unit": "ns/iter",
             "extra": "min: 565.01ns  p75: 603.19ns  p99: 703.88ns"
           },
           {
-            "name": "isComplete — backreference path (repeated word) — construct + exec (baseline, never asks)",
+            "name": "hitEnd — backreference path (repeated word) — construct + exec (baseline, never asks)",
             "value": 8366.42,
             "range": "± 267.2",
             "unit": "ns/iter",
             "extra": "min: 7213.29ns  p75: 8695.03ns  p99: 9375.45ns"
           },
           {
-            "name": "isComplete — backreference path (repeated word) — construct + exec + isComplete (includes probe build)",
+            "name": "hitEnd — backreference path (repeated word) — construct + exec + hitEnd (includes probe build)",
             "value": 13126.79,
             "range": "± 737.5",
             "unit": "ns/iter",
             "extra": "min: 10721.00ns  p75: 12546.00ns  p99: 25762.00ns"
           },
           {
-            "name": "isComplete — backreference path (repeated word) — isComplete — same match, expansion probe cached",
+            "name": "hitEnd — backreference path (repeated word) — hitEnd — same match, expansion probe cached",
             "value": 697.03,
             "range": "± 15.25",
             "unit": "ns/iter",
             "extra": "min: 652.30ns  p75: 701.74ns  p99: 801.41ns"
           },
           {
-            "name": "isComplete — backreference path (repeated word) — exec + isComplete — fresh match, probe rebuilt per match",
+            "name": "hitEnd — backreference path (repeated word) — exec + hitEnd — fresh match, alternating capture, probe rebuilt per match",
             "value": 6015.23,
             "range": "± 246.3",
             "unit": "ns/iter",
             "extra": "min: 5297.19ns  p75: 6206.59ns  p99: 6847.58ns"
           },
           {
-            "name": "isComplete — raw lookaround backreference renumbering — construct + exec (baseline, never asks)",
+            "name": "hitEnd — raw lookaround backreference renumbering — construct + exec (baseline, never asks)",
             "value": 8788.31,
             "range": "± 501.75",
             "unit": "ns/iter",
             "extra": "min: 7891.64ns  p75: 9230.54ns  p99: 9358.12ns"
           },
           {
-            "name": "isComplete — raw lookaround backreference renumbering — construct + exec + isComplete (includes probe build)",
+            "name": "hitEnd — raw lookaround backreference renumbering — construct + exec + hitEnd (includes probe build)",
             "value": 12886.38,
             "range": "± 94.45",
             "unit": "ns/iter",
             "extra": "min: 12535.80ns  p75: 12802.20ns  p99: 13539.11ns"
           },
           {
-            "name": "isComplete — raw lookaround backreference renumbering — isComplete — warm instance",
+            "name": "hitEnd — raw lookaround backreference renumbering — hitEnd — warm instance",
             "value": 697.76,
             "range": "± 39.41",
             "unit": "ns/iter",
@@ -6875,84 +6875,84 @@ window.BENCHMARK_DATA = {
             "extra": "min: 11806.72ns  p75: 12334.82ns  p99: 12366.20ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — construct + exec (baseline, never asks)",
+            "name": "hitEnd — static path (ISO date) — construct + exec (baseline, never asks)",
             "value": 4545.56,
             "range": "± 165.49",
             "unit": "ns/iter",
             "extra": "min: 4357.97ns  p75: 4712.74ns  p99: 4859.49ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — construct + exec + isComplete (includes probe build)",
+            "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (includes probe build)",
             "value": 10175.77,
             "range": "± 120",
             "unit": "ns/iter",
             "extra": "min: 8896.00ns  p75: 9377.00ns  p99: 24656.00ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — construct + exec + isComplete (complete, includes probe build)",
+            "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (complete, includes probe build)",
             "value": 9313.79,
             "range": "± 73.26",
             "unit": "ns/iter",
             "extra": "min: 9078.50ns  p75: 9374.80ns  p99: 9468.82ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — isComplete — incomplete match, warm probe",
+            "name": "hitEnd — static path (ISO date) — hitEnd — incomplete match, warm probe",
             "value": 733.43,
             "range": "± 2.99",
             "unit": "ns/iter",
             "extra": "min: 722.79ns  p75: 732.00ns  p99: 767.86ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — isComplete — complete match, warm probe",
+            "name": "hitEnd — static path (ISO date) — hitEnd — complete match, warm probe",
             "value": 767.32,
             "range": "± 3.1",
             "unit": "ns/iter",
             "extra": "min: 756.88ns  p75: 767.78ns  p99: 799.60ns"
           },
           {
-            "name": "isComplete — backreference path (repeated word) — construct + exec (baseline, never asks)",
+            "name": "hitEnd — backreference path (repeated word) — construct + exec (baseline, never asks)",
             "value": 10267.27,
             "range": "± 698.6",
             "unit": "ns/iter",
             "extra": "min: 9226.25ns  p75: 10827.92ns  p99: 11199.60ns"
           },
           {
-            "name": "isComplete — backreference path (repeated word) — construct + exec + isComplete (includes probe build)",
+            "name": "hitEnd — backreference path (repeated word) — construct + exec + hitEnd (includes probe build)",
             "value": 16938.26,
             "range": "± 215.5",
             "unit": "ns/iter",
             "extra": "min: 14397.00ns  p75: 15228.00ns  p99: 40245.00ns"
           },
           {
-            "name": "isComplete — backreference path (repeated word) — isComplete — same match, expansion probe cached",
+            "name": "hitEnd — backreference path (repeated word) — hitEnd — same match, expansion probe cached",
             "value": 836.11,
             "range": "± 2.95",
             "unit": "ns/iter",
             "extra": "min: 826.56ns  p75: 836.15ns  p99: 878.26ns"
           },
           {
-            "name": "isComplete — backreference path (repeated word) — exec + isComplete — fresh match, probe rebuilt per match",
+            "name": "hitEnd — backreference path (repeated word) — exec + hitEnd — fresh match, alternating capture, probe rebuilt per match",
             "value": 6871.1,
             "range": "± 442.46",
             "unit": "ns/iter",
             "extra": "min: 6522.87ns  p75: 7419.75ns  p99: 7518.27ns"
           },
           {
-            "name": "isComplete — raw lookaround backreference renumbering — construct + exec (baseline, never asks)",
+            "name": "hitEnd — raw lookaround backreference renumbering — construct + exec (baseline, never asks)",
             "value": 10665.09,
             "range": "± 100.5",
             "unit": "ns/iter",
             "extra": "min: 9708.00ns  p75: 10119.00ns  p99: 22362.00ns"
           },
           {
-            "name": "isComplete — raw lookaround backreference renumbering — construct + exec + isComplete (includes probe build)",
+            "name": "hitEnd — raw lookaround backreference renumbering — construct + exec + hitEnd (includes probe build)",
             "value": 16067.1,
             "range": "± 585.48",
             "unit": "ns/iter",
             "extra": "min: 14842.88ns  p75: 16475.27ns  p99: 17236.75ns"
           },
           {
-            "name": "isComplete — raw lookaround backreference renumbering — isComplete — warm instance",
+            "name": "hitEnd — raw lookaround backreference renumbering — hitEnd — warm instance",
             "value": 850.85,
             "range": "± 4.2",
             "unit": "ns/iter",
@@ -7445,84 +7445,84 @@ window.BENCHMARK_DATA = {
             "extra": "min: 11703.88ns  p75: 12428.47ns  p99: 12594.10ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — construct + exec (baseline, never asks)",
+            "name": "hitEnd — static path (ISO date) — construct + exec (baseline, never asks)",
             "value": 4553.8,
             "range": "± 147.11",
             "unit": "ns/iter",
             "extra": "min: 4346.24ns  p75: 4663.07ns  p99: 4953.25ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — construct + exec + isComplete (includes probe build)",
+            "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (includes probe build)",
             "value": 9833.26,
             "range": "± 125",
             "unit": "ns/iter",
             "extra": "min: 8857.00ns  p75: 9307.00ns  p99: 24135.00ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — construct + exec + isComplete (complete, includes probe build)",
+            "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (complete, includes probe build)",
             "value": 9354.46,
             "range": "± 76.95",
             "unit": "ns/iter",
             "extra": "min: 9132.55ns  p75: 9344.37ns  p99: 9803.97ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — isComplete — incomplete match, warm probe",
+            "name": "hitEnd — static path (ISO date) — hitEnd — incomplete match, warm probe",
             "value": 713.66,
             "range": "± 1.99",
             "unit": "ns/iter",
             "extra": "min: 703.64ns  p75: 711.21ns  p99: 752.06ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — isComplete — complete match, warm probe",
+            "name": "hitEnd — static path (ISO date) — hitEnd — complete match, warm probe",
             "value": 772.31,
             "range": "± 1.99",
             "unit": "ns/iter",
             "extra": "min: 762.31ns  p75: 769.75ns  p99: 836.27ns"
           },
           {
-            "name": "isComplete — backreference path (repeated word) — construct + exec (baseline, never asks)",
+            "name": "hitEnd — backreference path (repeated word) — construct + exec (baseline, never asks)",
             "value": 10181.52,
             "range": "± 561.28",
             "unit": "ns/iter",
             "extra": "min: 9194.20ns  p75: 10740.91ns  p99: 10811.10ns"
           },
           {
-            "name": "isComplete — backreference path (repeated word) — construct + exec + isComplete (includes probe build)",
+            "name": "hitEnd — backreference path (repeated word) — construct + exec + hitEnd (includes probe build)",
             "value": 17121.61,
             "range": "± 205",
             "unit": "ns/iter",
             "extra": "min: 14537.00ns  p75: 15338.00ns  p99: 40445.00ns"
           },
           {
-            "name": "isComplete — backreference path (repeated word) — isComplete — same match, expansion probe cached",
+            "name": "hitEnd — backreference path (repeated word) — hitEnd — same match, expansion probe cached",
             "value": 864.66,
             "range": "± 2.12",
             "unit": "ns/iter",
             "extra": "min: 849.70ns  p75: 861.33ns  p99: 958.54ns"
           },
           {
-            "name": "isComplete — backreference path (repeated word) — exec + isComplete — fresh match, probe rebuilt per match",
+            "name": "hitEnd — backreference path (repeated word) — exec + hitEnd — fresh match, alternating capture, probe rebuilt per match",
             "value": 7023.83,
             "range": "± 449.21",
             "unit": "ns/iter",
             "extra": "min: 6592.12ns  p75: 7534.14ns  p99: 7562.68ns"
           },
           {
-            "name": "isComplete — raw lookaround backreference renumbering — construct + exec (baseline, never asks)",
+            "name": "hitEnd — raw lookaround backreference renumbering — construct + exec (baseline, never asks)",
             "value": 10820.64,
             "range": "± 100",
             "unit": "ns/iter",
             "extra": "min: 9678.00ns  p75: 10109.00ns  p99: 22172.00ns"
           },
           {
-            "name": "isComplete — raw lookaround backreference renumbering — construct + exec + isComplete (includes probe build)",
+            "name": "hitEnd — raw lookaround backreference renumbering — construct + exec + hitEnd (includes probe build)",
             "value": 15922.38,
             "range": "± 469.38",
             "unit": "ns/iter",
             "extra": "min: 14717.76ns  p75: 16051.48ns  p99: 17007.83ns"
           },
           {
-            "name": "isComplete — raw lookaround backreference renumbering — isComplete — warm instance",
+            "name": "hitEnd — raw lookaround backreference renumbering — hitEnd — warm instance",
             "value": 871.02,
             "range": "± 5.52",
             "unit": "ns/iter",
@@ -8015,84 +8015,84 @@ window.BENCHMARK_DATA = {
             "extra": "min: 8779.72ns  p75: 9529.38ns  p99: 9581.29ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — construct + exec (baseline, never asks)",
+            "name": "hitEnd — static path (ISO date) — construct + exec (baseline, never asks)",
             "value": 3554.56,
             "range": "± 136.42",
             "unit": "ns/iter",
             "extra": "min: 3383.04ns  p75: 3683.63ns  p99: 4068.74ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — construct + exec + isComplete (includes probe build)",
+            "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (includes probe build)",
             "value": 7355.39,
             "range": "± 108",
             "unit": "ns/iter",
             "extra": "min: 6717.00ns  p75: 7098.00ns  p99: 13681.00ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — construct + exec + isComplete (complete, includes probe build)",
+            "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (complete, includes probe build)",
             "value": 7225.5,
             "range": "± 74.29",
             "unit": "ns/iter",
             "extra": "min: 6918.82ns  p75: 7276.47ns  p99: 7435.63ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — isComplete — incomplete match, warm probe",
+            "name": "hitEnd — static path (ISO date) — hitEnd — incomplete match, warm probe",
             "value": 540.83,
             "range": "± 4.24",
             "unit": "ns/iter",
             "extra": "min: 524.39ns  p75: 544.16ns  p99: 572.58ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — isComplete — complete match, warm probe",
+            "name": "hitEnd — static path (ISO date) — hitEnd — complete match, warm probe",
             "value": 556.83,
             "range": "± 3.19",
             "unit": "ns/iter",
             "extra": "min: 545.69ns  p75: 558.24ns  p99: 593.71ns"
           },
           {
-            "name": "isComplete — backreference path (repeated word) — construct + exec (baseline, never asks)",
+            "name": "hitEnd — backreference path (repeated word) — construct + exec (baseline, never asks)",
             "value": 7677.38,
             "range": "± 547.36",
             "unit": "ns/iter",
             "extra": "min: 6965.31ns  p75: 8125.10ns  p99: 8302.72ns"
           },
           {
-            "name": "isComplete — backreference path (repeated word) — construct + exec + isComplete (includes probe build)",
+            "name": "hitEnd — backreference path (repeated word) — construct + exec + hitEnd (includes probe build)",
             "value": 12013.32,
             "range": "± 66.84",
             "unit": "ns/iter",
             "extra": "min: 11667.26ns  p75: 11967.91ns  p99: 12501.24ns"
           },
           {
-            "name": "isComplete — backreference path (repeated word) — isComplete — same match, expansion probe cached",
+            "name": "hitEnd — backreference path (repeated word) — hitEnd — same match, expansion probe cached",
             "value": 638.1,
             "range": "± 4.78",
             "unit": "ns/iter",
             "extra": "min: 623.45ns  p75: 640.82ns  p99: 672.97ns"
           },
           {
-            "name": "isComplete — backreference path (repeated word) — exec + isComplete — fresh match, probe rebuilt per match",
+            "name": "hitEnd — backreference path (repeated word) — exec + hitEnd — fresh match, alternating capture, probe rebuilt per match",
             "value": 5321.34,
             "range": "± 293.43",
             "unit": "ns/iter",
             "extra": "min: 5027.84ns  p75: 5636.37ns  p99: 5773.19ns"
           },
           {
-            "name": "isComplete — raw lookaround backreference renumbering — construct + exec (baseline, never asks)",
+            "name": "hitEnd — raw lookaround backreference renumbering — construct + exec (baseline, never asks)",
             "value": 7857.01,
             "range": "± 112.91",
             "unit": "ns/iter",
             "extra": "min: 7513.93ns  p75: 7927.93ns  p99: 8086.83ns"
           },
           {
-            "name": "isComplete — raw lookaround backreference renumbering — construct + exec + isComplete (includes probe build)",
+            "name": "hitEnd — raw lookaround backreference renumbering — construct + exec + hitEnd (includes probe build)",
             "value": 11677.38,
             "range": "± 37.09",
             "unit": "ns/iter",
             "extra": "min: 11572.00ns  p75: 11670.36ns  p99: 11824.13ns"
           },
           {
-            "name": "isComplete — raw lookaround backreference renumbering — isComplete — warm instance",
+            "name": "hitEnd — raw lookaround backreference renumbering — hitEnd — warm instance",
             "value": 640.83,
             "range": "± 5.22",
             "unit": "ns/iter",
@@ -8585,84 +8585,84 @@ window.BENCHMARK_DATA = {
             "extra": "min: 12182.85ns  p75: 12996.46ns  p99: 13089.52ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — construct + exec (baseline, never asks)",
+            "name": "hitEnd — static path (ISO date) — construct + exec (baseline, never asks)",
             "value": 4789.47,
             "range": "± 150.48",
             "unit": "ns/iter",
             "extra": "min: 4534.13ns  p75: 4860.84ns  p99: 5572.52ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — construct + exec + isComplete (includes probe build)",
+            "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (includes probe build)",
             "value": 10671.32,
             "range": "± 110",
             "unit": "ns/iter",
             "extra": "min: 9177.00ns  p75: 9638.00ns  p99: 26860.00ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — construct + exec + isComplete (complete, includes probe build)",
+            "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (complete, includes probe build)",
             "value": 9611.2,
             "range": "± 63.94",
             "unit": "ns/iter",
             "extra": "min: 9434.28ns  p75: 9628.75ns  p99: 9796.29ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — isComplete — incomplete match, warm probe",
+            "name": "hitEnd — static path (ISO date) — hitEnd — incomplete match, warm probe",
             "value": 733.81,
             "range": "± 4.52",
             "unit": "ns/iter",
             "extra": "min: 722.18ns  p75: 735.56ns  p99: 780.94ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — isComplete — complete match, warm probe",
+            "name": "hitEnd — static path (ISO date) — hitEnd — complete match, warm probe",
             "value": 788.26,
             "range": "± 2.94",
             "unit": "ns/iter",
             "extra": "min: 778.51ns  p75: 787.92ns  p99: 834.53ns"
           },
           {
-            "name": "isComplete — backreference path (repeated word) — construct + exec (baseline, never asks)",
+            "name": "hitEnd — backreference path (repeated word) — construct + exec (baseline, never asks)",
             "value": 10495.66,
             "range": "± 559.89",
             "unit": "ns/iter",
             "extra": "min: 9621.39ns  p75: 10879.93ns  p99: 11044.09ns"
           },
           {
-            "name": "isComplete — backreference path (repeated word) — construct + exec + isComplete (includes probe build)",
+            "name": "hitEnd — backreference path (repeated word) — construct + exec + hitEnd (includes probe build)",
             "value": 17859.71,
             "range": "± 290",
             "unit": "ns/iter",
             "extra": "min: 15499.00ns  p75: 16530.00ns  p99: 42018.00ns"
           },
           {
-            "name": "isComplete — backreference path (repeated word) — isComplete — same match, expansion probe cached",
+            "name": "hitEnd — backreference path (repeated word) — hitEnd — same match, expansion probe cached",
             "value": 859.56,
             "range": "± 4.94",
             "unit": "ns/iter",
             "extra": "min: 847.37ns  p75: 859.88ns  p99: 920.85ns"
           },
           {
-            "name": "isComplete — backreference path (repeated word) — exec + isComplete — fresh match, probe rebuilt per match",
+            "name": "hitEnd — backreference path (repeated word) — exec + hitEnd — fresh match, alternating capture, probe rebuilt per match",
             "value": 6774.44,
             "range": "± 48.75",
             "unit": "ns/iter",
             "extra": "min: 6660.83ns  p75: 6780.76ns  p99: 6813.73ns"
           },
           {
-            "name": "isComplete — raw lookaround backreference renumbering — construct + exec (baseline, never asks)",
+            "name": "hitEnd — raw lookaround backreference renumbering — construct + exec (baseline, never asks)",
             "value": 11065.73,
             "range": "± 141.64",
             "unit": "ns/iter",
             "extra": "min: 10350.94ns  p75: 11220.81ns  p99: 11300.58ns"
           },
           {
-            "name": "isComplete — raw lookaround backreference renumbering — construct + exec + isComplete (includes probe build)",
+            "name": "hitEnd — raw lookaround backreference renumbering — construct + exec + hitEnd (includes probe build)",
             "value": 16918.9,
             "range": "± 133.22",
             "unit": "ns/iter",
             "extra": "min: 15504.58ns  p75: 16327.03ns  p99: 17140.81ns"
           },
           {
-            "name": "isComplete — raw lookaround backreference renumbering — isComplete — warm instance",
+            "name": "hitEnd — raw lookaround backreference renumbering — hitEnd — warm instance",
             "value": 865.03,
             "range": "± 3.28",
             "unit": "ns/iter",
@@ -9155,84 +9155,84 @@ window.BENCHMARK_DATA = {
             "extra": "min: 10649.23ns  p75: 11586.45ns  p99: 11611.27ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — construct + exec (baseline, never asks)",
+            "name": "hitEnd — static path (ISO date) — construct + exec (baseline, never asks)",
             "value": 4351.14,
             "range": "± 159.25",
             "unit": "ns/iter",
             "extra": "min: 4120.34ns  p75: 4487.41ns  p99: 4720.09ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — construct + exec + isComplete (includes probe build)",
+            "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (includes probe build)",
             "value": 9008.64,
             "range": "± 161",
             "unit": "ns/iter",
             "extra": "min: 7777.00ns  p75: 8496.00ns  p99: 16843.00ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — construct + exec + isComplete (complete, includes probe build)",
+            "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (complete, includes probe build)",
             "value": 8725.53,
             "range": "± 64.44",
             "unit": "ns/iter",
             "extra": "min: 8447.34ns  p75: 8755.31ns  p99: 8842.71ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — isComplete — incomplete match, warm probe",
+            "name": "hitEnd — static path (ISO date) — hitEnd — incomplete match, warm probe",
             "value": 644.72,
             "range": "± 4.86",
             "unit": "ns/iter",
             "extra": "min: 616.97ns  p75: 645.26ns  p99: 711.34ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — isComplete — complete match, warm probe",
+            "name": "hitEnd — static path (ISO date) — hitEnd — complete match, warm probe",
             "value": 683.8,
             "range": "± 4.23",
             "unit": "ns/iter",
             "extra": "min: 655.84ns  p75: 685.96ns  p99: 740.51ns"
           },
           {
-            "name": "isComplete — backreference path (repeated word) — construct + exec (baseline, never asks)",
+            "name": "hitEnd — backreference path (repeated word) — construct + exec (baseline, never asks)",
             "value": 9083.07,
             "range": "± 567.58",
             "unit": "ns/iter",
             "extra": "min: 8334.65ns  p75: 9507.20ns  p99: 9571.75ns"
           },
           {
-            "name": "isComplete — backreference path (repeated word) — construct + exec + isComplete (includes probe build)",
+            "name": "hitEnd — backreference path (repeated word) — construct + exec + hitEnd (includes probe build)",
             "value": 14338.15,
             "range": "± 261.5",
             "unit": "ns/iter",
             "extra": "min: 12394.00ns  p75: 13646.00ns  p99: 25773.00ns"
           },
           {
-            "name": "isComplete — backreference path (repeated word) — isComplete — same match, expansion probe cached",
+            "name": "hitEnd — backreference path (repeated word) — hitEnd — same match, expansion probe cached",
             "value": 772.86,
             "range": "± 5.66",
             "unit": "ns/iter",
             "extra": "min: 743.94ns  p75: 774.84ns  p99: 839.93ns"
           },
           {
-            "name": "isComplete — backreference path (repeated word) — exec + isComplete — fresh match, probe rebuilt per match",
+            "name": "hitEnd — backreference path (repeated word) — exec + hitEnd — fresh match, alternating capture, probe rebuilt per match",
             "value": 6194.41,
             "range": "± 28.25",
             "unit": "ns/iter",
             "extra": "min: 6118.61ns  p75: 6216.09ns  p99: 6271.10ns"
           },
           {
-            "name": "isComplete — raw lookaround backreference renumbering — construct + exec (baseline, never asks)",
+            "name": "hitEnd — raw lookaround backreference renumbering — construct + exec (baseline, never asks)",
             "value": 9894.18,
             "range": "± 173.35",
             "unit": "ns/iter",
             "extra": "min: 9254.29ns  p75: 10063.64ns  p99: 10159.18ns"
           },
           {
-            "name": "isComplete — raw lookaround backreference renumbering — construct + exec + isComplete (includes probe build)",
+            "name": "hitEnd — raw lookaround backreference renumbering — construct + exec + hitEnd (includes probe build)",
             "value": 14780.1,
             "range": "± 269.5",
             "unit": "ns/iter",
             "extra": "min: 12843.00ns  p75: 14077.00ns  p99: 26053.00ns"
           },
           {
-            "name": "isComplete — raw lookaround backreference renumbering — isComplete — warm instance",
+            "name": "hitEnd — raw lookaround backreference renumbering — hitEnd — warm instance",
             "value": 768.18,
             "range": "± 6.36",
             "unit": "ns/iter",
@@ -9725,84 +9725,84 @@ window.BENCHMARK_DATA = {
             "extra": "min: 11626.78ns  p75: 12434.09ns  p99: 12565.37ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — construct + exec (baseline, never asks)",
+            "name": "hitEnd — static path (ISO date) — construct + exec (baseline, never asks)",
             "value": 4657.34,
             "range": "± 133.69",
             "unit": "ns/iter",
             "extra": "min: 4482.82ns  p75: 4770.64ns  p99: 4915.40ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — construct + exec + isComplete (includes probe build)",
+            "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (includes probe build)",
             "value": 9738.97,
             "range": "± 160.5",
             "unit": "ns/iter",
             "extra": "min: 8523.00ns  p75: 9124.00ns  p99: 20491.00ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — construct + exec + isComplete (complete, includes probe build)",
+            "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (complete, includes probe build)",
             "value": 9452.73,
             "range": "± 66.53",
             "unit": "ns/iter",
             "extra": "min: 9122.03ns  p75: 9355.19ns  p99: 10175.91ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — isComplete — incomplete match, warm probe",
+            "name": "hitEnd — static path (ISO date) — hitEnd — incomplete match, warm probe",
             "value": 735.03,
             "range": "± 2.92",
             "unit": "ns/iter",
             "extra": "min: 725.01ns  p75: 732.85ns  p99: 792.70ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — isComplete — complete match, warm probe",
+            "name": "hitEnd — static path (ISO date) — hitEnd — complete match, warm probe",
             "value": 796.75,
             "range": "± 2.85",
             "unit": "ns/iter",
             "extra": "min: 785.78ns  p75: 793.35ns  p99: 870.85ns"
           },
           {
-            "name": "isComplete — backreference path (repeated word) — construct + exec (baseline, never asks)",
+            "name": "hitEnd — backreference path (repeated word) — construct + exec (baseline, never asks)",
             "value": 10202.63,
             "range": "± 558.88",
             "unit": "ns/iter",
             "extra": "min: 9389.01ns  p75: 10647.93ns  p99: 10753.01ns"
           },
           {
-            "name": "isComplete — backreference path (repeated word) — construct + exec + isComplete (includes probe build)",
+            "name": "hitEnd — backreference path (repeated word) — construct + exec + hitEnd (includes probe build)",
             "value": 15710.57,
             "range": "± 280",
             "unit": "ns/iter",
             "extra": "min: 13650.00ns  p75: 14721.00ns  p99: 31266.00ns"
           },
           {
-            "name": "isComplete — backreference path (repeated word) — isComplete — same match, expansion probe cached",
+            "name": "hitEnd — backreference path (repeated word) — hitEnd — same match, expansion probe cached",
             "value": 884.56,
             "range": "± 4.13",
             "unit": "ns/iter",
             "extra": "min: 871.06ns  p75: 882.39ns  p99: 975.23ns"
           },
           {
-            "name": "isComplete — backreference path (repeated word) — exec + isComplete — fresh match, probe rebuilt per match",
+            "name": "hitEnd — backreference path (repeated word) — exec + hitEnd — fresh match, alternating capture, probe rebuilt per match",
             "value": 6626.4,
             "range": "± 37.92",
             "unit": "ns/iter",
             "extra": "min: 6552.33ns  p75: 6656.70ns  p99: 6714.66ns"
           },
           {
-            "name": "isComplete — raw lookaround backreference renumbering — construct + exec (baseline, never asks)",
+            "name": "hitEnd — raw lookaround backreference renumbering — construct + exec (baseline, never asks)",
             "value": 11077.99,
             "range": "± 135.62",
             "unit": "ns/iter",
             "extra": "min: 10038.90ns  p75: 11167.62ns  p99: 11472.73ns"
           },
           {
-            "name": "isComplete — raw lookaround backreference renumbering — construct + exec + isComplete (includes probe build)",
+            "name": "hitEnd — raw lookaround backreference renumbering — construct + exec + hitEnd (includes probe build)",
             "value": 15883.12,
             "range": "± 96.13",
             "unit": "ns/iter",
             "extra": "min: 14868.03ns  p75: 15450.68ns  p99: 16984.54ns"
           },
           {
-            "name": "isComplete — raw lookaround backreference renumbering — isComplete — warm instance",
+            "name": "hitEnd — raw lookaround backreference renumbering — hitEnd — warm instance",
             "value": 885.64,
             "range": "± 4.6",
             "unit": "ns/iter",
@@ -10295,84 +10295,84 @@ window.BENCHMARK_DATA = {
             "extra": "min: 12130.70ns  p75: 12792.71ns  p99: 12855.30ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — construct + exec (baseline, never asks)",
+            "name": "hitEnd — static path (ISO date) — construct + exec (baseline, never asks)",
             "value": 4690.65,
             "range": "± 160.07",
             "unit": "ns/iter",
             "extra": "min: 4477.78ns  p75: 4821.42ns  p99: 4991.26ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — construct + exec + isComplete (includes probe build)",
+            "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (includes probe build)",
             "value": 10472.12,
             "range": "± 150",
             "unit": "ns/iter",
             "extra": "min: 8997.00ns  p75: 9487.00ns  p99: 25457.00ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — construct + exec + isComplete (complete, includes probe build)",
+            "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (complete, includes probe build)",
             "value": 9636.11,
             "range": "± 64.68",
             "unit": "ns/iter",
             "extra": "min: 9390.78ns  p75: 9577.94ns  p99: 10088.66ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — isComplete — incomplete match, warm probe",
+            "name": "hitEnd — static path (ISO date) — hitEnd — incomplete match, warm probe",
             "value": 723.8,
             "range": "± 3.13",
             "unit": "ns/iter",
             "extra": "min: 712.94ns  p75: 722.29ns  p99: 773.34ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — isComplete — complete match, warm probe",
+            "name": "hitEnd — static path (ISO date) — hitEnd — complete match, warm probe",
             "value": 773.38,
             "range": "± 2.95",
             "unit": "ns/iter",
             "extra": "min: 762.92ns  p75: 771.71ns  p99: 824.55ns"
           },
           {
-            "name": "isComplete — backreference path (repeated word) — construct + exec (baseline, never asks)",
+            "name": "hitEnd — backreference path (repeated word) — construct + exec (baseline, never asks)",
             "value": 10606.84,
             "range": "± 718.97",
             "unit": "ns/iter",
             "extra": "min: 9483.96ns  p75: 11132.32ns  p99: 11344.00ns"
           },
           {
-            "name": "isComplete — backreference path (repeated word) — construct + exec + isComplete (includes probe build)",
+            "name": "hitEnd — backreference path (repeated word) — construct + exec + hitEnd (includes probe build)",
             "value": 17043.74,
             "range": "± 215",
             "unit": "ns/iter",
             "extra": "min: 14778.00ns  p75: 15598.00ns  p99: 38211.00ns"
           },
           {
-            "name": "isComplete — backreference path (repeated word) — isComplete — same match, expansion probe cached",
+            "name": "hitEnd — backreference path (repeated word) — hitEnd — same match, expansion probe cached",
             "value": 889.41,
             "range": "± 5.02",
             "unit": "ns/iter",
             "extra": "min: 874.32ns  p75: 889.65ns  p99: 950.34ns"
           },
           {
-            "name": "isComplete — backreference path (repeated word) — exec + isComplete — fresh match, probe rebuilt per match",
+            "name": "hitEnd — backreference path (repeated word) — exec + hitEnd — fresh match, alternating capture, probe rebuilt per match",
             "value": 7059.37,
             "range": "± 465.63",
             "unit": "ns/iter",
             "extra": "min: 6661.56ns  p75: 7622.79ns  p99: 7791.87ns"
           },
           {
-            "name": "isComplete — raw lookaround backreference renumbering — construct + exec (baseline, never asks)",
+            "name": "hitEnd — raw lookaround backreference renumbering — construct + exec (baseline, never asks)",
             "value": 11034.16,
             "range": "± 74.98",
             "unit": "ns/iter",
             "extra": "min: 10374.18ns  p75: 11174.18ns  p99: 11272.27ns"
           },
           {
-            "name": "isComplete — raw lookaround backreference renumbering — construct + exec + isComplete (includes probe build)",
+            "name": "hitEnd — raw lookaround backreference renumbering — construct + exec + hitEnd (includes probe build)",
             "value": 16874.75,
             "range": "± 185.5",
             "unit": "ns/iter",
             "extra": "min: 15168.00ns  p75: 15880.00ns  p99: 37329.00ns"
           },
           {
-            "name": "isComplete — raw lookaround backreference renumbering — isComplete — warm instance",
+            "name": "hitEnd — raw lookaround backreference renumbering — hitEnd — warm instance",
             "value": 880.24,
             "range": "± 5.7",
             "unit": "ns/iter",
@@ -10865,84 +10865,84 @@ window.BENCHMARK_DATA = {
             "extra": "min: 11589.86ns  p75: 12372.74ns  p99: 12468.44ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — construct + exec (baseline, never asks)",
+            "name": "hitEnd — static path (ISO date) — construct + exec (baseline, never asks)",
             "value": 4712.33,
             "range": "± 142.48",
             "unit": "ns/iter",
             "extra": "min: 4462.04ns  p75: 4790.60ns  p99: 5312.89ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — construct + exec + isComplete (includes probe build)",
+            "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (includes probe build)",
             "value": 9631.43,
             "range": "± 145.5",
             "unit": "ns/iter",
             "extra": "min: 8513.00ns  p75: 9084.00ns  p99: 19419.00ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — construct + exec + isComplete (complete, includes probe build)",
+            "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (complete, includes probe build)",
             "value": 9226.15,
             "range": "± 89.68",
             "unit": "ns/iter",
             "extra": "min: 8976.93ns  p75: 9179.16ns  p99: 9763.24ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — isComplete — incomplete match, warm probe",
+            "name": "hitEnd — static path (ISO date) — hitEnd — incomplete match, warm probe",
             "value": 646.83,
             "range": "± 1.93",
             "unit": "ns/iter",
             "extra": "min: 634.50ns  p75: 643.03ns  p99: 694.83ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — isComplete — complete match, warm probe",
+            "name": "hitEnd — static path (ISO date) — hitEnd — complete match, warm probe",
             "value": 700.23,
             "range": "± 2.23",
             "unit": "ns/iter",
             "extra": "min: 689.42ns  p75: 697.27ns  p99: 753.23ns"
           },
           {
-            "name": "isComplete — backreference path (repeated word) — construct + exec (baseline, never asks)",
+            "name": "hitEnd — backreference path (repeated word) — construct + exec (baseline, never asks)",
             "value": 10010.82,
             "range": "± 475.32",
             "unit": "ns/iter",
             "extra": "min: 9169.56ns  p75: 10405.83ns  p99: 10532.48ns"
           },
           {
-            "name": "isComplete — backreference path (repeated word) — construct + exec + isComplete (includes probe build)",
+            "name": "hitEnd — backreference path (repeated word) — construct + exec + hitEnd (includes probe build)",
             "value": 15789.22,
             "range": "± 250.5",
             "unit": "ns/iter",
             "extra": "min: 13661.00ns  p75: 14582.00ns  p99: 29434.00ns"
           },
           {
-            "name": "isComplete — backreference path (repeated word) — isComplete — same match, expansion probe cached",
+            "name": "hitEnd — backreference path (repeated word) — hitEnd — same match, expansion probe cached",
             "value": 782.37,
             "range": "± 2.43",
             "unit": "ns/iter",
             "extra": "min: 770.42ns  p75: 777.83ns  p99: 848.78ns"
           },
           {
-            "name": "isComplete — backreference path (repeated word) — exec + isComplete — fresh match, probe rebuilt per match",
+            "name": "hitEnd — backreference path (repeated word) — exec + hitEnd — fresh match, alternating capture, probe rebuilt per match",
             "value": 6723.06,
             "range": "± 45.89",
             "unit": "ns/iter",
             "extra": "min: 6627.00ns  p75: 6751.33ns  p99: 6963.80ns"
           },
           {
-            "name": "isComplete — raw lookaround backreference renumbering — construct + exec (baseline, never asks)",
+            "name": "hitEnd — raw lookaround backreference renumbering — construct + exec (baseline, never asks)",
             "value": 10808.71,
             "range": "± 213.16",
             "unit": "ns/iter",
             "extra": "min: 10256.25ns  p75: 10963.00ns  p99: 11058.76ns"
           },
           {
-            "name": "isComplete — raw lookaround backreference renumbering — construct + exec + isComplete (includes probe build)",
+            "name": "hitEnd — raw lookaround backreference renumbering — construct + exec + hitEnd (includes probe build)",
             "value": 15825.61,
             "range": "± 235",
             "unit": "ns/iter",
             "extra": "min: 13961.00ns  p75: 14882.00ns  p99: 29224.00ns"
           },
           {
-            "name": "isComplete — raw lookaround backreference renumbering — isComplete — warm instance",
+            "name": "hitEnd — raw lookaround backreference renumbering — hitEnd — warm instance",
             "value": 783.93,
             "range": "± 2.42",
             "unit": "ns/iter",
@@ -11435,84 +11435,84 @@ window.BENCHMARK_DATA = {
             "extra": "min: 12590.23ns  p75: 13441.08ns  p99: 13462.49ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — construct + exec (baseline, never asks)",
+            "name": "hitEnd — static path (ISO date) — construct + exec (baseline, never asks)",
             "value": 4982.37,
             "range": "± 151.41",
             "unit": "ns/iter",
             "extra": "min: 4771.67ns  p75: 5101.35ns  p99: 5279.68ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — construct + exec + isComplete (includes probe build)",
+            "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (includes probe build)",
             "value": 10716.52,
             "range": "± 120.5",
             "unit": "ns/iter",
             "extra": "min: 9437.00ns  p75: 9909.00ns  p99: 25618.00ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — construct + exec + isComplete (complete, includes probe build)",
+            "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (complete, includes probe build)",
             "value": 9929.67,
             "range": "± 96.51",
             "unit": "ns/iter",
             "extra": "min: 9680.28ns  p75: 9931.24ns  p99: 10273.98ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — isComplete — incomplete match, warm probe",
+            "name": "hitEnd — static path (ISO date) — hitEnd — incomplete match, warm probe",
             "value": 711.79,
             "range": "± 1.41",
             "unit": "ns/iter",
             "extra": "min: 701.73ns  p75: 708.34ns  p99: 759.93ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — isComplete — complete match, warm probe",
+            "name": "hitEnd — static path (ISO date) — hitEnd — complete match, warm probe",
             "value": 758.3,
             "range": "± 2.83",
             "unit": "ns/iter",
             "extra": "min: 744.89ns  p75: 755.37ns  p99: 806.04ns"
           },
           {
-            "name": "isComplete — backreference path (repeated word) — construct + exec (baseline, never asks)",
+            "name": "hitEnd — backreference path (repeated word) — construct + exec (baseline, never asks)",
             "value": 12753.1,
             "range": "± 89.7",
             "unit": "ns/iter",
             "extra": "min: 11638.83ns  p75: 12928.76ns  p99: 12988.87ns"
           },
           {
-            "name": "isComplete — backreference path (repeated word) — construct + exec + isComplete (includes probe build)",
+            "name": "hitEnd — backreference path (repeated word) — construct + exec + hitEnd (includes probe build)",
             "value": 21052.56,
             "range": "± 205.5",
             "unit": "ns/iter",
             "extra": "min: 18144.00ns  p75: 18966.00ns  p99: 46036.00ns"
           },
           {
-            "name": "isComplete — backreference path (repeated word) — isComplete — same match, expansion probe cached",
+            "name": "hitEnd — backreference path (repeated word) — hitEnd — same match, expansion probe cached",
             "value": 988.82,
             "range": "± 2.13",
             "unit": "ns/iter",
             "extra": "min: 977.96ns  p75: 984.03ns  p99: 1084.97ns"
           },
           {
-            "name": "isComplete — backreference path (repeated word) — exec + isComplete — fresh match, probe rebuilt per match",
+            "name": "hitEnd — backreference path (repeated word) — exec + hitEnd — fresh match, alternating capture, probe rebuilt per match",
             "value": 9099.47,
             "range": "± 16.88",
             "unit": "ns/iter",
             "extra": "min: 9035.74ns  p75: 9116.65ns  p99: 9141.82ns"
           },
           {
-            "name": "isComplete — raw lookaround backreference renumbering — construct + exec (baseline, never asks)",
+            "name": "hitEnd — raw lookaround backreference renumbering — construct + exec (baseline, never asks)",
             "value": 11336.68,
             "range": "± 131.7",
             "unit": "ns/iter",
             "extra": "min: 10580.05ns  p75: 11472.73ns  p99: 11529.47ns"
           },
           {
-            "name": "isComplete — raw lookaround backreference renumbering — construct + exec + isComplete (includes probe build)",
+            "name": "hitEnd — raw lookaround backreference renumbering — construct + exec + hitEnd (includes probe build)",
             "value": 17175.46,
             "range": "± 443.27",
             "unit": "ns/iter",
             "extra": "min: 15522.92ns  p75: 16983.83ns  p99: 20079.82ns"
           },
           {
-            "name": "isComplete — raw lookaround backreference renumbering — isComplete — warm instance",
+            "name": "hitEnd — raw lookaround backreference renumbering — hitEnd — warm instance",
             "value": 863.15,
             "range": "± 2.8",
             "unit": "ns/iter",
@@ -12005,84 +12005,84 @@ window.BENCHMARK_DATA = {
             "extra": "min: 9577.87ns  p75: 10376.22ns  p99: 10378.56ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — construct + exec (baseline, never asks)",
+            "name": "hitEnd — static path (ISO date) — construct + exec (baseline, never asks)",
             "value": 3795.22,
             "range": "± 116.96",
             "unit": "ns/iter",
             "extra": "min: 3653.51ns  p75: 3896.76ns  p99: 4372.25ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — construct + exec + isComplete (includes probe build)",
+            "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (includes probe build)",
             "value": 7358.03,
             "range": "± 115",
             "unit": "ns/iter",
             "extra": "min: 6760.00ns  p75: 7190.00ns  p99: 13601.00ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — construct + exec + isComplete (complete, includes probe build)",
+            "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (complete, includes probe build)",
             "value": 7341.39,
             "range": "± 86.79",
             "unit": "ns/iter",
             "extra": "min: 7042.80ns  p75: 7361.29ns  p99: 7794.89ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — isComplete — incomplete match, warm probe",
+            "name": "hitEnd — static path (ISO date) — hitEnd — incomplete match, warm probe",
             "value": 506.23,
             "range": "± 1.95",
             "unit": "ns/iter",
             "extra": "min: 495.99ns  p75: 502.10ns  p99: 602.84ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — isComplete — complete match, warm probe",
+            "name": "hitEnd — static path (ISO date) — hitEnd — complete match, warm probe",
             "value": 555.15,
             "range": "± 2.42",
             "unit": "ns/iter",
             "extra": "min: 545.71ns  p75: 552.96ns  p99: 598.91ns"
           },
           {
-            "name": "isComplete — backreference path (repeated word) — construct + exec (baseline, never asks)",
+            "name": "hitEnd — backreference path (repeated word) — construct + exec (baseline, never asks)",
             "value": 9681.46,
             "range": "± 633.12",
             "unit": "ns/iter",
             "extra": "min: 8691.20ns  p75: 10098.89ns  p99: 10161.51ns"
           },
           {
-            "name": "isComplete — backreference path (repeated word) — construct + exec + isComplete (includes probe build)",
+            "name": "hitEnd — backreference path (repeated word) — construct + exec + hitEnd (includes probe build)",
             "value": 14656.86,
             "range": "± 210.5",
             "unit": "ns/iter",
             "extra": "min: 12649.00ns  p75: 13490.00ns  p99: 26869.00ns"
           },
           {
-            "name": "isComplete — backreference path (repeated word) — isComplete — same match, expansion probe cached",
+            "name": "hitEnd — backreference path (repeated word) — hitEnd — same match, expansion probe cached",
             "value": 693.1,
             "range": "± 2.92",
             "unit": "ns/iter",
             "extra": "min: 684.47ns  p75: 693.21ns  p99: 737.12ns"
           },
           {
-            "name": "isComplete — backreference path (repeated word) — exec + isComplete — fresh match, probe rebuilt per match",
+            "name": "hitEnd — backreference path (repeated word) — exec + hitEnd — fresh match, alternating capture, probe rebuilt per match",
             "value": 6830.39,
             "range": "± 22.13",
             "unit": "ns/iter",
             "extra": "min: 6774.66ns  p75: 6845.53ns  p99: 6923.39ns"
           },
           {
-            "name": "isComplete — raw lookaround backreference renumbering — construct + exec (baseline, never asks)",
+            "name": "hitEnd — raw lookaround backreference renumbering — construct + exec (baseline, never asks)",
             "value": 8599.39,
             "range": "± 422.84",
             "unit": "ns/iter",
             "extra": "min: 7946.83ns  p75: 8843.26ns  p99: 8949.30ns"
           },
           {
-            "name": "isComplete — raw lookaround backreference renumbering — construct + exec + isComplete (includes probe build)",
+            "name": "hitEnd — raw lookaround backreference renumbering — construct + exec + hitEnd (includes probe build)",
             "value": 12153.98,
             "range": "± 25.54",
             "unit": "ns/iter",
             "extra": "min: 12042.37ns  p75: 12114.11ns  p99: 12210.06ns"
           },
           {
-            "name": "isComplete — raw lookaround backreference renumbering — isComplete — warm instance",
+            "name": "hitEnd — raw lookaround backreference renumbering — hitEnd — warm instance",
             "value": 604.32,
             "range": "± 2.3",
             "unit": "ns/iter",
@@ -12575,84 +12575,84 @@ window.BENCHMARK_DATA = {
             "extra": "min: 12713.25ns  p75: 13500.62ns  p99: 13529.96ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — construct + exec (baseline, never asks)",
+            "name": "hitEnd — static path (ISO date) — construct + exec (baseline, never asks)",
             "value": 5017.65,
             "range": "± 186.97",
             "unit": "ns/iter",
             "extra": "min: 4752.44ns  p75: 5164.55ns  p99: 5508.46ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — construct + exec + isComplete (includes probe build)",
+            "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (includes probe build)",
             "value": 9946.86,
             "range": "± 110",
             "unit": "ns/iter",
             "extra": "min: 8766.00ns  p75: 9267.00ns  p99: 23996.00ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — construct + exec + isComplete (complete, includes probe build)",
+            "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (complete, includes probe build)",
             "value": 9385.46,
             "range": "± 71.4",
             "unit": "ns/iter",
             "extra": "min: 9101.98ns  p75: 9402.52ns  p99: 9811.19ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — isComplete — incomplete match, warm probe",
+            "name": "hitEnd — static path (ISO date) — hitEnd — incomplete match, warm probe",
             "value": 712.6,
             "range": "± 2.02",
             "unit": "ns/iter",
             "extra": "min: 703.23ns  p75: 710.71ns  p99: 762.88ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — isComplete — complete match, warm probe",
+            "name": "hitEnd — static path (ISO date) — hitEnd — complete match, warm probe",
             "value": 757.44,
             "range": "± 2.47",
             "unit": "ns/iter",
             "extra": "min: 745.05ns  p75: 752.83ns  p99: 878.39ns"
           },
           {
-            "name": "isComplete — backreference path (repeated word) — construct + exec (baseline, never asks)",
+            "name": "hitEnd — backreference path (repeated word) — construct + exec (baseline, never asks)",
             "value": 12932.26,
             "range": "± 58.9",
             "unit": "ns/iter",
             "extra": "min: 11830.28ns  p75: 13088.41ns  p99: 13219.72ns"
           },
           {
-            "name": "isComplete — backreference path (repeated word) — construct + exec + isComplete (includes probe build)",
+            "name": "hitEnd — backreference path (repeated word) — construct + exec + hitEnd (includes probe build)",
             "value": 20322.47,
             "range": "± 335.5",
             "unit": "ns/iter",
             "extra": "min: 17512.00ns  p75: 18655.00ns  p99: 43482.00ns"
           },
           {
-            "name": "isComplete — backreference path (repeated word) — isComplete — same match, expansion probe cached",
+            "name": "hitEnd — backreference path (repeated word) — hitEnd — same match, expansion probe cached",
             "value": 982.92,
             "range": "± 5.54",
             "unit": "ns/iter",
             "extra": "min: 970.85ns  p75: 983.91ns  p99: 1058.12ns"
           },
           {
-            "name": "isComplete — backreference path (repeated word) — exec + isComplete — fresh match, probe rebuilt per match",
+            "name": "hitEnd — backreference path (repeated word) — exec + hitEnd — fresh match, alternating capture, probe rebuilt per match",
             "value": 8407.93,
             "range": "± 26.74",
             "unit": "ns/iter",
             "extra": "min: 8348.43ns  p75: 8410.14ns  p99: 8430.89ns"
           },
           {
-            "name": "isComplete — raw lookaround backreference renumbering — construct + exec (baseline, never asks)",
+            "name": "hitEnd — raw lookaround backreference renumbering — construct + exec (baseline, never asks)",
             "value": 11448.58,
             "range": "± 287.02",
             "unit": "ns/iter",
             "extra": "min: 10805.64ns  p75: 11636.73ns  p99: 11662.00ns"
           },
           {
-            "name": "isComplete — raw lookaround backreference renumbering — construct + exec + isComplete (includes probe build)",
+            "name": "hitEnd — raw lookaround backreference renumbering — construct + exec + hitEnd (includes probe build)",
             "value": 16149.84,
             "range": "± 125.36",
             "unit": "ns/iter",
             "extra": "min: 15233.22ns  p75: 15966.12ns  p99: 16621.82ns"
           },
           {
-            "name": "isComplete — raw lookaround backreference renumbering — isComplete — warm instance",
+            "name": "hitEnd — raw lookaround backreference renumbering — hitEnd — warm instance",
             "value": 835.96,
             "range": "± 3.2",
             "unit": "ns/iter",
@@ -13145,84 +13145,84 @@ window.BENCHMARK_DATA = {
             "extra": "min: 12302.78ns  p75: 13082.74ns  p99: 13130.59ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — construct + exec (baseline, never asks)",
+            "name": "hitEnd — static path (ISO date) — construct + exec (baseline, never asks)",
             "value": 4936.41,
             "range": "± 116.64",
             "unit": "ns/iter",
             "extra": "min: 4730.26ns  p75: 5001.57ns  p99: 5586.28ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — construct + exec + isComplete (includes probe build)",
+            "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (includes probe build)",
             "value": 9180.71,
             "range": "± 135.5",
             "unit": "ns/iter",
             "extra": "min: 8313.00ns  p75: 8834.00ns  p99: 18498.00ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — construct + exec + isComplete (complete, includes probe build)",
+            "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (complete, includes probe build)",
             "value": 9067.91,
             "range": "± 124.36",
             "unit": "ns/iter",
             "extra": "min: 8841.37ns  p75: 9154.49ns  p99: 9354.19ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — isComplete — incomplete match, warm probe",
+            "name": "hitEnd — static path (ISO date) — hitEnd — incomplete match, warm probe",
             "value": 629.54,
             "range": "± 2.49",
             "unit": "ns/iter",
             "extra": "min: 617.75ns  p75: 626.00ns  p99: 679.92ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — isComplete — complete match, warm probe",
+            "name": "hitEnd — static path (ISO date) — hitEnd — complete match, warm probe",
             "value": 699.93,
             "range": "± 2.27",
             "unit": "ns/iter",
             "extra": "min: 690.46ns  p75: 698.52ns  p99: 752.13ns"
           },
           {
-            "name": "isComplete — backreference path (repeated word) — construct + exec (baseline, never asks)",
+            "name": "hitEnd — backreference path (repeated word) — construct + exec (baseline, never asks)",
             "value": 12301.37,
             "range": "± 63.9",
             "unit": "ns/iter",
             "extra": "min: 11163.16ns  p75: 12492.47ns  p99: 12638.34ns"
           },
           {
-            "name": "isComplete — backreference path (repeated word) — construct + exec + isComplete (includes probe build)",
+            "name": "hitEnd — backreference path (repeated word) — construct + exec + hitEnd (includes probe build)",
             "value": 17957.59,
             "range": "± 290",
             "unit": "ns/iter",
             "extra": "min: 15864.00ns  p75: 16965.00ns  p99: 32268.00ns"
           },
           {
-            "name": "isComplete — backreference path (repeated word) — isComplete — same match, expansion probe cached",
+            "name": "hitEnd — backreference path (repeated word) — hitEnd — same match, expansion probe cached",
             "value": 933.64,
             "range": "± 3.09",
             "unit": "ns/iter",
             "extra": "min: 922.31ns  p75: 932.45ns  p99: 978.94ns"
           },
           {
-            "name": "isComplete — backreference path (repeated word) — exec + isComplete — fresh match, probe rebuilt per match",
+            "name": "hitEnd — backreference path (repeated word) — exec + hitEnd — fresh match, alternating capture, probe rebuilt per match",
             "value": 8303.66,
             "range": "± 20.24",
             "unit": "ns/iter",
             "extra": "min: 8239.46ns  p75: 8329.94ns  p99: 8335.79ns"
           },
           {
-            "name": "isComplete — raw lookaround backreference renumbering — construct + exec (baseline, never asks)",
+            "name": "hitEnd — raw lookaround backreference renumbering — construct + exec (baseline, never asks)",
             "value": 11002.92,
             "range": "± 311.78",
             "unit": "ns/iter",
             "extra": "min: 10357.40ns  p75: 11214.74ns  p99: 11224.84ns"
           },
           {
-            "name": "isComplete — raw lookaround backreference renumbering — construct + exec + isComplete (includes probe build)",
+            "name": "hitEnd — raw lookaround backreference renumbering — construct + exec + hitEnd (includes probe build)",
             "value": 15843.54,
             "range": "± 275.5",
             "unit": "ns/iter",
             "extra": "min: 13901.00ns  p75: 14893.00ns  p99: 31307.00ns"
           },
           {
-            "name": "isComplete — raw lookaround backreference renumbering — isComplete — warm instance",
+            "name": "hitEnd — raw lookaround backreference renumbering — hitEnd — warm instance",
             "value": 822.77,
             "range": "± 3.42",
             "unit": "ns/iter",
@@ -13715,84 +13715,84 @@ window.BENCHMARK_DATA = {
             "extra": "min: 9486.46ns  p75: 10249.18ns  p99: 10373.88ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — construct + exec (baseline, never asks)",
+            "name": "hitEnd — static path (ISO date) — construct + exec (baseline, never asks)",
             "value": 3797.72,
             "range": "± 103.34",
             "unit": "ns/iter",
             "extra": "min: 3677.88ns  p75: 3913.10ns  p99: 4010.65ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — construct + exec + isComplete (includes probe build)",
+            "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (includes probe build)",
             "value": 7316.35,
             "range": "± 115",
             "unit": "ns/iter",
             "extra": "min: 6600.00ns  p75: 7051.00ns  p99: 15012.00ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — construct + exec + isComplete (complete, includes probe build)",
+            "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (complete, includes probe build)",
             "value": 7017.07,
             "range": "± 91.11",
             "unit": "ns/iter",
             "extra": "min: 6765.31ns  p75: 7098.44ns  p99: 7236.26ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — isComplete — incomplete match, warm probe",
+            "name": "hitEnd — static path (ISO date) — hitEnd — incomplete match, warm probe",
             "value": 493.65,
             "range": "± 1.53",
             "unit": "ns/iter",
             "extra": "min: 486.91ns  p75: 492.68ns  p99: 529.44ns"
           },
           {
-            "name": "isComplete — static path (ISO date) — isComplete — complete match, warm probe",
+            "name": "hitEnd — static path (ISO date) — hitEnd — complete match, warm probe",
             "value": 550.67,
             "range": "± 1.69",
             "unit": "ns/iter",
             "extra": "min: 542.96ns  p75: 548.85ns  p99: 589.44ns"
           },
           {
-            "name": "isComplete — backreference path (repeated word) — construct + exec (baseline, never asks)",
+            "name": "hitEnd — backreference path (repeated word) — construct + exec (baseline, never asks)",
             "value": 9554.88,
             "range": "± 287.83",
             "unit": "ns/iter",
             "extra": "min: 8724.24ns  p75: 9810.77ns  p99: 9882.53ns"
           },
           {
-            "name": "isComplete — backreference path (repeated word) — construct + exec + isComplete (includes probe build)",
+            "name": "hitEnd — backreference path (repeated word) — construct + exec + hitEnd (includes probe build)",
             "value": 14031.15,
             "range": "± 205.5",
             "unit": "ns/iter",
             "extra": "min: 12298.00ns  p75: 13130.00ns  p99: 24576.00ns"
           },
           {
-            "name": "isComplete — backreference path (repeated word) — isComplete — same match, expansion probe cached",
+            "name": "hitEnd — backreference path (repeated word) — hitEnd — same match, expansion probe cached",
             "value": 708.86,
             "range": "± 3.06",
             "unit": "ns/iter",
             "extra": "min: 700.49ns  p75: 709.40ns  p99: 745.02ns"
           },
           {
-            "name": "isComplete — backreference path (repeated word) — exec + isComplete — fresh match, probe rebuilt per match",
+            "name": "hitEnd — backreference path (repeated word) — exec + hitEnd — fresh match, alternating capture, probe rebuilt per match",
             "value": 6380.46,
             "range": "± 42.25",
             "unit": "ns/iter",
             "extra": "min: 6284.49ns  p75: 6421.80ns  p99: 6461.80ns"
           },
           {
-            "name": "isComplete — raw lookaround backreference renumbering — construct + exec (baseline, never asks)",
+            "name": "hitEnd — raw lookaround backreference renumbering — construct + exec (baseline, never asks)",
             "value": 8612.87,
             "range": "± 355.06",
             "unit": "ns/iter",
             "extra": "min: 7969.11ns  p75: 8803.27ns  p99: 8828.12ns"
           },
           {
-            "name": "isComplete — raw lookaround backreference renumbering — construct + exec + isComplete (includes probe build)",
+            "name": "hitEnd — raw lookaround backreference renumbering — construct + exec + hitEnd (includes probe build)",
             "value": 11979.1,
             "range": "± 39.57",
             "unit": "ns/iter",
             "extra": "min: 11755.54ns  p75: 11869.90ns  p99: 12405.64ns"
           },
           {
-            "name": "isComplete — raw lookaround backreference renumbering — isComplete — warm instance",
+            "name": "hitEnd — raw lookaround backreference renumbering — hitEnd — warm instance",
             "value": 626.45,
             "range": "± 1.95",
             "unit": "ns/iter",
