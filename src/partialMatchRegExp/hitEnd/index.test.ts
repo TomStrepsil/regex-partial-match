@@ -261,6 +261,14 @@ describe("hitEnd()", () => {
       expect(partial.exec("-\n")).toMatchAt({ match: "-\n", index: 0 });
     });
 
+    it("sees a caret leading a group body read the end of input", () => {
+      const partial = new PartialMatchRegExp(/\W*(^x)/m);
+
+      expect(hitEndOf(partial, "-")).toBe(true);
+      expect(hitEndOf(partial, "\nx")).toBe(false);
+      expect(partial.exec("-\nx")).toMatchAt({ match: "-\nx", index: 0 });
+    });
+
     it("settles a caret that held after a group turning multiline off", () => {
       expect(hitEndOf(new PartialMatchRegExp(/(?-m:\n)^/m), "\n")).toBe(false);
     });

@@ -1801,6 +1801,46 @@ c`)
       expect(partial.exec(" foo")).toNotMatch();
     });
 
+    describe("a start anchor leading a group body", () => {
+      const groups: [string, RegExp][] = [
+        ["a capturing group", /(^x)/],
+        ["a non-capturing group", /(?:^x)/],
+        ["a named group", /(?<g>^x)/],
+        ["a nested group", /((^x))/],
+        ["a modifier group", /(?i:^x)/]
+      ];
+
+      it.each(groups)(
+        "holds the start-anchor mitigation inside %s, as it does for the bare anchor",
+        (_, pattern) => {
+          const partial = new PartialMatchRegExp(pattern);
+
+          expect(partial.exec("a")).toBeNull();
+          expect(partial.exec("")).toMatchAt({ match: "", index: 0 });
+          expect(partial.exec("x")).toMatchAt({ match: "x", index: 0 });
+        }
+      );
+
+      it("holds the start-anchor mitigation inside a quantified group", () => {
+        expect(new PartialMatchRegExp(/(^a)+/).exec("b")).toBeNull();
+        expect(new PartialMatchRegExp(/(^a){2}/).exec("b")).toBeNull();
+      });
+
+      it("keeps a quantified group led by a start anchor optional after the part before it", () => {
+        expect(new PartialMatchRegExp(/b(^a)?/).exec("b")).toMatchAt({
+          match: "b",
+          index: 0
+        });
+      });
+
+      it("keeps the captures of the group", () => {
+        expect(new PartialMatchRegExp(/(^x)/).exec("")?.[1]).toBe("");
+        expect(new PartialMatchRegExp(/(^xy)/).exec("x")?.[1]).toBe("x");
+        expect(new PartialMatchRegExp(/(?<g>^x)/).exec("x")?.groups?.g).toBe("x");
+        expect(new PartialMatchRegExp(/(^a)+/).exec("a")?.[1]).toBe("a");
+      });
+    });
+
     it("should support partial matching of end-of-input assertions", () => {
       const input = /foo$/;
       const partial = new PartialMatchRegExp(input);
@@ -2255,6 +2295,80 @@ c`)
               match: "-",
               index: 0
             });
+          });
+        });
+
+        describe("a caret leading a capturing, non-capturing or named group body", () => {
+          const groups: [string, RegExp, RegExp][] = [
+            ["a capturing group", /(^x)/m, /a(^x)/m],
+            ["a non-capturing group", /(?:^x)/m, /a(?:^x)/m],
+            ["a named group", /(?<g>^x)/m, /a(?<g>^x)/m],
+            ["a nested group", /((^x))/m, /a((^x))/m]
+          ];
+
+          it.each(groups)(
+            "still holds the start-anchor mitigation when nothing precedes %s",
+            (_, pattern) => {
+              const partial = new PartialMatchRegExp(pattern);
+
+              expect(partial.exec("a")).toBeNull();
+              expect(partial.exec("a\nb")).toBeNull();
+              expect(partial.exec("a\n")).toMatchAt({ match: "", index: 2 });
+            }
+          );
+
+          it.each(groups)(
+            "refuses the caret after an atom before %s that cannot end a line",
+            (_, __, pattern) => {
+              expect(new PartialMatchRegExp(pattern).exec("a")).toBeNull();
+            }
+          );
+
+          it("is judged against the part before the group", () => {
+            expect(new PartialMatchRegExp(/\W(^x)/m).exec("a")).toMatchAt({
+              match: "",
+              index: 1
+            });
+            expect(new PartialMatchRegExp(/\n(^x)/m).exec("\n")).toMatchAt({
+              match: "\n",
+              index: 0
+            });
+            expect(new PartialMatchRegExp(/\s+(?:^x)/m).exec(" ")).toMatchAt({
+              match: " ",
+              index: 0
+            });
+          });
+
+          it("keeps the captures of the group", () => {
+            const partial = new PartialMatchRegExp(/\n(^xy)/m);
+
+            expect(partial.exec("\n")?.[1]).toBe("");
+            expect(partial.exec("\nx")?.[1]).toBe("x");
+            expect(
+              new PartialMatchRegExp(/\n(?<g>^x)/m).exec("\nx")?.groups?.g
+            ).toBe("x");
+          });
+
+          it("stays inside a quantified group", () => {
+            expect(new PartialMatchRegExp(/\W(^)?/m).exec("-")).toMatchAt({
+              match: "-",
+              index: 0
+            });
+            expect(new PartialMatchRegExp(/\s+(^a)+/m).exec(" ")).toMatchAt({
+              match: " ",
+              index: 0
+            });
+          });
+
+          it("keeps the capture of a group nested in a quantified group whose body it leads", () => {
+            const partial = new PartialMatchRegExp(/\n(?:(^a))+/m);
+
+            expect(partial.exec("\n")).toMatchAt({ match: "\n", index: 0 });
+            expect(partial.exec("\n")?.[1]).toBe("");
+          });
+
+          it("refuses a caret hoisted out of a group nested in a quantified modifier group, after an atom that cannot end a line", () => {
+            expect(new PartialMatchRegExp(/a(?i:(^a))+/m).exec("a")).toBeNull();
           });
         });
 
@@ -4027,7 +4141,7 @@ c`)
       expect(partial.lastIndex).toBe(6);
     });
 
-    it("global flag: an unanchored pattern still matches an empty string at the true end of input once past all real matches (see the .test()/.exec() caveat in the README)", () => {
+    it("global flag: an unanchored pattern still matches an empty string at the true end of input once past all real matches (see the .test()/.exec() caveat in docs/caveats.md)", () => {
       const partial = new PartialMatchRegExp(/ab/g);
       partial.lastIndex = 6;
       expect(partial.exec("abxyab")).toMatchObject({ 0: "", index: 6 });
