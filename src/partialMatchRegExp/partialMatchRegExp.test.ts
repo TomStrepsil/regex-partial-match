@@ -1923,6 +1923,14 @@ c`)
           match: "",
           index: 1
         });
+        expect(new PartialMatchRegExp(/(?i:a(?<=a))b/).exec("b")).toMatchAt({
+          match: "",
+          index: 1
+        });
+        expect(new PartialMatchRegExp(/(?i:a(?<=a))b/).exec("")).toMatchAt({
+          match: "",
+          index: 0
+        });
       });
 
       it("keeps the captures of the group", () => {

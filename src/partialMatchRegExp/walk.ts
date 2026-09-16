@@ -589,7 +589,8 @@ export function walk(
           else if (!containsRawLookaround && runsOut) {
             closing = GROUP_CLOSING;
             if (opensAlternative && !hoistedCaretStays) alternativeRunsOut = true;
-          }
+          } else if (containsRawLookaround)
+            closing = DISJUNCTION_TO_END_OF_INPUT;
           lastGroupOpen = result.length;
           lastGroupClose = lastGroupOpen + body.length + 1;
           lastGroupScope = groupScope;
