@@ -2174,6 +2174,20 @@ c`)
           });
         });
 
+        it("refuses a further caret after one no alternative of the group before it could hold", () => {
+          expect(new PartialMatchRegExp(/^(a|b)^^x/m).exec("")).toBeNull();
+          expect(new PartialMatchRegExp(/(a|b)^^x/m).exec("a")).toBeNull();
+          expect(new PartialMatchRegExp(/(a)^^x/m).exec("a")).toBeNull();
+          expect(new PartialMatchRegExp(/(a|\n)^^x/m).exec("a")).toMatchAt({
+            match: "",
+            index: 1
+          });
+          expect(new PartialMatchRegExp(/(a\n|b\n)^^x/m).exec("a")).toMatchAt({
+            match: "a",
+            index: 0
+          });
+        });
+
         it("looks through a lookahead ending the group before it, to the atom that decides the caret", () => {
           expect(new PartialMatchRegExp(/(a(?=b))^x/m).exec("a")).toBeNull();
           expect(new PartialMatchRegExp(/(a(?=b)|c)^x/m).exec("a")).toBeNull();

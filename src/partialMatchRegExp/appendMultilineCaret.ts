@@ -67,7 +67,8 @@ export function partDecidingCaret(
     if (isOptionalAtom(part)) {
       return canMatchLineTerminator(part, scope) ? index : CANNOT_END_LINE;
     }
-    if (!isQuantifier(part)) return index;
+    if (!isQuantifier(part))
+      return result[index] === UNSATISFIABLE ? CANNOT_END_LINE : index;
     const quantifierIndex = quantifierEndingAt(result, index);
     const atom = result[quantifierIndex - 1];
     if (!isOptionalAtom(atom) || canMatchLineTerminator(atom, scope)) {
