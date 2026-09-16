@@ -3,7 +3,7 @@ import type { Part } from "./part.ts";
 export const OCCURRENCES_REGEX = /\{\d+(?:,\d*)?\}/y;
 export const QUANTIFIER_PART = /^(?:[*+?]|\{\d+(?:,\d*)?\})$/;
 const QUANTIFIER_AHEAD = /[*+?]|\{\d+(?:,\d*)?\}/y;
-const LAZY_MARK = "?";
+export const LAZY_MARK = "?";
 
 export const isQuantifier = (part: Part | undefined) =>
   typeof part === "string" && QUANTIFIER_PART.test(part);

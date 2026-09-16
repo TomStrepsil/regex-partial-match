@@ -25,6 +25,7 @@ import appendMultilineCaret, {
   type LookaheadSpan
 } from "./appendMultilineCaret.ts";
 import {
+  LAZY_MARK,
   OCCURRENCES_REGEX,
   isQuantifier,
   isQuantifierAhead,
@@ -70,7 +71,7 @@ function leadingCaret(
     else if (part === LOOKAHEAD_OPENING)
       index = lookaheadClosing(lookaheadSpans, index) + 1;
     else if (part === ONLY_AT_END_OF_INPUT && isQuantifier(body[index + 1]))
-      index += body[index + 2] === "?" ? 3 : 2;
+      index++;
     else if (
       (body[index + 1] === GROUP_CLOSING ||
         body[index + 1] === DISJUNCTION_TO_END_OF_INPUT) &&
@@ -78,6 +79,8 @@ function leadingCaret(
     )
       index += 2;
     else return -1;
+    if (isQuantifier(body[index]))
+      index += body[index + 1] === LAZY_MARK ? 2 : 1;
   }
 }
 

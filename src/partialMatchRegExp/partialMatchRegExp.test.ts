@@ -1821,6 +1821,14 @@ c`)
           "a group whose body opens with two lookaheads before the anchor",
           /((?=x)(?=x)^x)/
         ],
+        [
+          "a group whose body opens with a quantified lookahead before the anchor",
+          /((?=x)*^x)/
+        ],
+        [
+          "a group whose body opens with a quantified empty group before the anchor",
+          /(()*^x)/
+        ],
         ["a group whose body opens with a word boundary before the anchor", /(?:\b^x)/]
       ];
 
@@ -1834,6 +1842,17 @@ c`)
           expect(partial.exec("x")).toMatchAt({ match: "x", index: 0 });
         }
       );
+
+      it("looks past a quantified zero-width part before the anchor, which still consumes nothing", () => {
+        expect(new PartialMatchRegExp(/((?=a)*?^x)/).exec("b")).toBeNull();
+        expect(new PartialMatchRegExp(/((?=a)+^x)/).exec("b")).toBeNull();
+        expect(new PartialMatchRegExp(/((?!a)*^x)/).exec("b")).toBeNull();
+        expect(new PartialMatchRegExp(/((?:)*^x)/).exec("b")).toBeNull();
+        expect(new PartialMatchRegExp(/\W((?=x)*^x)/m).exec("a")).toMatchAt({
+          match: "",
+          index: 1
+        });
+      });
 
       it("keeps a quantified group led by a start anchor optional after the part before it", () => {
         expect(new PartialMatchRegExp(/b(^a)?/).exec("b")).toMatchAt({
