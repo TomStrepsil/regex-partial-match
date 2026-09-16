@@ -2132,6 +2132,18 @@ c`)
           });
         });
 
+        it("looks through a lookahead ending the group before it, to the atom that decides the caret", () => {
+          expect(new PartialMatchRegExp(/(a(?=b))^x/m).exec("a")).toBeNull();
+          expect(new PartialMatchRegExp(/(a(?=b)|c)^x/m).exec("a")).toBeNull();
+          expect(new PartialMatchRegExp(/^-(a(?=b)|c(?=d))^x/m).exec("-")).toBeNull();
+          expect(new PartialMatchRegExp(/(^a(?=b))^x/m).exec("a")).toBeNull();
+          expect(new PartialMatchRegExp(/(^a(?=b)|^c)^x/m).exec("a")).toBeNull();
+          expect(new PartialMatchRegExp(/(a\n(?=b))^x/m).exec("a")).toMatchAt({
+            match: "a",
+            index: 0
+          });
+        });
+
         it("gives the caret a branch of its own after a quantifier ending the group before it", () => {
           expect(new PartialMatchRegExp(/([a]\D?)^/m).exec("a")).toMatchAt({
             match: "a",
@@ -2523,6 +2535,7 @@ c`)
             expect(new PartialMatchRegExp(/(^a){2}/m).exec("a")).toBeNull();
             expect(new PartialMatchRegExp(/(?i:^a){2}/m).exec("a")).toBeNull();
             expect(new PartialMatchRegExp(/(^a|^b){2,}/m).exec("a")).toBeNull();
+            expect(new PartialMatchRegExp(/(^a(?=b)){2}/m).exec("a")).toBeNull();
           });
 
           it("keeps a later repetition of a group whose body can end a line", () => {
@@ -2535,6 +2548,10 @@ c`)
               index: 0
             });
             expect(new PartialMatchRegExp(/(^a)+/m).exec("a")).toMatchAt({
+              match: "a",
+              index: 0
+            });
+            expect(new PartialMatchRegExp(/(^a(?=b)\n){2}/m).exec("a")).toMatchAt({
               match: "a",
               index: 0
             });

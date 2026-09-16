@@ -81,12 +81,20 @@ function leadingCaret(
   }
 }
 
-function canEndLine(body: Part[], starts: readonly number[], scope: number) {
+function canEndLine(
+  body: Part[],
+  starts: readonly number[],
+  scope: number,
+  lookaheadSpans: LookaheadSpan[] | undefined
+) {
   const scanned = body.slice();
   let end = body.length;
   for (let k = starts.length; k--; ) {
     const start = starts[k];
-    if (partDecidingCaret(scanned, end - 1, start - 1, scope, undefined) !== CANNOT_END_LINE)
+    if (
+      partDecidingCaret(scanned, end - 1, start - 1, scope, lookaheadSpans, 0) !==
+      CANNOT_END_LINE
+    )
       return true;
     end = start - 1;
   }
@@ -146,6 +154,7 @@ export function walk(
     let lastGroupClose = -1;
     let lastGroupScope = scope;
     let lastGroupAlternativeStarts: readonly number[] | undefined;
+    let lastGroupLookaheadSpans: LookaheadSpan[] | undefined;
     let lookaheadSpans: LookaheadSpan[] | undefined;
     let alternativeStarts: number[] | undefined;
     let alternativeStart = 0;
@@ -369,6 +378,7 @@ export function walk(
               lastGroupClose,
               lastGroupScope,
               lastGroupAlternativeStarts,
+              lastGroupLookaheadSpans,
               lookaheadSpans,
               scope
             );
@@ -437,6 +447,7 @@ export function walk(
                     lastGroupClose,
                     lastGroupScope,
                     lastGroupAlternativeStarts,
+                    lastGroupLookaheadSpans,
                     lookaheadSpans,
                     scope
                   );
@@ -531,19 +542,30 @@ export function walk(
                   lastGroupClose,
                   lastGroupScope,
                   lastGroupAlternativeStarts,
+                  lastGroupLookaheadSpans,
                   lookaheadSpans,
                   scope
                 );
               } else result.push(START_ANCHOR);
             }
             if (quantifier === undefined) {
-              for (let k = carets.length; k--; ) body.splice(carets[k], 1);
+              for (let k = carets.length; k--; ) {
+                body.splice(carets[k], 1);
+                if (lastBodyLookaheadSpans)
+                  for (const span of lastBodyLookaheadSpans) {
+                    if (span[0] > carets[k]) {
+                      span[0]--;
+                      span[1]--;
+                    }
+                  }
+              }
               if (lastBodyAlternativeStarts)
                 for (let k = starts.length; k--; )
                   lastBodyAlternativeStarts[k] -= k;
             } else if (groupScope & MULTILINE) {
               const repeatedCaret =
-                minimum > 1 && !canEndLine(body, starts, groupScope)
+                minimum > 1 &&
+                !canEndLine(body, starts, groupScope, lastBodyLookaheadSpans)
                   ? UNSATISFIABLE
                   : asOptionalAtom(START_ANCHOR);
               for (const caret of carets) body[caret] = repeatedCaret;
@@ -563,6 +585,7 @@ export function walk(
           lastGroupClose = lastGroupOpen + body.length + 1;
           lastGroupScope = groupScope;
           lastGroupAlternativeStarts = lastBodyAlternativeStarts;
+          lastGroupLookaheadSpans = lastBodyLookaheadSpans;
           result.push(opening, ...body, closing);
           if (groupNumber) (closedGroupNumbers ??= new Set()).add(groupNumber);
           if (declaredName !== undefined)

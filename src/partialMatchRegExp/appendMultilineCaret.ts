@@ -30,10 +30,11 @@ const isTransparentToCaret = (part: Part) =>
 
 function lookaheadOpeningClosedAt(
   lookaheadSpans: LookaheadSpan[],
-  index: number
+  index: number,
+  spanOffset: number
 ) {
   for (const span of lookaheadSpans) {
-    if (span[1] === index) return span[0];
+    if (span[1] + spanOffset === index) return span[0] + spanOffset;
   }
   return NO_LOOKAHEAD;
 }
@@ -43,12 +44,17 @@ export function partDecidingCaret(
   index: number,
   floor: number,
   scope: number,
-  lookaheadSpans: LookaheadSpan[] | undefined
+  lookaheadSpans: LookaheadSpan[] | undefined,
+  spanOffset: number
 ): number {
   while (index > floor) {
     const part = result[index];
     if (lookaheadSpans !== undefined) {
-      const lookaheadOpening = lookaheadOpeningClosedAt(lookaheadSpans, index);
+      const lookaheadOpening = lookaheadOpeningClosedAt(
+        lookaheadSpans,
+        index,
+        spanOffset
+      );
       if (lookaheadOpening !== NO_LOOKAHEAD) {
         index = lookaheadOpening - 1;
         continue;
@@ -125,6 +131,7 @@ function appendCaretToAlternatives(
   close: number,
   scope: number,
   starts: readonly number[],
+  bodySpans: LookaheadSpan[] | undefined,
   lookaheadSpans: LookaheadSpan[] | undefined
 ) {
   const anchors: number[] = [];
@@ -132,7 +139,14 @@ function appendCaretToAlternatives(
   let end = close;
   for (let k = starts.length; k--; ) {
     const floor = open + starts[k];
-    const anchor = partDecidingCaret(result, end - 1, floor, scope, undefined);
+    const anchor = partDecidingCaret(
+      result,
+      end - 1,
+      floor,
+      scope,
+      bodySpans,
+      open + 1
+    );
     if (
       anchor === floor ||
       (anchor !== CANNOT_END_LINE &&
@@ -170,6 +184,7 @@ function appendMultilineCaret(
   lastGroupClose: number,
   lastGroupScope: number,
   lastGroupAlternativeStarts: readonly number[] | undefined,
+  lastGroupLookaheadSpans: LookaheadSpan[] | undefined,
   lookaheadSpans: LookaheadSpan[] | undefined,
   scope: number
 ): number {
@@ -180,7 +195,8 @@ function appendMultilineCaret(
     result.length - 1,
     -1,
     scope,
-    lookaheadSpans
+    lookaheadSpans,
+    0
   );
   if (anchor >= 0 && anchor === lastGroupClose) {
     if (lastGroupAlternativeStarts)
@@ -190,6 +206,7 @@ function appendMultilineCaret(
         lastGroupClose,
         lastGroupScope,
         lastGroupAlternativeStarts,
+        lastGroupLookaheadSpans,
         lookaheadSpans
       );
     const bodyAnchor = partDecidingCaret(
@@ -197,7 +214,8 @@ function appendMultilineCaret(
       anchor - 1,
       lastGroupOpen,
       lastGroupScope,
-      undefined
+      lastGroupLookaheadSpans,
+      lastGroupOpen + 1
     );
     if (bodyAnchor === CANNOT_END_LINE) {
       anchor = CANNOT_END_LINE;
@@ -208,7 +226,8 @@ function appendMultilineCaret(
         lastGroupOpen - 1,
         -1,
         scope,
-        lookaheadSpans
+        lookaheadSpans,
+        0
       );
     } else if (isOptionalAtom(result[bodyAnchor])) {
       foldCaret(result, bodyAnchor, caretFor(lastGroupScope));
