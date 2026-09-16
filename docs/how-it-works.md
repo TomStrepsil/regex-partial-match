@@ -10,7 +10,7 @@ The library transforms a regular expression by wrapping each [atomic element](ht
 
 This allows the pattern to match prefixes of the original pattern, enabling validation of incomplete input.
 
-A group needs a truncation branch of its own only where its body cannot run out by itself. Where every alternative of the body starts with such an atom or with a group that can run out by itself, or holds nothing but carets, the group does without one, so a body nothing can complete is not skipped at the end of the input: `/a(b^)/` on `"a"` and `/((a)^)/m` on `""` are `null`. A body containing a lookbehind keeps the branch, since a lookbehind judged at the end of the input can fail where a continuation would satisfy it: `/(a(?<=a))b/` on `"b"` still matches `""` at index 1.
+A group needs a truncation branch of its own only where its body cannot run out by itself. Where every alternative of the body starts with such an atom — a backreference included, since it is given a branch of its own too — or with a group that can run out by itself, or holds nothing but carets, the group does without one, so a body nothing can complete is not skipped at the end of the input: `/a(b^)/` on `"a"` and `/((a)^)/m` on `""` are `null`. A body containing a lookbehind keeps the branch, since a lookbehind judged at the end of the input can fail where a continuation would satisfy it: `/(a(?<=a))b/` on `"b"` still matches `""` at index 1.
 
 ```javascript
 /(ab)/      → /((?:a|$(?![\s\S]))(?:b|$(?![\s\S])))/

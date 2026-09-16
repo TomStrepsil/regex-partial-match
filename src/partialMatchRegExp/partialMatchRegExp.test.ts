@@ -1890,6 +1890,29 @@ c`)
         expect(new PartialMatchRegExp(/.(?<g>\w^)/).exec("a")).toBeNull();
       });
 
+      it("counts a backreference or legacy escape opening a body as able to run out", () => {
+        expect(new PartialMatchRegExp(/^(a)(\1^)/).exec("a")).toBeNull();
+        expect(new PartialMatchRegExp(/^(?<g>a)(\k<g>^)/).exec("a")).toBeNull();
+        expect(new PartialMatchRegExp(/a(\8^)/).exec("a")).toBeNull();
+        expect(new PartialMatchRegExp(/a(\k^)/).exec("a")).toBeNull();
+        expect(new PartialMatchRegExp(/a(b\k^)/).exec("a")).toBeNull();
+      });
+
+      it("keeps such a body skippable where a continuation can still complete it", () => {
+        expect(new PartialMatchRegExp(/^(a)(\1b)/).exec("a")).toMatchAt({
+          match: "a",
+          index: 0
+        });
+        expect(new PartialMatchRegExp(/a(\kb)/).exec("a")).toMatchAt({
+          match: "a",
+          index: 0
+        });
+        expect(new PartialMatchRegExp(/^(a)(\1^|c)/).exec("a")).toMatchAt({
+          match: "a",
+          index: 0
+        });
+      });
+
       it("refuses a group whose alternative is only an anchor that cannot hold", () => {
         expect(new PartialMatchRegExp(/\n(?<g>^|\w^)/).exec("\n")).toBeNull();
         expect(new PartialMatchRegExp(/((^|\s^)b){2}/).exec("b")).toBeNull();

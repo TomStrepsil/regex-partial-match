@@ -174,6 +174,7 @@ export function walk(
     }
 
     function appendDigitRun(forcedRef?: number) {
+      if (result.length === alternativeStart) alternativeRunsOut = true;
       featureMask |= FEATURE_BIT.backreference;
       NOT_NUMBERS_REGEX.lastIndex = i + 1;
       const nextNonDigit = NOT_NUMBERS_REGEX.exec(source);
@@ -241,6 +242,8 @@ export function walk(
                   forward: !closedGroupNames?.has(decodeGroupName(ref)),
                   caseInsensitive: (scope & CASE_INSENSITIVE) !== 0
                 };
+                if (result.length === alternativeStart)
+                  alternativeRunsOut = true;
                 result.push(namedBackreference);
                 currentRawLookaroundBackreferences?.push(namedBackreference);
                 (namedBackreferencesSeen ??= []).push(namedBackreference);
@@ -255,6 +258,8 @@ export function walk(
                 });
               } else {
                 i += 2;
+                if (result.length === alternativeStart)
+                  alternativeRunsOut = true;
                 result.push(asOptionalAtom(LITERAL_K));
               }
               break;
