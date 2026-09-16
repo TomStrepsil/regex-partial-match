@@ -1813,6 +1813,14 @@ c`)
         ["a quantified group", /(^x)+/],
         ["a quantified group whose every alternative is anchored", /(?:^y|^x)+/],
         ["a group whose body opens with a lookahead before the anchor", /((?!y)^x)/],
+        [
+          "a group whose body opens with a positive lookahead before the anchor",
+          /((?=x)^x)/
+        ],
+        [
+          "a group whose body opens with two lookaheads before the anchor",
+          /((?=x)(?=x)^x)/
+        ],
         ["a group whose body opens with a word boundary before the anchor", /(?:\b^x)/]
       ];
 
@@ -2382,6 +2390,17 @@ c`)
               index: 0
             });
           });
+
+          it("leaves a group it is moved in front of skippable, so a later line can still open it", () => {
+            expect(new PartialMatchRegExp(/\n((?m:^a))/).exec("a")).toMatchAt({
+              match: "",
+              index: 1
+            });
+            expect(new PartialMatchRegExp(/\n(?:(?m:^a))b/).exec("a")).toMatchAt({
+              match: "",
+              index: 1
+            });
+          });
         });
 
         describe("a caret leading a group body", () => {
@@ -2492,6 +2511,12 @@ c`)
               match: "",
               index: 1
             });
+          });
+
+          it("refuses a group whose body leaves a caret only the start of the input can hold", () => {
+            expect(new PartialMatchRegExp(/((?-m:^x))/m).exec("a")).toBeNull();
+            expect(new PartialMatchRegExp(/\W((?-m:^x))/m).exec("a")).toBeNull();
+            expect(new PartialMatchRegExp(/((?-m:^x|^y))/m).exec("a")).toBeNull();
           });
 
           it("refuses a later repetition of a group whose body cannot end a line", () => {
