@@ -82,7 +82,7 @@ A group is judged by the end of its body, and a group whose body consumes nothin
 /(a|\n)^/m → /((?:a|$(?![\s\S]))[]|(?:\n^|$(?![\s\S])))/
 ```
 
-A caret the body leaves verbatim, because nothing consuming precedes it inside the group, is judged where the group starts. Where it leads every alternative it moves in front of the group, as [above](#-a-start-anchor-leading-a-group): `/\W(\S*^)/m` on `"-"` matches `""` at index 1. Otherwise the group keeps its truncation branch, a modifier group included. Only a caret the `m` flag reaches does: one left inside a `(?-m:...)` scope can hold nowhere but the start of the input, so the group around it is refused rather than skipped — `/((?-m:^x))/m` on `"a"` is `null`.
+A caret the body leaves verbatim, because nothing consuming precedes it inside the group, is judged where the group starts. Where it leads every alternative it moves in front of the group, as [above](#-a-start-anchor-leading-a-group): `/\W(\S*^)/m` on `"-"` matches `""` at index 1. Otherwise the group keeps its truncation branch, a modifier group included. Only a caret this rule left verbatim does: one inside a `(?-m:...)` scope can hold nowhere but the start of the input, and one the rule has already settled needs nothing from outside the group, so `/((?-m:^x))/m` and `/a(b^(?-m:^x))/m` on `"a"` are both `null`.
 
 A caret leading an unquantified lookahead body is judged against the part before the lookahead, unless the body alternates at its top level, where it would guard every alternative; there, as at the start of any later alternative, it stays verbatim. A caret leading a group body is covered [above](#-a-start-anchor-leading-a-group).
 

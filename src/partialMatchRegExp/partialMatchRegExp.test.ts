@@ -2571,6 +2571,8 @@ c`)
             expect(new PartialMatchRegExp(/((?-m:^x))/m).exec("a")).toBeNull();
             expect(new PartialMatchRegExp(/\W((?-m:^x))/m).exec("a")).toBeNull();
             expect(new PartialMatchRegExp(/((?-m:^x|^y))/m).exec("a")).toBeNull();
+            expect(new PartialMatchRegExp(/a(b^(?-m:^x))/m).exec("a")).toBeNull();
+            expect(new PartialMatchRegExp(/a(b^(?-m:^x))/m).exec("")).toBeNull();
           });
 
           it("refuses a later repetition of a group whose body cannot end a line", () => {

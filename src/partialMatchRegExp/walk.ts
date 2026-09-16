@@ -144,7 +144,7 @@ export function walk(
   let lastBodyAlternativeStarts: number[] | undefined;
   let lastBodyLookaheadSpans: LookaheadSpan[] | undefined;
   let caretsSeen = 0;
-  let multilineCaretsSeen = 0;
+  let verbatimMultilineCarets = 0;
   let lastBodyRunsOut = false;
 
   function extractSlice(length: number) {
@@ -379,7 +379,6 @@ export function walk(
           i++;
           const leadsAlternative = result.length === alternativeStart;
           if (scope & MULTILINE) {
-            multilineCaretsSeen++;
             lastGroupClose = appendMultilineCaret(
               result,
               lastGroupOpen,
@@ -390,6 +389,8 @@ export function walk(
               lookaheadSpans,
               scope
             );
+            if (result[result.length - 1] === START_ANCHOR)
+              verbatimMultilineCarets++;
           } else {
             result.push(START_ANCHOR);
           }
@@ -521,7 +522,7 @@ export function walk(
           const opensAlternative = result.length === alternativeStart;
           const rawLookaroundsBefore = rawLookarounds?.length ?? 0;
           const caretsBefore = caretsSeen;
-          const multilineCaretsBefore = multilineCaretsSeen;
+          const verbatimMultilineCaretsBefore = verbatimMultilineCarets;
           const body = process(groupScope);
           const runsOut = lastBodyRunsOut;
           const starts = lastBodyAlternativeStarts ?? NO_ALTERNATIVES;
@@ -534,7 +535,7 @@ export function walk(
               )
             : undefined;
           const containsMultilineCaret =
-            multilineCaretsSeen !== multilineCaretsBefore;
+            verbatimMultilineCarets !== verbatimMultilineCaretsBefore;
           const containsRawLookaround =
             (rawLookarounds?.length ?? 0) !== rawLookaroundsBefore;
           let hoistedCaretStays = false;
