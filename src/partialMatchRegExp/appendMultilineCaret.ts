@@ -90,6 +90,17 @@ function shiftSpans(
   }
 }
 
+const isPositionUncertain = (part: Part) =>
+  isBackreference(part) || isQuantifier(part);
+
+function foldCaret(result: Part[], index: number, caret: string) {
+  const atom = result[index] as string;
+  result[index] =
+    atom.slice(0, -DISJUNCTION_TO_END_OF_INPUT.length) +
+    caret +
+    DISJUNCTION_TO_END_OF_INPUT;
+}
+
 function wrapGroup(
   result: Part[],
   open: number,
@@ -147,6 +158,17 @@ function appendMultilineCaret(
         scope,
         lookaheadSpans
       );
+    } else if (isOptionalAtom(result[bodyAnchor])) {
+      foldCaret(result, bodyAnchor, caretFor(lastGroupScope));
+      return lastGroupClose;
+    } else if (isPositionUncertain(result[bodyAnchor])) {
+      result.splice(
+        bodyAnchor + 1,
+        0,
+        asOptionalAtom(caretFor(lastGroupScope))
+      );
+      shiftSpans(lookaheadSpans, bodyAnchor, 1);
+      return lastGroupClose + 1;
     } else {
       return wrapGroup(
         result,
@@ -167,10 +189,7 @@ function appendMultilineCaret(
   }
   const previous = result[anchor];
   if (isOptionalAtom(previous)) {
-    result[anchor] =
-      previous.slice(0, -DISJUNCTION_TO_END_OF_INPUT.length) +
-      caret +
-      DISJUNCTION_TO_END_OF_INPUT;
+    foldCaret(result, anchor, caret);
     return lastGroupClose;
   }
   const positionUncertain =

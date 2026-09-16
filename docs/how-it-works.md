@@ -10,6 +10,13 @@ The library transforms a regular expression by wrapping each [atomic element](ht
 
 This allows the pattern to match prefixes of the original pattern, enabling validation of incomplete input.
 
+A group needs a truncation branch of its own only where its body cannot run out by itself. Where every alternative of the body starts with such an atom, the group does without one, so a body nothing can complete is not skipped at the end of the input: `/a(b^)/` on `"a"` is `null`. A body containing a lookbehind keeps the branch, since a lookbehind judged at the end of the input can fail where a continuation would satisfy it: `/(a(?<=a))b/` on `"b"` still matches `""` at index 1.
+
+```javascript
+/(ab)/      → /((?:a|$(?![\s\S]))(?:b|$(?![\s\S])))/
+/(a(?<=a))/ → /((?:a|$(?![\s\S]))(?<=a)|$(?![\s\S]))/
+```
+
 Since the library accepts only valid regular expressions, this enables the algorithm to make lots of unguarded assumptions about the source of the expression. To remain lightweight, no runtime type validation is applied, so non-TypeScript consumers will be reliant on underlying errors thrown if used incorrectly.
 
 The library has been stress-tested with various regular expression features in isolation, and some in likely combination, but obviously it's an unbounded test space.
@@ -37,14 +44,18 @@ A lookbehind body judged at a truncated end is the remaining case that runs the 
 
 ## ⚓ A start anchor leading a group
 
-A group gets a truncation branch of its own, so a `^` leading its body could be skipped along with it: wrapped naively, `/(^x)/` would match `""` at the end of `"a"`, losing the start anchor's [empty-match mitigation](./caveats.md#test-behaviour-and-non-matching-results-from-exec-and-match). Outside `m`, an unquantified group's leading caret is therefore moved in front of the group, where it guards that branch too. A quantified group can't move it without changing what a later iteration requires, so the group gives up its own truncation branch instead, leaving the one inside its first atom behind the caret:
+A group's truncation branch, where it keeps one, would skip a `^` leading its body: wrapped naively, `/(^x)/` would match `""` at the end of `"a"`, losing the start anchor's [empty-match mitigation](./caveats.md#test-behaviour-and-non-matching-results-from-exec-and-match). So where every alternative of the body starts with a caret, behind nothing but assertions or empty groups, a group that is entered at least once takes the caret in front of it. Under `m` that caret is judged against the part before the group by the [rule below](#--under-the-m-flag).
+
+A group entered once drops the carets from its body. A repeated group keeps them for its later repetitions: outside `m` it does without its own truncation branch, so a later repetition cannot skip its caret, and under `m` they take the branch `(?:^|$(?![\s\S]))` described below. A group that may repeat zero times cannot take the caret in front, and is otherwise treated the same way:
 
 ```javascript
-/(^x)/  → /^((?:x|$(?![\s\S]))|$(?![\s\S]))/
-/(^a)+/ → /(^(?:a|$(?![\s\S])))+/
+/(^a|^b)/   → /^((?:a|$(?![\s\S]))|(?:b|$(?![\s\S])))/
+/((?!b)^a)/ → /^((?!b)(?:a|$(?![\s\S]))|$(?![\s\S]))/
+/(^a)+/     → /^(^(?:a|$(?![\s\S])))+/
+/(^a)*/     → /(^(?:a|$(?![\s\S])))*/
 ```
 
-Both return `null` on `"a"` and `"b"` respectively, and still capture `""` on `""`. A body that alternates at its top level is left alone, since there the caret guards only its first alternative, and so is a `(?-m:^...)` group inside a multiline pattern, where a caret in front of the group would mean a line start. Under `m`, a leading caret is handled by the rule below.
+The first three return `null` on `"c"`, and the last matches `""` at index 0, as the original does. A body with an alternative that does not start with a caret is left alone, and so is a `(?-m:^...)` group inside a multiline pattern, where a caret in front of the group would mean a line start.
 
 ## ⚓ `^` under the `m` flag
 
@@ -63,13 +74,23 @@ A caret only holds after a line terminator, so the rule first asks whether the p
 
 ### Groups
 
-A group is judged by the end of its body, and a group whose body consumes nothing, such as `(\b)`, is looked through. The wrap stays inside the group, spelled `(?m:^)` where the group turns multiline off, so a group the input ran out in front of still captures `""`.
+A group is judged by the end of its body, and a group whose body consumes nothing, such as `(\b)`, is looked through. The caret is folded into the body's last atom, takes a branch of its own after a quantifier or backreference ending the body, and wraps the whole body where it ends in anything else or alternates. Each stays inside the group, spelled `(?m:^)` where the group turns multiline off, so a group the input ran out in front of, or part way through, still captures what it has:
 
-A caret leading an unquantified group or lookahead body is judged against the part before that group, unless the body alternates at its top level, where it would guard every alternative; there, as at the start of any later alternative, it stays verbatim.
+```javascript
+/(a\n)^/m  → /((?:a|$(?![\s\S]))(?:\n^|$(?![\s\S])))/
+/(a\n?)^/m → /((?:a|$(?![\s\S]))(?:\n|$(?![\s\S]))?(?:^|$(?![\s\S])))/
+/(a|\n)^/m → /((?:(?:a|$(?![\s\S]))|(?:\n|$(?![\s\S])))^|$(?![\s\S]))/
+```
+
+A caret the body leaves verbatim, because nothing consuming precedes it inside the group, is judged where the group starts, so the group keeps its truncation branch.
+
+A caret leading an unquantified lookahead body is judged against the part before the lookahead, unless the body alternates at its top level, where it would guard every alternative; there, as at the start of any later alternative, it stays verbatim. A caret leading a group body is covered [above](#-a-start-anchor-leading-a-group).
 
 ### Where the position can move
 
-After a quantifier on an atom that can end a line, or after a backreference, the position genuinely can move, so the caret takes a branch of its own, `(?:^|$(?![\s\S]))`. That branch, and the wrap where the rule cannot see the end of a group's body, over-accept in the safe direction after a bounded quantifier saturated at the end, a backreference, a quantified, alternating or nested group, or a group that consumes nothing behind another group: `/(a)+^b/m` keeps `"a"`.
+After a quantifier on an atom that can end a line, or after a backreference, the position genuinely can move, so the caret takes a branch of its own, `(?:^|$(?![\s\S]))`. That branch, and the wrap where the rule cannot see the end of a group's body, over-accept in the safe direction after a bounded quantifier saturated at the end, a backreference, a quantified, alternating or nested group, a group that consumes nothing behind another group, or a later repetition of a group its caret leads: `/(a)+^b/m` keeps `"a"`, and `/(^a){2}/m` keeps `"a"`.
+
+A modifier group has no truncation branch to fall back on, so under `m` a caret its body leaves verbatim, or one leading an alternative inside a nested group, can refuse input a continuation would complete: `/\W(?i:\S*^)b/m` on `"a"` is `null`, although `"a\nb"` completes it.
 
 ### Where the position is fixed
 

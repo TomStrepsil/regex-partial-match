@@ -20,7 +20,7 @@ To mitigate, a start anchor (`^`) can prevent the engine from scanning forward t
 /^(?:x|$(?![\s\S]))/.test("a") === false;
 ```
 
-The anchor may lead a group body, as in `/(^x)/`, unless that body alternates at its top level — see [How It Works](./how-it-works.md#-a-start-anchor-leading-a-group).
+The anchor may lead a group body, as in `/(^x)/` or `/(^x|^y)+/`, provided it leads every alternative — see [How It Works](./how-it-works.md#-a-start-anchor-leading-a-group).
 
 > [!CAUTION]
 > In [multiline mode](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/multiline), `^` still matches at the start of the string and immediately after each `\n`, so the transformed regex can attempt the empty-string fallback at the start of any line — but, since the fallback requires strict end-of-input, it only succeeds if that line start is *also* genuinely where the input ends:
