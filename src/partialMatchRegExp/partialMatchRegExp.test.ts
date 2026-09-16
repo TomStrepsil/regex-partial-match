@@ -1863,6 +1863,11 @@ c`)
         expect(new PartialMatchRegExp(/.(?<g>\w^)/).exec("a")).toBeNull();
       });
 
+      it("refuses a group whose alternative is only an anchor that cannot hold", () => {
+        expect(new PartialMatchRegExp(/\n(?<g>^|\w^)/).exec("\n")).toBeNull();
+        expect(new PartialMatchRegExp(/((^|\s^)b){2}/).exec("b")).toBeNull();
+      });
+
       it("keeps a group whose body ends in a lookbehind skippable at the end of the input", () => {
         expect(new PartialMatchRegExp(/(a(?<=a))b/).exec("b")).toMatchAt({
           match: "",
@@ -2097,6 +2102,26 @@ c`)
             index: 2
           });
           expect(new PartialMatchRegExp(/(a\n)^b/m).exec("a\nb")?.[1]).toBe("a\n");
+        });
+
+        it("judges the caret by the end of each alternative of the group before it", () => {
+          expect(new PartialMatchRegExp(/(^a\n|^b)^/m).exec("a")).toMatchAt({
+            match: "a",
+            index: 0
+          });
+          expect(new PartialMatchRegExp(/(a|\n)^/m).exec("a")).toMatchAt({
+            match: "",
+            index: 1
+          });
+          expect(new PartialMatchRegExp(/\W(?:a|b)^/m).exec("-")).toBeNull();
+          expect(new PartialMatchRegExp(/(a|\n+)(?=b)^b/m).exec("\n\n")).toMatchAt({
+            match: "\n\n",
+            index: 0
+          });
+          expect(new PartialMatchRegExp(/(a|\n+)^b/m).exec("a")).toMatchAt({
+            match: "",
+            index: 1
+          });
         });
 
         it("gives the caret a branch of its own after a quantifier ending the group before it", () => {
@@ -2372,7 +2397,7 @@ c`)
               /a(?i:^y|(^x))/m
             ],
             ["a quantified group", /(^x)+/m, /a(^x)+/m],
-            ["a quantified modifier group", /(?i:^y|^x){2}/m, /a(?i:^y|^x){2}/m]
+            ["a quantified modifier group", /(?i:^y|^x\n){2}/m, /a(?i:^y|^x\n){2}/m]
           ];
 
           it.each(groups)(
@@ -2436,12 +2461,57 @@ c`)
               index: 0
             });
             expect(new PartialMatchRegExp(/a(()^)/m).exec("a")).toBeNull();
+            expect(new PartialMatchRegExp(/((a)^)/m).exec("")).toBeNull();
           });
 
-          it("keeps a group skippable where its body leaves a caret to be judged outside it", () => {
+          it("judges a caret its body leaves after a part that cannot end a line against the part before the group", () => {
             expect(new PartialMatchRegExp(/\W(\S*^)/m).exec("a")).toMatchAt({
               match: "",
               index: 1
+            });
+            expect(new PartialMatchRegExp(/\W(\S*^)/m).exec("-")).toMatchAt({
+              match: "",
+              index: 1
+            });
+            expect(new PartialMatchRegExp(/\W(\S*?^)/m).exec("-")).toMatchAt({
+              match: "",
+              index: 1
+            });
+            expect(new PartialMatchRegExp(/\W(?i:\S*^)b/m).exec("a")).toMatchAt({
+              match: "",
+              index: 1
+            });
+          });
+
+          it("keeps a modifier group skippable where its body leaves a caret it cannot move in front", () => {
+            expect(new PartialMatchRegExp(/\W(?i:^|\w^)b/m).exec("a")).toMatchAt({
+              match: "",
+              index: 1
+            });
+            expect(new PartialMatchRegExp(/\W(?i:(?:\S*)^)b/m).exec("a")).toMatchAt({
+              match: "",
+              index: 1
+            });
+          });
+
+          it("refuses a later repetition of a group whose body cannot end a line", () => {
+            expect(new PartialMatchRegExp(/(^a){2}/m).exec("a")).toBeNull();
+            expect(new PartialMatchRegExp(/(?i:^a){2}/m).exec("a")).toBeNull();
+            expect(new PartialMatchRegExp(/(^a|^b){2,}/m).exec("a")).toBeNull();
+          });
+
+          it("keeps a later repetition of a group whose body can end a line", () => {
+            expect(new PartialMatchRegExp(/(^a\n){2}/m).exec("a")).toMatchAt({
+              match: "a",
+              index: 0
+            });
+            expect(new PartialMatchRegExp(/(?:^a|^b\n){2}/m).exec("b\n")).toMatchAt({
+              match: "b\n",
+              index: 0
+            });
+            expect(new PartialMatchRegExp(/(^a)+/m).exec("a")).toMatchAt({
+              match: "a",
+              index: 0
             });
           });
 
@@ -2489,7 +2559,7 @@ c`)
             [/(a)\1^/m, "a"],
             [/(a)+^b/m, "a"],
             [/(?s:.)+^b/m, "a"],
-            [/\W(?:a|b)^/m, "-"],
+            [/\W(?:a|(b))^/m, "-"],
             [/\W((a))^/m, "-"],
             [/(b)(?-m:^)^/m, "b"],
             [/(?i:b)(\b)^/m, "b"],

@@ -18,7 +18,7 @@ import { isQuantifier, minimumOf, quantifierEndingAt } from "./quantifier.ts";
 
 export type LookaheadSpan = [open: number, close: number];
 
-const CANNOT_END_LINE = -2;
+export const CANNOT_END_LINE = -2;
 const NO_LOOKAHEAD = -1;
 
 const isTransparentToCaret = (part: Part) =>
@@ -38,7 +38,7 @@ function lookaheadOpeningClosedAt(
   return NO_LOOKAHEAD;
 }
 
-function partDecidingCaret(
+export function partDecidingCaret(
   result: Part[],
   index: number,
   floor: number,
@@ -119,12 +119,57 @@ function wrapGroup(
   return close + 2;
 }
 
+function appendCaretToAlternatives(
+  result: Part[],
+  open: number,
+  close: number,
+  scope: number,
+  starts: readonly number[],
+  lookaheadSpans: LookaheadSpan[] | undefined
+) {
+  const anchors: number[] = [];
+  const ends: number[] = [];
+  let end = close;
+  for (let k = starts.length; k--; ) {
+    const floor = open + starts[k];
+    const anchor = partDecidingCaret(result, end - 1, floor, scope, undefined);
+    if (
+      anchor === floor ||
+      (anchor !== CANNOT_END_LINE &&
+        !isOptionalAtom(result[anchor]) &&
+        !isPositionUncertain(result[anchor]))
+    )
+      return wrapGroup(result, open, close, scope, lookaheadSpans);
+    anchors.push(anchor);
+    ends.push(end);
+    end = floor;
+  }
+  const caret = caretFor(scope);
+  let inserted = 0;
+  for (let n = 0; n < anchors.length; n++) {
+    const anchor = anchors[n];
+    if (anchor !== CANNOT_END_LINE && isOptionalAtom(result[anchor])) {
+      foldCaret(result, anchor, caret);
+      continue;
+    }
+    const at = anchor === CANNOT_END_LINE ? ends[n] : anchor + 1;
+    result.splice(
+      at,
+      0,
+      anchor === CANNOT_END_LINE ? UNSATISFIABLE : asOptionalAtom(caret)
+    );
+    shiftSpans(lookaheadSpans, at - 1, 1);
+    inserted++;
+  }
+  return close + inserted;
+}
+
 function appendMultilineCaret(
   result: Part[],
   lastGroupOpen: number,
   lastGroupClose: number,
   lastGroupScope: number,
-  lastGroupAlternates: boolean,
+  lastGroupAlternativeStarts: readonly number[] | undefined,
   lookaheadSpans: LookaheadSpan[] | undefined,
   scope: number
 ): number {
@@ -138,15 +183,22 @@ function appendMultilineCaret(
     lookaheadSpans
   );
   if (anchor >= 0 && anchor === lastGroupClose) {
-    const bodyAnchor = lastGroupAlternates
-      ? anchor
-      : partDecidingCaret(
-          result,
-          anchor - 1,
-          lastGroupOpen,
-          lastGroupScope,
-          undefined
-        );
+    if (lastGroupAlternativeStarts)
+      return appendCaretToAlternatives(
+        result,
+        lastGroupOpen,
+        lastGroupClose,
+        lastGroupScope,
+        lastGroupAlternativeStarts,
+        lookaheadSpans
+      );
+    const bodyAnchor = partDecidingCaret(
+      result,
+      anchor - 1,
+      lastGroupOpen,
+      lastGroupScope,
+      undefined
+    );
     if (bodyAnchor === CANNOT_END_LINE) {
       anchor = CANNOT_END_LINE;
     } else if (bodyAnchor === lastGroupOpen) {

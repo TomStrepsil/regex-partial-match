@@ -7,7 +7,9 @@ import {
   isRawLookaround,
   GROUP_CLOSING,
   LOOKAHEAD_OPENING,
-  START_ANCHOR
+  ONLY_AT_END_OF_INPUT,
+  START_ANCHOR,
+  UNSATISFIABLE
 } from "./atomSyntax.ts";
 import { groupNameOf, decodeGroupName } from "./groupName.ts";
 import { legacyEscapeAtoms } from "./legacyEscape.ts";
@@ -17,9 +19,14 @@ import {
   type Part,
   type RawLookaroundInfo
 } from "./part.ts";
-import appendMultilineCaret, { type LookaheadSpan } from "./appendMultilineCaret.ts";
+import appendMultilineCaret, {
+  CANNOT_END_LINE,
+  partDecidingCaret,
+  type LookaheadSpan
+} from "./appendMultilineCaret.ts";
 import {
   OCCURRENCES_REGEX,
+  isQuantifier,
   isQuantifierAhead,
   minimumOf,
   quantifierAhead
@@ -34,7 +41,7 @@ import {
   scopeWithModifiers
 } from "./scope.ts";
 
-const NO_ALTERNATIVES: readonly number[] = [];
+const NO_ALTERNATIVES: readonly number[] = [0];
 const GROUP_OPENING = /^\((?:\?(?:<[^=!][^>]*>|[a-z-]*:))?$/;
 
 function leadingCaret(body: Part[], index: number) {
@@ -44,6 +51,8 @@ function leadingCaret(body: Part[], index: number) {
     if (typeof part !== "string") return -1;
     if (part === END_ANCHOR || isWordBoundaryAtom(part) || isRawLookaround(part))
       index++;
+    else if (part === ONLY_AT_END_OF_INPUT && isQuantifier(body[index + 1]))
+      index += body[index + 2] === "?" ? 3 : 2;
     else if (
       (body[index + 1] === GROUP_CLOSING ||
         body[index + 1] === DISJUNCTION_TO_END_OF_INPUT) &&
@@ -54,16 +63,20 @@ function leadingCaret(body: Part[], index: number) {
   }
 }
 
-function caretCount(body: Part[]) {
-  let count = 0;
-  for (const part of body) if (part === START_ANCHOR) count++;
-  return count;
+function canEndLine(body: Part[], starts: readonly number[], scope: number) {
+  const scanned = body.slice();
+  let end = body.length;
+  for (let k = starts.length; k--; ) {
+    const start = starts[k];
+    if (partDecidingCaret(scanned, end - 1, start - 1, scope, undefined) !== CANNOT_END_LINE)
+      return true;
+    end = start - 1;
+  }
+  return false;
 }
 
 function leadingCarets(body: Part[], starts: readonly number[]) {
-  const first = leadingCaret(body, 0);
-  if (first === -1) return undefined;
-  const carets = [first];
+  const carets = [];
   for (const start of starts) {
     const caret = leadingCaret(body, start);
     if (caret === -1) return undefined;
@@ -108,7 +121,7 @@ export function walk(
     let lastGroupOpen = -1;
     let lastGroupClose = -1;
     let lastGroupScope = scope;
-    let lastGroupAlternates = false;
+    let lastGroupAlternativeStarts: readonly number[] | undefined;
     let lookaheadSpans: LookaheadSpan[] | undefined;
     let alternativeStarts: number[] | undefined;
     let alternativeStart = 0;
@@ -330,7 +343,7 @@ export function walk(
               lastGroupOpen,
               lastGroupClose,
               lastGroupScope,
-              lastGroupAlternates,
+              lastGroupAlternativeStarts,
               lookaheadSpans,
               scope
             );
@@ -346,8 +359,9 @@ export function walk(
           break;
         case "|":
           featureMask |= FEATURE_BIT.disjunction;
-          (alternativeStarts ??= []).push(result.length + 1);
-          everyAlternativeRunsOut &&= alternativeRunsOut;
+          (alternativeStarts ??= [0]).push(result.length + 1);
+          everyAlternativeRunsOut &&=
+            alternativeRunsOut || result.length === alternativeStart;
           alternativeRunsOut = false;
           alternativeStart = result.length + 1;
           appendRaw(1);
@@ -397,7 +411,7 @@ export function walk(
                     lastGroupOpen,
                     lastGroupClose,
                     lastGroupScope,
-                    lastGroupAlternates,
+                    lastGroupAlternativeStarts,
                     lookaheadSpans,
                     scope
                   );
@@ -460,6 +474,7 @@ export function walk(
             opening = extractSlice(1);
           }
           if (opening === undefined) break;
+          const opensAlternative = result.length === alternativeStart;
           const rawLookaroundsBefore = rawLookarounds?.length ?? 0;
           const caretsBefore = caretsSeen;
           const body = process(groupScope);
@@ -469,24 +484,17 @@ export function walk(
           const carets = containsCaret ? leadingCarets(body, starts) : undefined;
           const containsRawLookaround =
             (rawLookarounds?.length ?? 0) !== rawLookaroundsBefore;
-          if (
-            !containsRawLookaround &&
-            runsOut &&
-            (!(groupScope & MULTILINE) ||
-              !containsCaret ||
-              caretCount(body) === (carets?.length ?? 0))
-          )
-            closing = GROUP_CLOSING;
           if (carets && (groupScope & MULTILINE || !(scope & MULTILINE))) {
             const quantifier = quantifierAhead(source, i);
-            if (quantifier === undefined || minimumOf(quantifier) > 0) {
+            const minimum = quantifier === undefined ? 1 : minimumOf(quantifier);
+            if (minimum > 0) {
               if (groupScope & MULTILINE)
                 lastGroupClose = appendMultilineCaret(
                   result,
                   lastGroupOpen,
                   lastGroupClose,
                   lastGroupScope,
-                  lastGroupAlternates,
+                  lastGroupAlternativeStarts,
                   lookaheadSpans,
                   scope
                 );
@@ -494,15 +502,31 @@ export function walk(
             }
             if (quantifier === undefined) {
               for (let k = carets.length; k--; ) body.splice(carets[k], 1);
+              if (lastBodyAlternativeStarts)
+                for (let k = starts.length; k--; )
+                  lastBodyAlternativeStarts[k] -= k;
             } else if (groupScope & MULTILINE) {
-              for (const caret of carets)
-                body[caret] = asOptionalAtom(START_ANCHOR);
+              const repeatedCaret =
+                minimum > 1 && !canEndLine(body, starts, groupScope)
+                  ? UNSATISFIABLE
+                  : asOptionalAtom(START_ANCHOR);
+              for (const caret of carets) body[caret] = repeatedCaret;
             } else if (!containsRawLookaround) closing = GROUP_CLOSING;
+          }
+          if (
+            groupScope & MULTILINE &&
+            containsCaret &&
+            body.indexOf(START_ANCHOR) !== -1
+          )
+            closing = DISJUNCTION_TO_END_OF_INPUT;
+          else if (!containsRawLookaround && runsOut) {
+            closing = GROUP_CLOSING;
+            if (opensAlternative) alternativeRunsOut = true;
           }
           lastGroupOpen = result.length;
           lastGroupClose = lastGroupOpen + body.length + 1;
           lastGroupScope = groupScope;
-          lastGroupAlternates = lastBodyAlternativeStarts !== undefined;
+          lastGroupAlternativeStarts = lastBodyAlternativeStarts;
           result.push(opening, ...body, closing);
           if (groupNumber) (closedGroupNumbers ??= new Set()).add(groupNumber);
           if (declaredName !== undefined)
@@ -512,7 +536,9 @@ export function walk(
         case ")":
           ++i;
           lastBodyAlternativeStarts = alternativeStarts;
-          lastBodyRunsOut = everyAlternativeRunsOut && alternativeRunsOut;
+          lastBodyRunsOut =
+            everyAlternativeRunsOut &&
+            (alternativeRunsOut || result.length === alternativeStart);
           return result;
         default:
           featureMask |= FEATURE_BIT.patternCharacter;
@@ -522,7 +548,9 @@ export function walk(
       }
     }
     lastBodyAlternativeStarts = alternativeStarts;
-    lastBodyRunsOut = everyAlternativeRunsOut && alternativeRunsOut;
+    lastBodyRunsOut =
+      everyAlternativeRunsOut &&
+      (alternativeRunsOut || result.length === alternativeStart);
     return result;
   }
 

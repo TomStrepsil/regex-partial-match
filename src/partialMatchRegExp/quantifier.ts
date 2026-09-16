@@ -2,19 +2,15 @@ import type { Part } from "./part.ts";
 
 export const OCCURRENCES_REGEX = /\{\d+(?:,\d*)?\}/y;
 export const QUANTIFIER_PART = /^(?:[*+?]|\{\d+(?:,\d*)?\})$/;
+const QUANTIFIER_AHEAD = /[*+?]|\{\d+(?:,\d*)?\}/y;
 const LAZY_MARK = "?";
 
 export const isQuantifier = (part: Part | undefined) =>
   typeof part === "string" && QUANTIFIER_PART.test(part);
 
 export function quantifierAhead(source: string, index: number) {
-  const character = source[index];
-  if ("*+?".includes(character)) {
-    return character;
-  }
-  if (character !== "{") return undefined;
-  OCCURRENCES_REGEX.lastIndex = index;
-  return OCCURRENCES_REGEX.exec(source)?.[0];
+  QUANTIFIER_AHEAD.lastIndex = index;
+  return QUANTIFIER_AHEAD.exec(source)?.[0];
 }
 
 export const isQuantifierAhead = (source: string, index: number) =>

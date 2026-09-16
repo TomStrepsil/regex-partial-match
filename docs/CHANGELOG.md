@@ -18,7 +18,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A `^` under the `m` flag no longer rejects input a continuation would complete: `/\W^/m` on `"a"`
 - A `^` under the `m` flag no longer accepts input no continuation can complete: `/\n-^/m` on `"\n"`
 - A `^` leading a group body no longer accepts input no continuation can complete: `/(^x)/` on `"a"`
-- A `^` leading a repeated modifier group under the `m` flag no longer rejects input a continuation would complete: `/\W(?i:^a)+/m` on `"a"`
+- A `^` in a modifier group under the `m` flag no longer rejects input a continuation would complete: `/\W(?i:\S*^)b/m` on `"a"`
+- A `^` leading a group that must repeat under the `m` flag no longer accepts input no continuation can complete: `/(^a){2}/m` on `"a"`
 - A group whose body no continuation can complete is no longer skipped at the end of the input: `/a(b^)/` on `"a"`
 - A `^` under the `m` flag after a group that ran out part way no longer misses the earlier match: `/([a]\D)^/m` on `"a"` matches at index 0
 - A backreference pattern no longer returns `null` where its re-derived captures fit a later index: `/(a?[^])\1/` on `"bab"` matches `"ab"` at index 1
