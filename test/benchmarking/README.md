@@ -104,7 +104,9 @@ Two further groups cover the constructs that decide which compiled path a patter
 
 ### 8. Calibration (`calibration.bench.ts`)
 
-Not a subject under test. Two native-`RegExp` workloads — one `exec`, one `new RegExp()` — measure the machine the job landed on, so the converter can report every other benchmark as a ratio rather than in nanoseconds. Both are frozen: changing either rebases every stored number and invalidates the history.
+Not a subject under test. Two native-`RegExp` workloads — one `exec`, one `new RegExp()` — measure the machine the job landed on, so the converter can report every other benchmark as a ratio rather than in nanoseconds.
+
+Each mirrors an existing benchmark exactly — `dispatch overhead — full match input — native RegExp.exec` and `construction — simple pattern … native new RegExp()` — because the stored history was recalculated against those two and the scales have to agree. The construction argument is a `RegExp` rather than its source string on purpose: `new RegExp(regexp)` and `new RegExp(string)` are different constructor paths and differ by about 1.2x, which would put every published ratio on a different scale from the recalculated history. Both workloads are frozen, and the converter refuses to run unless the group holds exactly two results, so neither dropping one nor adding a third can quietly change the scale.
 
 Two workloads rather than one because the suite spans exec-bound benches and construction-bound benches, and runners do not scale the two identically. Against the stored history the blend gives a lower worst-case swing (1.74x) than either calibrator alone (1.92x for exec, 1.88x for construction).
 

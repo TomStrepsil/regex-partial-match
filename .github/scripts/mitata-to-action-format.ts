@@ -51,6 +51,7 @@ interface ActionEntry {
 }
 
 const CALIBRATION_GROUP = "calibration";
+const CALIBRATION_WORKLOADS = 2;
 
 process.stdin.setEncoding("utf8");
 
@@ -71,8 +72,12 @@ const labelled = benchmarks
 
 const calibrationStats = labelled.filter((b) => b.groupName === CALIBRATION_GROUP).map((b) => b.stats.avg);
 
-if (calibrationStats.length === 0) {
-  throw new Error(`no "${CALIBRATION_GROUP}" group in the mitata output — is calibration.bench.ts imported by run.ts?`);
+// The calibration group is a contract, not a convenience: the stored history was recalculated against exactly these two workloads. Calibrating on a subset, or on an extra bench someone added to the group, silently puts every published ratio on a different scale from the baseline it is compared against.
+if (calibrationStats.length !== CALIBRATION_WORKLOADS) {
+  throw new Error(
+    `expected ${String(CALIBRATION_WORKLOADS)} results in the "${CALIBRATION_GROUP}" group, got ${String(calibrationStats.length)}` +
+      ` — is calibration.bench.ts imported by run.ts, and does its group still hold exactly its two frozen workloads?`,
+  );
 }
 
 const calibration = Math.exp(
