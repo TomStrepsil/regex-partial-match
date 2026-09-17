@@ -8,22 +8,22 @@
  * native RegExp, so `mitata-to-action-format.ts` can divide every other result
  * by them and report a machine-independent index.
  *
- * Each workload mirrors an existing benchmark exactly, because the stored
- * history was recalculated against those benchmarks and the two have to stay
- * on the same scale:
- *   - the exec workload matches `dispatch overhead — full match input —
- *     native RegExp.exec` (dispatch-overhead.bench.ts)
- *   - the construction workload matches `construction — simple pattern …
- *     native new RegExp()` (construction-cost.bench.ts)
+ * Every published number is a ratio to these two. Change either workload, or
+ * the membership of this group, and every result afterwards sits on a different
+ * scale from every result before it — a step on all 102 charts that looks like
+ * a real change and is not. So:
  *
- * The construction argument is a RegExp rather than its source string on
- * purpose: `new RegExp(regexp)` and `new RegExp(string)` are different
- * constructor paths and differ by about 1.2x, which would put every published
- * ratio on a different scale from the recalculated history.
+ *   - Both workloads are frozen. To measure something new, add a bench to one
+ *     of the scenario files, not to this group.
+ *   - The construction argument is a RegExp, not its source string.
+ *     `new RegExp(regexp)` and `new RegExp(string)` are different constructor
+ *     paths and differ by about 1.2x, so "simplifying" it rebases everything.
+ *   - The converter refuses to run unless this group yields exactly two
+ *     results, so neither losing one nor adding a third can pass unnoticed.
  *
- * Both workloads are frozen. Changing either one, or adding a third bench to
- * this group, rebases every stored number and invalidates the history; add a
- * new bench elsewhere instead.
+ * They duplicate the native baselines in dispatch-overhead.bench.ts and
+ * construction-cost.bench.ts on purpose. Those two are scenario benches and
+ * stay free to change; these have to hold still.
  */
 
 import { bench, group } from "mitata";
