@@ -56,6 +56,13 @@
         display: flex;
         align-items: center;
       }
+      .notice {
+        margin-bottom: 8px;
+        padding: 8px 12px;
+        border-left: 4px solid #3298dc;
+        background-color: #f5f9fc;
+        font-size: 0.85rem;
+      }
       .header-label {
         margin-right: 4px;
       }
@@ -97,6 +104,9 @@
         <a id="repository-link" rel="noopener"></a>
       </div>
     </header>
+    <div class="notice">
+      Results are reported as a ratio to a fixed native-<code>RegExp</code> calibration workload measured in the same run, not in nanoseconds, so that a change in GitHub runner hardware does not read as a change in the library. Points before 14 September 2026 were recalculated from the calibration workloads already recorded in each run. Every point keeps its original nanosecond figure, and the calibration it was divided by, in its tooltip.
+    </div>
     <main id="main"></main>
     <footer>
       <button id="dl-button">Download data as JSON</button>
