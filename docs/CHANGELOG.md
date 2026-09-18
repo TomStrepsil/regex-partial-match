@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Captures of a partial match are the closest they can be to what a full match reports: `/(abc)+\1/` on `"abcab"` gives `m[1] === "ab"`
 - Split some explanatory documentation from the main `README.md`
 - CI benchmarks are compared as a ratio to a native `RegExp` workload measured in the same run, so which runner a job lands on no longer reads as a performance change
-- `exec()` on a pattern with a backreference is about 1.4x faster, restoring the speed lost in [1.3.0](#130---2026-09-06), and no longer slows down as the input grows
+- `exec()` on a pattern with a backreference is about 1.4x faster, restoring the speed lost in [1.3.0](#130---2026-09-06), and about 20x on a 100 kB input
 
 ### Fixed
 
