@@ -21,6 +21,11 @@
  * outright and the native match wins for a small fixed cost, but it can also
  * be a loose bound, forcing the full slow-path pipeline to run anyway even
  * though the native match still wins in the end.
+ *
+ * The capture agreement group guards a bound rather than a cost. Only the last
+ * capture.length characters of the input can decide that check, so its two
+ * benches differ solely in how much irrelevant text sits in front of the part
+ * that does decide it.
  */
 
 import { bench, group } from "mitata";
@@ -80,6 +85,22 @@ group("backref — leftmost bound check (native match at a later index)", () => 
   );
   bench("bound doesn't reject — full pipeline still runs", () =>
     laterMatchFallsThroughPartial.exec(laterMatchFallsThroughInput)
+  );
+});
+
+// The capture-agreement check behind a backreference compares the captured text against the end of the input, so only the last capture.length characters of the input can change its answer. These two inputs differ only in how much irrelevant text precedes the part that decides the match: scanning the whole input instead of the reachable tail shows up as the second growing away from the first.
+const agreementCheck = /([ab])\1([ab])\2$/;
+const agreementCheckPartial = new PartialMatchRegExp(agreementCheck);
+const decidingTail = "aaba";
+const shortInput = decidingTail;
+const longInput = "z".repeat(10_000) + decidingTail;
+
+group("backref — capture agreement, irrelevant input ahead of the match", () => {
+  bench(`${shortInput.length.toString()}-character input`, () =>
+    agreementCheckPartial.exec(shortInput)
+  );
+  bench(`${longInput.length.toString()}-character input`, () =>
+    agreementCheckPartial.exec(longInput)
   );
 });
 

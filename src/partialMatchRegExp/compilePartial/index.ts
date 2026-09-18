@@ -70,6 +70,7 @@ export default function compilePartial(regex: RegExp): CompiledPartial {
           const baked = resolvedFromScan(backref, expandedFrom);
           if (baked === undefined) continue;
           const resolved = resolvedFromScan(backref, match) ?? "";
+          if (resolved === baked) continue;
           const backrefFlags = flagsAtBackreference(backref, flags);
           const consumed = longestBakedPrefixEndingInput(
             baked,

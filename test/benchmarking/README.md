@@ -60,6 +60,8 @@ Each pattern is measured at three stages — full match (native fast path), part
 
 A fourth group covers a native complete match at a *non-zero* index, where `exec()` must confirm no earlier partial exists before trusting it (see [docs/backreferences.md](../../docs/backreferences.md) — "Leftmost bound check"): once when the cheap `preScan` bound rejects outright (native wins, pipeline skipped), and once when the bound is loose enough that the full slow-path pipeline still has to run even though the native match wins in the end.
 
+A fifth group guards a bound rather than a cost. When a backreference's captured text has to be checked against the input, only the last `capture.length` characters of the input can decide the answer, so the two benches in it differ solely in how much irrelevant text precedes the part that does. They are read together: if that check ever goes back to scanning the whole input, the long one grows away from the short one while everything else here holds still.
+
 ### 5. Construction cost (`construction-cost.bench.ts`)
 
 Scenarios 1-4 build every candidate once outside the timed loop, so they never see the cost of `compilePartial()`'s walk()/render() pass — the one-time parsing work done per `new PartialMatchRegExp()`. This scenario isolates that cost so walk additions can be tracked independently of the exec-time scenarios above.
@@ -106,11 +108,11 @@ Two further groups cover the constructs that decide which compiled path a patter
 
 Not a subject under test. Two native-`RegExp` workloads — one `exec`, one `new RegExp()` — measure the machine the job landed on, so the converter can report every other benchmark as a ratio rather than in nanoseconds.
 
-Every published number is a ratio to these two, so changing either workload — or the membership of the group — puts every later result on a different scale from every earlier one, a step on all 102 charts that looks like a real change and is not. Both are therefore frozen: to measure something new, add a bench to one of the scenario files rather than to this group. The construction argument is a `RegExp` and not its source string for the same reason — `new RegExp(regexp)` and `new RegExp(string)` are different constructor paths and differ by about 1.2x, so tidying it away rebases everything. The converter refuses to run unless the group yields exactly two results, so neither losing one nor adding a third can pass unnoticed.
+Every published number is a ratio to these two, so changing either workload — or the membership of the group — puts every later result on a different scale from every earlier one, a step on every chart that looks like a real change and is not. Both are therefore frozen: to measure something new, add a bench to one of the scenario files rather than to this group. The construction argument is a `RegExp` and not its source string for the same reason — `new RegExp(regexp)` and `new RegExp(string)` are different constructor paths and differ by about 1.2x, so tidying it away rebases everything. The converter refuses to run unless the group yields exactly two results, so neither losing one nor adding a third can pass unnoticed.
 
 The two duplicate the native baselines in `dispatch-overhead.bench.ts` and `construction-cost.bench.ts` on purpose: those are scenario benches and stay free to change, while these have to hold still.
 
-Two workloads rather than one because the suite spans exec-bound benches and construction-bound benches, and runners do not scale the two identically. Against the stored history the blend gives a lower worst-case swing (1.74x) than either calibrator alone (1.92x for exec, 1.88x for construction).
+Two workloads rather than one because the suite spans exec-bound benches and construction-bound benches, and runners do not scale the two identically; blending the two swings less than either alone.
 
 ## 🤖 CI integration
 
@@ -118,9 +120,7 @@ The workflow at [`.github/workflows/benchmark.yml`](../../.github/workflows/benc
 
 Results are stored and compared by [`benchmark-action/github-action-benchmark`](https://github.com/benchmark-action/github-action-benchmark) using the `customSmallerIsBetter` tool. A regression alert comment is posted on the PR if any benchmark regresses beyond 150% of the stored baseline.
 
-Numbers are compared as a ratio to the calibration group, not in nanoseconds. GitHub's hosted runners are a heterogeneous fleet, and the same commit measures roughly 2x apart depending on which machine the job lands on — far more than any change this suite is meant to catch. Across the first three months of stored history, 27 of 36 tracked benchmarks crossed the 150% threshold at some point purely on runner assignment; dividing by the calibration group brings that down to 5. History before that switch was recalculated rather than discarded: every stored run already contained the calibration workloads, so each point could be divided by its own. The 26 runs from 28 July 2026 use the same blended calibration as new runs; the 11 before it are bridged from the native `exec` bench alone and the 6 oldest from the native `test` bench, at a cost of about 5% and 7% extra noise respectively. Bridged points say so in their tooltip. No nanosecond figure was lost: every point carries its own, and the calibration it was divided by, in its tooltip, and the pre-calibration `data.js` remains in the `gh-pages` history.
-
-The five benchmarks that still move under calibration are not noise. They are the backreference slow-path benches, and they step — cleanly, at `a2fcefc4` ([PR #92](https://github.com/TomStrepsil/regex-partial-match/pull/92), issue #89), from about 29 to about 48 against calibration, drifting to about 62 by `ad1b0bd6`. Seven charts move together, all of them on that path, while everything else stays flat; the benchmark definitions did not change across the step. Raw nanoseconds hid it, because the runs after the step landed on progressively faster machines. It is an open regression, not a measurement artefact.
+Numbers are compared as a ratio to the calibration group, not in nanoseconds, so a regression alert reflects the code rather than which machine the job landed on. No nanosecond figure is lost: every point carries its own, and the calibration it was divided by, in its tooltip. The oldest stored points predate the blended calibration and are bridged from a single native workload, at some cost in noise; those say so in their tooltip.
 
 The baseline is only updated on merges to `main` — PR runs read but do not write the baseline.
 

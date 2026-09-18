@@ -4101,6 +4101,17 @@ c`)
         expect(partial).toMatchPartially({ characters: "aabb".split("") });
       });
 
+      it("compares against the capture's own reach, not the whole of a long input", () => {
+        const partial = new PartialMatchRegExp(/([ab])\1([ab])\2$/);
+        const lead = "z".repeat(200);
+
+        expect(partial.exec(lead + "aaba")).toBeNull();
+        expect(partial.exec(lead + "aabb")).toMatchAt({
+          match: "aabb",
+          index: lead.length
+        });
+      });
+
       it("accepted limit: refuses a viable prefix when re-expanding from the expanded match's capture disagrees again, since the input's own ending cannot say how much of the backreference was consumed", () => {
         const partial = new PartialMatchRegExp(/(.?(\W))+?\1/);
 
