@@ -14,6 +14,7 @@
  * { benchmarks: [...] } shape that mitata v1.x produces.
  */
 
+import "./calibration.bench.ts";
 import "./dispatch-overhead.bench.ts";
 import "./hot-loop.bench.ts";
 import "./keystroke.bench.ts";

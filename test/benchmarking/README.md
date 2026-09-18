@@ -102,11 +102,25 @@ Every pattern in the first group is the same shape — an anchor, the construct 
 
 Two further groups cover the constructs that decide which compiled path a pattern lands on. A backreference forces the dynamic path; a legacy escape (`\7` past the group count, or `\k<name>` in a pattern declaring no named group) is an Annex B literal and must not. That distinction costs something at construction (a native group pre-count taken once per instance, shared by both spellings) but is worth better than an order of magnitude at `exec()`, since the dynamic path rebuilds a `RegExp` per call. So it is measured at both.
 
+### 8. Calibration (`calibration.bench.ts`)
+
+Not a subject under test. Two native-`RegExp` workloads — one `exec`, one `new RegExp()` — measure the machine the job landed on, so the converter can report every other benchmark as a ratio rather than in nanoseconds.
+
+Every published number is a ratio to these two, so changing either workload — or the membership of the group — puts every later result on a different scale from every earlier one, a step on all 102 charts that looks like a real change and is not. Both are therefore frozen: to measure something new, add a bench to one of the scenario files rather than to this group. The construction argument is a `RegExp` and not its source string for the same reason — `new RegExp(regexp)` and `new RegExp(string)` are different constructor paths and differ by about 1.2x, so tidying it away rebases everything. The converter refuses to run unless the group yields exactly two results, so neither losing one nor adding a third can pass unnoticed.
+
+The two duplicate the native baselines in `dispatch-overhead.bench.ts` and `construction-cost.bench.ts` on purpose: those are scenario benches and stay free to change, while these have to hold still.
+
+Two workloads rather than one because the suite spans exec-bound benches and construction-bound benches, and runners do not scale the two identically. Against the stored history the blend gives a lower worst-case swing (1.74x) than either calibrator alone (1.92x for exec, 1.88x for construction).
+
 ## 🤖 CI integration
 
 The workflow at [`.github/workflows/benchmark.yml`](../../.github/workflows/benchmark.yml) runs on every push to `main` and on pull requests targeting `main`.
 
-Results are stored and compared by [`benchmark-action/github-action-benchmark`](https://github.com/benchmark-action/github-action-benchmark) using the `customSmallerIsBetter` tool. A regression alert comment is posted on the PR if any benchmark regresses beyond 150% of the stored baseline (a loose threshold to account for CI runner noise).
+Results are stored and compared by [`benchmark-action/github-action-benchmark`](https://github.com/benchmark-action/github-action-benchmark) using the `customSmallerIsBetter` tool. A regression alert comment is posted on the PR if any benchmark regresses beyond 150% of the stored baseline.
+
+Numbers are compared as a ratio to the calibration group, not in nanoseconds. GitHub's hosted runners are a heterogeneous fleet, and the same commit measures roughly 2x apart depending on which machine the job lands on — far more than any change this suite is meant to catch. Across the first three months of stored history, 27 of 36 tracked benchmarks crossed the 150% threshold at some point purely on runner assignment; dividing by the calibration group brings that down to 5. History before that switch was recalculated rather than discarded: every stored run already contained the calibration workloads, so each point could be divided by its own. The 26 runs from 28 July 2026 use the same blended calibration as new runs; the 11 before it are bridged from the native `exec` bench alone and the 6 oldest from the native `test` bench, at a cost of about 5% and 7% extra noise respectively. Bridged points say so in their tooltip. No nanosecond figure was lost: every point carries its own, and the calibration it was divided by, in its tooltip, and the pre-calibration `data.js` remains in the `gh-pages` history.
+
+The five benchmarks that still move under calibration are not noise. They are the backreference slow-path benches, and they step — cleanly, at `a2fcefc4` ([PR #92](https://github.com/TomStrepsil/regex-partial-match/pull/92), issue #89), from about 29 to about 48 against calibration, drifting to about 62 by `ad1b0bd6`. Seven charts move together, all of them on that path, while everything else stays flat; the benchmark definitions did not change across the step. Raw nanoseconds hid it, because the runs after the step landed on progressively faster machines. It is an open regression, not a measurement artefact.
 
 The baseline is only updated on merges to `main` — PR runs read but do not write the baseline.
 
@@ -118,12 +132,12 @@ The baseline is only updated on merges to `main` — PR runs read but do not wri
 [
   {
     "name": "<group> — <bench name>",
-    "value": 123.45,
-    "unit": "ns/iter",
-    "range": "± 1.23",
-    "extra": "min: 120ns  p75: 125ns  p99: 140ns"
+    "value": 1.6459,
+    "unit": "× calibration",
+    "range": "± 0.0143",
+    "extra": "90.43ns  (min: 88.10ns  p75: 91.20ns  p99: 99.40ns)  calibration: 54.94ns"
   }
 ]
 ```
 
-Mitata v1's JSON stats are already in nanoseconds per iteration; the converter passes them through as `ns/iter`.
+Mitata v1's JSON stats are already in nanoseconds per iteration. The converter divides each one by the geometric mean of the calibration group and reports the ratio, keeping the raw nanoseconds and the calibration figure in `extra` so absolute cost and machine speed both stay visible. The calibration benches themselves are not emitted.

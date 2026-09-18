@@ -7,7 +7,13 @@
  *
  * Input (stdin): mitata run() result — { benchmarks: [...], layout: [...] }
  * Output (stdout): JSON array of:
- *   { name: string, value: number, unit: "ns/iter", range: string, extra: string }
+ *   { name: string, value: number, unit: "× calibration", range: string, extra: string }
+ *
+ * Values are reported as a ratio to the calibration group rather than in
+ * nanoseconds. GitHub's runner fleet is heterogeneous enough that the same
+ * commit measures ~2x apart between machines, which swamps any real code
+ * change; dividing by two native-RegExp workloads measured in the same run
+ * cancels that out. Raw nanoseconds are preserved in `extra`.
  *
  * v1.x notes:
  *   - Stats are at benchmarks[].runs[0].stats (not top-level on the benchmark)
@@ -44,6 +50,9 @@ interface ActionEntry {
   extra: string;
 }
 
+const CALIBRATION_GROUP = "calibration";
+const CALIBRATION_WORKLOADS = 2;
+
 process.stdin.setEncoding("utf8");
 
 let input = "";
@@ -54,20 +63,35 @@ const { benchmarks, layout } = JSON.parse(input) as MitataOutput;
 
 const fmt = (v: number) => v.toFixed(2);
 
-const output: ActionEntry[] = benchmarks
+const labelled = benchmarks
   .filter((b) => b.runs.length > 0)
   .map((b) => {
-    const stats = b.runs[0].stats;
     const groupName = b.group !== undefined ? layout[b.group].name : null;
-    const label = groupName !== null ? `${groupName} — ${b.alias}` : b.alias;
-    const spread = (stats.p75 - stats.p25) / 2;
-    return {
-      name: label,
-      value: +fmt(stats.avg),
-      unit: "ns/iter",
-      range: `± ${fmt(spread)}`,
-      extra: `min: ${fmt(stats.min)}ns  p75: ${fmt(stats.p75)}ns  p99: ${fmt(stats.p99)}ns`,
-    };
+    return { groupName, stats: b.runs[0].stats, label: groupName !== null ? `${groupName} — ${b.alias}` : b.alias };
   });
+
+const calibrationStats = labelled.filter((b) => b.groupName === CALIBRATION_GROUP).map((b) => b.stats.avg);
+
+// The calibration group is a contract, not a convenience. Every stored point is a ratio to this group's geometric mean, so calibrating on a subset of it, or on an extra bench someone has added to it, puts the whole run on a different scale from the baseline it is compared against — silently, and looking entirely plausible.
+if (calibrationStats.length !== CALIBRATION_WORKLOADS) {
+  throw new Error(
+    `expected ${String(CALIBRATION_WORKLOADS)} results in the "${CALIBRATION_GROUP}" group, got ${String(calibrationStats.length)}` +
+      ` — is calibration.bench.ts imported by run.ts, and does its group still hold exactly its two frozen workloads?`,
+  );
+}
+
+const calibration = Math.exp(
+  calibrationStats.reduce((total, v) => total + Math.log(v), 0) / calibrationStats.length,
+);
+
+const output: ActionEntry[] = labelled
+  .filter((b) => b.groupName !== CALIBRATION_GROUP)
+  .map(({ label, stats }) => ({
+    name: label,
+    value: +(stats.avg / calibration).toFixed(4),
+    unit: "× calibration",
+    range: `± ${((stats.p75 - stats.p25) / 2 / calibration).toFixed(4)}`,
+    extra: `${fmt(stats.avg)}ns  (min: ${fmt(stats.min)}ns  p75: ${fmt(stats.p75)}ns  p99: ${fmt(stats.p99)}ns)  calibration: ${fmt(calibration)}ns`,
+  }));
 
 process.stdout.write(JSON.stringify(output, null, 2) + "\n");
