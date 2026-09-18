@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Breaking:** `isComplete()` is replaced by `hitEnd()`, following the JDK's [`Matcher.hitEnd()`](https://docs.oracle.com/javase/8/docs/api/java/util/regex/Matcher.html#hitEnd--): `true` when the match read the end of the input, so more input could change it. `isComplete(partial, match)` becomes `!hitEnd(partial, match)`, except that a greedy quantifier, `$`, `\b` or `\B` that read the end now also reports `true`
 - Captures of a partial match are the closest they can be to what a full match reports: `/(abc)+\1/` on `"abcab"` gives `m[1] === "ab"`
 - Split some explanatory documentation from the main `README.md`
+- CI benchmarks are compared as a ratio to a native `RegExp` workload measured in the same run, so which runner a job lands on no longer reads as a performance change
 
 ### Fixed
 
