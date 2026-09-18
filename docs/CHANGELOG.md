@@ -11,12 +11,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Breaking:** `isComplete()` is replaced by `hitEnd()`, following the JDK's [`Matcher.hitEnd()`](https://docs.oracle.com/javase/8/docs/api/java/util/regex/Matcher.html#hitEnd--): `true` when the match read the end of the input, so more input could change it. `isComplete(partial, match)` becomes `!hitEnd(partial, match)`, except that a greedy quantifier, `$`, `\b` or `\B` that read the end now also reports `true`
 - Captures of a partial match are the closest they can be to what a full match reports: `/(abc)+\1/` on `"abcab"` gives `m[1] === "ab"`
+- Split some explanatory documentation from the main `README.md`
 - CI benchmarks are compared as a ratio to a native `RegExp` workload measured in the same run, so which runner a job lands on no longer reads as a performance change
 
 ### Fixed
 
 - A `^` under the `m` flag no longer rejects input a continuation would complete: `/\W^/m` on `"a"`
 - A `^` under the `m` flag no longer accepts input no continuation can complete: `/\n-^/m` on `"\n"`
+- A `^` leading a group body no longer accepts input no continuation can complete: `/(^x)/` on `"a"`
+- A `^` in a modifier group under the `m` flag no longer rejects input a continuation would complete: `/\W(?i:\S*^)b/m` on `"a"`
+- A modifier group whose body holds a lookbehind is no longer refused at the end of the input: `/(?i:a(?<=a))b/` on `"b"`
+- A `^` leading a group that must repeat under the `m` flag no longer accepts input no continuation can complete: `/(^a){2}/m` on `"a"`
+- A group whose body no continuation can complete is no longer skipped at the end of the input: `/a(b^)/` on `"a"`
+- A `^` under the `m` flag after a group that ran out part way no longer misses the earlier match: `/([a]\D)^/m` on `"a"` matches at index 0
 - A backreference pattern no longer returns `null` where its re-derived captures fit a later index: `/(a?[^])\1/` on `"bab"` matches `"ab"` at index 1
 
 ## [1.3.0] - 2026-09-06
@@ -55,7 +62,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A backreference no longer matches a *partial* copy of its captured text anywhere but at the end of input, so `new PartialMatchRegExp(/^(a?)\1(b)\2$/).exec("ab")` no longer reports a full match ([#89](https://github.com/TomStrepsil/regex-partial-match/issues/89))
 - A backreference that runs the input out no longer truncates against a capture the match itself resolved differently, so `new PartialMatchRegExp(/^([ab])\1([ab])\2$/).exec("aaba")` no longer reports a full match
   - That same agreement check now compares under the pattern's own case-folding, so `new PartialMatchRegExp(/^([ab])\1([ab])\2$/i).exec("aabA")` no longer reports a full match
-  - The check now also tracks case-folding *per backreference*, honouring a locally-scoped `(?i:...)`/`(?-i:...)` [modifier](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Modifier) rather than only the pattern's own flags. See [Backreferences](../README.md#backreferences) in the README for a caveat on unpatched V8 ([nodejs/node#60030](https://github.com/nodejs/node/issues/60030))
+  - The check now also tracks case-folding *per backreference*, honouring a locally-scoped `(?i:...)`/`(?-i:...)` [modifier](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Modifier) rather than only the pattern's own flags. See [Backreferences](./caveats.md#backreferences) in the Caveats for a caveat on unpatched V8 ([nodejs/node#60030](https://github.com/nodejs/node/issues/60030))
   - `longestBakedPrefixEndingInput()` now finds the longest agreeing prefix in linear time via a Knuth–Morris–Pratt failure function, rather than a quadratic alternation that could exhaust memory on a large case-insensitive capture, and indexes by code point under `u`/`v` so an astral case-fold pair's surrogate halves aren't compared directly
 - A `\1`/`\k<name>` that can't yet have participated — written before its own group, or referencing it while still open, e.g. `\1` in `/^(\1a)$/` (outside a lookbehind, which runs right-to-left and was already atomic regardless) — is now left for the engine to resolve rather than taken from the capture scan, which could hand it a value from a path it never took
 - A legacy escape denoting more than one atom is now reclassified into one optional atom *per atom*, rather than one covering the whole run. `\128` is the character `\x0a` followed by a literal `8`; wrapping both together lost the prefix position between them and re-bound any following quantifier to the pair, so `/^\128*x/` — which means `\x0a` then `8*` then `x` — rejected `"\n88x"` and `"\nx"` outright, both of which the original pattern matches in full. The same applies to `\8` and `\9`, which are identity escapes rather than octal
@@ -163,7 +170,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `docs/partial-match-parity.md` mapping Lucene, RE2, PCRE2 and JDK concepts to this library's API, including a cross-reference parity table
 - **Breaking:** `PartialMatchRegExp` class as default export
 - `PartialMatchRegExp` constructor accepts a pattern source string plus an optional flags string, in addition to a `RegExp` instance — matching the native `RegExp` constructor's own overloads
-- Support for partial matching of [backreferences](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Backreference) (`\1`, `\k<name>`) — see [docs/backreferences.md](./backreferences.md) for the architecture and the [Backreferences caveat](../README.md#backreferences) for known limitations
+- Support for partial matching of [backreferences](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Backreference) (`\1`, `\k<name>`) — see [docs/backreferences.md](./backreferences.md) for the architecture and the [Backreferences caveat](./caveats.md#backreferences) for known limitations
 - "benchmarking" workspace, validating `exec()` overhead, with dispatch-overhead, hot-loop (`matchAll` override-check cost), and backreference slow-path scenarios added alongside the original keystroke simulation
 - `types/` folder to fix incorrect types in the standard library 
 - Emojis to documentation titles

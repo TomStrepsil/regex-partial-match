@@ -1,11 +1,15 @@
 import { NOT_NUMBERS_REGEX, LITERAL_K } from "./constants.ts";
 import {
   asOptionalAtom,
+  isWordBoundaryAtom,
   DISJUNCTION_TO_END_OF_INPUT,
+  END_ANCHOR,
+  isRawLookaround,
   GROUP_CLOSING,
   LOOKAHEAD_OPENING,
-  OPTIONAL_ATOM_OPENING,
-  START_ANCHOR
+  ONLY_AT_END_OF_INPUT,
+  START_ANCHOR,
+  UNSATISFIABLE
 } from "./atomSyntax.ts";
 import { groupNameOf, decodeGroupName } from "./groupName.ts";
 import { legacyEscapeAtoms } from "./legacyEscape.ts";
@@ -15,8 +19,19 @@ import {
   type Part,
   type RawLookaroundInfo
 } from "./part.ts";
-import appendMultilineCaret, { type LookaheadSpan } from "./appendMultilineCaret.ts";
-import { OCCURRENCES_REGEX, isQuantifierAhead } from "./quantifier.ts";
+import appendMultilineCaret, {
+  CANNOT_END_LINE,
+  partDecidingCaret,
+  type LookaheadSpan
+} from "./appendMultilineCaret.ts";
+import {
+  LAZY_MARK,
+  OCCURRENCES_REGEX,
+  isQuantifier,
+  isQuantifierAhead,
+  minimumOf,
+  quantifierAhead
+} from "./quantifier.ts";
 import {
   CASE_INSENSITIVE,
   MULTILINE,
@@ -26,6 +41,82 @@ import {
   scopeOf,
   scopeWithModifiers
 } from "./scope.ts";
+
+const NO_ALTERNATIVES: readonly number[] = [0];
+const NO_LOOKAHEAD_SPANS: readonly LookaheadSpan[] = [];
+const GROUP_OPENING = /^\((?:\?(?:<[^=!][^>]*>|[a-z-]*:))?$/;
+
+function lookaheadClosing(
+  lookaheadSpans: readonly LookaheadSpan[],
+  opening: number
+) {
+  let closing = opening;
+  for (const span of lookaheadSpans) {
+    if (span[0] === opening) closing = span[1];
+  }
+  return closing;
+}
+
+function leadingCaret(
+  body: Part[],
+  index: number,
+  lookaheadSpans: readonly LookaheadSpan[]
+) {
+  for (;;) {
+    const part = body[index];
+    if (part === START_ANCHOR) return index;
+    if (typeof part !== "string") return -1;
+    if (part === END_ANCHOR || isWordBoundaryAtom(part) || isRawLookaround(part))
+      index++;
+    else if (part === LOOKAHEAD_OPENING)
+      index = lookaheadClosing(lookaheadSpans, index) + 1;
+    else if (part === ONLY_AT_END_OF_INPUT && isQuantifier(body[index + 1]))
+      index++;
+    else if (
+      (body[index + 1] === GROUP_CLOSING ||
+        body[index + 1] === DISJUNCTION_TO_END_OF_INPUT) &&
+      GROUP_OPENING.test(part)
+    )
+      index += 2;
+    else return -1;
+    if (isQuantifier(body[index]))
+      index += body[index + 1] === LAZY_MARK ? 2 : 1;
+  }
+}
+
+function canEndLine(
+  body: Part[],
+  starts: readonly number[],
+  scope: number,
+  lookaheadSpans: LookaheadSpan[] | undefined
+) {
+  const scanned = body.slice();
+  let end = body.length;
+  for (let k = starts.length; k--; ) {
+    const start = starts[k];
+    if (
+      partDecidingCaret(scanned, end - 1, start - 1, scope, lookaheadSpans, 0) !==
+      CANNOT_END_LINE
+    )
+      return true;
+    end = start - 1;
+  }
+  return false;
+}
+
+function leadingCarets(
+  body: Part[],
+  starts: readonly number[],
+  lookaheadSpans: readonly LookaheadSpan[]
+) {
+  const carets = [];
+  for (const start of starts) {
+    const caret = leadingCaret(body, start, lookaheadSpans);
+    if (caret === -1) return undefined;
+    carets.push(caret);
+  }
+  return carets;
+}
 
 export function walk(
   regex: RegExp,
@@ -50,7 +141,11 @@ export function walk(
     | Array<{ ref: string; forward?: boolean }>
     | undefined;
   let currentRawLookaroundBackreferences: Backreference[] | undefined;
-  let lastBodyAlternates = false;
+  let lastBodyAlternativeStarts: number[] | undefined;
+  let lastBodyLookaheadSpans: LookaheadSpan[] | undefined;
+  let caretsSeen = 0;
+  let verbatimMultilineCarets = 0;
+  let lastBodyRunsOut = false;
 
   function extractSlice(length: number) {
     return source.slice(i, (i += length));
@@ -61,11 +156,16 @@ export function walk(
     let lastGroupOpen = -1;
     let lastGroupClose = -1;
     let lastGroupScope = scope;
-    let lastGroupAlternates = false;
+    let lastGroupAlternativeStarts: readonly number[] | undefined;
+    let lastGroupLookaheadSpans: LookaheadSpan[] | undefined;
     let lookaheadSpans: LookaheadSpan[] | undefined;
-    let alternates = false;
+    let alternativeStarts: number[] | undefined;
+    let alternativeStart = 0;
+    let alternativeRunsOut = false;
+    let everyAlternativeRunsOut = true;
 
     function appendOptional(length: number) {
+      if (result.length === alternativeStart) alternativeRunsOut = true;
       result.push(asOptionalAtom(extractSlice(length)));
     }
 
@@ -74,6 +174,7 @@ export function walk(
     }
 
     function appendDigitRun(forcedRef?: number) {
+      if (result.length === alternativeStart) alternativeRunsOut = true;
       featureMask |= FEATURE_BIT.backreference;
       NOT_NUMBERS_REGEX.lastIndex = i + 1;
       const nextNonDigit = NOT_NUMBERS_REGEX.exec(source);
@@ -141,6 +242,8 @@ export function walk(
                   forward: !closedGroupNames?.has(decodeGroupName(ref)),
                   caseInsensitive: (scope & CASE_INSENSITIVE) !== 0
                 };
+                if (result.length === alternativeStart)
+                  alternativeRunsOut = true;
                 result.push(namedBackreference);
                 currentRawLookaroundBackreferences?.push(namedBackreference);
                 (namedBackreferencesSeen ??= []).push(namedBackreference);
@@ -155,6 +258,8 @@ export function walk(
                 });
               } else {
                 i += 2;
+                if (result.length === alternativeStart)
+                  alternativeRunsOut = true;
                 result.push(asOptionalAtom(LITERAL_K));
               }
               break;
@@ -268,30 +373,41 @@ export function walk(
           appendOptional(j - i);
           break;
         }
-        case "^":
+        case "^": {
           featureMask |= FEATURE_BIT.startAnchor;
+          caretsSeen++;
           i++;
+          const leadsAlternative = result.length === alternativeStart;
           if (scope & MULTILINE) {
             lastGroupClose = appendMultilineCaret(
               result,
               lastGroupOpen,
               lastGroupClose,
               lastGroupScope,
-              lastGroupAlternates,
+              lastGroupAlternativeStarts,
+              lastGroupLookaheadSpans,
               lookaheadSpans,
               scope
             );
+            if (result[result.length - 1] === START_ANCHOR)
+              verbatimMultilineCarets++;
           } else {
             result.push(START_ANCHOR);
           }
+          if (leadsAlternative) alternativeStart = result.length;
           break;
+        }
         case "$":
           featureMask |= FEATURE_BIT.endAnchor;
           appendRaw(1);
           break;
         case "|":
           featureMask |= FEATURE_BIT.disjunction;
-          alternates = true;
+          (alternativeStarts ??= [0]).push(result.length + 1);
+          everyAlternativeRunsOut &&=
+            alternativeRunsOut || result.length === alternativeStart;
+          alternativeRunsOut = false;
+          alternativeStart = result.length + 1;
           appendRaw(1);
           break;
         case "*":
@@ -311,24 +427,18 @@ export function walk(
           }
           break;
         }
-        case "(":
+        case "(": {
+          let opening: string | undefined;
+          let groupScope = scope;
+          let closing = DISJUNCTION_TO_END_OF_INPUT;
+          let groupNumber = 0;
+          let declaredName: string | undefined;
           if (source[i + 1] == "?") {
             switch (source[i + 2]) {
-              case ":": {
+              case ":":
                 featureMask |= FEATURE_BIT.nonCapturingGroup;
-                i += 3;
-                lastGroupOpen = result.length;
-                const body = process(scope);
-                lastGroupClose = lastGroupOpen + body.length + 1;
-                lastGroupScope = scope;
-                lastGroupAlternates = lastBodyAlternates;
-                result.push(
-                  OPTIONAL_ATOM_OPENING,
-                  ...body,
-                  DISJUNCTION_TO_END_OF_INPUT
-                );
+                opening = extractSlice(3);
                 break;
-              }
               case "=": {
                 featureMask |= FEATURE_BIT.lookahead;
                 i += 3;
@@ -336,7 +446,7 @@ export function walk(
                 if (
                   scope & MULTILINE &&
                   body[0] === START_ANCHOR &&
-                  !lastBodyAlternates &&
+                  !lastBodyAlternativeStarts &&
                   !isQuantifierAhead(source, i)
                 ) {
                   body.shift();
@@ -345,7 +455,8 @@ export function walk(
                     lastGroupOpen,
                     lastGroupClose,
                     lastGroupScope,
-                    lastGroupAlternates,
+                    lastGroupAlternativeStarts,
+                    lastGroupLookaheadSpans,
                     lookaheadSpans,
                     scope
                   );
@@ -368,32 +479,9 @@ export function walk(
                   removalIndex === -1 || removalIndex === modifiers.length - 1
                     ? FEATURE_BIT.modifierGroup
                     : FEATURE_BIT.modifierGroupWithRemoval;
-                const modifierScope = scopeWithModifiers(scope, modifiers);
-
-                i = colonIndex + 1;
-                const body = process(modifierScope);
-                if (
-                  modifierScope & MULTILINE &&
-                  body[0] === START_ANCHOR &&
-                  !lastBodyAlternates &&
-                  !isQuantifierAhead(source, i)
-                ) {
-                  body.shift();
-                  lastGroupClose = appendMultilineCaret(
-                    result,
-                    lastGroupOpen,
-                    lastGroupClose,
-                    lastGroupScope,
-                    lastGroupAlternates,
-                    lookaheadSpans,
-                    scope
-                  );
-                }
-                lastGroupOpen = result.length;
-                lastGroupClose = lastGroupOpen + body.length + 1;
-                lastGroupScope = modifierScope;
-                lastGroupAlternates = lastBodyAlternates;
-                result.push("(?" + modifiers + ":", ...body, GROUP_CLOSING);
+                groupScope = scopeWithModifiers(scope, modifiers);
+                closing = GROUP_CLOSING;
+                opening = extractSlice(colonIndex + 1 - i);
                 break;
               }
               case "!":
@@ -410,27 +498,16 @@ export function walk(
                     featureMask |= FEATURE_BIT.negativeLookbehind;
                     appendRawLookaround(4);
                     break;
-                  default: {
+                  default:
                     featureMask |= FEATURE_BIT.namedGroup;
                     featureMask |= FEATURE_BIT.capturingGroup;
                     if (scope & WITHIN_LOOKAROUND)
                       featureMask |= FEATURE_BIT.lookaroundCapture;
-                    const groupNumber = ++groupCount;
-                    const opening = extractSlice(
-                      source.indexOf(">", i) - i + 1
-                    );
+                    groupNumber = ++groupCount;
+                    opening = extractSlice(source.indexOf(">", i) - i + 1);
                     (namedGroupOpenings ??= []).push(opening);
-                    const declaredName = decodeGroupName(groupNameOf(opening));
-                    lastGroupOpen = result.length;
-                    const body = process(scope);
-                    lastGroupClose = lastGroupOpen + body.length + 1;
-                    lastGroupScope = scope;
-                    lastGroupAlternates = lastBodyAlternates;
-                    result.push(opening, ...body, DISJUNCTION_TO_END_OF_INPUT);
-                    (closedGroupNumbers ??= new Set()).add(groupNumber);
-                    (closedGroupNames ??= new Set()).add(declaredName);
+                    declaredName = decodeGroupName(groupNameOf(opening));
                     break;
-                  }
                 }
                 break;
             }
@@ -438,20 +515,100 @@ export function walk(
             featureMask |= FEATURE_BIT.capturingGroup;
             if (scope & WITHIN_LOOKAROUND)
               featureMask |= FEATURE_BIT.lookaroundCapture;
-            const groupNumber = ++groupCount;
-            const opening = extractSlice(1);
-            lastGroupOpen = result.length;
-            const body = process(scope);
-            lastGroupClose = lastGroupOpen + body.length + 1;
-            lastGroupScope = scope;
-            lastGroupAlternates = lastBodyAlternates;
-            result.push(opening, ...body, DISJUNCTION_TO_END_OF_INPUT);
-            (closedGroupNumbers ??= new Set()).add(groupNumber);
+            groupNumber = ++groupCount;
+            opening = extractSlice(1);
           }
+          if (opening === undefined) break;
+          const opensAlternative = result.length === alternativeStart;
+          const rawLookaroundsBefore = rawLookarounds?.length ?? 0;
+          const caretsBefore = caretsSeen;
+          const verbatimMultilineCaretsBefore = verbatimMultilineCarets;
+          const body = process(groupScope);
+          const runsOut = lastBodyRunsOut;
+          const starts = lastBodyAlternativeStarts ?? NO_ALTERNATIVES;
+          const containsCaret = caretsSeen !== caretsBefore;
+          const carets = containsCaret
+            ? leadingCarets(
+                body,
+                starts,
+                lastBodyLookaheadSpans ?? NO_LOOKAHEAD_SPANS
+              )
+            : undefined;
+          const containsMultilineCaret =
+            verbatimMultilineCarets !== verbatimMultilineCaretsBefore;
+          const containsRawLookaround =
+            (rawLookarounds?.length ?? 0) !== rawLookaroundsBefore;
+          let hoistedCaretStays = false;
+          if (carets && (groupScope & MULTILINE || !(scope & MULTILINE))) {
+            const quantifier = quantifierAhead(source, i);
+            const minimum = quantifier === undefined ? 1 : minimumOf(quantifier);
+            if (minimum > 0) {
+              if (groupScope & MULTILINE) {
+                hoistedCaretStays = !(scope & MULTILINE);
+                lastGroupClose = appendMultilineCaret(
+                  result,
+                  lastGroupOpen,
+                  lastGroupClose,
+                  lastGroupScope,
+                  lastGroupAlternativeStarts,
+                  lastGroupLookaheadSpans,
+                  lookaheadSpans,
+                  scope
+                );
+              } else result.push(START_ANCHOR);
+            }
+            if (quantifier === undefined) {
+              for (let k = carets.length; k--; ) {
+                body.splice(carets[k], 1);
+                if (lastBodyLookaheadSpans)
+                  for (const span of lastBodyLookaheadSpans) {
+                    if (span[0] > carets[k]) {
+                      span[0]--;
+                      span[1]--;
+                    }
+                  }
+              }
+              if (lastBodyAlternativeStarts)
+                for (let k = starts.length; k--; )
+                  lastBodyAlternativeStarts[k] -= k;
+            } else if (groupScope & MULTILINE) {
+              const repeatedCaret =
+                minimum > 1 &&
+                !canEndLine(body, starts, groupScope, lastBodyLookaheadSpans)
+                  ? UNSATISFIABLE
+                  : asOptionalAtom(START_ANCHOR);
+              for (const caret of carets) body[caret] = repeatedCaret;
+            } else if (!containsRawLookaround) closing = GROUP_CLOSING;
+          }
+          if (
+            groupScope & MULTILINE &&
+            containsMultilineCaret &&
+            body.indexOf(START_ANCHOR) !== -1
+          )
+            closing = DISJUNCTION_TO_END_OF_INPUT;
+          else if (!containsRawLookaround && runsOut) {
+            closing = GROUP_CLOSING;
+            if (opensAlternative && !hoistedCaretStays) alternativeRunsOut = true;
+          } else if (containsRawLookaround)
+            closing = DISJUNCTION_TO_END_OF_INPUT;
+          lastGroupOpen = result.length;
+          lastGroupClose = lastGroupOpen + body.length + 1;
+          lastGroupScope = groupScope;
+          lastGroupAlternativeStarts = lastBodyAlternativeStarts;
+          lastGroupLookaheadSpans = lastBodyLookaheadSpans;
+          result.push(opening, ...body, closing);
+          if (groupNumber) (closedGroupNumbers ??= new Set()).add(groupNumber);
+          if (declaredName !== undefined)
+            (closedGroupNames ??= new Set()).add(declaredName);
           break;
+        }
         case ")":
           ++i;
-          lastBodyAlternates = alternates;
+          lastBodyAlternativeStarts = alternativeStarts;
+          lastBodyLookaheadSpans = lookaheadSpans;
+          lastBodyRunsOut =
+            everyAlternativeRunsOut &&
+            (alternativeRunsOut || result.length === alternativeStart);
           return result;
         default:
           featureMask |= FEATURE_BIT.patternCharacter;
@@ -460,7 +617,11 @@ export function walk(
           break;
       }
     }
-    lastBodyAlternates = alternates;
+    lastBodyAlternativeStarts = alternativeStarts;
+    lastBodyLookaheadSpans = lookaheadSpans;
+    lastBodyRunsOut =
+      everyAlternativeRunsOut &&
+      (alternativeRunsOut || result.length === alternativeStart);
     return result;
   }
 

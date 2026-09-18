@@ -22,7 +22,7 @@ Lucene's automaton-based regex dialect **cannot express backreferences** (finite
 | `testRepeatWithEmptyString`        | Quantifiers over empty-matching sub-expressions — `[^y]*{1,2}`       | ✅ Covered — `a*suffix`, `a?suffix`, `^[^y]*suffix`               |
 | `testRegExpNoStackOverflow`        | Deep nesting / stack safety — `(a)` × 50 000                         | ✅ Covered — wide alternation (× 1 000) and deeply nested groups (depth 100) |
 | `testCoreJavaParity`               | 2 000 random expressions validated against `java.util.regex.Pattern` | ✅ Covered structurally — every prefix of every pattern is tested |
-| Backreferences                     | Not in scope — unsupported by the automaton dialect                  | ✅ Partial matching supported (capture scan + expansion) — see [Backreferences caveat](../README.md#backreferences) in README |
+| Backreferences                     | Not in scope — unsupported by the automaton dialect                  | ✅ Partial matching supported (capture scan + expansion) — see [Backreferences caveat](./caveats.md#backreferences) |
 
 ## 🐪 PCRE2 (`testdata/testinput7`, `testinput15`, `testinput17`, `testinput18`)
 
@@ -68,7 +68,7 @@ RE2 **explicitly excludes backreferences by design**. From `re2.h`: _"backrefere
 
 Java expresses partial matching through `Matcher.hitEnd()`, `Matcher.lookingAt()`, and `Matcher.find()`. Parity tests are **explicit**: the specific patterns and strings below are taken directly from named test methods in `RegExTest.java`.
 
-The JDK **does** support backreferences, and `RegExTest.java` includes `backRefTest()` (~line 2520) and `ciBackRefTest()` (~line 2568) for numeric backreferences with `find()`. However, **neither method combines backreferences with `hitEnd()` or any other partial-match concept** — they test full-match correctness only. There are no JDK tests for the behaviour of `hitEnd()` on patterns containing backreferences, so this library's own partial-matching support for backreferences (see [Backreferences caveat](../README.md#backreferences)) has no directly analogous JDK test to compare against.
+The JDK **does** support backreferences, and `RegExTest.java` includes `backRefTest()` (~line 2520) and `ciBackRefTest()` (~line 2568) for numeric backreferences with `find()`. However, **neither method combines backreferences with `hitEnd()` or any other partial-match concept** — they test full-match correctness only. There are no JDK tests for the behaviour of `hitEnd()` on patterns containing backreferences, so this library's own partial-matching support for backreferences (see [Backreferences caveat](./caveats.md#backreferences)) has no directly analogous JDK test to compare against.
 
 | JDK test method / concept        | Specific case                                                  | This library equivalent                                                                      |
 | -------------------------------- | -------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
@@ -79,8 +79,8 @@ The JDK **does** support backreferences, and `RegExTest.java` includes `backRefT
 | `hitEndTest`                     | `/catattack/` on `"attackattackattackcatatta"` → `hitEnd=true` | `exec(...)[0] !== ""`                                                                        |
 | `caretAtEndTest` (lines 506–513) | `/^x?/m` on `"\r"` — successive `find()` calls                 | First match at index 0; second (after manual `lastIndex++`) at index 1                       |
 | `wordSearchTest` (lines 483–503) | `/\b/` on `"word1 word2 word3"` with progressive `find(pos)`   | `\bwor` with `g` flag and progressive `lastIndex` — finds matches at 0, 6, 12                |
-| `backRefTest` (~line 2520)       | `(a*)bc\1`, `(abc)(def)\1` — full match via `find()`           | JDK test is full-match only; this library additionally supports partial-matching these patterns — see [Backreferences caveat](../README.md#backreferences) |
-| `ciBackRefTest` (~line 2568)     | Same patterns with `(?i)` case-insensitive flag                | JDK test is full-match only; this library additionally supports partial-matching these patterns — see [Backreferences caveat](../README.md#backreferences) |
+| `backRefTest` (~line 2520)       | `(a*)bc\1`, `(abc)(def)\1` — full match via `find()`           | JDK test is full-match only; this library additionally supports partial-matching these patterns — see [Backreferences caveat](./caveats.md#backreferences) |
+| `ciBackRefTest` (~line 2568)     | Same patterns with `(?i)` case-insensitive flag                | JDK test is full-match only; this library additionally supports partial-matching these patterns — see [Backreferences caveat](./caveats.md#backreferences) |
 | `Matcher.hitEnd()`               | Semantic: did the engine read the end of the input?            | [`hitEnd(partial, match)`](../README.md#hitendpartial-partialmatchregexp-match-regexpexecarray-boolean) — same contract, approximated: conservative for a bounded greedy quantifier fully taken at the end — on a group, or an unequal-bound `{n,m}` directly on a single atom once saturated — and reports `false` after an actual end-read for the two [documented limits](../README.md#what-it-cannot-see) |
 | `Matcher.lookingAt()`            | Prefix match from start                                        | `exec` with `^` anchor                                                                       |
 | `Matcher.matches()`              | Full-string match                                              | `exec` with `^…$` anchors                                                                    |

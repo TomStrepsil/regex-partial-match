@@ -65,7 +65,7 @@ state("2024-06-15"); // 'complete'   - accept, enable submit
     Mimicking JDK's [`Matcher.hitEnd()`](https://docs.oracle.com/javase/8/docs/api/java/util/regex/Matcher.html#hitEnd--)
 
 [^2]:
-    Testing the original, untransformed pattern looks like it should answer this — "did the input fully satisfy the original pattern?" — but it asks a different question: whether the original matches *at all* here, not whether *this* match reached the end of the input on its way. The two agree almost always, but a read of the end inside a zero-width assertion can make both return an identical result by different paths. See [Why the question can't be answered from the outside](#why-the-question-cant-be-answered-from-the-outside) for the case where they diverge.
+    Testing the original, untransformed pattern looks like it should answer this — "did the input fully satisfy the original pattern?" — but it asks a different question: whether the original matches *at all* here, not whether *this* match reached the end of the input on its way. The two agree almost always, but a read of the end inside a zero-width assertion can make both return an identical result by different paths. See [Why the question can't be answered from the outside](./docs/how-it-works.md#why-the-question-cant-be-answered-from-the-outside) for the case where they diverge.
 
 ### A note on Tree-Shaking
 
@@ -87,51 +87,13 @@ partial.test("hel"); // true
 
 ## ⚙️ How It Works
 
-The library transforms a regular expression by wrapping each [atomic element](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions#atoms) in a [non-capturing group](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Non-capturing_group) with a [disjunction](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Disjunction) to a true-end-of-input sentinel (`$(?![\s\S])`[^3]):
+The library wraps each [atomic element](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions#atoms) in a non-capturing group with a disjunction to the true end of the input, so the pattern matches any prefix of what the original would match:
 
 ```javascript
 /abc/ → /(?:a|$(?![\s\S]))(?:b|$(?![\s\S]))(?:c|$(?![\s\S]))/
 ```
 
-This allows the pattern to match prefixes of the original pattern, enabling validation of incomplete input.
-
-Since the library accepts only valid regular expressions [^4], this enables the algorithm to make lots of unguarded assumptions about the source of the expression.
-
-The library has been stress-tested with various regular expression features in isolation, and some in likely combination, but obviously it's an unbounded test space.
-
-The transform answers a two-valued question: does the input match the wrapped pattern? for what is really a three-valued one, could *some* continuation make the original match? The two agree except in one situation. An assertion evaluated where the input runs out — `\b`, `\B`, a mid-pattern `$`, or a lookaround body — sees the end of the input as a fixed fact rather than an unknown continuation. `\b` after a word character at end of input is true; `$` there is true; a lookahead body is accepted once it runs out. When the rest of the pattern then requires something those assertions have just ruled out, the input is accepted although no continuation can complete it:
-
-- `/^\b$/` accepts `""` — `\b` wants a word character next, `$` wants none
-- `/$[^a]/` accepts `""` — `$` wants the end, `[^a]` wants a character
-- `/(?=-)+a+/` accepts `""` — the next character would have to be both `-` and `a`
-- `/[]/` accepts `""` — an atom that can never match still gets a truncation branch
-
-The over-acceptance only arises on a path that is contradictory at that point, and it is always in the safe direction for a validator: keep buffering. It has one visible side effect — a contradictory *branch* can win an earlier index than a later, viable one, as in `/^b\ba|a/` on `"b"`. Nothing short of a full matcher can decide the three-valued question, so this is stated as a limit rather than patched case by case.
-
-The one assertion that can run the other way — false at a truncated end, true one character later — is `^` under the `m` flag. A line start depends on the character *before* it, which is always in hand, so a caret is decidable even at the end of the input — unless the atom before it took a truncation branch, in which case the caret is being judged at the wrong position: in the full input that atom would have consumed something and the caret would have been evaluated later. Refusing it there is unsafe for a validator, since it rejects input a continuation would complete. So under `m` a caret is folded into the taken branch of the nearest consuming part before it on its own path:
-
-```javascript
-/\W^/m     → /(?:\W^|$(?![\s\S]))/
-/(a|\n)^/m → /((?:a|\n)^|$(?![\s\S]))/
-```
-
-Taken, the atom is followed by the caret and the real character decides; truncated, the caret is skipped along with the rest of the atom. `/\W^/m` therefore keeps `"a"` viable at index 1, where the continuation `"\n"` does double duty, satisfying `\W` and creating the line start — and still refuses `"-"` at index 0, where `\W` was taken and the character before the caret is known.
-
-A caret only holds after a line terminator, so the rule first asks whether the part before it can end with one, under that part's own `i`, `s` and `u`/`v` scope. Where it cannot, no continuation completes the path, and the path is refused: `/ba^/m` on `"b"`, `/^a+^b/m` on `"a"` and `/\W*(a)^/m` on `"-"` all return `null`. A quantifier that allows zero repetitions of such an atom can only satisfy the caret by repeating zero times, so the caret is judged against the part before it instead: `/\na*^/m` on `"\na"` matches `"\n"`. A group is judged by the end of its body, and a group whose body consumes nothing, such as `(\b)`, is looked through. The wrap stays inside the group, spelled `(?m:^)` where the group turns multiline off, so a group the input ran out in front of still captures `""`.
-
-After a quantifier on an atom that can end a line, or after a backreference, the position genuinely can move, so the caret takes a branch of its own, `(?:^|$(?![\s\S]))`. That branch, and the wrap where the rule cannot see the end of a group's body, over-accept in the safe direction after a bounded quantifier saturated at the end, a backreference, a quantified, alternating or nested group, or a group that consumes nothing behind another group: `/(a)+^b/m` keeps `"a"`. Where nothing consuming precedes the caret on its path — at the start of the pattern or of an alternative, or behind only lookarounds — its position is fixed and it stays verbatim, which is what keeps the start anchor's [empty-match mitigation](#test-behaviour-and-non-matching-results-from-exec-and-match) working for `/^x/m` and `/^a|^b/m` alike. Assertions at one position commute, so a `$`, `\b`, `\B`, a lookaround or another caret between the part and the caret is looked through. A caret leading an unquantified lookahead or `(?m:...)` body is judged against the part before that group, unless the body alternates at its top level, where it would guard every alternative; there, as at the start of any later alternative, it stays verbatim. Outside `m` the caret is never touched, because past index 0 it is false whatever arrives: `/\W^/` can never match, and the transform still reports nothing viable. A `(?m:...)` group turns the rule on and a `(?-m:...)` group turns it back off, following the same nesting as the `i` flag.
-
-A lookbehind body judged at a truncated end is the remaining case in that direction, and is covered under [Positive Lookbehinds](#positive-lookbehinds).
-
-> [!NOTE]
-> See [Partial Match Parity](/docs/partial-match-parity.md) for full details on how the library compares to reference implementations
-
-### Patterns with backreferences
-
-Backreferences cannot be handled by the `|$(?![\s\S])` transform alone because they are atomic — `\1` must match the entire captured string or fail, and its length is only known at runtime. `PartialMatchRegExp` first tries a full match natively, but that native result only wins outright if nothing earlier in the input could still be a viable partial — a cheap bound check settles that without needing to resolve the backreference's actual value, so the common case (no earlier partial exists) stays fast. Otherwise it runs a "capture scan": a variant of the pattern with each backreference swapped for a lazy `(?:[\s\S]*?)` wildcard, so the group it depends on can still capture against a partial input — matching anything, or nothing at all, without needing to already know the backreference's value. 
-
-Whatever that scan captures (or leaves `undefined`, if the group hasn't been reached yet) is then used to build a fresh partial-matching regex for this specific input, expanding the backreference character-by-character from the captured value with the same per-atom transform as the rest of the pattern. See [docs/backreferences.md](./docs/backreferences.md) for the full algorithm.
-
+See [How It Works](./docs/how-it-works.md) for the full transform, where it over-accepts, how `^` is handled in groups and under the `m` flag, and how backreferences are matched.
 
 ## ✅ Supported Features
 
@@ -144,19 +106,19 @@ Whatever that scan captures (or leaves `undefined`, if the group hasn't been rea
 - 🔢 [Quantifiers](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Quantifier) (`*`, `+`, `?`, `{n}`, `{n,}`, `{n,m}`)
 - 🔀 [Disjunction](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Disjunction) (`a|b`)
 - 👥 [Groups](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Capturing_group) (capturing and non-capturing) (`(?:abc)`, `(abc)`, `(?<named>abc)`)
-- 🔙 [Backreferences](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Backreference) (`\1`, `\k<name>`) (See [caveats](#backreferences) for known limitations)
+- 🔙 [Backreferences](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Backreference) (`\1`, `\k<name>`) (See [caveats](./docs/caveats.md#backreferences) for known limitations)
 - 👉 [Lookahead assertions](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Lookahead_assertion) (`(?=...)`, `(?!...)`)
 - 👈 [Lookbehind assertions](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Lookbehind_assertion) (`(?<=...)`, `(?<!...)`)
 - ⚓ [Input Boundaries](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Input_boundary_assertion) (`^`, `$`)
 - 🆒 [Word Boundaries](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Word_boundary_assertion) (`\b`, `\B`)
-- 🏴 [Flags](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/flags): `g`, `i`, `m`, `s`, `u`, `d`, `y` (See [caveats](#sticky-flag-y) for `y`)
+- 🏴 [Flags](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/flags): `g`, `i`, `m`, `s`, `u`, `d`, `y` (See [caveats](./docs/caveats.md#sticky-flag-y) for `y`)
 - 🎚️ [Modifiers](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Modifier) (`(?ims:...)`, `(?-ims:...)`, `(?im-s:...)`)
 
 ## 🚫 Unsupported Features
 
 The following regex features are **not currently supported**:
 
-- ⚠️ [Character class substrings](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Character_class#matching_strings) (`\q{abc}`) - When used independently, rather than to modify, can be included, but can't partially match. See [caveats](#caveats).
+- ⚠️ [Character class substrings](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Character_class#matching_strings) (`\q{abc}`) - When used independently, rather than to modify, can be included, but can't partially match. See [caveats](./docs/caveats.md#string-properties).
 
 ## 🌐 Browser Compatibility
 
@@ -174,193 +136,16 @@ Each of these applies only when the *original* pattern uses the feature — ever
 
 ## ⚠️ Caveats
 
-### [`.test()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/test) behaviour and non-matching results from [`.exec()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/exec) and [`.match()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/match)
+See [Caveats](./docs/caveats.md) for details, examples and workarounds.
 
-For unanchored patterns (no `^` and not using the `y` flag), the library produces an expression that always matches an empty string at the true end of the input — see [How It Works](#how-it-works). Feasibly, this is the start of a new partial match.
-
-Hence:
-
-```js
-/x/.test("a") === false; /* untransformed regex */
-/(?:x|$(?![\s\S]))/.test("a") === true; /* new PartialMatchRegExp(/x/), internally */
-```
-
-To mitigate, a start anchor (`^`) can prevent the engine from scanning forward to match the empty-string fallback at the end of the input:
-
-```js
-/* new PartialMatchRegExp(/^x/) matches as if it were /^(?:x|$(?![\s\S]))/ */
-/^(?:x|$(?![\s\S]))/.test("") === true;
-/^(?:x|$(?![\s\S]))/.test("x") === true;
-/^(?:x|$(?![\s\S]))/.test("a") === false;
-```
-
-> [!CAUTION]
-> In [multiline mode](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/multiline), `^` still matches at the start of the string and immediately after each `\n`, so the transformed regex can attempt the empty-string fallback at the start of any line — but, since the fallback requires strict end-of-input, it only succeeds if that line start is *also* genuinely where the input ends:
->
-> ```js
-> /^(?:x|$(?![\s\S]))/m.test("x") === true;
-> /^(?:x|$(?![\s\S]))/m.test("a\n") === true;  /* '^' matches after '\n', and input truly ends there */
-> /^(?:x|$(?![\s\S]))/m.test("a\nb") === false; /* '^' matches after '\n', but "b" remains — not genuine end-of-input */
-> ```
-
-The [`y` flag](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/sticky) prevents matching ahead from the [`lastIndex`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/lastIndex) (defaulting to `0` for a new `RegExp`):
-
-```js
-/(?:x|$(?![\s\S]))/y.test("x") === true;
-/(?:x|$(?![\s\S]))/y.test("a") === false;
-```
-
-> [!CAUTION]
-> See [caveats](#sticky-flag-y) re: resetting `lastIndex` when incrementally matching
-
-On this basis, `.test()` should be used with caution, and a match of an empty string at the true end of the input should instead be considered "no match", if validating that which came before.
-
-e.g.
-
-```js
-/(?:x|$(?![\s\S]))/.exec("a"); // ['', index: 1, input: "a", groups: undefined];
-"a".match(/(?:x|$(?![\s\S]))/); // ['', index: 1, input: "a", groups: undefined];
-```
-
-> [!TIP]
-> [`hitEnd()`](#hitendpartial-partialmatchregexp-match-regexpexecarray-boolean) answers this without a length check, and covers more than one: it reports `true` for the empty end-of-input match, since it exists only because the input ran out, and equally for a non-empty prefix like `"hello"` against `/hello world/`, which a length check would wave through.
->
-> It describes a match, so ask it from `exec()` rather than `test()`:
->
-> ```js
-> import PartialMatchRegExp, { hitEnd } from "regex-partial-match";
->
-> const partial = new PartialMatchRegExp(/x/);
-> const match = partial.exec("a"); // ['', index: 1, input: "a", groups: undefined]
->
-> hitEnd(partial, match); // true - the match depended on the input running out
-> ```
->
-> `true` is "not yet", not "never": for an unanchored `/x/`, `"a"` really is a viable prefix of `"ax"`. It is only when validating that which came before that it should be read as "no match".
-
-> [!NOTE]
-> A more ergonomic `test()` / `exec()` output [was explored](https://github.com/TomStrepsil/regex-partial-match/pull/51), but proved a complex problem space.
-
-### Backreferences
-
-`PartialMatchRegExp` supports partial matching of backreferences (`\1`, `\k<name>`) — see [Patterns with backreferences](#patterns-with-backreferences) above and [docs/backreferences.md](./docs/backreferences.md) for the algorithm. A backreference is inherently atomic — `\1` must match the complete captured text or fail — but the library resolves what each group captured from a partial input and expands the backreference into per-character partial form so matching can still proceed character-by-character in the common case.
-
-The following cases remain atomic (full native value or exactly at true end of input, no mid-value partial matching):
-
-- **Backreferences inside lookbehinds and negative lookarounds.** These are verbatim contexts — the value a lookbehind or negative lookahead requires must be fully present or fully absent, so there's no partial-prefix position to expand into.
-- **A backreference whose captured value can't be determined from a partial input.** This only affects the backreference site itself; it's strictly better than rejecting the input outright, and never accepts anything unsound.
-- **A forward reference, outside a lookbehind** — `\1` written before group 1 opens, or referencing it while it's still open (a self-reference inside the group's own body, e.g. `\1` in `/^(\1a)$/`). Its value can't come from the capture scan, which resolves it on a path it could never have taken, so it's left to the engine — which, per ECMAScript, always resolves it to empty there (it can't have participated yet, even on a later iteration of an enclosing quantifier). This costs nothing in practice: there's no real value being withheld. (Inside a lookbehind — already covered above — matching runs right-to-left, so a reference written first can still follow its own group's capture; that's exactly why the whole body stays atomic regardless of `forward`.)
-- **A `\k<name>` referencing a name declared more than once**, which ECMAScript permits only across disjoint alternatives. This one is stricter than the rest — see [docs/backreferences.md](./docs/backreferences.md#duplicate-named-groups) for why, and for the workaround.
-
- The case-folding a backreference's expansion agrees against tracks a locally-scoped `(?i:...)`/`(?-i:...)` [modifier](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Modifier) around that specific backreference, rather than only the pattern's own flags. This holds for a backreference the local scope makes *more* case-insensitive than the pattern is, or *less*. V8 versions before [the fix](https://issues.chromium.org/issues/447583670) released in Node.js 24.12 can still mishandle the locally-disabled case when the surrounding pattern has `i`; Chromium/Electron support depends on their bundled V8 version.
-
-A backreference pattern has one further limit, which costs completeness rather than soundness:
-
-- **A backreference whose viable index is not the scan's leftmost.** The capture scan resolves groups at *its* leftmost match, and a stand-in that accepts anything can put that earlier than any viable index. The expansion is then baked from the wrong text, and the match is found late or not at all: `/(?<g>[^]{2})\1/` on `"abbb"` matches at index 2 where `"bbb"` at index 1 is a prefix of `"bbbb"`. Sound, never accepting an invalid prefix, but incomplete; exact resolution would need a sticky scan at every candidate index.
-
-#### Captures on a partial match
-
-Captures on a partial match are the closest they can be to what a full match would or may report. Each group holds what a completion along the path the match took captures, cut off at the end of the input: `""` for a group the match entered that has consumed nothing yet, the prefix it holds for a group cut off part way, and `undefined` only where that completion leaves the group unmatched.
-
-More input can still replace that path with another one entirely: a group can grow, shrink, become `undefined` because a different alternative wins, or a different group can appear where it was `undefined`.
-
-```javascript
-const partial = new PartialMatchRegExp(/(ab)x|(abc)y/);
-
-partial.exec("ab");   // ["ab",   "ab",      undefined] — branch 1, truncated
-partial.exec("abcy"); // ["abcy", undefined, "abc"    ] — branch 2, complete
-```
-
-A repeated group whose last iteration was cut short reports that partial iteration — `/(abc)+\1/` on `"abcab"` gives `m[1] === "ab"` — and `"abcabc"` then gives `"abc"`.
-
-When [`hitEnd()`](#hitendpartial-partialmatchregexp-match-regexpexecarray-boolean) reports `false` for a match, its captures are final; when it reports `true`, they are the closest available. Two known shapes still report `undefined` where `""` is closer: a group nested inside a group a multiline caret follows (`/((\n))^/m` on `"a"` gives `m[2] === undefined`), and a quantified group not yet iterated at the end of the input (`/(?=(a))(a|b)*/` on `""` gives `m[2] === undefined`).
-
-#### Prefix-ambiguous top-level alternation
-
-When a pattern uses top-level alternation where one branch is a strict prefix of another (e.g. `^(ab)\1|^(abc)\2`), the internal capture scan may select the shorter branch — because it uses `(?:[\s\S]*?)` which accepts zero characters — causing the final partial regex to fail for inputs that are valid prefixes of the longer branch. In such cases `exec` returns `null` even though the input is a valid partial match:
-
-```javascript
-const partial = new PartialMatchRegExp(/^(ab)\1|^(abc)\2/);
-
-partial.test("abca"); // false — but "abca" is a valid prefix of "abcabc" via the second branch
-```
-
-> [!TIP]
-> If alternate branches share a prefix, list the longer one first. The capture scan tries branches in order and stops at the first that accepts the partial input, so putting the longer branch first ensures it's the one selected:
->
-> ```javascript
-> const partial = new PartialMatchRegExp(/^(abc)\2|^(ab)\1/);
->
-> partial.test("abca"); // true
-> ```
-
-See [docs/backreferences.md](./docs/backreferences.md) for why this happens (the internal capture scan resolving the wrong alternative first).
-
-[^3]: 
-    A bare `$` alone isn't sufficient here: under the `m` (multiline) flag, including one turned on locally via a `(?m:...)` [modifier](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Modifier), `$` also matches immediately before *any* line terminator, not just the true end of input. That would let a `"\n"` the source pattern never allowed for be silently accepted as if the input had simply run out, e.g. `new PartialMatchRegExp(/^foobar/m)` would wrongly accept `"foo\nbaz"`. Appending `(?![\s\S])` narrows the disjunction down to strict end-of-input, regardless of multiline state.
-
-    See [chromium issue 536420076](https://issues.chromium.org/u/2/issues/536420076) for the underlying V8 bug that requires `$` to precede `(?![\s\S])` rather than using the lookahead alone.
-
-    A shorter option, `(?-m:$)` (disabling multiline locally so `$` means strict end-of-input on its own) also sidesteps the bug and saves a few bytes per atom. However, modifier groups are new enough that support isn't universal, and feature-detecting them would add a fallback branch the test suite can't exercise honestly, since every engine that can realistically be tested against already supports them.
-
-[^4]: 
-    To remain lightweight, no runtime type validation is applied, so non-TypeScript consumers will be reliant on underlying errors thrown if used incorrectly.
-
-
-### Positive Lookbehinds
-
-Whilst forming a match, a positive lookbehind must match in entirety, for the pattern to match. This is inherent in the concept of non-matching groups, since they are not match-worthy themselves, but just qualify matching atoms.
-
-e.g.
-
-```js
-/(?<=foo)bar/;
-```
-
-"f" through "foo" is not a match, but "foob" is.
-
-### Surrogate Pair Matching
-
-In [unicode-aware mode](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/unicode) (`u` flag), **only whole astral characters are supported**. Partial matching of individual surrogate pairs is not supported. For example, `/😀/u` will match the complete emoji character, but not the first surrogate pair in isolation. Hence, if partially matching a byte stream, be sure to pipe via a [`TextDecoder`](https://developer.mozilla.org/en-US/docs/Web/API/TextDecoder) first.
-
-### [Sticky](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/sticky) Flag (`y`)
-
-The sticky flag is fully supported for its intended use case: **scanning within a single fixed string**. Partial matches are found only at `lastIndex`; the engine does not scan forward, and `lastIndex` advances on success or resets to `0` on failure; exactly as native sticky regexes behave.
-
-```javascript
-import PartialMatchRegExp from "regex-partial-match";
-
-const partial = new PartialMatchRegExp(/hello/y);
-
-partial.lastIndex = 2;
-partial.test("xyhello"); // true  — partial match at position 2
-partial.test("xyworld"); // false — no match at position 2, no forward scan
-partial.lastIndex = 2;
-partial.test("xyhel"); // true  — partial prefix "hel" at position 2
-```
-
-**Limitation — progressive input validation:** Because a successful match advances `lastIndex`, testing a sequence of growing strings against the same instance does not work as expected:
-
-```javascript
-const partial = new PartialMatchRegExp(/hello/y);
-
-partial.test("h");   // true,  lastIndex → 1
-partial.test("he");  // false — sticky requires a match at position 1 of "he",
-                     //         but "e" is not a valid start of the pattern
-partial.test("hel"); // true (lastIndex was reset to 0 by the previous failure)
-```
-
-There is no way to distinguish "scanning forward in the same string" from "testing a new, longer string", so this cannot be fixed in code. For progressive input validation, use a regex **without** the `y` flag and always test against the full input so far.
-
-The `gy` flag combination is also fully supported: `exec()`/`test()` behave as sticky, while `match()`, `matchAll()`, `replace()`, and `replaceAll()` iterate via `exec()` as global, matching [the language specification](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/sticky).
-
-### "String properties"
-
-As with surrogate pair matching, grapheme clusters / string properties can only match atomically.
-
-Hence, `[\p{RGI_Emoji_Flag_Sequence}]` will match `🇺🇳` as a whole, but not as the individual code points of which it's comprised.
-
-In [`v` mode](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/unicodeSets) expressions, where `[\q{abc}]` syntax is used in isolation (rather than its canonical use-case as a subtraction/intersection of another character class), this will also only match entirely or not at all. i.e. `abc` can match, but not partially.
+- [**`.test()` and empty matches at the end of the input**](./docs/caveats.md#test-behaviour-and-non-matching-results-from-exec-and-match): an unanchored pattern always matches `""` at the end of the input; anchor with `^`, or ask [`hitEnd()`](#hitendpartial-partialmatchregexp-match-regexpexecarray-boolean)
+- [**Backreferences**](./docs/caveats.md#backreferences): some backreferences stay atomic
+  - [Captures on a partial match](./docs/caveats.md#captures-on-a-partial-match)
+  - [Prefix-ambiguous top-level alternation](./docs/caveats.md#prefix-ambiguous-top-level-alternation)
+- [**Positive lookbehinds**](./docs/caveats.md#positive-lookbehinds): must match in their entirety
+- [**Surrogate pair matching**](./docs/caveats.md#surrogate-pair-matching): only whole astral characters match
+- [**Sticky flag (`y`)**](./docs/caveats.md#sticky-flag-y): not suited to progressive input validation
+- [**"String properties"**](./docs/caveats.md#string-properties): match atomically
 
 ## 💡 Examples
 
@@ -477,7 +262,7 @@ Available as a named export of the default entry point: `import { hitEnd } from 
 
 **Returns:**
 
-- `true` when the match read the end of the input: an atom ran out of input and took one of the `|$(?![\s\S])` branches described in [How It Works](#how-it-works); a greedy quantifier stopped at the end because there was nothing left to read; or `$`, `\b` or `\B` held there. More input could extend the match, change which alternative wins, or invalidate it, and its captures are the closest available rather than final — see [Captures on a partial match](#captures-on-a-partial-match).
+- `true` when the match read the end of the input: an atom ran out of input and took one of the `|$(?![\s\S])` branches described in [How It Works](#how-it-works); a greedy quantifier stopped at the end because there was nothing left to read; or `$`, `\b` or `\B` held there. More input could extend the match, change which alternative wins, or invalidate it, and its captures are the closest available rather than final — see [Captures on a partial match](./docs/caveats.md#captures-on-a-partial-match).
 - `false` when every atom matched literally and nothing read past the last character consumed. No continuation of the input changes the match's index or text, and the captures are the ones the original pattern produces — except the two cases in [What it cannot see](#what-it-cannot-see) below, where a read of the end leaves no marker and `false` is reported despite it.
 
 ```javascript
@@ -497,44 +282,22 @@ hitEnd(greedy, greedy.exec("hello world")); // true  — \w+ read the end lookin
 > [!NOTE]
 > Where the JDK is exact, `hitEnd()` is conservative in one place: a bounded greedy quantifier (`?`, `{n,m}`) fully taken at the end of the input reports `true`, although the engine attempted no further read there — on a *group* (`/(ab)?/` on `"ab"` is `true` here and `false` in Java), and the same way for an unequal-bound `{n,m}` directly on a single atom once it's saturated at its maximum (`/a{1,2}/` on `"aa"` is `true`, though no continuation can add a third `a`). Outside the two limits in [What it cannot see](#what-it-cannot-see), it is never wrong in the other direction.
 
-#### Why the question can't be answered from the outside
-
-Neither of the obvious workarounds answers it:
-
-- **Checking whether the match ends at the end of input.** True for a greedy tail that ran out, but also for an exact-length match such as `/^\d{4}/` against `"2024"`, which read nothing past the last digit and which `hitEnd()` correctly reports `false`; and false for a read of the end inside a lookahead, which never moves the match's own end.
-- **Re-running the original pattern.** That asks whether the original matches *at all* at that position, not whether *this result* was arrived at by reading the end. Where a truncation branch fires inside a zero-width assertion the two diverge, and the original can return an identical array by a different path:
-
-  ```javascript
-  const pattern = /a(?=(?:b(?:x|(c))d|b))/;
-  const partial = new PartialMatchRegExp(pattern);
-
-  partial.exec("ab");   // ['a', undefined] — truncated inside the assertion
-  pattern.exec("ab");   // ['a', undefined] — identical, and complete
-  pattern.exec("abcd"); // ['a', 'c']       — what more input actually produces
-  ```
-
-  Over `"ab"` the transformed pattern satisfies the atoms after `b` through *their* truncation branches — zero-width, so the match's own end never moves — before ever reaching the `(c)` group. Group 1 is left `undefined` where more input would define it.
-
-The information only exists during matching. `hitEnd()` recovers it by re-running the compiled pattern, [sticky](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/sticky) at `match.index`, with an empty named group in front of each truncation branch, after each greedy quantifier and after `$`, `\b` and `\B`, the latter three placed so that they can only match at the true end of the input; an empty group is zero-width and always succeeds, so the twin walks the identical path, and any marker that comes back defined is a read of the end the match actually made.
-
-Recognising a truncation branch, a raw lookaround, or a group open back out of the rendered pattern is one classification, shared by every pass that needs it, rather than re-derived independently wherever it's needed.
-
-The twin is built lazily, on first use, and never escapes the library — the array, `groups`, numbering and `d`-flag indices you hold are the ones `exec()` produced. It is cached once per instance for a pattern without [backreferences](#backreferences); for one with them the pattern is re-expanded per input, so the twin belongs to an expansion. A match the native pattern found outright has no expansion behind it, so the capture scan is re-run sticky at its index and the twin built from what that resolves, which is how a backreference that ran out part way through its capture is seen (`/(ab)\1|a/` on `"aba"` returns `"a"` and `hitEnd()` is `true`). The last expansion is kept per instance, whether `exec()` expanded the match or `hitEnd()` resolved it, so a caller whose capture is stable as the input grows builds that twin once. Where the scan resolves nothing, the un-expanded twin is used, which follows the transformed pattern's own alternative order, so a higher-priority alternative that ran out of input behind a native match is still reported (`/(a)\1b|a/` on `"aa"` returns `"a"` and `hitEnd()` is `true`).
+See [How It Works](./docs/how-it-works.md#why-the-question-cant-be-answered-from-the-outside) for why this can't be worked out from the match alone, and how `hitEnd()` records a read of the end.
 
 > [!NOTE]
 > `hitEnd()` itself always requires ES2018+, regardless of the pattern: its truncation probe is built from named capturing groups internally, even for a pattern as plain as `/^abc/`. See [Browser Compatibility](#browser-compatibility) — every other method holds to the ES2015 floor stated there.
 
 #### What it cannot see
 
-- **A read of the end inside a lookahead in an earlier iteration of a quantified group.** The probe's markers are capturing groups, and [`RepeatMatcher`](https://tc39.es/ecma262/#sec-runtime-semantics-repeatmatcher-abstract-operation) resets a quantified group's captures at the start of every iteration. `/(?:a(?=bcd)|b)+/` on `"abc"` reads the end inside `(?=bcd)` in its first iteration, matches `b` in its second, and reports `false` — although `"abcx"` changes the match to `"b"` at index 1. Nothing placed inside the repeated atom survives the reset, so this is a limit of the marker approach rather than an oversight, and it is pinned by a test.
-- **A read of the end inside a raw lookaround.** Negative lookaheads and both lookbehinds are kept verbatim (see [Caveats](#caveats)), so a read of the end inside them leaves no marker: `/^a(?!b)/` on `"a"` reports `false`, although `"ab"` invalidates the match. A scanner whose output must not depend on where its input was chunked should refuse or buffer patterns that use them, as [`replace-content-transformer`](https://github.com/TomStrepsil/replace-content-transformer) does.
+- **A read of the end inside a lookahead in an earlier iteration of a quantified group.** The probe's [markers](./docs/how-it-works.md#recording-a-read-of-the-end) are capturing groups, and [`RepeatMatcher`](https://tc39.es/ecma262/#sec-runtime-semantics-repeatmatcher-abstract-operation) resets a quantified group's captures at the start of every iteration. `/(?:a(?=bcd)|b)+/` on `"abc"` reads the end inside `(?=bcd)` in its first iteration, matches `b` in its second, and reports `false` — although `"abcx"` changes the match to `"b"` at index 1. Nothing placed inside the repeated atom survives the reset, so this is a limit of the marker approach rather than an oversight, and it is pinned by a test.
+- **A read of the end inside a raw lookaround.** Negative lookaheads and both lookbehinds are kept verbatim (see [Caveats](./docs/caveats.md)), so a read of the end inside them leaves no marker: `/^a(?!b)/` on `"a"` reports `false`, although `"ab"` invalidates the match. A scanner whose output must not depend on where its input was chunked should refuse or buffer patterns that use them, as [`replace-content-transformer`](https://github.com/TomStrepsil/replace-content-transformer) does.
 ### `PartialMatchRegExp.prototype.features: ReadonlySet<RegexFeature>`
 
 Building the partial-match regex requires walking the entire source pattern once. As a side effect of that same walk, each instance records which syntactic constructs its pattern actually uses, exposed as a `features` set — no separate scan of the source is performed to produce it.
 
 This is useful for consumers building on top of `PartialMatchRegExp` who need to reason about which constructs a *specific* pattern uses, without writing their own regex parser to find out. Two concrete cases:
 
-- **Flagging patterns likely to hit one of the [caveats](#caveats) documented above.** For example, a pattern combining `backreference` with `lookbehind`, `negativeLookahead`, or `negativeLookbehind` is a candidate for the [atomic-backreference caveat](#backreferences); one combining `backreference` with `disjunction` is a candidate for the [prefix-ambiguous top-level alternation caveat](#prefix-ambiguous-top-level-alternation). A consumer accepting user-supplied patterns can surface a warning instead of letting the edge case surprise someone later.
+- **Flagging patterns likely to hit one of the [caveats](./docs/caveats.md).** For example, a pattern combining `backreference` with `lookbehind`, `negativeLookahead`, or `negativeLookbehind` is a candidate for the [atomic-backreference caveat](./docs/caveats.md#backreferences); one combining `backreference` with `disjunction` is a candidate for the [prefix-ambiguous top-level alternation caveat](./docs/caveats.md#prefix-ambiguous-top-level-alternation). A consumer accepting user-supplied patterns can surface a warning instead of letting the edge case surprise someone later.
 - **Restricting which constructs a product surface allows.** e.g. a system that only wants to accept "simple" patterns (no lookaround, no backreferences) from untrusted input can check `features` against an allow-list and reject the rest, without needing to hand-roll that check against the raw pattern source.
 - **Deciding at construction time whether a pattern needs a careful path.** A capture nested inside a lookaround is decided by the assertion rather than by the consumed text, so its value can vary with how far the input has been seen. `features.has("lookaroundCapture")` isolates exactly those patterns, where `features.has("lookahead") && features.has("capturingGroup")` would also catch the ordinary `/(\w+)(?= END)/`.
 

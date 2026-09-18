@@ -2,7 +2,7 @@
 
 ## 🧩 The problem
 
-The `|$(?![\s\S])` transform that powers `compilePartial` (see [How It Works](../README.md#how-it-works)) cannot be applied to backreferences (`\1`, `\k<name>`) because a backreference is inherently **atomic**: it must match the entire captured string or fail entirely. The length of `\1` is only known at runtime, after group 1 has matched, so there is no source-level position at which to insert the alternation.
+The `|$(?![\s\S])` transform that powers `compilePartial` (see [How It Works](./how-it-works.md)) cannot be applied to backreferences (`\1`, `\k<name>`) because a backreference is inherently **atomic**: it must match the entire captured string or fail entirely. The length of `\1` is only known at runtime, after group 1 has matched, so there is no source-level position at which to insert the alternation.
 
 `PartialMatchRegExp` closes this gap by resolving captures at match time and expanding each backreference into per-atom partial form:
 
@@ -26,7 +26,7 @@ Patterns are classified once, at construction, by `compilePartial(regex): Compil
 Both paths share the same contract as the rest of the library:
 
 - An input is accepted if it is a viable prefix of a full match under ECMAScript semantics.
-- Unanchored patterns always match an empty string at true end of input; anchor with `^` to reject non-prefixes (see [Caveats](../README.md#caveats)).
+- Unanchored patterns always match an empty string at true end of input; anchor with `^` to reject non-prefixes (see [Caveats](./caveats.md)).
 - Alternation is ordered (first-match), group numbering and `undefined`-vs-`""` distinctions match the original `RegExp`, and backreferences to non-participating groups match the empty string per [ECMA-262 Backreference Matcher](https://tc39.es/ecma262/#sec-backreference-matcher) ("the backreference always succeeds" when the referenced group is `undefined`).
 - Both paths return the _leftmost_ candidate — complete or partial, whichever starts first — never a later complete match in preference to an earlier viable partial.
 
@@ -50,7 +50,7 @@ Keeping every rendering derived from one walk means they all agree about what co
 Within a single pass:
 
 - The walk records a `Backreference` exactly where it would have emitted a backreference atom: in the main flow and inside positive-lookahead bodies. `start`/`end` are the token's span in the original source, and `forward` says whether the reference's own group hasn't *closed* yet — before it opens at all, or a self-reference still inside its own body — free to record, since the walk already tracks each group's number, and its decoded name if named, as it closes. A further pass once the walk finishes forces `forward` on every reference to a [name declared more than once](#duplicate-named-groups).
-- It keeps lookbehind bodies (`(?<=`, `(?<!`) and negative lookaheads (`(?!`) as raw slices — these are verbatim contexts, so backreferences there remain atomic (see [caveat](../README.md#backreferences)).
+- It keeps lookbehind bodies (`(?<=`, `(?<!`) and negative lookaheads (`(?!`) as raw slices — these are verbatim contexts, so backreferences there remain atomic (see [caveat](./caveats.md#backreferences)).
 - A cheap textual pre-filter (`MAYBE_HAS_BACKREFERENCE_REGEX = /\\[0-9]|\\k</`) against the raw source decides whether it's even worth classifying: if the source can't possibly contain a backreference token, `compilePartial` renders the static regex straight from `parts` and returns `{ kind: "static" }` without going any further. This never skips the walk itself (`parts` is needed for the static rendering regardless) — it only skips the native group pre-count above and the backreference work below. It's purely a performance guard, never a correctness gate: a false positive (e.g. `\1` inside a character class) just falls through to the accurate classification that follows; false negatives aren't possible, since every real backreference token starts with exactly the text this pre-filter matches.
 - Otherwise, it classifies each `\N` as a genuine backreference only when `N` ≥ 1 and `N` ≤ the pattern's *final* capture-group count. That separates a backreference from an octal escape, but says nothing about which side of its own group the reference sits on — a forward and a backward reference both pass it, which is why the walk records `forward` separately. A leading-zero run (`\0`, `\012`, …) is never a genuine backreference (there is no group `0`) so the walk always tags it `ref: 0`, forcing it through the same path regardless of the group count. Otherwise it's an annex-B octal/literal escape, emitted by the walk, as it meets the run, as one optional-atom string part _per literal atom it denotes_ — `\128` is the single character `\x0a` followed by a literal `8`, so it yields two parts, not one. Wrapping the whole run as a single atom would both lose the prefix position between them and re-bind a following quantifier to the pair (`\128*` quantifies the `8` alone).
 - Falls back to the same static rendering whenever the walked `parts` hold zero genuine backreferences (a pattern whose only `\N` tokens turned out to be octal escapes).
@@ -117,7 +117,7 @@ A `\k<name>` referencing a name declared more than once is rendered this way unc
 
 Only `exec` is overridden. `test` reaches it via `RegExpExec`; `[Symbol.match]` calls `exec` in a loop for global patterns, so overriding it would break `g`-flag iteration. `Symbol.species` keeps its default so `[Symbol.matchAll]` clones preserve partial-match behaviour.
 
-See [README — Caveats](../README.md#caveats) for the documented limitations of this design (common-prefix top-level alternation, lookbehind/negative-lookaround atomicity, `\k<name>` with no named groups, and the scan-couldn't-determine fallback).
+See [Caveats](./caveats.md) for the documented limitations of this design (common-prefix top-level alternation, lookbehind/negative-lookaround atomicity, `\k<name>` with no named groups, and the scan-couldn't-determine fallback).
 
 ## 👨‍🍳 Recipes
 

@@ -2,20 +2,19 @@ import type { Part } from "./part.ts";
 
 export const OCCURRENCES_REGEX = /\{\d+(?:,\d*)?\}/y;
 export const QUANTIFIER_PART = /^(?:[*+?]|\{\d+(?:,\d*)?\})$/;
-const LAZY_MARK = "?";
+const QUANTIFIER_AHEAD = /[*+?]|\{\d+(?:,\d*)?\}/y;
+export const LAZY_MARK = "?";
 
 export const isQuantifier = (part: Part | undefined) =>
   typeof part === "string" && QUANTIFIER_PART.test(part);
 
-export function isQuantifierAhead(source: string, index: number) {
-  const character = source[index];
-  if ("*+?".includes(character)) {
-    return true;
-  }
-  if (character !== "{") return false;
-  OCCURRENCES_REGEX.lastIndex = index;
-  return OCCURRENCES_REGEX.test(source);
+export function quantifierAhead(source: string, index: number) {
+  QUANTIFIER_AHEAD.lastIndex = index;
+  return QUANTIFIER_AHEAD.exec(source)?.[0];
 }
+
+export const isQuantifierAhead = (source: string, index: number) =>
+  quantifierAhead(source, index) !== undefined;
 
 export function minimumOf(quantifier: string) {
   switch (quantifier) {
