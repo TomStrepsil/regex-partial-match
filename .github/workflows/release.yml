@@ -65,15 +65,6 @@ jobs:
             exit 1
           fi
 
-          # Dependabot PRs are exempt from the CHANGELOG/semver checkbox
-          COMMITS=$(git log $RANGE --oneline --perl-regexp --author='^(?!.*dependabot\[bot\])')
-
-          if [ -z "$COMMITS" ]; then
-            echo "❌ Error: Only dependabot commits found since $LATEST_TAG"
-            echo "No user-facing changes have been made since the last release."
-            exit 1
-          fi
-
           # Initialise semver bump level (0=none, 1=patch, 2=minor, 3=major)
           MAX_BUMP=0  # Must be explicitly set by PR checkbox
 
@@ -124,21 +115,19 @@ jobs:
                 MAX_BUMP=1
               fi
             else
-              PR_AUTHOR=$(gh pr view "$PR_NUMBER" --json author --jq '.author.login' 2>/dev/null)
-              if [ "$PR_AUTHOR" = "dependabot[bot]" ]; then
-                echo "Ignoring dependabot PR #$PR_NUMBER (no semver checkbox expected)"
-                continue
-              else
-                echo "❌ Error: No version bump checkbox selected in PR #$PR_NUMBER"
+              BEFORE_INTEGRITY=$(.github/scripts/published-package-integrity.sh "$COMMIT_HASH^" < /dev/null)
+              AFTER_INTEGRITY=$(.github/scripts/published-package-integrity.sh "$COMMIT_HASH" < /dev/null)
+              if [ "$BEFORE_INTEGRITY" != "$AFTER_INTEGRITY" ]; then
+                echo "❌ Error: No version bump checkbox selected in PR #$PR_NUMBER, which changed the published package"
                 echo "Please select MAJOR, MINOR, or PATCH in the PR description"
                 exit 1
               fi
+              echo "Ignoring PR #$PR_NUMBER (published package unchanged, no semver checkbox)"
             fi
-          done <<< "$COMMITS"
+          done <<< "$ALL_COMMITS"
 
           if [ "$MAX_BUMP" -eq 0 ]; then
-            echo "❌ Error: Only dependabot commits found since $LATEST_TAG"
-            echo "No user-facing changes have been made since the last release."
+            echo "❌ Error: No changes to the published package since $LATEST_TAG"
             exit 1
           fi
 

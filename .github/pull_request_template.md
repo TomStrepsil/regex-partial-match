@@ -8,7 +8,7 @@ _Brief summary of PR purpose and code changes._
 
 ## Semantic Version Impact
 
-_Select ONE checkbox to indicate the semver impact of this change. Learn more at https://semver.org/. If multiple are selected, **MAJOR** takes precedence over **MINOR**, which takes precedence over **PATCH**._
+_Select ONE checkbox to indicate the semver impact of this change. Learn more at https://semver.org/. If multiple are selected, **MAJOR** takes precedence over **MINOR**, which takes precedence over **PATCH**. Leave all unchecked if the published package (`lib/`, `README.md`, `LICENSE` or the consumer-facing fields of `package.json`) is unchanged; CI checks this._
 
 - [ ] **PATCH** - Bug fixes and minor changes (backwards compatible)
 - [ ] **MINOR** - New features (backwards compatible)
@@ -21,7 +21,7 @@ _Any [code cleaning](https://biratkirat.medium.com/step-8-the-boy-scout-rule-rob
 ## CheckList
 
 - [ ] PR starts with [_ISSUE_ID_]
-- [ ] I have added an entry to the `[Unreleased]` section in `docs/CHANGELOG.md`
+- [ ] I have added an entry to the `[Unreleased]` section in `docs/CHANGELOG.md`, if the published package changed
 - [ ] I have performed a self-review of my own code
 - [ ] I have added tests that prove my fix is effective or that my feature works
 - [ ] New and existing unit tests pass locally with my changes
