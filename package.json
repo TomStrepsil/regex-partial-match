@@ -67,6 +67,7 @@
   "scripts": {
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
+    "typecheck": "tsc --noEmit",
     "prepare": "simple-git-hooks",
     "prepublishOnly": "tsc -p tsconfig.build.json",
     "ci:smoke-test-built-package": "node .github/scripts/smoke-test-built-package.ts",
