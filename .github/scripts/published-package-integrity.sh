@@ -16,7 +16,6 @@ npm_flags=(--force --no-audit --no-fund --ignore-scripts)
 
 npm ci "${npm_flags[@]}" >&2
 npm run prepublishOnly --force >&2
-npm run prepack --if-present --force >&2
 npm pkg set version=0.0.0 --force
 
 npm pack --dry-run --json "${npm_flags[@]}" | jq -r '.[0].integrity'
