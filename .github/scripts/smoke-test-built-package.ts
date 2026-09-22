@@ -1,8 +1,8 @@
 /**
  * Verifies the built `lib/` output, in two passes. Called by the CI workflow
- * after `prepublishOnly`:
+ * after `build`:
  *
- *   npm run prepublishOnly && npm run ci:smoke-test-built-package
+ *   npm run build && npm run ci:smoke-test-built-package
  *
  * First, every emitted file is parsed at the ECMAScript version the README
  * states the package is compiled to, so syntax newer than that floor fails the
@@ -210,7 +210,7 @@ async function assertBuiltOutputParsesAtSupportedEcmaVersion(): Promise<void> {
   const emitted = entries.filter((entry) => entry.endsWith(".js"));
   assert.ok(
     emitted.length > 0,
-    "lib/ holds no JavaScript — was prepublishOnly run?"
+    "lib/ holds no JavaScript — was build run?"
   );
 
   for (const file of emitted) {

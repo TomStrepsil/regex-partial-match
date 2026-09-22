@@ -1893,7 +1893,7 @@ c`)
       it("counts a backreference or legacy escape opening a body as able to run out", () => {
         expect(new PartialMatchRegExp(/^(a)(\1^)/).exec("a")).toBeNull();
         expect(new PartialMatchRegExp(/^(?<g>a)(\k<g>^)/).exec("a")).toBeNull();
-        expect(new PartialMatchRegExp(/a(\8^)/).exec("a")).toBeNull();
+        expect(new PartialMatchRegExp(new RegExp("a(\\8^)")).exec("a")).toBeNull();
         expect(new PartialMatchRegExp(/a(\k^)/).exec("a")).toBeNull();
         expect(new PartialMatchRegExp(/a(b\k^)/).exec("a")).toBeNull();
       });
