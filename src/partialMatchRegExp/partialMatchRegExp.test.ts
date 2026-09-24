@@ -2196,6 +2196,51 @@ c`)
           });
         });
 
+        it.each([/(a|b|c)^^x/m, /(a|b|c)^^/m, /(a|b|c|d)^^/m])(
+          "keeps every alternative refused for a further caret, however many alternatives the group has, in %s",
+          (pattern) => {
+            expect(new PartialMatchRegExp(pattern).exec("a")).toBeNull();
+          }
+        );
+
+        it.each([
+          [/(?:\s*a?|b)^^/m, "a"],
+          [/(?:\s*a?|b)^^/m, " a"],
+          [/(?:\s*a*|b)^^/m, "a"],
+          [/(?:\s*a{0}|b)^^/m, "a"],
+          [/(?:\n*a?|b)^^/m, "a"],
+          [/(?:(\n)*a?|b)^^/m, "a"],
+          [/(()*a{0}|b)^^/m, "a"],
+          [/(()*a{0}|b)^^/m, " a"]
+        ])(
+          "leaves an atom the first caret refused optional for a further caret, in %s on %j",
+          (pattern, input) => {
+            expect(new PartialMatchRegExp(pattern).exec(input)).toMatchAt({
+              match: "",
+              index: 0
+            });
+          }
+        );
+
+        it("still sees the lookaheads of a group's alternatives after the first caret inserts into them", () => {
+          expect(
+            new PartialMatchRegExp(/(?:\s*a?(?=x)|b)^^/m).exec("a")
+          ).toMatchAt({ match: "", index: 1 });
+          expect(
+            new PartialMatchRegExp(/(?:\s*a?|b(?=c))^^/m).exec("b")
+          ).toMatchAt({ match: "", index: 0 });
+        });
+
+        it.each([/((?:a)\s*(?=x))^^/m, /((a)\1(?=x))^^/m])(
+          "still sees the lookaheads of a group without alternatives after the first caret inserts into it, in %s",
+          (pattern) => {
+            expect(new PartialMatchRegExp(pattern).exec("a")).toMatchAt({
+              match: "a",
+              index: 0
+            });
+          }
+        );
+
         it("looks through a lookahead ending the group before it, to the atom that decides the caret", () => {
           expect(new PartialMatchRegExp(/(a(?=b))^x/m).exec("a")).toBeNull();
           expect(new PartialMatchRegExp(/(a(?=b)|c)^x/m).exec("a")).toBeNull();

@@ -178,7 +178,7 @@ export function walk(
     let lastGroupOpen = -1;
     let lastGroupClose = -1;
     let lastGroupScope = scope;
-    let lastGroupAlternativeStarts: readonly number[] | undefined;
+    let lastGroupAlternativeStarts: number[] | undefined;
     let lastGroupLookaheadSpans: LookaheadSpan[] | undefined;
     let lookaheadSpans: LookaheadSpan[] | undefined;
     let alternativeStarts: number[] | undefined;
