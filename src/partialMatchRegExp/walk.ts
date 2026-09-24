@@ -50,13 +50,12 @@ const NO_ALTERNATIVES: readonly number[] = [0];
 const NO_LOOKAHEAD_SPANS: readonly LookaheadSpan[] = [];
 const GROUP_OPENING = /^\((?:\?(?:<[^=!][^>]*>|[a-z-]*:))?$/;
 const ASCII_LETTER = /[a-z]/i;
-const HEX_DIGIT = /[0-9a-f]/i;
+const TWO_HEX_DIGITS = /[0-9a-f]{2}/iy;
+const FOUR_HEX_DIGITS = /[0-9a-f]{4}/iy;
 
-function hexDigitsFollow(source: string, start: number, count: number) {
-  for (let k = start; k < start + count; k++) {
-    if (!HEX_DIGIT.test(source[k] ?? "")) return false;
-  }
-  return true;
+function matchesAt(source: string, start: number, pattern: RegExp) {
+  pattern.lastIndex = start;
+  return pattern.test(source);
 }
 
 function lookaheadClosing(
@@ -296,7 +295,10 @@ export function walk(
               break;
             }
             case "u":
-              if (scope & UNICODE || hexDigitsFollow(source, i + 2, 4)) {
+              if (
+                scope & UNICODE ||
+                matchesAt(source, i + 2, FOUR_HEX_DIGITS)
+              ) {
                 featureMask |= FEATURE_BIT.unicodeEscapeSequence;
                 appendOptional(
                   source[i + 2] === "{" ? source.indexOf("}", i) - i + 1 : 6
@@ -316,7 +318,7 @@ export function walk(
               }
               break;
             case "x":
-              if (scope & UNICODE || hexDigitsFollow(source, i + 2, 2)) {
+              if (scope & UNICODE || matchesAt(source, i + 2, TWO_HEX_DIGITS)) {
                 featureMask |= FEATURE_BIT.hexEscapeSequence;
                 appendOptional(4);
               } else {
