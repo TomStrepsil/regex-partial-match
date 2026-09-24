@@ -1,4 +1,8 @@
-import { NOT_NUMBERS_REGEX, LITERAL_K } from "./constants.ts";
+import {
+  NOT_NUMBERS_REGEX,
+  LITERAL_BACKSLASH,
+  LITERAL_K
+} from "./constants.ts";
 import {
   asOptionalAtom,
   isWordBoundaryAtom,
@@ -45,6 +49,15 @@ import {
 const NO_ALTERNATIVES: readonly number[] = [0];
 const NO_LOOKAHEAD_SPANS: readonly LookaheadSpan[] = [];
 const GROUP_OPENING = /^\((?:\?(?:<[^=!][^>]*>|[a-z-]*:))?$/;
+const ASCII_LETTER = /[a-z]/i;
+const HEX_DIGIT = /[0-9a-f]/i;
+
+function hexDigitsFollow(source: string, start: number, count: number) {
+  for (let k = start; k < start + count; k++) {
+    if (!HEX_DIGIT.test(source[k] ?? "")) return false;
+  }
+  return true;
+}
 
 function lookaheadClosing(
   lookaheadSpans: readonly LookaheadSpan[],
@@ -66,7 +79,11 @@ function leadingCaret(
     const part = body[index];
     if (part === START_ANCHOR) return index;
     if (typeof part !== "string") return -1;
-    if (part === END_ANCHOR || isWordBoundaryAtom(part) || isRawLookaround(part))
+    if (
+      part === END_ANCHOR ||
+      isWordBoundaryAtom(part) ||
+      isRawLookaround(part)
+    )
       index++;
     else if (part === LOOKAHEAD_OPENING)
       index = lookaheadClosing(lookaheadSpans, index) + 1;
@@ -95,8 +112,14 @@ function canEndLine(
   for (let k = starts.length; k--; ) {
     const start = starts[k];
     if (
-      partDecidingCaret(scanned, end - 1, start - 1, scope, lookaheadSpans, 0) !==
-      CANNOT_END_LINE
+      partDecidingCaret(
+        scanned,
+        end - 1,
+        start - 1,
+        scope,
+        lookaheadSpans,
+        0
+      ) !== CANNOT_END_LINE
     )
       return true;
     end = start - 1;
@@ -224,8 +247,16 @@ export function walk(
         case "\\":
           switch (source[i + 1]) {
             case "c":
-              featureMask |= FEATURE_BIT.controlLetterEscape;
-              appendOptional(3);
+              if (scope & UNICODE || ASCII_LETTER.test(source[i + 2] ?? "")) {
+                featureMask |= FEATURE_BIT.controlLetterEscape;
+                appendOptional(3);
+              } else {
+                featureMask |= FEATURE_BIT.otherEscape;
+                i++;
+                if (result.length === alternativeStart)
+                  alternativeRunsOut = true;
+                result.push(asOptionalAtom(LITERAL_BACKSLASH));
+              }
               break;
             case "k": {
               const referenceEnd =
@@ -265,11 +296,14 @@ export function walk(
               break;
             }
             case "u":
-              featureMask |= FEATURE_BIT.unicodeEscapeSequence;
-              if (scope & UNICODE && source[i + 2] === "{") {
-                appendOptional(source.indexOf("}", i) - i + 1);
+              if (scope & UNICODE || hexDigitsFollow(source, i + 2, 4)) {
+                featureMask |= FEATURE_BIT.unicodeEscapeSequence;
+                appendOptional(
+                  source[i + 2] === "{" ? source.indexOf("}", i) - i + 1 : 6
+                );
               } else {
-                appendOptional(6);
+                featureMask |= FEATURE_BIT.otherEscape;
+                appendOptional(2);
               }
               break;
             case "p":
@@ -282,8 +316,13 @@ export function walk(
               }
               break;
             case "x":
-              featureMask |= FEATURE_BIT.hexEscapeSequence;
-              appendOptional(4);
+              if (scope & UNICODE || hexDigitsFollow(source, i + 2, 2)) {
+                featureMask |= FEATURE_BIT.hexEscapeSequence;
+                appendOptional(4);
+              } else {
+                featureMask |= FEATURE_BIT.otherEscape;
+                appendOptional(2);
+              }
               break;
             case "b":
               featureMask |= FEATURE_BIT.wordBoundary;
@@ -357,12 +396,18 @@ export function walk(
                 depth--;
                 break;
               case "&":
-                if (scope & UNICODE_SETS && previousSetOperatorCharacter === "&") {
+                if (
+                  scope & UNICODE_SETS &&
+                  previousSetOperatorCharacter === "&"
+                ) {
                   featureMask |= FEATURE_BIT.classIntersection;
                 }
                 break;
               case "-":
-                if (scope & UNICODE_SETS && previousSetOperatorCharacter === "-") {
+                if (
+                  scope & UNICODE_SETS &&
+                  previousSetOperatorCharacter === "-"
+                ) {
                   featureMask |= FEATURE_BIT.classSubtraction;
                 }
                 break;
@@ -541,7 +586,8 @@ export function walk(
           let hoistedCaretStays = false;
           if (carets && (groupScope & MULTILINE || !(scope & MULTILINE))) {
             const quantifier = quantifierAhead(source, i);
-            const minimum = quantifier === undefined ? 1 : minimumOf(quantifier);
+            const minimum =
+              quantifier === undefined ? 1 : minimumOf(quantifier);
             if (minimum > 0) {
               if (groupScope & MULTILINE) {
                 hoistedCaretStays = !(scope & MULTILINE);
@@ -588,7 +634,8 @@ export function walk(
             closing = DISJUNCTION_TO_END_OF_INPUT;
           else if (!containsRawLookaround && runsOut) {
             closing = GROUP_CLOSING;
-            if (opensAlternative && !hoistedCaretStays) alternativeRunsOut = true;
+            if (opensAlternative && !hoistedCaretStays)
+              alternativeRunsOut = true;
           } else if (containsRawLookaround)
             closing = DISJUNCTION_TO_END_OF_INPUT;
           lastGroupOpen = result.length;
@@ -612,8 +659,10 @@ export function walk(
           return result;
         default:
           featureMask |= FEATURE_BIT.patternCharacter;
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- i < source.length is the loop invariant, so codePointAt(i) is always defined
-          appendOptional(scope & UNICODE && source.codePointAt(i)! > 0xffff ? 2 : 1);
+          appendOptional(
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- i < source.length is the loop invariant, so codePointAt(i) is always defined
+            scope & UNICODE && source.codePointAt(i)! > 0xffff ? 2 : 1
+          );
           break;
       }
     }

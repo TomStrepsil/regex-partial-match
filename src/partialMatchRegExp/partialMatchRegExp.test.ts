@@ -4589,4 +4589,96 @@ c`)
       expect(partial.exec("x")).toBeNull();
     });
   });
+
+  describe("Annex B incomplete \\c, \\x and \\u escapes", () => {
+    it("should construct from an incomplete escape followed by a group or class delimiter, agreeing with the original on a complete match", () => {
+      for (const [source, input] of [
+        ["\\c(a)", "\\ca"],
+        ["\\x(a)", "xa"],
+        ["\\x4(a)", "x4a"],
+        ["\\u12(a)", "u12a"],
+        ["\\c[a]", "\\ca"]
+      ]) {
+        const original = new RegExp(source);
+        const partial = new PartialMatchRegExp(original);
+
+        expect(partial.exec(input)).toEqual(original.exec(input));
+      }
+    });
+
+    it("should read an incomplete \\c as a literal backslash, and the c as the next atom", () => {
+      const partial = new PartialMatchRegExp(new RegExp("\\c1b"));
+
+      expect(partial).toMatchPartially({ characters: ["\\", "c", "1", "b"] });
+    });
+
+    it("should read \\c before an underscore as incomplete outside a character class", () => {
+      const partial = new PartialMatchRegExp(new RegExp("\\c_"));
+
+      expect(partial).toMatchPartially({ characters: ["\\", "c", "_"] });
+    });
+
+    it("should read \\c before an underscore as a control character inside a character class", () => {
+      const partial = new PartialMatchRegExp(new RegExp("[\\c_]a"));
+
+      expect(partial).toMatchPartially({ characters: ["\x1f", "a"] });
+    });
+
+    it("should read \\x as a literal x when two hex digits don't follow", () => {
+      expect(new PartialMatchRegExp(new RegExp("\\x4g"))).toMatchPartially({
+        characters: ["x", "4", "g"]
+      });
+      expect(new PartialMatchRegExp(new RegExp("\\xg"))).toMatchPartially({
+        characters: ["x", "g"]
+      });
+    });
+
+    it("should read \\x followed by two hex digits of either case as a hex escape", () => {
+      const partial = new PartialMatchRegExp(/\x4Fg/);
+
+      expect(partial).toMatchPartially({ characters: ["O", "g"] });
+    });
+
+    it("should read \\u as a literal u when four hex digits don't follow", () => {
+      expect(new PartialMatchRegExp(new RegExp("\\u12zz"))).toMatchPartially({
+        characters: ["u", "1", "2", "z", "z"]
+      });
+      expect(new PartialMatchRegExp(new RegExp("\\u(a)"))).toMatchPartially({
+        characters: ["u", "a"]
+      });
+    });
+
+    it("should leave a following quantifier bound to an incomplete \\u", () => {
+      const partial = new PartialMatchRegExp(new RegExp("\\u{2}x"));
+
+      expect(partial).toMatchPartially({ characters: ["u", "u", "x"] });
+      expect(partial.exec("ux")).toNotMatch();
+    });
+
+    it("should read an incomplete escape inside a negative lookahead without closing it early", () => {
+      const original = new RegExp("a(?!\\x(b))");
+      const partial = new PartialMatchRegExp(original);
+
+      expect(partial.exec("axb")).toNotMatch();
+      expect(partial.exec("axc")).toEqual(original.exec("axc"));
+    });
+
+    it("should see a caret following an incomplete \\c", () => {
+      const features = new PartialMatchRegExp(new RegExp("\\c^a", "m"))
+        .features;
+
+      expect(features).toContain("startAnchor");
+    });
+
+    it("should tag an incomplete escape as otherEscape rather than the escape it would complete", () => {
+      for (const source of ["\\c1", "\\x4g", "\\u12zz"]) {
+        const features = new PartialMatchRegExp(new RegExp(source)).features;
+
+        expect(features).toContain("otherEscape");
+        expect(features).not.toContain("controlLetterEscape");
+        expect(features).not.toContain("hexEscapeSequence");
+        expect(features).not.toContain("unicodeEscapeSequence");
+      }
+    });
+  });
 });

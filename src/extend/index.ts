@@ -6,8 +6,8 @@ declare global {
      * Transforms this regular expression to support partial matching.
      *
      * This method wraps each atomic element of the regex pattern in a non-capturing group
-     * with an alternation to end-of-input (`$`), allowing the pattern to match prefixes
-     * of the original pattern. This enables validation of incomplete input strings.
+     * with an alternation to end-of-input (`|$(?![\s\S])`), allowing the pattern to match
+     * prefixes of the original pattern. This enables validation of incomplete input strings.
      *
      * @returns A new PartialMatchRegExp that matches partial strings of the original pattern
      *
@@ -24,8 +24,8 @@ declare global {
      * ```
      *
      * @remarks
-     * - The transformed regex will always match an empty string at the end of input
-     * - Use with a start anchor (`^`) to prevent false positives from empty string matches
+     * - The transformed pattern always matches an empty string at the end of input;
+     *   use a start anchor (`^`) to prevent false positives from empty string matches
      * - The `y` (sticky) flag may not behave as expected in partial matching scenarios
      *
      * @see {@link https://github.com/TomStrepsil/regex-partial-match#readme | Documentation}
