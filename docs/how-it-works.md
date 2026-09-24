@@ -70,7 +70,7 @@ Taken, the atom is followed by the caret and the real character decides; truncat
 
 ### A part that cannot end a line
 
-A caret only holds after a line terminator, so the rule first asks whether the part before it can end with one, under that part's own `i`, `s` and `u`/`v` scope. Where it cannot, no continuation completes the path, and the path is refused: `/ba^/m` on `"b"`, `/^a+^b/m` on `"a"` and `/\W*(a)^/m` on `"-"` all return `null`. A refused path stays refused for any later caret on it, so `/(a|b)^^x/m` is `null` exactly as `/(a|b)^x/m` is. A quantifier that allows zero repetitions of such an atom can only satisfy the caret by repeating zero times, so the caret is judged against the part before it instead: `/\na*^/m` on `"\na"` matches `"\n"`.
+A caret only holds after a line terminator, so the rule first asks whether the part before it can end with one, under that part's own `i`, `s` and `u`/`v` scope. Where it cannot, no continuation completes the path, and the path is refused: `/ba^/m` on `"b"`, `/^a+^b/m` on `"a"` and `/\W*(a)^/m` on `"-"` all return `null`. A refused path stays refused for any later caret on it, however many alternatives the group before it has, so `/(a|b|c)^^x/m` is `null` exactly as `/(a|b|c)^x/m` is. A quantifier that allows zero repetitions of such an atom can only satisfy the caret by repeating zero times, so the caret is judged against the part before it instead: `/\na*^/m` on `"\na"` matches `"\n"`. The atom keeps its quantifier for any later caret, so `/(?:\s*a?|b)^^/m` on `"a"` matches at index 0, as `/(?:\s*a?|b)^/m` does.
 
 ### Groups
 

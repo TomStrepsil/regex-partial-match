@@ -131,7 +131,7 @@ function appendCaretToAlternatives(
   open: number,
   close: number,
   scope: number,
-  starts: readonly number[],
+  starts: number[],
   bodySpans: LookaheadSpan[] | undefined,
   lookaheadSpans: LookaheadSpan[] | undefined
 ) {
@@ -174,6 +174,8 @@ function appendCaretToAlternatives(
       anchor === CANNOT_END_LINE ? UNSATISFIABLE : asOptionalAtom(caret)
     );
     shiftSpans(lookaheadSpans, at - 1, 1);
+    shiftSpans(bodySpans, at - open - 2, 1);
+    for (let k = starts.length; k--; ) if (open + starts[k] >= at) starts[k]++;
     inserted++;
   }
   return close + inserted;
@@ -184,7 +186,7 @@ function appendMultilineCaret(
   lastGroupOpen: number,
   lastGroupClose: number,
   lastGroupScope: number,
-  lastGroupAlternativeStarts: readonly number[] | undefined,
+  lastGroupAlternativeStarts: number[] | undefined,
   lastGroupLookaheadSpans: LookaheadSpan[] | undefined,
   lookaheadSpans: LookaheadSpan[] | undefined,
   scope: number
@@ -240,6 +242,7 @@ function appendMultilineCaret(
         asOptionalAtom(caretFor(lastGroupScope))
       );
       shiftSpans(lookaheadSpans, bodyAnchor, 1);
+      shiftSpans(lastGroupLookaheadSpans, bodyAnchor - lastGroupOpen - 1, 1);
       return lastGroupClose + 1;
     } else {
       return wrapGroup(
