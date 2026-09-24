@@ -246,7 +246,7 @@ export function walk(
         case "\\":
           switch (source[i + 1]) {
             case "c":
-              if (scope & UNICODE || ASCII_LETTER.test(source[i + 2] ?? "")) {
+              if (scope & UNICODE || ASCII_LETTER.test(source[i + 2])) {
                 featureMask |= FEATURE_BIT.controlLetterEscape;
                 appendOptional(3);
               } else {
