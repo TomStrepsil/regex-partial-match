@@ -49,7 +49,7 @@ import {
 const NO_ALTERNATIVES: readonly number[] = [0];
 const NO_LOOKAHEAD_SPANS: readonly LookaheadSpan[] = [];
 const GROUP_OPENING = /^\((?:\?(?:<[^=!][^>]*>|[a-z-]*:))?$/;
-const ASCII_LETTER = /[a-z]/i;
+const ASCII_LETTER = /[a-z]/iy;
 const TWO_HEX_DIGITS = /[0-9a-f]{2}/iy;
 const FOUR_HEX_DIGITS = /[0-9a-f]{4}/iy;
 
@@ -246,7 +246,7 @@ export function walk(
         case "\\":
           switch (source[i + 1]) {
             case "c":
-              if (scope & UNICODE || ASCII_LETTER.test(source[i + 2])) {
+              if (scope & UNICODE || matchesAt(source, i + 2, ASCII_LETTER)) {
                 featureMask |= FEATURE_BIT.controlLetterEscape;
                 appendOptional(3);
               } else {

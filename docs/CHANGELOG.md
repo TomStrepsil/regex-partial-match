@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A modifier group whose body holds a lookbehind is no longer refused at the end of the input: `/(?i:a(?<=a))b/` on `"b"`
 - A `^` leading a group that must repeat under the `m` flag no longer accepts input no continuation can complete: `/(^a){2}/m` on `"a"`
 - An incomplete `\c`, `\x` or `\u` escape no longer swallows the characters after it, which threw on `/\x(a)/` and refused `/\x4g/` on `"x"`
+- A `\c` ending the pattern is read as a literal backslash and `c`: `/a\c/` on `"a\\"` matches at index 0
 - A group whose body no continuation can complete is no longer skipped at the end of the input: `/a(b^)/` on `"a"`
 - A `^` under the `m` flag after a group that ran out part way no longer misses the earlier match: `/([a]\D)^/m` on `"a"` matches at index 0
 - A second `^` under the `m` flag after a group of alternatives is judged as the first: `/(?:\s*a?(?=x)|b)^^/m` on `"a"` matches at index 1
