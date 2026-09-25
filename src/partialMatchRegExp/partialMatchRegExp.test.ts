@@ -4657,6 +4657,24 @@ c`)
       expect(partial).toMatchPartially({ characters: ["\\", "c", "1", "b"] });
     });
 
+    it("should read a \\c ending the pattern as a literal backslash, and the c as the next atom", () => {
+      expect(new PartialMatchRegExp(new RegExp("\\c"))).toMatchPartially({
+        characters: ["\\", "c"]
+      });
+      expect(new PartialMatchRegExp(new RegExp("a\\c"))).toMatchPartially({
+        characters: ["a", "\\", "c"]
+      });
+    });
+
+    it("should read a \\x or \\u ending the pattern as a literal", () => {
+      expect(new PartialMatchRegExp(new RegExp("a\\x"))).toMatchPartially({
+        characters: ["a", "x"]
+      });
+      expect(new PartialMatchRegExp(new RegExp("a\\u"))).toMatchPartially({
+        characters: ["a", "u"]
+      });
+    });
+
     it("should read \\c before an underscore as incomplete outside a character class", () => {
       const partial = new PartialMatchRegExp(new RegExp("\\c_"));
 
@@ -4716,7 +4734,7 @@ c`)
     });
 
     it("should tag an incomplete escape as otherEscape rather than the escape it would complete", () => {
-      for (const source of ["\\c1", "\\x4g", "\\u12zz"]) {
+      for (const source of ["\\c1", "\\c", "\\x4g", "\\u12zz"]) {
         const features = new PartialMatchRegExp(new RegExp(source)).features;
 
         expect(features).toContain("otherEscape");
