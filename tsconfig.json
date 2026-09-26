@@ -5,6 +5,7 @@
     "module": "ESNext",
     "moduleDetection": "force",
     "moduleResolution": "bundler",
+    "rootDirs": ["./lib", "./src"],
     "declaration": true,
     "outDir": "./lib",
     "strict": true,
