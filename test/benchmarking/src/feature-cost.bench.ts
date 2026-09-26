@@ -49,8 +49,8 @@
  */
 
 import { bench, group } from "mitata";
-import compilePartial from "../../../src/partialMatchRegExp/compilePartial/index.ts";
-import PartialMatchRegExp from "../../../src/partialMatchRegExp/index.ts";
+import compilePartial from "../../../lib/partialMatchRegExp/compilePartial/index.js";
+import PartialMatchRegExp from "../../../lib/partialMatchRegExp/index.js";
 
 function emittedPartCount(pattern: RegExp): number {
   const compiled = compilePartial(pattern);

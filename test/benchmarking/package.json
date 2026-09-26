@@ -3,6 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "prebench": "npm run build --prefix ../..",
     "bench": "tsx src/run.ts"
   },
   "devDependencies": {

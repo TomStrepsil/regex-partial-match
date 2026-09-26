@@ -23,8 +23,8 @@
  */
 
 import { bench, group } from "mitata";
-import compilePartial from "../../../src/partialMatchRegExp/compilePartial/index.ts";
-import PartialMatchRegExp from "../../../src/partialMatchRegExp/index.ts";
+import compilePartial from "../../../lib/partialMatchRegExp/compilePartial/index.js";
+import PartialMatchRegExp from "../../../lib/partialMatchRegExp/index.js";
 
 const simplePattern = /^hello+$/;
 const phonePattern = /^\+?1?\s?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/;

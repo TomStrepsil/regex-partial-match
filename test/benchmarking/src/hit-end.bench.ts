@@ -36,8 +36,8 @@
  */
 
 import { bench, group } from "mitata";
-import PartialMatchRegExp from "../../../src/partialMatchRegExp/index.ts";
-import hitEnd from "../../../src/partialMatchRegExp/hitEnd/index.ts";
+import PartialMatchRegExp from "../../../lib/partialMatchRegExp/index.js";
+import hitEnd from "../../../lib/partialMatchRegExp/hitEnd/index.js";
 
 // A bench whose match is null would time hitEnd() answering nothing at all, and would read as a large improvement rather than a broken setup.
 function matchOrThrow(

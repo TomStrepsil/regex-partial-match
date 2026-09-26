@@ -15,7 +15,7 @@
  */
 
 import { bench, group } from "mitata";
-import PartialMatchRegExp from "../../../src/partialMatchRegExp/index.ts";
+import PartialMatchRegExp from "../../../lib/partialMatchRegExp/index.js";
 
 const text = (
   "lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod " +
