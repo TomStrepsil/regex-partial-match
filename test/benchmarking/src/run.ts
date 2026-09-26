@@ -2,9 +2,11 @@
  * Benchmark entry point. Imports all scenario files (which register their
  * bench/group calls globally in mitata) then calls run().
  *
- * Usage:
- *   tsx src/run.ts              — pretty-print results to terminal
- *   tsx src/run.ts --json       — output mitata JSON to stdout (no table)
+ * Usage (from the repo root; `prebench` builds `lib/`, which the scenarios import):
+ *   npm run bench --workspace=test/benchmarking                    — pretty-print results to terminal
+ *   npm run bench --workspace=test/benchmarking --silent -- --json — output mitata JSON to stdout (no table)
+ *
+ * Invoking `tsx src/run.ts` directly skips the build, so it fails on a clean checkout or measures stale output.
  *
  * The --json output is intended to be piped to ../../../.github/scripts/mitata-to-action-format.ts
  * for the github-action-benchmark customSmallerIsBetter format.
