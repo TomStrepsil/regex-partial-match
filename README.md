@@ -65,7 +65,7 @@ state("2024-06-15"); // 'complete'   - accept, enable submit
     Mimicking JDK's [`Matcher.hitEnd()`](https://docs.oracle.com/javase/8/docs/api/java/util/regex/Matcher.html#hitEnd--)
 
 [^2]:
-    Testing the original, untransformed pattern looks like it should answer this — "did the input fully satisfy the original pattern?" — but it asks a different question: whether the original matches *at all* here, not whether *this* match reached the end of the input on its way. The two agree almost always, but a read of the end inside a zero-width assertion can make both return an identical result by different paths. See [Why the question can't be answered from the outside](./docs/how-it-works.md#why-the-question-cant-be-answered-from-the-outside) for the case where they diverge.
+    Testing the original, untransformed pattern looks like it should answer this — "did the input fully satisfy the original pattern?" — but it asks a different question: whether the original matches *at all* here, not whether *this* match reached the end of the input on its way. The two agree almost always, but a read of the end inside a zero-width assertion can make both return an identical result by different paths. See [Why the question can't be answered from the outside](https://github.com/TomStrepsil/regex-partial-match/blob/main/docs/how-it-works.md#why-the-question-cant-be-answered-from-the-outside) for the case where they diverge.
 
 ### A note on Tree-Shaking
 
