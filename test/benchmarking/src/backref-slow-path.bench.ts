@@ -29,7 +29,7 @@
  */
 
 import { bench, group } from "mitata";
-import PartialMatchRegExp from "../../../src/partialMatchRegExp/index.ts";
+import PartialMatchRegExp from "../../../lib/partialMatchRegExp/index.js";
 
 // "foo foo" — simple repeated-word pattern
 const repeatedWord = /^(\w+) \1$/;

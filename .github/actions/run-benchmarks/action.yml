@@ -14,6 +14,10 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: Build package
+      run: corepack npm run build
+      shell: bash
+
     - name: Run benchmarks
       run: corepack npm run bench --workspace=test/benchmarking --silent -- --json > /tmp/bench-raw.json
       shell: bash
