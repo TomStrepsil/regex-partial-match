@@ -50,6 +50,16 @@
       "import": "./lib/partialMatchRegExp/partialMatchRegExp.js",
       "default": "./lib/partialMatchRegExp/partialMatchRegExp.js"
     },
+    "./hitEnd": {
+      "types": "./lib/partialMatchRegExp/hitEnd/index.d.ts",
+      "import": "./lib/partialMatchRegExp/hitEnd/index.js",
+      "default": "./lib/partialMatchRegExp/hitEnd/index.js"
+    },
+    "./features": {
+      "types": "./lib/partialMatchRegExp/features/index.d.ts",
+      "import": "./lib/partialMatchRegExp/features/index.js",
+      "default": "./lib/partialMatchRegExp/features/index.js"
+    },
     "./core": {
       "types": "./lib/core/index.d.ts",
       "import": "./lib/core/index.js",
@@ -69,11 +79,6 @@
       "types": "./lib/modules/backreferences/index.d.ts",
       "import": "./lib/modules/backreferences/index.js",
       "default": "./lib/modules/backreferences/index.js"
-    },
-    "./modules/features": {
-      "types": "./lib/modules/features/index.d.ts",
-      "import": "./lib/modules/features/index.js",
-      "default": "./lib/modules/features/index.js"
     }
   },
   "files": [

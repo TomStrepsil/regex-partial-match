@@ -1,10 +1,10 @@
 import { describe, it, expect } from "vitest";
 import PartialMatchRegExp from "./partialMatchRegExp.ts";
 import FullPartialMatchRegExp from "../partialMatchRegExp/partialMatchRegExp.ts";
-import { compiledPartial } from "../partialMatchRegExp/partialMatchInternals.ts";
-import withModules from "./withModules.ts";
+import { compiledOf } from "../partialMatchRegExp/partialMatchInternals.ts";
+import withModules from "../partialMatchRegExp/withModules.ts";
+import features from "../partialMatchRegExp/features/index.ts";
 import backreferences from "../modules/backreferences/index.ts";
-import features from "../modules/features/index.ts";
 
 function matchesOf(partial: RegExp, inputs: readonly string[]) {
   return inputs.map((input) => {
@@ -42,11 +42,11 @@ describe("PartialMatchRegExp from ./core", () => {
       (pattern) => {
         const lean = new PartialMatchRegExp(pattern);
         const full = new FullPartialMatchRegExp(pattern);
-        expect(lean[compiledPartial].parts).toEqual(
-          full[compiledPartial].parts
+        expect(compiledOf(lean).parts).toEqual(
+          compiledOf(full).parts
         );
-        expect(lean[compiledPartial].featureMask).toBe(
-          full[compiledPartial].featureMask
+        expect(compiledOf(lean).featureMask).toBe(
+          compiledOf(full).featureMask
         );
       }
     );
@@ -65,30 +65,28 @@ describe("PartialMatchRegExp from ./core", () => {
   ])("transforms %s exactly as the full class does", (pattern, inputs) => {
     const lean = new PartialMatchRegExp(pattern);
     const full = new FullPartialMatchRegExp(pattern);
-    expect(lean[compiledPartial].parts).toEqual(full[compiledPartial].parts);
-    expect(lean[compiledPartial].featureMask).toBe(
-      full[compiledPartial].featureMask
+    expect(compiledOf(lean).parts).toEqual(compiledOf(full).parts);
+    expect(compiledOf(lean).featureMask).toBe(
+      compiledOf(full).featureMask
     );
     expect(matchesOf(lean, inputs)).toEqual(matchesOf(full, inputs));
   });
 
-  describe("leaves features to the features module", () => {
-    it("throws a TypeError naming the features module when features is read", () => {
-      const lean = new PartialMatchRegExp(/^[a-z]+/);
-      expect(() => lean.features).toThrow(TypeError);
-      expect(() => lean.features).toThrow(/features module/);
-    });
-
-    it.each([/^[a-z]+/, /(?<y>\d{4})-\k<y>/, /a(?=(b))|[\p{L}--a]/v])(
-      "reports the full class's features for %s once the module is bound",
-      (pattern) => {
-        const Bound = withModules(features, backreferences);
-        expect(new Bound(pattern).features).toEqual(
-          new FullPartialMatchRegExp(pattern).features
-        );
-      }
+  it("names its features through features() with no module bound", () => {
+    expect(features(new PartialMatchRegExp(/^a/))).toEqual(
+      new Set(["patternCharacter", "startAnchor"])
     );
   });
+
+  it.each([/^[a-z]+/, /(?<y>\d{4})-\k<y>/, /a(?=(b))|[\p{L}--a]/v])(
+    "reports through features() the full class's features for %s",
+    (pattern) => {
+      const Bound = withModules(backreferences);
+      expect(features(new Bound(pattern))).toEqual(
+        features(new FullPartialMatchRegExp(pattern))
+      );
+    }
+  );
 
   it("is a RegExp subclass of its own, named as the full class is", () => {
     expect(new PartialMatchRegExp(/a/)).toBeInstanceOf(RegExp);
@@ -138,8 +136,8 @@ describe("PartialMatchRegExp from ./core refuses a pattern exactly when a backre
     "accepts /%s/, whose escape is compiled statically",
     (source) => {
       const pattern = new RegExp(source);
-      const lean = new PartialMatchRegExp(pattern)[compiledPartial];
-      const full = new FullPartialMatchRegExp(pattern)[compiledPartial];
+      const lean = compiledOf(new PartialMatchRegExp(pattern));
+      const full = compiledOf(new FullPartialMatchRegExp(pattern));
       expect(lean.kind).toBe("static");
       expect(lean.parts).toEqual(full.parts);
     }

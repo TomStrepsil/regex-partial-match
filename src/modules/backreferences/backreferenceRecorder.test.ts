@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
 import PartialMatchRegExp from "../../partialMatchRegExp/partialMatchRegExp.ts";
-import { compiledPartial } from "../../partialMatchRegExp/partialMatchInternals.ts";
+import { compiledOf } from "../../partialMatchRegExp/partialMatchInternals.ts";
 import { isBackreference } from "../../partialMatchRegExp/part.ts";
 
 const stampsOf = (pattern: RegExp) =>
-  new PartialMatchRegExp(pattern)[compiledPartial].parts
+  compiledOf(new PartialMatchRegExp(pattern)).parts
     .filter(isBackreference)
     .map(({ forward, caseInsensitive }) => ({ forward, caseInsensitive }));
 

@@ -1,5 +1,5 @@
 import type PartialMatchRegExp from "../partialMatchRegExp.ts";
-import { compiledPartial } from "../partialMatchInternals.ts";
+import { compiledOf } from "../partialMatchInternals.ts";
 import matchHitEnd from "./matchHitEnd.ts";
 import probeSourceOf from "./probeSource.ts";
 
@@ -54,7 +54,7 @@ export default function hitEnd(
   partial: PartialMatchRegExp,
   match: RegExpExecArray
 ): boolean {
-  const compiled = partial[compiledPartial];
+  const compiled = compiledOf(partial);
   return matchHitEnd(
     compiled,
     match,

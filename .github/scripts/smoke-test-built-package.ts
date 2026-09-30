@@ -24,10 +24,10 @@
  * `SMOKE_TESTS` also receives each entry point's built file as a `URL`, for
  * cases that need to check its runtime import graph rather than just its
  * exports — e.g. that `regex-partial-match/extend` and
- * `regex-partial-match/partialMatchRegExp` never reach `hitEnd`, even
- * transitively and even if some file along the way imported it without
- * re-exporting it, which a check of the loaded module's own exports alone
- * couldn't catch.
+ * `regex-partial-match/partialMatchRegExp` never reach `hitEnd` or
+ * `features`, even transitively and even if some file along the way imported
+ * one without re-exporting it, which a check of the loaded module's own
+ * exports alone couldn't catch.
  */
 
 import assert from "node:assert/strict";
@@ -38,7 +38,8 @@ import { build } from "esbuild";
 import { Linter } from "eslint";
 import type PartialMatchRegExpInstance from "../../src/partialMatchRegExp/index.ts";
 import type hitEndType from "../../src/partialMatchRegExp/hitEnd/index.ts";
-import type withModulesType from "../../src/core/withModules.ts";
+import type featuresType from "../../src/partialMatchRegExp/features/index.ts";
+import type withModulesType from "../../src/partialMatchRegExp/withModules.ts";
 
 const SUPPORTED_ECMA_VERSION = 2015;
 
@@ -46,15 +47,21 @@ const BUILT_OUTPUT = new URL("../../lib/", import.meta.url);
 
 const MODULE_FILES = {
   carets: ["/modules/carets/", "/lineTerminator.js"],
-  backreferences: ["/modules/backreferences/"],
-  features: ["/modules/features/", "/regexFeatures.js"]
+  backreferences: ["/modules/backreferences/"]
 };
 
 type ModuleName = keyof typeof MODULE_FILES;
 
 const MODULE_NAMES = Object.keys(MODULE_FILES) as ModuleName[];
 
-const HIT_END_ENTRY = new URL("partialMatchRegExp/hitEnd/index.js", BUILT_OUTPUT);
+const FUNCTION_FILES = {
+  hitEnd: ["/hitEnd/"],
+  features: ["/features/", "/regexFeatures.js"]
+};
+
+type FunctionName = keyof typeof FUNCTION_FILES;
+
+const FUNCTION_NAMES = Object.keys(FUNCTION_FILES) as FunctionName[];
 
 const packageName = "regex-partial-match";
 const require = createRequire(import.meta.url);
@@ -124,26 +131,52 @@ function assertPartialMatchRegExpBehaves(
   );
 }
 
-async function assertNeverReachesHitEnd(
+function fileIn(
+  reached: Set<string>,
+  files: readonly string[]
+): string | undefined {
+  return [...reached].find((href) => files.some((file) => href.includes(file)));
+}
+
+async function assertNeverReaches(
+  specifier: string,
+  builtFile: URL,
+  names: readonly FunctionName[]
+): Promise<void> {
+  const reached = await transitiveRuntimeImports(builtFile);
+  for (const name of names) {
+    const file = fileIn(reached, FUNCTION_FILES[name]);
+    assert.equal(
+      file,
+      undefined,
+      `${specifier}'s runtime import graph reaches ${String(file)} — ${name} must not be reachable even transitively, whether or not it's re-exported`
+    );
+  }
+}
+
+async function assertNeverReachesModules(
   specifier: string,
   builtFile: URL
 ): Promise<void> {
   const reached = await transitiveRuntimeImports(builtFile);
-  const hitEndModule = [...reached].find((href) => href.includes("/hitEnd/"));
-  assert.equal(
-    hitEndModule,
-    undefined,
-    `${specifier}'s runtime import graph reaches ${String(hitEndModule)} — hitEnd must not be reachable even transitively, whether or not it's re-exported`
-  );
+  for (const module of MODULE_NAMES) {
+    const file = fileIn(reached, MODULE_FILES[module]);
+    assert.equal(
+      file,
+      undefined,
+      `${specifier}'s runtime import graph reaches ${String(file)} — it must not load the ${module} module`
+    );
+  }
 }
 
-function moduleFileIn(
-  reached: Set<string>,
-  module: ModuleName
-): string | undefined {
-  return [...reached].find((href) =>
-    MODULE_FILES[module].some((file) => href.includes(file))
-  );
+async function importCore(): Promise<{
+  default: PartialMatchRegExpConstructor;
+  withModules: typeof withModulesType;
+}> {
+  return (await import(`${packageName}/core`)) as {
+    default: PartialMatchRegExpConstructor;
+    withModules: typeof withModulesType;
+  };
 }
 
 async function bundledBytes(contents: string): Promise<number> {
@@ -164,9 +197,7 @@ async function bundledBytes(contents: string): Promise<number> {
 async function assertBindsTheCaretsModule(
   carets: unknown
 ): Promise<void> {
-  const { withModules } = (await import(`${packageName}/core`)) as {
-    withModules: typeof withModulesType;
-  };
+  const { withModules } = await importCore();
   const PartialMatchRegExp = withModules(
     carets as Parameters<typeof withModulesType>[0]
   );
@@ -177,19 +208,20 @@ async function assertBindsTheCaretsModule(
   );
 }
 
-async function assertBindsTheFeaturesModule(
-  features: unknown
-): Promise<void> {
-  const { withModules } = (await import(`${packageName}/core`)) as {
-    withModules: typeof withModulesType;
-  };
-  const PartialMatchRegExp = withModules(
-    features as Parameters<typeof withModulesType>[0]
-  );
+function assertFeaturesBehaves(
+  PartialMatchRegExp: PartialMatchRegExpConstructor,
+  features: typeof featuresType
+): void {
+  const partial = new PartialMatchRegExp(/^a/);
   assert.deepEqual(
-    [...new PartialMatchRegExp(/^a/).features],
+    [...features(partial)],
     ["patternCharacter", "startAnchor"],
-    "the features module does not name a pattern's features"
+    "does not name a pattern's features"
+  );
+  assert.equal(
+    features(partial),
+    features(partial),
+    "does not return the same set on every call"
   );
 }
 
@@ -231,26 +263,23 @@ const SMOKE_TESTS: Record<
     assert.ok(hitEnd, "no hitEnd named export");
     assertHitEndBehaves(PartialMatchRegExp, hitEnd);
 
+    const features = loaded.features as typeof featuresType | undefined;
+    assert.ok(features, "no features named export");
+    assertFeaturesBehaves(PartialMatchRegExp, features);
+
     const reached = await transitiveRuntimeImports(builtFile);
-    assert.ok(
-      [...reached].some((href) => href.includes("/hitEnd/")),
-      "the default entry point's runtime import graph never reaches hitEnd, though it re-exports it — transitiveRuntimeImports() may be broken, since the other direction is what ./partialMatchRegExp relies on"
-    );
+    for (const name of FUNCTION_NAMES) {
+      assert.ok(
+        fileIn(reached, FUNCTION_FILES[name]),
+        `the default entry point's runtime import graph never reaches ${name}, though it re-exports it — transitiveRuntimeImports() may be broken, since the other direction is what ./partialMatchRegExp relies on`
+      );
+    }
     for (const module of MODULE_NAMES) {
       assert.ok(
-        moduleFileIn(reached, module),
+        fileIn(reached, MODULE_FILES[module]),
         `the default entry point's runtime import graph never reaches the ${module} module, though it binds it — the check ./core relies on may be broken`
       );
     }
-
-    const moduleReachedByHitEnd = [
-      ...(await transitiveRuntimeImports(HIT_END_ENTRY))
-    ].find((href) => href.includes("/modules/"));
-    assert.equal(
-      moduleReachedByHitEnd,
-      undefined,
-      `hitEnd's runtime import graph reaches ${String(moduleReachedByHitEnd)} — hitEnd must read compiled.dynamic, not module code`
-    );
   },
 
   "./extend": async (_loaded, builtFile) => {
@@ -265,7 +294,11 @@ const SMOKE_TESTS: Record<
       "extended regex rejects a prefix"
     );
 
-    await assertNeverReachesHitEnd("regex-partial-match/extend", builtFile);
+    await assertNeverReaches(
+      "regex-partial-match/extend",
+      builtFile,
+      FUNCTION_NAMES
+    );
   },
 
   "./partialMatchRegExp": async (loaded, builtFile) => {
@@ -275,16 +308,52 @@ const SMOKE_TESTS: Record<
     assert.ok(PartialMatchRegExp, "no default export");
     assertPartialMatchRegExpBehaves(PartialMatchRegExp);
 
+    for (const name of FUNCTION_NAMES) {
+      assert.equal(
+        loaded[name],
+        undefined,
+        `${name} leaked into the partialMatchRegExp-only entry point's exports`
+      );
+    }
+
+    await assertNeverReaches(
+      "regex-partial-match/partialMatchRegExp",
+      builtFile,
+      FUNCTION_NAMES
+    );
+  },
+
+  "./hitEnd": async (loaded, builtFile) => {
+    const hitEnd = loaded.default as typeof hitEndType | undefined;
+    assert.ok(hitEnd, "no default export");
+    const full = (await import(packageName)) as {
+      default: PartialMatchRegExpConstructor;
+    };
+    assertHitEndBehaves(full.default, hitEnd);
+    const lean = new (await importCore()).default(/^ab/);
+    const leanPrefix = lean.exec("a");
+    assert.ok(leanPrefix, "no match for a prefix on the ./core class");
     assert.equal(
-      loaded.hitEnd,
-      undefined,
-      "hitEnd leaked into the partialMatchRegExp-only entry point's exports"
+      hitEnd(lean, leanPrefix),
+      true,
+      "does not accept an instance of the ./core class"
     );
 
-    await assertNeverReachesHitEnd(
-      "regex-partial-match/partialMatchRegExp",
-      builtFile
-    );
+    await assertNeverReachesModules("regex-partial-match/hitEnd", builtFile);
+    await assertNeverReaches("regex-partial-match/hitEnd", builtFile, [
+      "features"
+    ]);
+  },
+
+  "./features": async (loaded, builtFile) => {
+    const features = loaded.default as typeof featuresType | undefined;
+    assert.ok(features, "no default export");
+    assertFeaturesBehaves((await importCore()).default, features);
+
+    await assertNeverReachesModules("regex-partial-match/features", builtFile);
+    await assertNeverReaches("regex-partial-match/features", builtFile, [
+      "hitEnd"
+    ]);
   },
 
   "./core": async (loaded, builtFile) => {
@@ -314,8 +383,8 @@ const SMOKE_TESTS: Record<
     assert.ok(withModules, "no withModules named export");
     assert.equal(
       withModules(),
-      withModules(),
-      "withModules() is not memoised"
+      PartialMatchRegExp,
+      "withModules() is not the ./core class"
     );
 
     assert.throws(
@@ -329,21 +398,12 @@ const SMOKE_TESTS: Record<
       "refuses a statically compiled escape"
     );
 
-    assert.throws(
-      () => new PartialMatchRegExp(/a/).features,
-      /features module/,
-      "reads features without the features module"
+    await assertNeverReachesModules("regex-partial-match/core", builtFile);
+    await assertNeverReaches(
+      "regex-partial-match/core",
+      builtFile,
+      FUNCTION_NAMES
     );
-
-    const reached = await transitiveRuntimeImports(builtFile);
-    for (const module of MODULE_NAMES) {
-      const moduleFile = moduleFileIn(reached, module);
-      assert.equal(
-        moduleFile,
-        undefined,
-        `regex-partial-match/core's runtime import graph reaches ${String(moduleFile)} — the lean entry must not load the ${module} module`
-      );
-    }
   },
 
   "./modules/carets": async (loaded) => {
@@ -355,16 +415,16 @@ const SMOKE_TESTS: Record<
     assert.ok(loaded.carets, "no carets named export");
     await assertBindsTheCaretsModule(loaded.carets);
     assert.ok(loaded.backreferences, "no backreferences named export");
-    assert.ok(loaded.features, "no features named export");
-    await assertBindsTheFeaturesModule(loaded.features);
-    const core = (await import(`${packageName}/core`)) as {
-      withModules: typeof withModulesType;
-    };
-    const Both = core.withModules(
+    const Both = (await importCore()).withModules(
       loaded.carets,
       loaded.backreferences
     ) as unknown as PartialMatchRegExpConstructor;
     assertPartialMatchRegExpBehaves(Both);
+    assert.equal(
+      Both,
+      ((await import(packageName)) as { default: unknown }).default,
+      "binding both modules does not return the default entry point's class"
+    );
     assert.equal(
       new Both(/x^a/m).test("x"),
       false,
@@ -386,18 +446,10 @@ const SMOKE_TESTS: Record<
   },
 
   "./modules/backreferences": async (loaded) => {
-    const core = (await import(`${packageName}/core`)) as {
-      withModules: typeof withModulesType;
-    };
-    const PartialMatchRegExp = core.withModules(
+    const PartialMatchRegExp = (await importCore()).withModules(
       loaded.default as Parameters<typeof withModulesType>[0]
     ) as unknown as PartialMatchRegExpConstructor;
     assertPartialMatchRegExpBehaves(PartialMatchRegExp);
-  },
-
-  "./modules/features": async (loaded) => {
-    assert.ok(loaded.default, "no default export");
-    await assertBindsTheFeaturesModule(loaded.default);
   }
 };
 

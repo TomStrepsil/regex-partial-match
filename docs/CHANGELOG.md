@@ -9,14 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- `regex-partial-match/core`: a `PartialMatchRegExp` without the precise `^` rules, match-time backreferences or the names `features` reports, for smaller bundles, and `withModules(...modules)` to bind them back. `regex-partial-match/modules/carets`, `regex-partial-match/modules/backreferences` and `regex-partial-match/modules/features` are the modules, and `regex-partial-match/modules` exports all three. With all three bound, patterns are transformed exactly as by the default class. `regex-partial-match`, `/extend` and `/partialMatchRegExp` behave as before
+- `regex-partial-match/core`: a `PartialMatchRegExp` without the precise `^` rules or match-time backreferences, for smaller bundles, and `withModules(...modules)` to bind them back. `regex-partial-match/modules/carets` and `regex-partial-match/modules/backreferences` are the modules, and `regex-partial-match/modules` exports both. With both bound, `withModules` returns the default `PartialMatchRegExp` class. `regex-partial-match`, `/extend` and `/partialMatchRegExp` transform patterns as before
   - Without the carets module, a `^` is accepted outside groups and lookarounds and, under the `m` flag, only at the start of the pattern or of a top-level alternative behind nothing but `^`, `$`, `\b`, `\B`, a negative lookahead or a lookbehind; any other `^` throws `TypeError: Needs the carets module`, as `/x^a/m` and `/(^a)/` do. Every pattern accepted is transformed exactly as by the default class
   - Without the backreferences module, a pattern whose backreference must be matched at run time throws `TypeError: Needs the backreferences module`; `/x\8y/` still compiles
-  - Without the features module, reading `features` throws `TypeError: Needs the features module`
+- `regex-partial-match/hitEnd` and `regex-partial-match/features`, each exporting its function alone
 
 ### Changed
 
 - **Breaking:** `isComplete()` is replaced by `hitEnd()`, following the JDK's [`Matcher.hitEnd()`](https://docs.oracle.com/javase/8/docs/api/java/util/regex/Matcher.html#hitEnd--): `true` when the match read the end of the input, so more input could change it. `isComplete(partial, match)` becomes `!hitEnd(partial, match)`, except that a greedy quantifier, `$`, `\b` or `\B` that read the end now also reports `true`
+- **Breaking:** the `features` getter is replaced by `features(partial)`, a named export of `regex-partial-match`, so a bundle that never calls it leaves the feature names out
 - Captures of a partial match are the closest they can be to what a full match reports: `/(abc)+\1/` on `"abcab"` gives `m[1] === "ab"`
 - Split some explanatory documentation from the main `README.md`
 - `exec()` on a pattern with a backreference is about 1.4x faster, restoring the speed lost in [1.3.0](#130---2026-09-06), and about 20x on a 100 kB input

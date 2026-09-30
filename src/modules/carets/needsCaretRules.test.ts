@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import createPartialMatchRegExp from "../../partialMatchRegExp/createPartialMatchRegExp.ts";
 import PartialMatchRegExp from "../../partialMatchRegExp/partialMatchRegExp.ts";
-import { compiledPartial } from "../../partialMatchRegExp/partialMatchInternals.ts";
+import { compiledOf } from "../../partialMatchRegExp/partialMatchInternals.ts";
 import caretRecorder from "./caretRecorder.ts";
 import needsCaretRules from "./needsCaretRules.ts";
 
@@ -29,8 +29,8 @@ describe("A pattern the carets module wrongly guesses needs no caret rules costs
   it.each([/(^a)/, /(^a|^b)+/, /\W^/m, /(?=a)^a/m])(
     "renders %s as the default class does",
     (pattern) => {
-      expect(new AlwaysGuessesNo(pattern)[compiledPartial].parts).toEqual(
-        new PartialMatchRegExp(pattern)[compiledPartial].parts
+      expect(compiledOf(new AlwaysGuessesNo(pattern)).parts).toEqual(
+        compiledOf(new PartialMatchRegExp(pattern)).parts
       );
     }
   );

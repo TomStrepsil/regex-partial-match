@@ -27,8 +27,7 @@ import {
 } from "./caretFrame.ts";
 import type {
   BackreferenceRecorder,
-  BackreferencesHook,
-  FeaturesHook
+  BackreferencesHook
 } from "./compilePartial/compiled.ts";
 import type { RawLookaroundRecorder } from "./hitEnd/rawLookaroundRecorder.ts";
 import { OCCURRENCES_REGEX } from "./quantifier.ts";
@@ -49,7 +48,6 @@ const FOUR_HEX_DIGITS = /[0-9a-f]{4}/iy;
 export interface Hooks {
   caret?: CaretHook;
   backreferences?: BackreferencesHook;
-  features?: FeaturesHook;
   modifiers?: (scope: number, modifiers: string) => number;
 }
 

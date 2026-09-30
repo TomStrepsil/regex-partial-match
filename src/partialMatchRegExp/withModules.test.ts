@@ -1,11 +1,11 @@
 import { describe, it, expect, vi } from "vitest";
 import withModules from "./withModules.ts";
-import PartialMatchRegExp from "./partialMatchRegExp.ts";
-import FullPartialMatchRegExp from "../partialMatchRegExp/partialMatchRegExp.ts";
+import PartialMatchRegExp from "../core/partialMatchRegExp.ts";
+import FullPartialMatchRegExp from "./partialMatchRegExp.ts";
 import carets from "../modules/carets/index.ts";
 import backreferences from "../modules/backreferences/index.ts";
-import { isBackreference } from "../partialMatchRegExp/part.ts";
-import { compiledPartial } from "../partialMatchRegExp/partialMatchInternals.ts";
+import { isBackreference } from "./part.ts";
+import { compiledOf } from "./partialMatchInternals.ts";
 
 function countedCaretHooks() {
   const append = vi.fn(carets.caret);
@@ -28,6 +28,18 @@ describe("withModules", () => {
       withModules(carets)
     );
     expect(withModules()).toBe(withModules());
+  });
+
+  it("returns the default export of regex-partial-match for the carets and backreferences modules, in any order", () => {
+    expect(withModules(carets, backreferences)).toBe(FullPartialMatchRegExp);
+    expect(withModules(backreferences, carets)).toBe(FullPartialMatchRegExp);
+    expect(
+      new (withModules(backreferences, carets))(/a/)
+    ).toBeInstanceOf(FullPartialMatchRegExp);
+  });
+
+  it("returns the default export of regex-partial-match/core for no modules", () => {
+    expect(withModules()).toBe(PartialMatchRegExp);
   });
 
   it("returns a different class for a different set of modules", () => {
@@ -57,8 +69,8 @@ describe("withModules", () => {
     "binds the multiline caret rules the full class applies to %s",
     (pattern) => {
       const Bound = withModules(carets);
-      expect(new Bound(pattern)[compiledPartial].parts).toEqual(
-        new FullPartialMatchRegExp(pattern)[compiledPartial].parts
+      expect(compiledOf(new Bound(pattern)).parts).toEqual(
+        compiledOf(new FullPartialMatchRegExp(pattern)).parts
       );
     }
   );
@@ -82,7 +94,7 @@ describe("withModules", () => {
     ])(
       "with the backreferences module alone, stamps each reference in %s as case-insensitive %j",
       (pattern, caseInsensitive) => {
-        const parts = new (withModules(backreferences))(pattern)[compiledPartial]
+        const parts = compiledOf(new (withModules(backreferences))(pattern))
           .parts;
         expect(
           parts.filter(isBackreference).map((part) => part.caseInsensitive)
@@ -107,8 +119,8 @@ describe("withModules", () => {
       const { append, hooks } = countedCaretHooks();
       const partial = new (withModules(hooks))(pattern);
       expect(recordersBuilt(append)).toBe(times);
-      expect(partial[compiledPartial].parts).toEqual(
-        new FullPartialMatchRegExp(pattern)[compiledPartial].parts
+      expect(compiledOf(partial).parts).toEqual(
+        compiledOf(new FullPartialMatchRegExp(pattern)).parts
       );
     }
   );

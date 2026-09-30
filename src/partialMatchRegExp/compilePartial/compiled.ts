@@ -4,8 +4,6 @@ import type { RegexFeature } from "../regexFeatures.ts";
 import type { TruncationProbeCache } from "../hitEnd/truncationProbeCache.ts";
 import type { CompiledDynamic } from "../../modules/backreferences/compiledDynamic.ts";
 
-export type FeaturesHook = (featureMask: number) => ReadonlySet<RegexFeature>;
-
 export interface BackreferenceRecorder {
   groupClosed(groupNumber: number, opening: string): void;
   backreference(backreference: Backreference, scope: number): void;
@@ -24,7 +22,7 @@ export interface BackreferencesHook {
 }
 
 export abstract class Compiled {
-  private _features?: ReadonlySet<RegexFeature>;
+  features?: ReadonlySet<RegexFeature>;
   probeCache?: TruncationProbeCache;
 
   constructor(
@@ -32,13 +30,6 @@ export abstract class Compiled {
     readonly featureMask: number,
     readonly hooks: Hooks
   ) {}
-
-  get features(): ReadonlySet<RegexFeature> {
-    const featureSet = this.hooks.features;
-    if (featureSet === undefined)
-      throw new TypeError("Needs the features module");
-    return (this._features ??= featureSet(this.featureMask));
-  }
 }
 
 export class CompiledStatic extends Compiled {

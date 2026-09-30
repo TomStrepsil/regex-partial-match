@@ -1,6 +1,7 @@
-import type PartialMatchRegExp from "./partialMatchRegExp.ts";
-import createPartialMatchRegExp from "../partialMatchRegExp/createPartialMatchRegExp.ts";
-import type { Hooks } from "../partialMatchRegExp/walk.ts";
+import createPartialMatchRegExp, {
+  type PartialMatchRegExp
+} from "./createPartialMatchRegExp.ts";
+import type { Hooks } from "./walk.ts";
 
 const bound: Array<{
   modules: readonly Hooks[];
@@ -8,12 +9,15 @@ const bound: Array<{
 }> = [];
 
 /**
- * A `PartialMatchRegExp` class, like the one `regex-partial-match/core`
- * exports, that applies the rules the given modules supply.
+ * The `PartialMatchRegExp` class that applies the rules the given modules
+ * supply.
  *
  * The same set of modules, in any order, returns the same class, so
- * `instanceof` holds across calls. `split()` and `matchAll()` build their
- * copies through `Symbol.species`, which keeps the modules bound.
+ * `instanceof` holds across calls and across entry points:
+ * `withModules()` is the class `regex-partial-match/core` exports, and
+ * `withModules(carets, backreferences)` the one `regex-partial-match`
+ * exports. `split()` and `matchAll()` build their copies through
+ * `Symbol.species`, which keeps the modules bound.
  *
  * @param modules - The modules to bind
  * @returns The `PartialMatchRegExp` class that binds `modules`

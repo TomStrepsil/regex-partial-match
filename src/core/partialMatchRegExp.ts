@@ -1,13 +1,9 @@
-import createPartialMatchRegExp from "../partialMatchRegExp/createPartialMatchRegExp.ts";
-import type { RegexFeature } from "../partialMatchRegExp/regexFeatures.ts";
-
-export type { RegexFeature };
+import withModules from "../partialMatchRegExp/withModules.ts";
 
 /**
  * `PartialMatchRegExp` without the rules that place a `^` in a group or after
- * other parts under the `m` flag, or match a backreference, or name its
- * `features`, so that a bundle importing only `regex-partial-match/core`
- * leaves them out.
+ * other parts under the `m` flag, or match a backreference, so that a bundle
+ * importing only `regex-partial-match/core` leaves them out.
  *
  * A `^` inside a group or lookaround, or one under `m` with anything before it
  * but `^`, `$`, `\b`, `\B`, a negative lookahead or a lookbehind in its
@@ -15,8 +11,7 @@ export type { RegexFeature };
  * naming the carets module; a backreference to a group that must be
  * resolved at match time throws one naming the backreferences module. Every
  * other pattern is transformed exactly as the class exported from
- * `regex-partial-match` transforms it. Reading `features` throws a
- * `TypeError` naming the features module.
+ * `regex-partial-match` transforms it.
  *
  * @example
  * ```typescript
@@ -28,7 +23,7 @@ export type { RegexFeature };
  *
  * @see {@link https://github.com/TomStrepsil/regex-partial-match#readme | Documentation}
  */
-const PartialMatchRegExp = createPartialMatchRegExp({});
+const PartialMatchRegExp = withModules();
 type PartialMatchRegExp = InstanceType<typeof PartialMatchRegExp>;
 
 export default PartialMatchRegExp;

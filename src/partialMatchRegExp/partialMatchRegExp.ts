@@ -1,5 +1,6 @@
-import { fullHooks } from "./compilePartial/index.ts";
-import createPartialMatchRegExp from "./createPartialMatchRegExp.ts";
+import carets from "../modules/carets/index.ts";
+import backreferences from "../modules/backreferences/index.ts";
+import withModules from "./withModules.ts";
 import type { RegexFeature } from "./regexFeatures.ts";
 
 export type { RegexFeature };
@@ -30,7 +31,7 @@ export type { RegexFeature };
  *
  * @see {@link https://github.com/TomStrepsil/regex-partial-match#readme | Documentation}
  */
-const PartialMatchRegExp = createPartialMatchRegExp(fullHooks);
+const PartialMatchRegExp = withModules(carets, backreferences);
 type PartialMatchRegExp = InstanceType<typeof PartialMatchRegExp>;
 
 export default PartialMatchRegExp;
