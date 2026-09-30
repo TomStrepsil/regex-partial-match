@@ -1,8 +1,5 @@
 import type PartialMatchRegExp from "../partialMatchRegExp.ts";
-import {
-  compiledPartial,
-  truncationProbeCache
-} from "../partialMatchInternals.ts";
+import { compiledPartial } from "../partialMatchInternals.ts";
 import matchHitEnd from "./matchHitEnd.ts";
 import probeSourceOf from "./probeSource.ts";
 
@@ -62,7 +59,7 @@ export default function hitEnd(
     compiled,
     match,
     partial.flags,
-    (partial[truncationProbeCache] ??= {
+    (compiled.probeCache ??= {
       source: probeSourceOf(partial, compiled),
       probe: undefined,
       stickyPreScan: undefined,

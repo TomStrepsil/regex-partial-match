@@ -1,5 +1,4 @@
 export const compiledPartial = Symbol("compiledPartial");
-export const truncationProbeCache = Symbol("truncationProbeCache");
 
 export function execFrom(regex: RegExp, input: string, start: number) {
   regex.lastIndex = start;

@@ -1,17 +1,11 @@
 import compileWith from "./compilePartial/compileWith.ts";
 import type { CompiledPartial } from "./compilePartial/compiled.ts";
-import {
-  compiledPartial,
-  execFrom,
-  truncationProbeCache
-} from "./partialMatchInternals.ts";
-import type { TruncationProbeCache } from "./hitEnd/truncationProbeCache.ts";
+import { compiledPartial, execFrom } from "./partialMatchInternals.ts";
 import type { RegexFeature } from "./regexFeatures.ts";
 import type { Hooks } from "./walk.ts";
 
 declare class PartialMatchRegExp extends RegExp {
   [compiledPartial]: CompiledPartial;
-  [truncationProbeCache]?: TruncationProbeCache;
   constructor(pattern: RegExp | string, flags?: string);
   /**
    * The syntactic constructs the original pattern uses, recorded as a side
@@ -39,7 +33,6 @@ export default function createPartialMatchRegExp(
 ): typeof PartialMatchRegExp {
   return class PartialMatchRegExp extends RegExp {
     declare [compiledPartial]: CompiledPartial;
-    declare [truncationProbeCache]?: TruncationProbeCache;
 
     constructor(pattern: RegExp | string, flags?: string) {
       super(pattern, flags);

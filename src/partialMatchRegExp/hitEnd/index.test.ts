@@ -890,6 +890,34 @@ describe("hitEnd()", () => {
     );
   });
 
+  describe("on an instance that can no longer be extended", () => {
+    it.each([
+      ["the default class", PartialMatchRegExp],
+      ["the core class", CorePartialMatchRegExp]
+    ])("answers on a sealed instance of %s", (_, PartialClass) => {
+      const partial = Object.seal(new PartialClass(/^(?!x)ab/));
+
+      expect(hitEndOf(partial, "a")).toBe(true);
+      expect(hitEndOf(partial, "ab")).toBe(false);
+    });
+
+    it.each([
+      ["the default class", PartialMatchRegExp, /^(?!x)ab/, "a"],
+      ["the default class, on the backreference path", PartialMatchRegExp, /^(a)\1/, "a"],
+      ["the core class", CorePartialMatchRegExp, /^(?!x)ab/, "a"]
+    ])(
+      "answers on an instance of %s frozen after it matched",
+      (_, PartialClass, pattern, input) => {
+        const partial = new PartialClass(pattern);
+        const match = partial.exec(input)!;
+        Object.freeze(partial);
+
+        expect(hitEnd(partial, match)).toBe(true);
+        expect(hitEnd(partial, match)).toBe(true);
+      }
+    );
+  });
+
   describe("leaving the match it describes alone", () => {
     it("does not mutate the match", () => {
       const partial = new PartialMatchRegExp(/^(a)(?<second>b)/);

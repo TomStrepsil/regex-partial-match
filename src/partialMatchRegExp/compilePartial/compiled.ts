@@ -1,6 +1,7 @@
 import type { Backreference, Part } from "../part.ts";
 import type { Hooks } from "../walk.ts";
 import type { RegexFeature } from "../regexFeatures.ts";
+import type { TruncationProbeCache } from "../hitEnd/truncationProbeCache.ts";
 import type { CompiledDynamic } from "../../modules/backreferences/compiledDynamic.ts";
 
 export type FeaturesHook = (featureMask: number) => ReadonlySet<RegexFeature>;
@@ -24,6 +25,7 @@ export interface BackreferencesHook {
 
 export abstract class Compiled {
   private _features?: ReadonlySet<RegexFeature>;
+  probeCache?: TruncationProbeCache;
 
   constructor(
     readonly parts: readonly Part[],
