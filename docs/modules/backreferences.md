@@ -1,8 +1,10 @@
 # Partial matching with backreferences
 
+Everything here belongs to the backreferences module, `regex-partial-match/modules/backreferences`. `regex-partial-match/core` without it throws `TypeError: Needs the backreferences module` for a pattern that needs the dynamic path below.
+
 ## 🧩 The problem
 
-The `|$(?![\s\S])` transform that powers `compilePartial` (see [How It Works](./how-it-works.md)) cannot be applied to backreferences (`\1`, `\k<name>`) because a backreference is inherently **atomic**: it must match the entire captured string or fail entirely. The length of `\1` is only known at runtime, after group 1 has matched, so there is no source-level position at which to insert the alternation.
+The `|$(?![\s\S])` transform that powers `compilePartial` (see [How It Works](../how-it-works.md)) cannot be applied to backreferences (`\1`, `\k<name>`) because a backreference is inherently **atomic**: it must match the entire captured string or fail entirely. The length of `\1` is only known at runtime, after group 1 has matched, so there is no source-level position at which to insert the alternation.
 
 `PartialMatchRegExp` closes this gap by resolving captures at match time and expanding each backreference into per-atom partial form:
 
@@ -18,43 +20,43 @@ re.exec("abcabc"); // full match — m[0]="abcabc", m[1]="abc"
 
 ## 🔀 Two exec paths
 
-Patterns are classified once, at construction, by `compilePartial(regex): CompiledPartial`:
+Patterns are classified once, at construction, by `compileWith(regex, hooks): CompiledPartial`, and the result is kept on the instance:
 
-- **No genuine backreferences (`kind: "static"`)** — the pattern delegates to the static partial transform unchanged, wrapped once into a plain `RegExp` (kept as `#static` on the instance).
-- **Genuine backreferences present (`kind: "dynamic"`)** — a `DynamicPath` (below) is built from the pattern and kept as `#dynamic`; `exec` runs a small pipeline per call instead of using a precomputed static regex at all.
+- **No genuine backreferences (`kind: "static"`)** — a `CompiledStatic`: the static partial transform, compiled once into a plain `RegExp`.
+- **Genuine backreferences present (`kind: "dynamic"`)** — a `CompiledDynamic`, which this module builds around a `DynamicPath` (below); `exec` runs a small pipeline per call instead of using a precomputed static regex at all.
 
 Both paths share the same contract as the rest of the library:
 
 - An input is accepted if it is a viable prefix of a full match under ECMAScript semantics.
-- Unanchored patterns always match an empty string at true end of input; anchor with `^` to reject non-prefixes (see [Caveats](./caveats.md)).
+- Unanchored patterns always match an empty string at true end of input; anchor with `^` to reject non-prefixes (see [Caveats](../caveats.md)).
 - Alternation is ordered (first-match), group numbering and `undefined`-vs-`""` distinctions match the original `RegExp`, and backreferences to non-participating groups match the empty string per [ECMA-262 Backreference Matcher](https://tc39.es/ecma262/#sec-backreference-matcher) ("the backreference always succeeds" when the referenced group is `undefined`).
 - Both paths return the _leftmost_ candidate — complete or partial, whichever starts first — never a later complete match in preference to an earlier viable partial.
 
 ## 🏗️ Architecture: one walk, many renderings
 
-`walk(...)`, which `compilePartial/index.ts` calls, walks a pattern's source once (with a single exception noted below) building a `Part[]`:
+`walk(...)`, which `compileWith` calls, walks a pattern's source once, building a `Part[]`:
 
 ```ts
 type Part = string | Backreference;
-type Backreference = NumericBackreference | NamedBackreference; // each carrying `start`/`end` (the token's span in the original source), `forward`, and either a numeric or a named `ref`
+type Backreference = NumericBackreference | NamedBackreference; // each carrying `forward`, `caseInsensitive`, and either a numeric or a named `ref`
 ```
 
-This same `parts` array, and the `namedGroupOpenings` and `rawLookarounds` recorded alongside it, back every derived regex the library needs for that pattern: the plain partial transform, and, for backreference patterns, the capture scan and the per-exec expansion.
+This same `parts` array backs every derived regex the library needs for that pattern: the plain partial transform, and, for backreference patterns, the capture scan and the per-exec expansion.
 
 Keeping every rendering derived from one walk means they all agree about what counts as a backreference versus a literal character, an annex-B octal escape, or text inside a character class; a single shared source of truth rather than several independent parsers that have to agree by convention.
 
-`compilePartial(regex): CompiledPartial` is the single entry point for every pattern, not just ones with backreferences. It walks the source once, and reuses `parts` whichever way it branches. (Backreference patterns derive two more renderings — `preScan` and `expand` — defined in the table below; the classification steps here name them as they go.)
+`compileWith(regex, hooks): CompiledPartial` is the single entry point for every pattern, not just ones with backreferences. It walks the source once, and reuses `parts` whichever way it branches. (Backreference patterns derive two more renderings — `preScan` and `expand` — defined in the table below; the classification steps here name them as they go.)
 
-**Every pattern is walked once.** Whether a closed `\k<name>` is a named backreference or the Annex B literal `k<name>`, and whether `\N` is a backreference or an octal escape, depends on declarations that may come later in the source. Rather than walk twice, `compilePartial()` asks the engine: `new RegExp("|" + source).exec("")` always matches its empty first alternative, and the match's length and `groups` give the group count and whether any group is named. That runs only when the cheap pre-filter finds a `\N` or `\k<` token and the pattern is not in `u`/`v` mode, where both spellings are unambiguous.
+**Group declarations don't need a second walk.** Whether a closed `\k<name>` is a named backreference or the Annex B literal `k<name>`, and whether `\N` is a backreference or an octal escape, depends on declarations that may come later in the source. Rather than walk twice, `compileWith()` asks the engine: `new RegExp("|" + source).exec("")` always matches its empty first alternative, and the match's length and `groups` give the group count and whether any group is named. That runs only when the cheap pre-filter finds a `\N` or `\k<` token and the pattern is not in `u`/`v` mode, where both spellings are unambiguous. A pattern is walked a second time only when the [carets module](./carets.md) guessed wrongly that it needs no caret rules, and again on its first `hitEnd()` if it holds a raw lookaround, whose references the probe must renumber. That walk reads the same group count and names as construction's, so it classifies every `\N` and `\k<name>` the same way.
 
 Within a single pass:
 
-- The walk records a `Backreference` exactly where it would have emitted a backreference atom: in the main flow and inside positive-lookahead bodies. `start`/`end` are the token's span in the original source, and `forward` says whether the reference's own group hasn't *closed* yet — before it opens at all, or a self-reference still inside its own body — free to record, since the walk already tracks each group's number, and its decoded name if named, as it closes. A further pass once the walk finishes forces `forward` on every reference to a [name declared more than once](#duplicate-named-groups).
-- It keeps lookbehind bodies (`(?<=`, `(?<!`) and negative lookaheads (`(?!`) as raw slices — these are verbatim contexts, so backreferences there remain atomic (see [caveat](./caveats.md#backreferences)).
-- A cheap textual pre-filter (`MAYBE_HAS_BACKREFERENCE_REGEX = /\\[0-9]|\\k</`) against the raw source decides whether it's even worth classifying: if the source can't possibly contain a backreference token, `compilePartial` renders the static regex straight from `parts` and returns `{ kind: "static" }` without going any further. This never skips the walk itself (`parts` is needed for the static rendering regardless) — it only skips the native group pre-count above and the backreference work below. It's purely a performance guard, never a correctness gate: a false positive (e.g. `\1` inside a character class) just falls through to the accurate classification that follows; false negatives aren't possible, since every real backreference token starts with exactly the text this pre-filter matches.
+- The walk records a `Backreference` exactly where it would have emitted a backreference atom: in the main flow and inside positive-lookahead bodies. The backreferences module's recorder (`backreferenceRecorder.ts`), which the walk calls as each capturing group closes and at each backreference, stamps `caseInsensitive` and `forward`. `forward` says whether the reference's own group hasn't *closed* yet — before it opens at all, or a self-reference still inside its own body. When a [name declared more than once](#duplicate-named-groups) closes for the second time, the recorder marks every earlier reference to it `forward`, and every later one is recorded `forward` too. Without the module there is no recorder, and the walk throws `Needs the backreferences module` at the first backreference it records outside a raw lookaround body.
+- It keeps lookbehind bodies (`(?<=`, `(?<!`) and negative lookaheads (`(?!`) as raw slices — these are verbatim contexts, so backreferences there remain atomic (see [caveat](../caveats.md#backreferences)).
+- A cheap textual pre-filter (`MAYBE_HAS_BACKREFERENCE_REGEX = /\\[0-9]|\\k</`) against the raw source decides whether it's even worth classifying: if the source can't possibly contain a backreference token, `compileWith` walks without the module's recorder, renders the static regex straight from `parts` and returns a `CompiledStatic` without going any further. This never skips the walk itself (`parts` is needed for the static rendering regardless) — it only skips the native group pre-count above and the backreference work below. It's purely a performance guard, never a correctness gate: a false positive (e.g. `\1` inside a character class) just falls through to the accurate classification that follows; false negatives aren't possible, since every real backreference token starts with exactly the text this pre-filter matches.
 - Otherwise, it classifies each `\N` as a genuine backreference only when `N` ≥ 1 and `N` ≤ the pattern's *final* capture-group count. That separates a backreference from an octal escape, but says nothing about which side of its own group the reference sits on — a forward and a backward reference both pass it, which is why the walk records `forward` separately. A leading-zero run (`\0`, `\012`, …) is never a genuine backreference (there is no group `0`) so the walk always tags it `ref: 0`, forcing it through the same path regardless of the group count. Otherwise it's an annex-B octal/literal escape, emitted by the walk, as it meets the run, as one optional-atom string part _per literal atom it denotes_ — `\128` is the single character `\x0a` followed by a literal `8`, so it yields two parts, not one. Wrapping the whole run as a single atom would both lose the prefix position between them and re-bind a following quantifier to the pair (`\128*` quantifies the `8` alone).
 - Falls back to the same static rendering whenever the walked `parts` hold zero genuine backreferences (a pattern whose only `\N` tokens turned out to be octal escapes).
-- Otherwise, returns `{ kind: "dynamic", dynamic }`, a `DynamicPath` built from the pattern (below).
+- Otherwise, hands `parts` and its backreferences to the module's `compile`, which returns a `CompiledDynamic` holding a `DynamicPath` built from them (below).
 
 Both of `preScan` and `expand` are rendered directly from the walk's `parts`, and the `backreferences` list is that same array filtered. An out-of-range `\N` is already plain text by the time either sees it; neither ever renders it as a backreference stand-in.
 
@@ -70,9 +72,9 @@ A `Backreference` whose `forward` flag is set is the exception to the last two r
 
 ## ⚙️ exec() pipeline (dynamic path)
 
-A pattern with genuine backreferences never builds or uses the static `#static` regex at all — the `DynamicPath`'s two derived sources (`preScan`, `expand`) fully subsume it. (The static path's own native backreference resolution already reproduces `super.exec` exactly for every input where a native match exists at any position, full or otherwise — the wrapping's `|$(?![\s\S])` branches are strictly additive, always lower-priority than the literal branch in each atom, so nothing is lost by skipping straight past it. The gap only appears where native has nothing to find, which is exactly the static path's own blind spot too: an input ending _inside_ a backreference's required text, which is atomic and can't partially consume by construction.)
+A pattern with genuine backreferences never builds or uses a static regex at all — the `DynamicPath`'s two derived sources (`preScan`, `expand`) fully subsume it. (The static path's own native backreference resolution already reproduces native `exec` exactly for every input where a native match exists at any position, full or otherwise — the wrapping's `|$(?![\s\S])` branches are strictly additive, always lower-priority than the literal branch in each atom, so nothing is lost by skipping straight past it. The gap only appears where native has nothing to find, which is exactly the static path's own blind spot too: an input ending _inside_ a backreference's required text, which is atomic and can't partially consume by construction.)
 
-1. **Full-match attempt** — `super.exec` first, from `start` (`this.lastIndex` when the pattern is `global`/`sticky` — the only flags native `exec` honours it for — otherwise `0`, since native `exec` ignores `lastIndex` entirely for a plain pattern). `start` is read _before_ this call and every later step runs from that saved value, since `super.exec` may already have reset `this.lastIndex` on failure for `g`/`y` patterns. A match at or before `start` can't be beaten by anything earlier, so it's returned immediately.
+1. **Full-match attempt** — native `exec` first, from `start` (`this.lastIndex` when the pattern is `global`/`sticky` — the only flags native `exec` honours it for — otherwise `0`, since native `exec` ignores `lastIndex` entirely for a plain pattern). `start` is read _before_ this call and every later step runs from that saved value, since native `exec` may already have reset `this.lastIndex` on failure for `g`/`y` patterns. A match at or before `start` can't be beaten by anything earlier, so it's returned immediately.
 2. **Leftmost bound check** — a native match _after_ `start` doesn't win outright: `preScan` (below), run once from `start`, gives a cheap, sound lower bound on where any partial could begin, because its `(?:[\s\S]*?)` backreference stand-in is a strict superset of whatever the real per-atom expansion could match at the same spot (and a forward reference, which gets no stand-in, renders identically in both, so the bound holds there too). If that bound isn't earlier than the native match, the native match still wins — skipping the capture scan and the per-call `new RegExp` of the expansion entirely.
 3. **Capture scan** — `preScan`, run once from `start` — reusing the bound check's result where step 2 already ran it.
 
@@ -105,7 +107,7 @@ A native match still wins here if the expanded regex fails outright, or if it su
 
 #### Duplicate named groups
 
-A `\k<name>` referencing a name declared more than once is rendered this way unconditionally, for every occurrence of that name. ECMAScript permits a duplicate name only across disjoint alternatives — at most one occurrence can ever participate — but the walk records `closedGroupNames` in source order regardless of alternation structure, so it can't distinguish "closed in the alternative this reference can actually reach" from "closed in one it never could," and forces `forward` on every reference to a duplicated name once the walk finishes — even from the alternative where that occurrence has genuinely already closed. Unlike the plain forward case, this costs real completeness: `/^(?:(?<x>ab)\k<x>|z(?<x>q))$/` rejects the partial `"aba"` outright, though it's a valid prefix of `"abab"`, and the identical `\k<x>` in `/^(?<x>ab)\k<x>$/` (no duplicate) resolves it per-character as normal. Renaming the duplicate group is the only fix — precision here would require tracking which alternative each reference can actually reach, which the walk doesn't do.
+A `\k<name>` referencing a name declared more than once is rendered this way unconditionally, for every occurrence of that name. ECMAScript permits a duplicate name only across disjoint alternatives — at most one occurrence can ever participate — but the recorder tracks closed group names in source order regardless of alternation structure, so it can't distinguish "closed in the alternative this reference can actually reach" from "closed in one it never could," and forces `forward` on every reference to a duplicated name, before or after its second declaration — even from the alternative where that occurrence has genuinely already closed. Unlike the plain forward case, this costs real completeness: `/^(?:(?<x>ab)\k<x>|z(?<x>q))$/` rejects the partial `"aba"` outright, though it's a valid prefix of `"abab"`, and the identical `\k<x>` in `/^(?<x>ab)\k<x>$/` (no duplicate) resolves it per-character as normal. Renaming the duplicate group is the only fix — precision here would require tracking which alternative each reference can actually reach, which the walk doesn't do.
 
 5. **Capture agreement** — the atoms a backreference truncated against must be a prefix of the capture the match itself resolved, or the match was derived from text that capture never held. The check needs no instrumentation: a truncated run is a prefix of the baked value *and* a suffix of the input (the trailing `$(?![\s\S])` is what confines it), so the longest string satisfying both bounds every run the expansion could have taken, and it is sound exactly when the match's own capture starts with it. Where it doesn't, `exec` expands a second time — from the match's own captures rather than the scan's — and runs that **from the first match's index**, not from `start`: the first expansion has already established that nothing earlier matched with the scan's captures, and rescanning from `start` with the new captures could settle on an earlier index those captures never held (`/(a?[^])\1/` on `"bab"`: index 1 with the wrong bake, then index 0 with the right bake but the wrong group, then nothing). A second disagreement is not pursued: the expansion falls back to `originalMatch`, sound but possibly incomplete.
 
@@ -117,7 +119,7 @@ A `\k<name>` referencing a name declared more than once is rendered this way unc
 
 Only `exec` is overridden. `test` reaches it via `RegExpExec`; `[Symbol.match]` calls `exec` in a loop for global patterns, so overriding it would break `g`-flag iteration. `Symbol.species` keeps its default so `[Symbol.matchAll]` clones preserve partial-match behaviour.
 
-See [Caveats](./caveats.md) for the documented limitations of this design (common-prefix top-level alternation, lookbehind/negative-lookaround atomicity, `\k<name>` with no named groups, and the scan-couldn't-determine fallback).
+See [Caveats](../caveats.md) for the documented limitations of this design (common-prefix top-level alternation, lookbehind/negative-lookaround atomicity, `\k<name>` with no named groups, and the scan-couldn't-determine fallback).
 
 ## 👨‍🍳 Recipes
 
@@ -136,7 +138,7 @@ pattern.exec("<esi:include>body</esi:include>tail");
 // ["<esi:include>body</esi:include>", "esi:include", ...] — stops exactly at the close
 ```
 
-Pair this with the [Stream Processing](../README.md#stream-processing) recipe: run `pattern.exec` (the plain, unwrapped regex) in a loop to peel off complete matches from the buffer, and use `partial.test` only on whatever's left over to decide keep-buffering vs. discard.
+Pair this with the [Stream Processing](../../README.md#stream-processing) recipe: run `pattern.exec` (the plain, unwrapped regex) in a loop to peel off complete matches from the buffer, and use `partial.test` only on whatever's left over to decide keep-buffering vs. discard.
 
 The content class matters more than it looks. `.+?` (matches anything, including `<`) makes "could still be a prefix" almost always `true` — any string that opens correctly is technically a prefix of some longer string that eventually closes, since more content could always be appended later. `[^<]*?` makes the first `<` after the opening tag unambiguous: it must be the start of the closing tag, so a diverged closing attempt (`</wrong>` instead of `</esi:include>`) becomes provably unrecoverable and `partial.test` correctly returns `false` — letting a stream parser discard the buffer instead of accumulating it forever. The trade-off: no nested tags of any kind are allowed in content under this grammar.
 

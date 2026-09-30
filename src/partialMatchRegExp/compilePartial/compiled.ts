@@ -1,28 +1,41 @@
-import type { Part, RawLookaroundInfo } from "../part.ts";
-import { featureSet, type RegexFeature } from "../regexFeatures.ts";
+import type { Backreference, Part } from "../part.ts";
+import type { Hooks } from "../walk.ts";
+import type { RegexFeature } from "../regexFeatures.ts";
+import type { CompiledDynamic } from "../../modules/backreferences/compiledDynamic.ts";
 
-export interface DynamicPath {
-  preScan: RegExp;
-  expand: (capture: RegExpExecArray) => Part[];
-  expansionFitsCaptures: (
-    expandedFrom: RegExpExecArray,
-    match: RegExpExecArray,
-    input: string
-  ) => boolean;
+export type FeaturesHook = (featureMask: number) => ReadonlySet<RegexFeature>;
+
+export interface BackreferenceRecorder {
+  groupClosed(groupNumber: number, opening: string): void;
+  backreference(backreference: Backreference, scope: number): void;
 }
 
-abstract class Compiled {
+export interface BackreferencesHook {
+  record: () => BackreferenceRecorder;
+  compile: (
+    parts: readonly Part[],
+    backreferences: readonly Backreference[],
+    flags: string,
+    isUnicode: boolean,
+    featureMask: number,
+    hooks: Hooks
+  ) => CompiledDynamic;
+}
+
+export abstract class Compiled {
   private _features?: ReadonlySet<RegexFeature>;
 
   constructor(
     readonly parts: readonly Part[],
-    readonly rawLookarounds: readonly RawLookaroundInfo[],
-    readonly namedGroupOpenings: readonly string[],
-    private readonly _featureMask: number
+    readonly featureMask: number,
+    readonly hooks: Hooks
   ) {}
 
   get features(): ReadonlySet<RegexFeature> {
-    return (this._features ??= featureSet(this._featureMask));
+    const featureSet = this.hooks.features;
+    if (featureSet === undefined)
+      throw new TypeError("Needs the features module");
+    return (this._features ??= featureSet(this.featureMask));
   }
 }
 
@@ -32,25 +45,10 @@ export class CompiledStatic extends Compiled {
   constructor(
     readonly regex: RegExp,
     parts: string[],
-    rawLookarounds: readonly RawLookaroundInfo[],
-    namedGroupOpenings: readonly string[],
-    featureMask: number
+    featureMask: number,
+    hooks: Hooks
   ) {
-    super(parts, rawLookarounds, namedGroupOpenings, featureMask);
-  }
-}
-
-export class CompiledDynamic extends Compiled {
-  readonly kind = "dynamic";
-
-  constructor(
-    readonly dynamic: DynamicPath,
-    parts: readonly Part[],
-    rawLookarounds: readonly RawLookaroundInfo[],
-    namedGroupOpenings: readonly string[],
-    featureMask: number
-  ) {
-    super(parts, rawLookarounds, namedGroupOpenings, featureMask);
+    super(parts, featureMask, hooks);
   }
 }
 

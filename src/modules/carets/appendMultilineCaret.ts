@@ -6,15 +6,18 @@ import {
   OPTIONAL_ATOM_OPENING,
   UNSATISFIABLE,
   asOptionalAtom,
-  caretFor,
-  isCaret,
   isOptionalAtom,
   isRawLookaround,
   isWordBoundaryAtom
-} from "./atomSyntax.ts";
+} from "../../partialMatchRegExp/atomSyntax.ts";
+import { caretFor, isCaret } from "./atomSyntax.ts";
 import canMatchLineTerminator from "./lineTerminator.ts";
-import { isBackreference, type Part } from "./part.ts";
-import { isQuantifier, minimumOf, quantifierEndingAt } from "./quantifier.ts";
+import { isBackreference, type Part } from "../../partialMatchRegExp/part.ts";
+import {
+  isQuantifier,
+  quantifierEndingAt
+} from "../../partialMatchRegExp/quantifier.ts";
+import { minimumOf } from "./quantifier.ts";
 
 export type LookaheadSpan = [open: number, close: number];
 
@@ -81,6 +84,32 @@ export function partDecidingCaret(
     index = quantifierIndex - 2;
   }
   return floor;
+}
+
+export function canEndLine(
+  body: Part[],
+  starts: readonly number[],
+  scope: number,
+  lookaheadSpans: LookaheadSpan[] | undefined
+) {
+  const scanned = body.slice();
+  let end = body.length;
+  for (let k = starts.length; k--; ) {
+    const start = starts[k];
+    if (
+      partDecidingCaret(
+        scanned,
+        end - 1,
+        start - 1,
+        scope,
+        lookaheadSpans,
+        0
+      ) !== CANNOT_END_LINE
+    )
+      return true;
+    end = start - 1;
+  }
+  return false;
 }
 
 function shiftSpans(

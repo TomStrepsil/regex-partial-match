@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import PartialMatchRegExp, { hitEnd } from "../index.ts";
+import CorePartialMatchRegExp from "../../core/index.ts";
 import { hitEndOf } from "../../../test/vitest.setup.ts";
 
 describe("hitEnd()", () => {
@@ -804,6 +805,89 @@ describe("hitEnd()", () => {
       expect(hitEndOf(partial, "ac")).toBe(true);
       expect(hitEndOf(partial, "acd")).toBe(false);
     });
+  });
+
+  // `hitEnd()` learns a raw lookaround's references, and the names the pattern declares, by walking the source again on its first call. A `\k<name>` inside a raw lookaround is a reference only where the pattern declares a named group; otherwise it is the Annex B literal `k<name>`. Each pattern below needs its lookbehind's reference read correctly for the complete input to settle.
+  describe("a named reference inside a raw lookaround", () => {
+    it.each([
+      ["starts with $", "^(?<$g>a)b(?<=\\k<$g>b)c"],
+      ["starts with _", "^(?<_g>a)b(?<=\\k<_g>b)c"],
+      ["is spelled with a unicode escape", "^(?<\\u0067>a)b(?<=\\k<g>b)c"],
+      ["is not ASCII", "^(?<é>a)b(?<=\\k<é>b)c"]
+    ])(
+      "reads the reference to a declared name that %s",
+      (_, source) => {
+        const partial = new PartialMatchRegExp(new RegExp(source));
+
+        expect(hitEndOf(partial, "ab")).toBe(true);
+        expect(hitEndOf(partial, "abc")).toBe(false);
+      }
+    );
+
+    it("reads the reference inside a negative lookbehind", () => {
+      const partial = new PartialMatchRegExp(/^(?<g>a)b(?<!\k<g>a)c/);
+
+      expect(hitEndOf(partial, "ab")).toBe(true);
+      expect(hitEndOf(partial, "abc")).toBe(false);
+    });
+
+    it.each([
+      ["inside a lookbehind", "^ak<x>(?<=\\k<x>)b", "ak<x>", "ak<x>b"],
+      [
+        "inside a negative lookahead that follows a lookbehind",
+        "^a(?<=a)(?!\\k<x>)b",
+        "a",
+        "ab"
+      ]
+    ])(
+      "reads \\k<x> %s as a literal where no group is named, since a lookbehind's (?<= declares nothing",
+      (_, source, partialInput, completeInput) => {
+        const partial = new PartialMatchRegExp(new RegExp(source));
+
+        expect(hitEndOf(partial, partialInput)).toBe(true);
+        expect(hitEndOf(partial, completeInput)).toBe(false);
+      }
+    );
+  });
+
+  // The walk reports each reference as it meets it, and each outermost raw lookaround as it closes; a lookaround claims the references after its own start. The probe renumbers each by the groups before it, including groups opened inside earlier lookarounds.
+  describe("attributing a raw reference to its lookaround", () => {
+    it.each([
+      ["after a reference outside any lookaround", /^(a)\1(?<=\1)b/, "aa", "aab"],
+      ["in the second of two lookarounds", /^(a)(b)(?!\2)(?<=\1b)c/, "ab", "abc"],
+      ["at both levels of nested lookarounds", /^(a)(b)(?<=(?!\1)\2)c/, "ab", "abc"],
+      ["in each of two identical lookarounds", /^(a)b(?!\1)(?!\1)c/, "ab", "abc"],
+      [
+        "after a group opened inside an earlier lookaround",
+        /^(?!(x))(a)b(?<=\2b)c/,
+        "ab",
+        "abc"
+      ]
+    ])(
+      "renumbers a reference %s",
+      (_, pattern, partialInput, completeInput) => {
+        const partial = new PartialMatchRegExp(pattern);
+
+        expect(hitEndOf(partial, partialInput)).toBe(true);
+        expect(hitEndOf(partial, completeInput)).toBe(false);
+      }
+    );
+  });
+
+  // `hitEnd()` accepts an instance of any class, including `./core`'s, which binds no module. Its walk of the source must classify every escape as that class's construction did: an octal escape is not a backreference, so it needs no backreferences module.
+  describe("on an instance of the core class", () => {
+    it.each([
+      ["an octal escape before a negative lookahead", "^a\\5(?!b)c", "a\x05", "a\x05c"],
+      ["an octal escape before a lookbehind", "^a\\1(?<=\\x01)b", "a\x01", "a\x01b"]
+    ])(
+      "reads %s as construction did",
+      (_, source, partialInput, completeInput) => {
+        const partial = new CorePartialMatchRegExp(new RegExp(source));
+
+        expect(hitEndOf(partial, partialInput)).toBe(true);
+        expect(hitEndOf(partial, completeInput)).toBe(false);
+      }
+    );
   });
 
   describe("leaving the match it describes alone", () => {

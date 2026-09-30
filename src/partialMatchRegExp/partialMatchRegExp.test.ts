@@ -6,6 +6,15 @@ describe("PartialMatchRegExp", () => {
     expect(new PartialMatchRegExp(/abc/)).toBeInstanceOf(RegExp);
   });
 
+  it("keeps its name and the multiline caret rules through Symbol.species", () => {
+    const partial = new PartialMatchRegExp(/^b/gm);
+    expect(PartialMatchRegExp.name).toBe("PartialMatchRegExp");
+    expect("a\nb".split(partial)).toEqual(["a\n", ""]);
+    expect(
+      [..."a\nb\nab\n".matchAll(partial)].map((match) => match.index)
+    ).toEqual([2, 7]);
+  });
+
   it("passes flags through from a RegExp argument", () => {
     expect(new PartialMatchRegExp(/abc/d).hasIndices).toBe(true);
     expect(new PartialMatchRegExp(/abc/g).global).toBe(true);
@@ -4743,5 +4752,57 @@ c`)
         expect(features).not.toContain("unicodeEscapeSequence");
       }
     });
+  });
+});
+
+describe("subclassing with class syntax", () => {
+  it("keeps every module and species for the subclass", () => {
+    class Sub extends PartialMatchRegExp {}
+    const partial = new Sub(/^b/gm);
+
+    expect(partial).toBeInstanceOf(PartialMatchRegExp);
+    expect(new Sub(/(a|b)\1/).exec("ab")?.[0]).toBe("b");
+    expect("a\nb".split(partial)).toEqual(["a\n", ""]);
+    expect([..."a\nb\nab\n".matchAll(partial)].map((m) => m.index)).toEqual([
+      2, 7
+    ]);
+    expect("a\nb\nab\n".replace(partial, "_")).toBe("a\n_\nab\n_");
+  });
+});
+
+describe("subclassing without class syntax", () => {
+  it("keeps the multiline caret rules for a subclass built with Reflect.construct", () => {
+    function Sub(pattern: RegExp) {
+      return Reflect.construct(
+        PartialMatchRegExp,
+        [pattern],
+        Sub
+      ) as PartialMatchRegExp;
+    }
+    Sub.prototype = Object.create(
+      PartialMatchRegExp.prototype
+    ) as PartialMatchRegExp;
+
+    const match = Sub(/^a/m).exec("x\na");
+
+    expect(match?.index).toBe(2);
+    expect(match?.[0]).toBe("a");
+  });
+
+  it("keeps every module for a subclass whose prototype names it as constructor", () => {
+    function Sub(pattern: RegExp) {
+      return Reflect.construct(
+        PartialMatchRegExp,
+        [pattern],
+        Sub
+      ) as PartialMatchRegExp;
+    }
+    Sub.prototype = Object.create(PartialMatchRegExp.prototype, {
+      constructor: { value: Sub }
+    }) as PartialMatchRegExp;
+
+    expect(Sub(/x^a/m).test("x")).toBe(false);
+    expect(Sub(/(a|b)\1/).exec("ab")?.index).toBe(1);
+    expect(Sub(/(a|b)\1/).exec("ab")?.[0]).toBe("b");
   });
 });

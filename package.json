@@ -49,6 +49,31 @@
       "types": "./lib/partialMatchRegExp/partialMatchRegExp.d.ts",
       "import": "./lib/partialMatchRegExp/partialMatchRegExp.js",
       "default": "./lib/partialMatchRegExp/partialMatchRegExp.js"
+    },
+    "./core": {
+      "types": "./lib/core/index.d.ts",
+      "import": "./lib/core/index.js",
+      "default": "./lib/core/index.js"
+    },
+    "./modules": {
+      "types": "./lib/modules/index.d.ts",
+      "import": "./lib/modules/index.js",
+      "default": "./lib/modules/index.js"
+    },
+    "./modules/carets": {
+      "types": "./lib/modules/carets/index.d.ts",
+      "import": "./lib/modules/carets/index.js",
+      "default": "./lib/modules/carets/index.js"
+    },
+    "./modules/backreferences": {
+      "types": "./lib/modules/backreferences/index.d.ts",
+      "import": "./lib/modules/backreferences/index.js",
+      "default": "./lib/modules/backreferences/index.js"
+    },
+    "./modules/features": {
+      "types": "./lib/modules/features/index.d.ts",
+      "import": "./lib/modules/features/index.js",
+      "default": "./lib/modules/features/index.js"
     }
   },
   "files": [

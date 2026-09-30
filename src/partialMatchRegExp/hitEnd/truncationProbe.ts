@@ -8,15 +8,17 @@ import {
   isWordBoundaryAtom
 } from "../atomSyntax.ts";
 import { isQuantifier, quantifierEndingAt } from "../quantifier.ts";
-import { groupNameOf, decodeGroupName } from "../groupName.ts";
 import {
   isBackreference,
   isNumericBackreference,
   type Backreference,
-  type Part,
-  type RawLookaroundInfo
+  type Part
 } from "../part.ts";
 import { roleOf } from "./partRole.ts";
+import type {
+  RawLookaroundInfo,
+  RawReference
+} from "./rawLookaroundRecorder.ts";
 
 export interface TruncationProbe {
   regex: RegExp;
@@ -46,7 +48,7 @@ function isGreedyReadAtEnd(parts: readonly Part[], index: number) {
   const part = parts[index];
   return (
     isQuantifier(part) &&
-    !EXACT_QUANTIFIER.test(part as string) &&
+    !EXACT_QUANTIFIER.test(part) &&
     parts[index + 1] !== OPTIONAL_QUANTIFIER &&
     quantifierEndingAt(parts, index) === index
   );
@@ -133,14 +135,14 @@ function renumberRawBackreferences(
 ) {
   let renumbered = "";
   let cursor = 0;
-  for (const backreference of info.backreferences) {
-    const relativeStart = backreference.start - info.sourceStart;
-    const relativeEnd = backreference.end - info.sourceStart;
+  for (const reference of info.references) {
+    const relativeStart = reference.start - info.sourceStart;
+    const relativeEnd = reference.end - info.sourceStart;
     renumbered +=
       part.slice(cursor, relativeStart) +
       rawReferenceReplacement(
         part.slice(relativeStart, relativeEnd),
-        backreference,
+        reference,
         shiftForGroup,
         declaresNamedGroup
       );
@@ -151,13 +153,13 @@ function renumberRawBackreferences(
 
 function rawReferenceReplacement(
   spelling: string,
-  backreference: Backreference,
+  { ref }: RawReference,
   shiftForGroup: readonly number[],
   declaresNamedGroup: boolean
 ) {
-  if (isNumericBackreference(backreference)) {
-    return backreference.ref >= 1 && backreference.ref < shiftForGroup.length
-      ? "\\" + String(backreference.ref + shiftForGroup[backreference.ref])
+  if (typeof ref === "number") {
+    return ref >= 1 && ref < shiftForGroup.length
+      ? "\\" + String(ref + shiftForGroup[ref])
       : legacyEscapeAsLiteral(spelling.slice(1));
   }
   return declaresNamedGroup ? spelling : "k" + spelling.slice(2);
@@ -166,13 +168,10 @@ function rawReferenceReplacement(
 export const buildTruncationProbe = (
   parts: readonly Part[],
   rawLookarounds: readonly RawLookaroundInfo[],
-  namedGroupOpenings: readonly string[],
+  declaredNames: readonly string[],
   flags: string
 ): TruncationProbe => {
-  const declaresNamedGroup = namedGroupOpenings.length > 0;
-  const declaredNames = namedGroupOpenings.map((opening) =>
-    decodeGroupName(groupNameOf(opening))
-  );
+  const declaresNamedGroup = declaredNames.length > 0;
   let markerName = TRUNCATION_MARKER_NAME;
   while (declaredNames.some((name) => name.startsWith(markerName))) {
     markerName += "_";

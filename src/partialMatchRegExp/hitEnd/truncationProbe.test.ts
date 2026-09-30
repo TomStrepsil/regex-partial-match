@@ -2,16 +2,17 @@ import { describe, it, expect } from "vitest";
 import PartialMatchRegExp from "../index.ts";
 import { compiledPartial } from "../partialMatchInternals.ts";
 import { buildTruncationProbe } from "./truncationProbe.ts";
+import probeSourceOf from "./probeSource.ts";
 import { hitEndOf } from "../../../test/vitest.setup.ts";
 
 function probeOf(pattern: RegExp) {
-  const { parts, rawLookarounds, namedGroupOpenings } = new PartialMatchRegExp(
-    pattern
-  )[compiledPartial];
+  const partial = new PartialMatchRegExp(pattern);
+  const compiled = partial[compiledPartial];
+  const { rawLookarounds, declaredNames } = probeSourceOf(partial, compiled);
   return buildTruncationProbe(
-    parts,
+    compiled.parts,
     rawLookarounds,
-    namedGroupOpenings,
+    declaredNames,
     pattern.flags
   );
 }

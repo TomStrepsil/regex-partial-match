@@ -3,10 +3,8 @@ import {
   tookTruncationBranch,
   type TruncationProbe
 } from "./truncationProbe.ts";
-import type {
-  CompiledDynamic,
-  CompiledPartial
-} from "../compilePartial/compiled.ts";
+import type { CompiledPartial } from "../compilePartial/compiled.ts";
+import type { CompiledDynamic } from "../../modules/backreferences/compiledDynamic.ts";
 import {
   backreferenceExpansion,
   type ExpandedMatch
@@ -42,7 +40,7 @@ function dynamicProbe(
   if (cached !== undefined && sameParts(cached.parts, parts)) {
     return cached.probe;
   }
-  cache.expansion = { parts, probe: probeOf(compiled, parts, flags) };
+  cache.expansion = { parts, probe: probeOf(parts, flags, cache) };
   return cache.expansion.probe;
 }
 
@@ -51,18 +49,18 @@ function unexpandedProbe(
   flags: string,
   cache: TruncationProbeCache
 ): TruncationProbe {
-  return (cache.probe ??= probeOf(compiled, compiled.parts, flags));
+  return (cache.probe ??= probeOf(compiled.parts, flags, cache));
 }
 
 function probeOf(
-  compiled: CompiledPartial,
   parts: readonly Part[],
-  flags: string
+  flags: string,
+  { source }: TruncationProbeCache
 ): TruncationProbe {
   return buildTruncationProbe(
     parts,
-    compiled.rawLookarounds,
-    compiled.namedGroupOpenings,
+    source.rawLookarounds,
+    source.declaredNames,
     flags
   );
 }

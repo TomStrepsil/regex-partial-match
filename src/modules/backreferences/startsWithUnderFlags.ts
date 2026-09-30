@@ -1,4 +1,4 @@
-import escapeAtom from "../escapeAtom.ts";
+import escapeAtom from "../../partialMatchRegExp/escapeAtom.ts";
 import caseFoldFlags from "./caseFoldFlags.ts";
 
 export default function startsWithUnderFlags(

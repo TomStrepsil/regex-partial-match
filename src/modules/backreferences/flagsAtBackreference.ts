@@ -1,4 +1,4 @@
-import type { Backreference } from "../part.ts";
+import type { Backreference } from "../../partialMatchRegExp/part.ts";
 
 export default function flagsAtBackreference(
   backref: Backreference,

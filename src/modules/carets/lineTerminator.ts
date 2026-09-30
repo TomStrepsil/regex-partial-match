@@ -1,5 +1,9 @@
 import { optionalAtomTextOf } from "./atomSyntax.ts";
-import { DOT_ALL, UNICODE_SETS, flagsOf } from "./scope.ts";
+import {
+  DOT_ALL,
+  UNICODE_SETS,
+  flagsOf
+} from "../../partialMatchRegExp/scope.ts";
 
 const LINE_TERMINATORS = "\n\r\u2028\u2029";
 

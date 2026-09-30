@@ -1,5 +1,8 @@
-import { decodeGroupName } from "../groupName.ts";
-import { isNumericBackreference, type Backreference } from "../part.ts";
+import { decodeGroupName } from "../../partialMatchRegExp/groupName.ts";
+import {
+  isNumericBackreference,
+  type Backreference
+} from "../../partialMatchRegExp/part.ts";
 
 export default function resolvedFromScan(
   backref: Backreference,

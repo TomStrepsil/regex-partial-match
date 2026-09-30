@@ -4,6 +4,8 @@ export const DOT_ALL = 4;
 export const UNICODE = 8;
 export const UNICODE_SETS = 16;
 export const WITHIN_LOOKAROUND = 32;
+export const WITHIN_GROUP = 64;
+export const WITHIN_RAW_LOOKAROUND = 128;
 
 const MODIFIER_REMOVAL = "-";
 

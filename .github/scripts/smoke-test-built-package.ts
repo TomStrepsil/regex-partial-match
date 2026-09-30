@@ -38,10 +38,23 @@ import { build } from "esbuild";
 import { Linter } from "eslint";
 import type PartialMatchRegExpInstance from "../../src/partialMatchRegExp/index.ts";
 import type hitEndType from "../../src/partialMatchRegExp/hitEnd/index.ts";
+import type withModulesType from "../../src/core/withModules.ts";
 
 const SUPPORTED_ECMA_VERSION = 2015;
 
 const BUILT_OUTPUT = new URL("../../lib/", import.meta.url);
+
+const MODULE_FILES = {
+  carets: ["/modules/carets/", "/lineTerminator.js"],
+  backreferences: ["/modules/backreferences/"],
+  features: ["/modules/features/", "/regexFeatures.js"]
+};
+
+type ModuleName = keyof typeof MODULE_FILES;
+
+const MODULE_NAMES = Object.keys(MODULE_FILES) as ModuleName[];
+
+const HIT_END_ENTRY = new URL("partialMatchRegExp/hitEnd/index.js", BUILT_OUTPUT);
 
 const packageName = "regex-partial-match";
 const require = createRequire(import.meta.url);
@@ -124,6 +137,62 @@ async function assertNeverReachesHitEnd(
   );
 }
 
+function moduleFileIn(
+  reached: Set<string>,
+  module: ModuleName
+): string | undefined {
+  return [...reached].find((href) =>
+    MODULE_FILES[module].some((file) => href.includes(file))
+  );
+}
+
+async function bundledBytes(contents: string): Promise<number> {
+  const { outputFiles } = await build({
+    stdin: { contents, resolveDir: fileURLToPath(BUILT_OUTPUT) },
+    bundle: true,
+    write: false,
+    // identifier mangling differs by module count, so it would hide equal shaking
+    minifySyntax: true,
+    minifyWhitespace: true,
+    platform: "neutral",
+    format: "esm",
+    logLevel: "silent"
+  });
+  return outputFiles[0].contents.length;
+}
+
+async function assertBindsTheCaretsModule(
+  carets: unknown
+): Promise<void> {
+  const { withModules } = (await import(`${packageName}/core`)) as {
+    withModules: typeof withModulesType;
+  };
+  const PartialMatchRegExp = withModules(
+    carets as Parameters<typeof withModulesType>[0]
+  );
+  assert.equal(
+    new PartialMatchRegExp(/x^a/m).test("x"),
+    false,
+    "the carets module does not decide a caret after a consuming part"
+  );
+}
+
+async function assertBindsTheFeaturesModule(
+  features: unknown
+): Promise<void> {
+  const { withModules } = (await import(`${packageName}/core`)) as {
+    withModules: typeof withModulesType;
+  };
+  const PartialMatchRegExp = withModules(
+    features as Parameters<typeof withModulesType>[0]
+  );
+  assert.deepEqual(
+    [...new PartialMatchRegExp(/^a/).features],
+    ["patternCharacter", "startAnchor"],
+    "the features module does not name a pattern's features"
+  );
+}
+
 function assertHitEndBehaves(
   PartialMatchRegExp: PartialMatchRegExpConstructor,
   hitEnd: typeof hitEndType
@@ -167,6 +236,21 @@ const SMOKE_TESTS: Record<
       [...reached].some((href) => href.includes("/hitEnd/")),
       "the default entry point's runtime import graph never reaches hitEnd, though it re-exports it — transitiveRuntimeImports() may be broken, since the other direction is what ./partialMatchRegExp relies on"
     );
+    for (const module of MODULE_NAMES) {
+      assert.ok(
+        moduleFileIn(reached, module),
+        `the default entry point's runtime import graph never reaches the ${module} module, though it binds it — the check ./core relies on may be broken`
+      );
+    }
+
+    const moduleReachedByHitEnd = [
+      ...(await transitiveRuntimeImports(HIT_END_ENTRY))
+    ].find((href) => href.includes("/modules/"));
+    assert.equal(
+      moduleReachedByHitEnd,
+      undefined,
+      `hitEnd's runtime import graph reaches ${String(moduleReachedByHitEnd)} — hitEnd must read compiled.dynamic, not module code`
+    );
   },
 
   "./extend": async (_loaded, builtFile) => {
@@ -201,6 +285,119 @@ const SMOKE_TESTS: Record<
       "regex-partial-match/partialMatchRegExp",
       builtFile
     );
+  },
+
+  "./core": async (loaded, builtFile) => {
+    const PartialMatchRegExp = loaded.default as
+      | PartialMatchRegExpConstructor
+      | undefined;
+    assert.ok(PartialMatchRegExp, "no default export");
+    assert.equal(
+      new PartialMatchRegExp(/^hello world$/).test("hel"),
+      true,
+      "does not accept a prefix"
+    );
+    assert.throws(
+      () => new PartialMatchRegExp(/x^a/m),
+      /carets module/,
+      "accepts a caret after a consuming part under m without the carets module"
+    );
+    assert.equal(
+      new PartialMatchRegExp(/^foo/m).test("f"),
+      true,
+      "does not accept a caret leading the pattern under m"
+    );
+
+    const withModules = loaded.withModules as
+      | typeof withModulesType
+      | undefined;
+    assert.ok(withModules, "no withModules named export");
+    assert.equal(
+      withModules(),
+      withModules(),
+      "withModules() is not memoised"
+    );
+
+    assert.throws(
+      () => new PartialMatchRegExp(/(a)\1/),
+      /backreferences module/,
+      "accepts a backreference without the backreferences module"
+    );
+    assert.equal(
+      new PartialMatchRegExp("x\\8y").test("x8"),
+      true,
+      "refuses a statically compiled escape"
+    );
+
+    assert.throws(
+      () => new PartialMatchRegExp(/a/).features,
+      /features module/,
+      "reads features without the features module"
+    );
+
+    const reached = await transitiveRuntimeImports(builtFile);
+    for (const module of MODULE_NAMES) {
+      const moduleFile = moduleFileIn(reached, module);
+      assert.equal(
+        moduleFile,
+        undefined,
+        `regex-partial-match/core's runtime import graph reaches ${String(moduleFile)} — the lean entry must not load the ${module} module`
+      );
+    }
+  },
+
+  "./modules/carets": async (loaded) => {
+    assert.ok(loaded.default, "no default export");
+    await assertBindsTheCaretsModule(loaded.default);
+  },
+
+  "./modules": async (loaded) => {
+    assert.ok(loaded.carets, "no carets named export");
+    await assertBindsTheCaretsModule(loaded.carets);
+    assert.ok(loaded.backreferences, "no backreferences named export");
+    assert.ok(loaded.features, "no features named export");
+    await assertBindsTheFeaturesModule(loaded.features);
+    const core = (await import(`${packageName}/core`)) as {
+      withModules: typeof withModulesType;
+    };
+    const Both = core.withModules(
+      loaded.carets,
+      loaded.backreferences
+    ) as unknown as PartialMatchRegExpConstructor;
+    assertPartialMatchRegExpBehaves(Both);
+    assert.equal(
+      new Both(/x^a/m).test("x"),
+      false,
+      "binding both modules does not decide a caret after a consuming part"
+    );
+    for (const module of MODULE_NAMES) {
+      const fromBarrel = await bundledBytes(
+        `import { ${module} } from "${packageName}/modules"; export default ${module};`
+      );
+      const fromSubpath = await bundledBytes(
+        `import ${module} from "${packageName}/modules/${module}"; export default ${module};`
+      );
+      assert.equal(
+        fromBarrel,
+        fromSubpath,
+        `importing ${module} from the ./modules barrel bundles to a different size than from ./modules/${module}`
+      );
+    }
+  },
+
+  "./modules/backreferences": async (loaded) => {
+    const core = (await import(`${packageName}/core`)) as {
+      withModules: typeof withModulesType;
+    };
+    const PartialMatchRegExp = core.withModules(
+      loaded.default as Parameters<typeof withModulesType>[0]
+    ) as unknown as PartialMatchRegExpConstructor;
+    assertPartialMatchRegExpBehaves(PartialMatchRegExp);
+  },
+
+  "./modules/features": async (loaded) => {
+    assert.ok(loaded.default, "no default export");
+    await assertBindsTheFeaturesModule(loaded.default);
   }
 };
 

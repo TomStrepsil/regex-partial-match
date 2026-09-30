@@ -85,6 +85,39 @@ const partial = /^hello world/.toPartialMatchRegex();
 partial.test("hel"); // true
 ```
 
+### The lean entry: `regex-partial-match/core`
+
+`regex-partial-match/core` exports a `PartialMatchRegExp` without three sets of rules, so a bundle that doesn't need them can leave them out. Each set is a module you bind back with `withModules`:
+
+| Module | Import | Supplies |
+|---|---|---|
+| `carets` | `regex-partial-match/modules/carets` | the rules for a `^` under the `m` flag that has something before it, and for a `^` in a group or lookaround |
+| `backreferences` | `regex-partial-match/modules/backreferences` | matching a backreference against the text its group captured |
+| `features` | `regex-partial-match/modules/features` | the names [`features`](#partialmatchregexpprototypefeatures-readonlysetregexfeature) reports |
+
+All three are also named exports of `regex-partial-match/modules`.
+
+```javascript
+import PartialMatchRegExp, { withModules } from "regex-partial-match/core";
+import carets from "regex-partial-match/modules/carets";
+import backreferences from "regex-partial-match/modules/backreferences";
+
+new PartialMatchRegExp(/^\d{4}-\d{2}/).test("20"); // true
+
+const WithBoth = withModules(carets, backreferences);
+new WithBoth(/(a|b)\1/).test("a"); // true
+```
+
+`withModules` returns a `PartialMatchRegExp` class of its own, extending `RegExp` as the `core` class does, and the same set of modules in any order returns the same class. With all three modules bound, patterns are transformed exactly as by the default `PartialMatchRegExp`. [`hitEnd()`](#hitendpartial-partialmatchregexp-match-regexpexecarray-boolean) from `regex-partial-match` accepts instances of any of these classes.
+
+Use `core` when you know your patterns. For patterns you don't control, bind `carets` and `backreferences`, or use `regex-partial-match`.
+
+**Without `carets`**, a `^` is accepted outside every group and lookaround and, under the `m` flag, only at the start of the pattern or of a top-level alternative, with nothing before it but `^`, `$`, `\b`, `\B`, a negative lookahead or a lookbehind: `/^a|^b/m` and `/\b^a/m` compile. Any other `^` throws `TypeError: Needs the carets module` when constructed, as `/x^a/m` and `/(?=a)^a/m` do. So does a `^` inside a group or lookaround, even without `m`, as in `/(^a|^b)/` and `/(?m:^a)/`, since the rule that moves such a caret in front of its group is in the carets module. Every pattern `core` accepts is transformed exactly as by the default class.
+
+**Without `backreferences`**, a pattern whose backreference must be matched at run time throws `TypeError: Needs the backreferences module` when constructed, as `/(a)\1/` does. An escape that resolves without it still compiles: in `/x\8y/` there is no group 8, so `\8` is the literal `8`.
+
+**Without `features`**, reading `features` throws `TypeError: Needs the features module`. Construction and matching are unaffected.
+
 ## ⚙️ How It Works
 
 The library wraps each [atomic element](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions#atoms) in a non-capturing group with a disjunction to the true end of the input, so the pattern matches any prefix of what the original would match:
@@ -295,6 +328,8 @@ See [How It Works](./docs/how-it-works.md#why-the-question-cant-be-answered-from
 
 Building the partial-match regex requires walking the entire source pattern once. As a side effect of that same walk, each instance records which syntactic constructs its pattern actually uses, exposed as a `features` set — no separate scan of the source is performed to produce it.
 
+The names come from the features module. On a class from [`regex-partial-match/core`](#the-lean-entry-regex-partial-matchcore) that doesn't bind it, reading `features` throws `TypeError: Needs the features module`.
+
 This is useful for consumers building on top of `PartialMatchRegExp` who need to reason about which constructs a *specific* pattern uses, without writing their own regex parser to find out. Two concrete cases:
 
 - **Flagging patterns likely to hit one of the [caveats](./docs/caveats.md).** For example, a pattern combining `backreference` with `lookbehind`, `negativeLookahead`, or `negativeLookbehind` is a candidate for the [atomic-backreference caveat](./docs/caveats.md#backreferences); one combining `backreference` with `disjunction` is a candidate for the [prefix-ambiguous top-level alternation caveat](./docs/caveats.md#prefix-ambiguous-top-level-alternation). A consumer accepting user-supplied patterns can surface a warning instead of letting the edge case surprise someone later.
@@ -343,7 +378,7 @@ partial.features.has("backreference"); // true
 | `controlLetterEscape`        | `\cX`                                                   |                                                                                 |
 | `hexEscapeSequence`          | `\xXX`                                                  |                                                                                 |
 | `unicodeEscapeSequence`      | `\uXXXX`, `\u{...}`                                     |                                                                                 |
-| `otherEscape`                 | Any other `\X`, e.g. `\.`                               | `\0` alone is tagged `otherEscape` only under `u`/`v`; otherwise `backreference`, [like any other digit escape](docs/backreferences.md) |
+| `otherEscape`                 | Any other `\X`, e.g. `\.`                               | `\0` alone is tagged `otherEscape` only under `u`/`v`; otherwise `backreference`, [like any other digit escape](docs/modules/backreferences.md) |
 
 Three things worth knowing about how these tags line up with the grammar:
 

@@ -4,6 +4,7 @@ import {
   truncationProbeCache
 } from "../partialMatchInternals.ts";
 import matchHitEnd from "./matchHitEnd.ts";
+import probeSourceOf from "./probeSource.ts";
 
 /**
  * Whether the engine reached the end of the input while producing `match` —
@@ -56,10 +57,16 @@ export default function hitEnd(
   partial: PartialMatchRegExp,
   match: RegExpExecArray
 ): boolean {
+  const compiled = partial[compiledPartial];
   return matchHitEnd(
-    partial[compiledPartial],
+    compiled,
     match,
     partial.flags,
-    partial[truncationProbeCache]
+    (partial[truncationProbeCache] ??= {
+      source: probeSourceOf(partial, compiled),
+      probe: undefined,
+      stickyPreScan: undefined,
+      expansion: undefined
+    })
   );
 }

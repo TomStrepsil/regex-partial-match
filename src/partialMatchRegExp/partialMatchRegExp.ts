@@ -1,15 +1,5 @@
-import compilePartial from "./compilePartial/index.ts";
-import renderParts from "./compilePartial/renderParts.ts";
-import type { CompiledPartial, DynamicPath } from "./compilePartial/compiled.ts";
-import {
-  backreferenceExpansion,
-  type ExpandedMatch
-} from "./backreferenceExpansion.ts";
-import {
-  compiledPartial,
-  truncationProbeCache
-} from "./partialMatchInternals.ts";
-import type { TruncationProbeCache } from "./hitEnd/truncationProbeCache.ts";
+import { fullHooks } from "./compilePartial/index.ts";
+import createPartialMatchRegExp from "./createPartialMatchRegExp.ts";
 import type { RegexFeature } from "./regexFeatures.ts";
 
 export type { RegexFeature };
@@ -40,108 +30,7 @@ export type { RegexFeature };
  *
  * @see {@link https://github.com/TomStrepsil/regex-partial-match#readme | Documentation}
  */
-class PartialMatchRegExp extends RegExp {
-  declare [compiledPartial]: CompiledPartial;
-  declare [truncationProbeCache]: TruncationProbeCache;
-
-  constructor(pattern: RegExp | string, flags?: string) {
-    super(pattern, flags);
-    this[compiledPartial] = compilePartial(this);
-    this[truncationProbeCache] = {
-      probe: undefined,
-      stickyPreScan: undefined,
-      expansion: undefined
-    };
-  }
-
-  /**
-   * The syntactic constructs the original pattern uses, recorded as a side
-   * effect of the single walk that builds the partial-match regex.
-   *
-   * The set is built on first read and cached, so patterns that are only ever
-   * matched against never pay for it. It iterates in `RegexFeature` declaration
-   * order, not the order the constructs appear in the pattern.
-   *
-   * @returns The features the original pattern contains
-   *
-   * @example
-   * ```typescript
-   * new PartialMatchRegExp(/^[a-z]+/).features.has("startAnchor"); // true
-   * ```
-   */
-  get features(): ReadonlySet<RegexFeature> {
-    return this[compiledPartial].features;
-  }
-
-  override exec(input: string): RegExpExecArray | null {
-    const compiled = this[compiledPartial];
-    if (compiled.kind === "dynamic")
-      return this._execDynamic(compiled.dynamic, input);
-
-    const { regex } = compiled;
-    const match = execFrom(regex, input, this.lastIndex);
-    this.lastIndex = regex.lastIndex;
-    return match;
-  }
-
-  private _execDynamic(
-    dynamic: DynamicPath,
-    input: string
-  ): RegExpExecArray | null {
-    const { preScan, expand, expansionFitsCaptures } = dynamic;
-
-    const honoursLastIndex = this.global || this.sticky;
-    const start = honoursLastIndex ? this.lastIndex : 0;
-
-    const originalMatch = super.exec(input);
-    if (isAtOrBefore(originalMatch, start)) return originalMatch;
-
-    let preScanMatch: RegExpExecArray | null = null;
-    if (originalMatch) {
-      preScanMatch = execFrom(preScan, input, start);
-      const noEarlierPartialPossible =
-        preScanMatch === null || preScanMatch.index >= originalMatch.index;
-      if (noEarlierPartialPossible) return originalMatch;
-    }
-
-    const capture = preScanMatch ?? execFrom(preScan, input, start);
-    if (capture === null) return originalMatch;
-
-    const scanningFlags = honoursLastIndex ? this.flags : this.flags + "g";
-    let expandedFrom = capture;
-    let expandedParts = expand(expandedFrom);
-    let expanded = new RegExp(renderParts(expandedParts), scanningFlags);
-    let match = execFrom(expanded, input, start);
-
-    if (match !== null && !expansionFitsCaptures(expandedFrom, match, input)) {
-      expandedFrom = match;
-      expandedParts = expand(expandedFrom);
-      expanded = new RegExp(renderParts(expandedParts), scanningFlags);
-      match = execFrom(expanded, input, expandedFrom.index);
-      if (match !== null && !expansionFitsCaptures(expandedFrom, match, input))
-        match = null;
-    }
-
-    if (match === null || isAtOrBefore(originalMatch, match.index))
-      return originalMatch;
-
-    if (honoursLastIndex) this.lastIndex = expanded.lastIndex;
-    (match as ExpandedMatch)[backreferenceExpansion] = expandedParts;
-    return match;
-  }
-}
-
-function execFrom(
-  regex: RegExp,
-  input: string,
-  start: number
-) {
-  regex.lastIndex = start;
-  return regex.exec(input);
-}
-
-function isAtOrBefore(match: RegExpExecArray | null, index: number) {
-  return match !== null && match.index <= index;
-}
+const PartialMatchRegExp = createPartialMatchRegExp(fullHooks);
+type PartialMatchRegExp = InstanceType<typeof PartialMatchRegExp>;
 
 export default PartialMatchRegExp;

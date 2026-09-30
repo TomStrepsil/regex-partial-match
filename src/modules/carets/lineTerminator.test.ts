@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { asOptionalAtom } from "./atomSyntax.ts";
+import { asOptionalAtom } from "../../partialMatchRegExp/atomSyntax.ts";
 import canMatchLineTerminator from "./lineTerminator.ts";
 import {
   CASE_INSENSITIVE,
@@ -8,7 +8,7 @@ import {
   UNICODE,
   UNICODE_SETS,
   flagsOf
-} from "./scope.ts";
+} from "../../partialMatchRegExp/scope.ts";
 
 const LINE_TERMINATORS = ["\n", "\r", " ", " "];
 

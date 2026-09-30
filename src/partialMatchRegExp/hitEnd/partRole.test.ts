@@ -72,8 +72,6 @@ describe("roleOf (pins the exact Part shapes walk() renders, so a future renderi
   it("classifies a numeric backreference", () => {
     const backref: Backreference = {
       ref: 1,
-      start: 0,
-      end: 2,
       caseInsensitive: false
     };
     expect(roleOf(backref)).toBe("backreference");
@@ -82,8 +80,6 @@ describe("roleOf (pins the exact Part shapes walk() renders, so a future renderi
   it("classifies a named backreference", () => {
     const backref: Backreference = {
       ref: "name",
-      start: 0,
-      end: 8,
       caseInsensitive: false
     };
     expect(roleOf(backref)).toBe("backreference");

@@ -10,6 +10,7 @@
         "@typescript/lib-es2018": "file:types/lib-es2018",
         "@typescript/lib-es2022": "file:types/lib-es2022",
         "@vitest/coverage-v8": "^4.1.11",
+        "clean-pkg-json": "^2.0.0",
         "esbuild": "^0.28.1",
         "eslint": "^9.17.0",
         "jiti": "^2.6.1",
@@ -255,6 +256,8 @@
     "chalk": ["chalk@4.1.2", "", { "dependencies": { "ansi-styles": "^4.1.0", "supports-color": "^7.1.0" } }, "sha512-oKnbhFyRIXpUuez8iBMmyEa4nbj4IOQyuhc/wy9kY7/WVPcwIO9VA668Pu8RkO7+0G76SLROeyw9CpQ061i4mA=="],
 
     "character-entities": ["character-entities@2.0.2", "", {}, "sha512-shx7oQ0Awen/BRIdkjkvz54PnEEI/EjwXDSIZp86/KKdbafHh1Df/RYGBhn4hbe2+uKC9FnT5UCEdyPz3ai9hQ=="],
+
+    "clean-pkg-json": ["clean-pkg-json@2.0.0", "", { "bin": { "clean-pkg-json": "dist/index.mjs" } }, "sha512-HfgaeXf7xc2xEg28rKAb6iJ7KaBU6Bu1F+wefBUEm142fYvnn+dKuBg2WEwjv7hIs1S4tu/qdLK9wek03OolBQ=="],
 
     "cli-cursor": ["cli-cursor@5.0.0", "", { "dependencies": { "restore-cursor": "^5.0.0" } }, "sha512-aCj4O5wKyszjMmDT4tZj93kxyydN/K5zPWSCe6/0AV/AA1pqe5ZBIw0a2ZfPQV7lL5/yb5HsUreJ6UFAF1tEQw=="],
 
