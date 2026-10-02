@@ -1,6 +1,6 @@
 # Partial matching with backreferences
 
-Everything here belongs to the backreferences module, `regex-partial-match/modules/backreferences`. `regex-partial-match/core` without it throws `TypeError: Needs the backreferences module` for a pattern that needs the dynamic path below. A pattern that also needs the carets module throws `TypeError: Needs the carets and backreferences modules` instead, and one that needs only that module, with backreferences bound, throws `TypeError: Needs the carets module`.
+_The backreferences module, `regex-partial-match/modules/backreferences`. To bind it, and to see what `core` refuses without it, see [the lean entry](../../README.md#the-lean-entry-regex-partial-matchcore)._
 
 ## 🧩 The problem
 
