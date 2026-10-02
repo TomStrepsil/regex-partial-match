@@ -16,8 +16,8 @@
  *
  * The leftmost bound check group covers a fourth case: a native complete
  * match at a *non-zero* index, where exec() must confirm no earlier partial
- * exists before trusting it (see docs/backreferences.md — "Leftmost bound
- * check"). preScan gives a cheap, sound lower bound: usually it rejects
+ * exists before trusting it (see docs/modules/backreferences.md — "Leftmost 
+ * bound check"). preScan gives a cheap, sound lower bound: usually it rejects
  * outright and the native match wins for a small fixed cost, but it can also
  * be a loose bound, forcing the full slow-path pipeline to run anyway even
  * though the native match still wins in the end.
