@@ -86,6 +86,7 @@ export function walk(
   let outermostRawLookaroundCount = 0;
   let rawLookarounds: RawLookaroundInfo[] | undefined;
   let rawReferences: RawReference[] | undefined;
+  let sourceMaybeHasBackreference: boolean | undefined;
   let lastBodyRunsOut = false;
 
   function extractSlice(length: number) {
@@ -146,7 +147,8 @@ export function walk(
         if (
           rawReferences ||
           (capturingGroupsOpened &&
-            MAYBE_HAS_BACKREFERENCE_REGEX.test(source))
+            (sourceMaybeHasBackreference ??=
+              MAYBE_HAS_BACKREFERENCE_REGEX.test(source)))
         ) {
           (rawLookarounds ??= [])[outermostRawLookaroundCount] = {
             sourceStart: start,
