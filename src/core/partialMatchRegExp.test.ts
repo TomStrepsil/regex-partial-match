@@ -7,14 +7,8 @@ import features from "../partialMatchRegExp/features/index.ts";
 import backreferences from "../modules/backreferences/index.ts";
 
 function renderedOf(partial: RegExp) {
-  const compiled = compiledOf(partial);
-  return compiled.kind === "static"
-    ? {
-        source: compiled.regex.source,
-        flags: compiled.regex.flags,
-        featureMask: compiled.featureMask
-      }
-    : compiled.kind;
+  const { kind, parts, featureMask } = compiledOf(partial);
+  return { kind, parts, featureMask };
 }
 
 function matchesOf(partial: RegExp, inputs: readonly string[]) {
@@ -56,13 +50,8 @@ describe("PartialMatchRegExp from ./core", () => {
     it.each([/^foo/m, /a|^b/m, /\b^a/m, /$^a/m, /^^a/m, /a^b/, /x|a^/, /^(\d+)/])(
       "accepts %s and transforms it exactly as the full class does",
       (pattern) => {
-        const lean = new PartialMatchRegExp(pattern);
-        const full = new FullPartialMatchRegExp(pattern);
-        expect(compiledOf(lean).parts).toEqual(
-          compiledOf(full).parts
-        );
-        expect(compiledOf(lean).featureMask).toBe(
-          compiledOf(full).featureMask
+        expect(renderedOf(new PartialMatchRegExp(pattern))).toEqual(
+          renderedOf(new FullPartialMatchRegExp(pattern))
         );
       }
     );
@@ -97,10 +86,7 @@ describe("PartialMatchRegExp from ./core", () => {
   ])("transforms %s exactly as the full class does", (pattern, inputs) => {
     const lean = new PartialMatchRegExp(pattern);
     const full = new FullPartialMatchRegExp(pattern);
-    expect(compiledOf(lean).parts).toEqual(compiledOf(full).parts);
-    expect(compiledOf(lean).featureMask).toBe(
-      compiledOf(full).featureMask
-    );
+    expect(renderedOf(lean)).toEqual(renderedOf(full));
     expect(matchesOf(lean, inputs)).toEqual(matchesOf(full, inputs));
   });
 
@@ -177,10 +163,9 @@ describe("PartialMatchRegExp from ./core refuses a pattern exactly when a backre
     "accepts /%s/, whose escape is compiled statically",
     (source) => {
       const pattern = new RegExp(source);
-      const lean = compiledOf(new PartialMatchRegExp(pattern));
-      const full = compiledOf(new FullPartialMatchRegExp(pattern));
+      const lean = renderedOf(new PartialMatchRegExp(pattern));
       expect(lean.kind).toBe("static");
-      expect(lean.parts).toEqual(full.parts);
+      expect(lean).toEqual(renderedOf(new FullPartialMatchRegExp(pattern)));
     }
   );
 });
