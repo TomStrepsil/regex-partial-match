@@ -17,11 +17,12 @@
 
 import { bench, group } from "mitata";
 import compilePartial from "../../../lib/partialMatchRegExp/compilePartial/index.js";
+import { CompiledStatic } from "../../../lib/partialMatchRegExp/compilePartial/compiled.js";
 import PartialMatchRegExp from "../../../lib/partialMatchRegExp/index.js";
 
 function staticPartial(pattern: RegExp) {
   const compiled = compilePartial(pattern);
-  if (compiled.kind !== "static") {
+  if (!(compiled instanceof CompiledStatic)) {
     throw new Error("expected a static (backreference-free) pattern");
   }
   return compiled.regex;

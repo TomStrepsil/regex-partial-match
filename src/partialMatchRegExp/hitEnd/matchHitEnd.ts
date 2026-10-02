@@ -1,5 +1,8 @@
 import { buildTruncationProbe, tookTruncationBranch } from "./truncationProbe.ts";
-import type { CompiledPartial } from "../compilePartial/compiled.ts";
+import {
+  CompiledStatic,
+  type CompiledPartial
+} from "../compilePartial/compiled.ts";
 import type { CompiledDynamic } from "../../modules/backreferences/compiledDynamic.ts";
 import {
   backreferenceExpansion,
@@ -16,9 +19,9 @@ export default function matchHitEnd(
   cache: TruncationProbeCache
 ) {
   const probe =
-    compiled.kind === "dynamic"
-      ? dynamicProbe(compiled, match, flags, cache)
-      : unexpandedProbe(compiled, flags, cache);
+    compiled instanceof CompiledStatic
+      ? unexpandedProbe(compiled, flags, cache)
+      : dynamicProbe(compiled, match, flags, cache);
   return tookTruncationBranch(probe, match.input, match.index);
 }
 

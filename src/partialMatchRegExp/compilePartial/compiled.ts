@@ -35,7 +35,6 @@ export abstract class Compiled {
 }
 
 export class CompiledStatic extends Compiled {
-  readonly kind = "static";
   readonly honoursLastIndex: boolean;
 
   constructor(

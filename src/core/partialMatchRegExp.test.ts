@@ -2,13 +2,14 @@ import { describe, it, expect } from "vitest";
 import PartialMatchRegExp from "./partialMatchRegExp.ts";
 import FullPartialMatchRegExp from "../partialMatchRegExp/partialMatchRegExp.ts";
 import { compiledOf } from "../partialMatchRegExp/partialMatchInternals.ts";
+import { CompiledStatic } from "../partialMatchRegExp/compilePartial/compiled.ts";
 import withModules from "../partialMatchRegExp/withModules.ts";
 import features from "../partialMatchRegExp/features/index.ts";
 import backreferences from "../modules/backreferences/index.ts";
 
 function renderedOf(partial: RegExp) {
-  const { kind, parts, featureMask } = compiledOf(partial);
-  return { kind, parts, featureMask };
+  const { constructor, parts, featureMask } = compiledOf(partial);
+  return { constructor, parts, featureMask };
 }
 
 function matchesOf(partial: RegExp, inputs: readonly string[]) {
@@ -164,7 +165,7 @@ describe("PartialMatchRegExp from ./core refuses a pattern exactly when a backre
     (source) => {
       const pattern = new RegExp(source);
       const lean = renderedOf(new PartialMatchRegExp(pattern));
-      expect(lean.kind).toBe("static");
+      expect(lean.constructor).toBe(CompiledStatic);
       expect(lean).toEqual(renderedOf(new FullPartialMatchRegExp(pattern)));
     }
   );

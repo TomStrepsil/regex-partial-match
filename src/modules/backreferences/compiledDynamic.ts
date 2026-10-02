@@ -14,7 +14,6 @@ export interface DynamicPath {
 }
 
 export class CompiledDynamic extends Compiled {
-  readonly kind = "dynamic";
   readonly execDynamic = execDynamic;
 
   constructor(
