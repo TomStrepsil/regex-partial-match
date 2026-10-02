@@ -137,6 +137,17 @@ export function narrowsCoreSubclass(value: unknown): CoreExtended | undefined {
   return value instanceof CoreExtended ? value : undefined;
 }
 
+/* eslint-disable @typescript-eslint/no-deprecated -- RegExp's legacy statics are deprecated, but the class still inherits them */
+export const inheritedStatics: string[] = [
+  PartialMatchRegExp.$1,
+  PartialMatchRegExp.input,
+  PartialMatchRegExp.lastMatch,
+  CorePartialMatchRegExp.$1,
+  CorePartialMatchRegExp.input,
+  CorePartialMatchRegExp.lastMatch
+];
+/* eslint-enable @typescript-eslint/no-deprecated */
+
 export const modules: Module[] = [carets, backreferences];
 
 export const sameModuleType: ModuleFromModules[] = modules;
@@ -148,6 +159,8 @@ export const bindsNamedModules: PartialMatchRegExpConstructor = withModules(
 export const misuse = [
   // @ts-expect-error a class constructor needs `new`
   () => void PartialMatchRegExp(/a/),
+  // @ts-expect-error a class constructor needs `new`, though RegExp's statics are kept
+  () => void PartialMatchRegExp("a"),
   // @ts-expect-error a pattern is a RegExp or a string
   () => void new PartialMatchRegExp(1),
   // @ts-expect-error flags are a string

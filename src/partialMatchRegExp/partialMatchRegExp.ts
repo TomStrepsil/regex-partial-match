@@ -20,7 +20,8 @@ interface PartialMatchRegExp extends RegExp {
  * The type of a `PartialMatchRegExp` class, from any entry point or
  * `withModules`.
  */
-interface PartialMatchRegExpConstructor {
+interface PartialMatchRegExpConstructor
+  extends Omit<RegExpConstructor, "prototype" | typeof Symbol.species> {
   new (pattern: RegExp | string, flags?: string): PartialMatchRegExp;
   readonly prototype: PartialMatchRegExp;
   readonly [Symbol.species]: PartialMatchRegExpConstructor;
