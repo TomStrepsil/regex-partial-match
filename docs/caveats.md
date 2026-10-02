@@ -152,6 +152,7 @@ const partial = new PartialMatchRegExp(/hello/y);
 
 partial.lastIndex = 2;
 partial.test("xyhello"); // true  — partial match at position 2
+partial.lastIndex = 2;
 partial.test("xyworld"); // false — no match at position 2, no forward scan
 partial.lastIndex = 2;
 partial.test("xyhel"); // true  — partial prefix "hel" at position 2
