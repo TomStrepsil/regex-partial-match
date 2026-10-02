@@ -1,8 +1,5 @@
 import withModules from "../partialMatchRegExp/withModules.ts";
-import type {
-  PartialMatchRegExp as PartialMatchRegExpInstance,
-  PartialMatchRegExpConstructor
-} from "../partialMatchRegExp/partialMatchRegExp.ts";
+import type { PartialMatchRegExpConstructor } from "../partialMatchRegExp/partialMatchRegExp.ts";
 
 /**
  * `PartialMatchRegExp` without the rules that place a `^` in a group or after
@@ -29,10 +26,7 @@ import type {
  * @see {@link https://github.com/TomStrepsil/regex-partial-match#readme | Documentation}
  */
 const PartialMatchRegExp: PartialMatchRegExpConstructor = withModules();
-type PartialMatchRegExp = PartialMatchRegExpInstance;
+type PartialMatchRegExp = InstanceType<typeof PartialMatchRegExp>;
 
 export default PartialMatchRegExp;
-export type {
-  PartialMatchRegExpInstance as PartialMatchRegExp,
-  PartialMatchRegExpConstructor
-};
+export type { PartialMatchRegExp, PartialMatchRegExpConstructor };
