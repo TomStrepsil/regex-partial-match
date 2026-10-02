@@ -86,7 +86,22 @@ The information only exists during matching. `hitEnd()` recovers it by re-runnin
 
 Recognising a truncation branch, a raw lookaround, or a group open back out of the rendered pattern is one classification, shared by every pass that needs it, rather than re-derived independently wherever it's needed.
 
-The twin is built lazily, on first use, and never escapes the library — the array, `groups`, numbering and `d`-flag indices you hold are the ones `exec()` produced. The twin needs two things beyond the rendered pattern: the backreferences inside each raw lookaround, renumbered past the markers before them, and the group names a marker must not reuse. Construction's walk records a raw lookaround only when it holds a backreference, or when it opens a group and the source may hold a backreference anywhere (a `\1` or a `\k<name>`), so a pattern with neither records nothing. The first `hitEnd()` on an instance asks the engine for the declared names, only when the source may declare one, so an instance that never calls `hitEnd()` never pays for them. It is cached once per instance for a pattern without [backreferences](./caveats.md#backreferences); for one with them the pattern is re-expanded per input, so the twin belongs to an expansion. A match the native pattern found outright has no expansion behind it, so the capture scan is re-run sticky at its index and the twin built from what that resolves, which is how a backreference that ran out part way through its capture is seen (`/(ab)\1|a/` on `"aba"` returns `"a"` and `hitEnd()` is `true`). The last expansion is kept per instance, whether `exec()` expanded the match or `hitEnd()` resolved it, so a caller whose capture is stable as the input grows builds that twin once. Where the scan resolves nothing, the un-expanded twin is used, which follows the transformed pattern's own alternative order, so a higher-priority alternative that ran out of input behind a native match is still reported (`/(a)\1b|a/` on `"aa"` returns `"a"` and `hitEnd()` is `true`).
+The marked copy, the twin, is built on first use and stays inside the library: the array, `groups`, numbering and `d`-flag indices you hold are the ones `exec()` produced.
+
+Beyond the rendered pattern, the twin needs:
+
+- **The backreferences inside each raw lookaround**, renumbered past the markers before them. Construction records a raw lookaround only when it holds a backreference, or when it opens a group and the source may hold a `\1` or `\k<name>` anywhere.
+- **The group names a marker must not reuse.** The first `hitEnd()` asks the engine for them, and only when the source may declare one.
+
+So a pattern with neither records nothing, and an instance that never calls `hitEnd()` never pays for the names.
+
+Without [backreferences](./caveats.md#backreferences), one twin is cached per instance. With them, the pattern is re-expanded per input, so each twin belongs to an expansion:
+
+- **A match `exec()` expanded** uses that expansion's twin.
+- **A match the native pattern found outright** has no expansion behind it. The capture scan is re-run sticky at its index, and the twin is built from what it resolves. That is how a backreference that ran out part way through its capture is seen: `/(ab)\1|a/` on `"aba"` returns `"a"`, and `hitEnd()` is `true`.
+- **Where the scan resolves nothing**, the un-expanded twin is used. It follows the transformed pattern's own alternative order, so a higher-priority alternative that ran out of input behind a native match is still reported: `/(a)\1b|a/` on `"aa"` returns `"a"`, and `hitEnd()` is `true`.
+
+The last expansion is kept per instance, from either path, so while a capture stays the same as the input grows, its twin is built once.
 
 > [!NOTE]
 > See [Partial Match Parity](./partial-match-parity.md) for full details on how the library compares to reference implementations
