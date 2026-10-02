@@ -1,6 +1,6 @@
 # Carets
 
-Everything here belongs to the carets module, `regex-partial-match/modules/carets`. `regex-partial-match/core` without it accepts a caret only where its position is fixed, as [How It Works](../how-it-works.md#-a-caret-whose-position-is-fixed) describes, and throws `TypeError: Needs the carets module` for any other. A pattern that also needs the backreferences module throws `TypeError: Needs the carets and backreferences modules` instead, and one that needs only that module, with carets bound, throws `TypeError: Needs the backreferences module`.
+_The carets module, `regex-partial-match/modules/carets`. To bind it, and to see which carets `core` accepts without it, see [the lean entry](../../README.md#the-lean-entry-regex-partial-matchcore)._
 
 ## ⏱️ When the rules run
 
