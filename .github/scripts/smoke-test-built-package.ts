@@ -510,13 +510,6 @@ function declarationFileOf(reference: string, referrer: URL): URL {
   return found;
 }
 
-/**
- * Everything a consumer's compiler reaches from `types`: each declaration file
- * through `import`/`export … from`, side-effect `import "…"`, `import("…")`
- * types, `declare module "…"` and `/// <reference path>`, plus each package
- * named by a non-relative specifier or `/// <reference types>`. Each is mapped
- * to the file that first reached it, or to `undefined` for `types` itself.
- */
 async function declarationsReachedFrom(
   types: URL
 ): Promise<Map<string, string | undefined>> {
