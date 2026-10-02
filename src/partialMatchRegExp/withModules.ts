@@ -3,6 +3,7 @@ import type { Module } from "./module.ts";
 import {
   BACKREFERENCES_MODULE,
   CARETS_MODULE,
+  definedModuleHooks,
   moduleHooks,
   type HooksOfModule
 } from "./moduleHooks.ts";
@@ -35,6 +36,7 @@ export default function withModules(
     const bound = module && module[moduleHooks];
     if (
       !bound ||
+      !definedModuleHooks.has(bound) ||
       (bound.bit !== CARETS_MODULE && bound.bit !== BACKREFERENCES_MODULE)
     )
       throw new TypeError("Not a module");

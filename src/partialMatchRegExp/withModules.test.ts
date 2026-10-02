@@ -237,7 +237,18 @@ describe("withModules refuses anything but a module from regex-partial-match/mod
       "the internal brand holding a bit as a string",
       ({ brand }) => [{ [brand]: { bit: "1" } }]
     ],
-    ["the internal brand holding nothing", ({ brand }) => [{ [brand]: null }]]
+    ["the internal brand holding nothing", ({ brand }) => [{ [brand]: null }]],
+    [
+      "the carets module's brand, found by reflection, holding hooks of its own",
+      ({ carets }) => [
+        {
+          [Object.getOwnPropertySymbols(carets)[0]]: {
+            bit: 1,
+            caret: () => undefined
+          }
+        }
+      ]
+    ]
   ];
 
   const loadedGraph: Graph = {
@@ -291,6 +302,14 @@ describe("withModules refuses anything but a module from regex-partial-match/mod
     expect(withModules({ ...carets }, { ...backreferences })).toBe(
       FullPartialMatchRegExp
     );
+  });
+
+  it("binds an object holding the carets module's own hooks under its brand as the module itself", () => {
+    const [brand] = Object.getOwnPropertySymbols(carets);
+    const sharingHooks = {
+      [brand]: (carets as unknown as Record<symbol, unknown>)[brand]
+    } as unknown as Module;
+    expect(withModules(sharingHooks)).toBe(withModules(carets));
   });
 
   it("binds the module's own rules from a copy whose visible members were changed before any class was built", async () => {
