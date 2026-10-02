@@ -1,4 +1,4 @@
-# Partial matching with backreferences
+# 🔙 Backreferences
 
 _The backreferences module, `regex-partial-match/modules/backreferences`. To bind it, and to see what `core` refuses without it, see [the lean entry](../../README.md#the-lean-entry-regex-partial-matchcore)._
 

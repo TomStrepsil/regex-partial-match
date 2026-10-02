@@ -1,4 +1,4 @@
-# Carets
+# 👇 Carets
 
 _The carets module, `regex-partial-match/modules/carets`. To bind it, and to see which carets `core` accepts without it, see [the lean entry](../../README.md#the-lean-entry-regex-partial-matchcore)._
 
