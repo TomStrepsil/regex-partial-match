@@ -121,7 +121,7 @@ interface ExportEntry {
  * the same reasoning a manual `esbuild --bundle` check would apply by hand,
  * automated instead of eyeballed.
  */
-async function transitiveRuntimeImports(entry: URL): Promise<Set<string>> {
+async function transitiveRuntimeImports(entry: URL) {
   const { metafile } = await build({
     entryPoints: [fileURLToPath(entry)],
     absWorkingDir: fileURLToPath(BUILT_OUTPUT),
@@ -147,7 +147,7 @@ function builtEntryUrl(entry: ExportEntry): URL {
 
 function assertPartialMatchRegExpBehaves(
   PartialMatchRegExp: PartialMatchRegExpConstructor
-): void {
+) {
   const partial = new PartialMatchRegExp(/^(\w+) \1 end$/);
   assert.equal(partial.test("abc ab"), true, "does not accept a prefix");
   assert.equal(
@@ -165,7 +165,7 @@ function assertPartialMatchRegExpBehaves(
 function fileIn(
   reached: Set<string>,
   files: readonly string[]
-): string | undefined {
+) {
   return [...reached].find((href) => files.some((file) => href.includes(file)));
 }
 
@@ -173,7 +173,7 @@ async function assertNeverReaches(
   specifier: string,
   builtFile: URL,
   names: readonly FunctionName[]
-): Promise<void> {
+) {
   const reached = await transitiveRuntimeImports(builtFile);
   for (const name of names) {
     const file = fileIn(reached, FUNCTION_FILES[name]);
@@ -188,7 +188,7 @@ async function assertNeverReaches(
 async function assertNeverReachesModules(
   specifier: string,
   builtFile: URL
-): Promise<void> {
+) {
   const reached = await transitiveRuntimeImports(builtFile);
   for (const module of MODULE_NAMES) {
     const file = fileIn(reached, MODULE_FILES[module]);
@@ -200,17 +200,14 @@ async function assertNeverReachesModules(
   }
 }
 
-async function importCore(): Promise<{
-  default: PartialMatchRegExpConstructor;
-  withModules: typeof withModulesType;
-}> {
+async function importCore() {
   return (await import(`${packageName}/core`)) as {
     default: PartialMatchRegExpConstructor;
     withModules: typeof withModulesType;
   };
 }
 
-async function bundledBytes(contents: string): Promise<number> {
+async function bundledBytes(contents: string) {
   const { outputFiles } = await build({
     stdin: { contents, resolveDir: fileURLToPath(BUILT_OUTPUT) },
     bundle: true,
@@ -227,7 +224,7 @@ async function bundledBytes(contents: string): Promise<number> {
 
 async function assertBindsTheCaretsModule(
   carets: unknown
-): Promise<void> {
+) {
   const { withModules } = await importCore();
   const PartialMatchRegExp = withModules(
     carets as Parameters<typeof withModulesType>[0]
@@ -242,7 +239,7 @@ async function assertBindsTheCaretsModule(
 function assertFeaturesBehaves(
   PartialMatchRegExp: PartialMatchRegExpConstructor,
   features: typeof featuresType
-): void {
+) {
   const partial = new PartialMatchRegExp(/^a/);
   assert.deepEqual(
     [...features(partial)],
@@ -259,7 +256,7 @@ function assertFeaturesBehaves(
 function assertHitEndBehaves(
   PartialMatchRegExp: PartialMatchRegExpConstructor,
   hitEnd: typeof hitEndType
-): void {
+) {
   const partial = new PartialMatchRegExp(/(\w+) \1 end/);
 
   const prefix = partial.exec("abc ab");
@@ -491,7 +488,7 @@ interface Reach {
   through: string | undefined;
 }
 
-function packagePathOf(file: URL): string {
+function packagePathOf(file: URL) {
   return file.href.slice(PACKAGE_ROOT.href.length);
 }
 
@@ -512,7 +509,7 @@ function declarationFileOf(reference: string, referrer: URL): URL {
 
 async function declarationsReachedFrom(
   types: URL
-): Promise<Map<string, string | undefined>> {
+) {
   const reached = new Map<string, string | undefined>([
     [packagePathOf(types), undefined]
   ]);
@@ -555,7 +552,7 @@ async function declarationsReachedFrom(
 
 async function assertTypingsReachOnlyPublicDeclarations(
   exportsManifest: Record<string, ExportEntry>
-): Promise<void> {
+) {
   const reachedBy = new Map<string, Reach>();
   for (const [subpath, entry] of Object.entries(exportsManifest)) {
     const specifier = toSpecifier(packageName, subpath);
@@ -592,7 +589,7 @@ async function assertTypingsReachOnlyPublicDeclarations(
   );
 }
 
-async function assertBuiltOutputParsesAtSupportedEcmaVersion(): Promise<void> {
+async function assertBuiltOutputParsesAtSupportedEcmaVersion() {
   const linter = new Linter();
   const entries = await readdir(BUILT_OUTPUT, { recursive: true });
   const emitted = entries.filter((entry) => entry.endsWith(".js"));
@@ -623,7 +620,7 @@ async function assertBuiltOutputParsesAtSupportedEcmaVersion(): Promise<void> {
   }
 }
 
-async function readExportsManifest(): Promise<Record<string, ExportEntry>> {
+async function readExportsManifest() {
   const manifest = await readFile(
     new URL("../../package.json", import.meta.url),
     "utf8"
@@ -634,11 +631,11 @@ async function readExportsManifest(): Promise<Record<string, ExportEntry>> {
   return exports;
 }
 
-function toSpecifier(packageName: string, subpath: string): string {
+function toSpecifier(packageName: string, subpath: string) {
   return subpath === "." ? packageName : `${packageName}${subpath.slice(1)}`;
 }
 
-async function main(): Promise<void> {
+async function main() {
   await assertBuiltOutputParsesAtSupportedEcmaVersion();
 
   const exportsManifest = await readExportsManifest();

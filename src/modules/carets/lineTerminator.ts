@@ -17,7 +17,7 @@ const ESCAPE = "\\";
 const ANY_CHARACTER = ".";
 const STRING_SET_ESCAPE = /\\q\{/;
 
-function knownMatch(text: string, scope: number): boolean | undefined {
+function knownMatch(text: string, scope: number) {
   if (text === ANY_CHARACTER) return (scope & DOT_ALL) !== 0;
   if (text.length === 1) return LINE_TERMINATORS.indexOf(text) !== -1;
   if ((scope & UNICODE_SETS) !== 0 && STRING_SET_ESCAPE.test(text)) return true;

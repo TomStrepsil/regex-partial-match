@@ -12,7 +12,7 @@ export type PartRole =
   | "truncationEnd"
   | "plain";
 
-function isGroupOpen(part: string): boolean {
+function isGroupOpen(part: string) {
   return (
     part === "(" ||
     (part.startsWith(NAMED_GROUP_OPENING) && !isRawLookaround(part))

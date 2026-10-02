@@ -15,7 +15,7 @@ export default function createPartialMatchRegExp(
       this[compiledPartial] = compileWith(this, hooks);
     }
 
-    override exec(input: string): RegExpExecArray | null {
+    override exec(input: string) {
       const compiled = this[compiledPartial];
       if (compiled.kind === "dynamic")
         return compiled.execDynamic.call(this, compiled.dynamic, input);

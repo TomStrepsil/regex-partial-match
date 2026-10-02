@@ -43,7 +43,7 @@ import hitEnd from "../../../lib/partialMatchRegExp/hitEnd/index.js";
 function matchOrThrow(
   partial: PartialMatchRegExp,
   input: string
-): RegExpExecArray {
+) {
   const match = partial.exec(input);
   if (match === null) {
     throw new Error(`no match for ${JSON.stringify(input)}`);

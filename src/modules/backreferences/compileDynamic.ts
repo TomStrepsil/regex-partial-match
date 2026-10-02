@@ -26,7 +26,7 @@ export default function compileDynamic(
   isUnicode: boolean,
   featureMask: number,
   hooks: Hooks
-): CompiledDynamic {
+) {
   const dynamic: DynamicPath = {
     preScan: new RegExp(parts.map(asPreScanPart).join(""), flags),
     expansionFitsCaptures: (expandedFrom, match, input) => {

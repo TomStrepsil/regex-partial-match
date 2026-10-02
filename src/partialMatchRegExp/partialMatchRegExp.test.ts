@@ -590,7 +590,7 @@ describe("PartialMatchRegExp", () => {
   });
 
   describe("lastIndex, and a frozen instance, as native RegExp treats them", () => {
-    it.each<[string, string, string]>([
+    it.each([
       ["ab", "", "xab"],
       ["ab", "", "xa"],
       ["^ab", "", "x"],
@@ -624,7 +624,7 @@ describe("PartialMatchRegExp", () => {
       }
     );
 
-    it.each<[string, string, string]>([
+    it.each([
       ["ab", "g", "xab"],
       ["ab", "y", "ab"],
       ["^ab", "g", "x"],
@@ -938,7 +938,7 @@ describe("PartialMatchRegExp", () => {
           "\u0020",
           "\u00a0",
           "\u1680",
-          ...Array.from(Array(11).keys()).map((i: number) =>
+          ...Array.from(Array(11).keys()).map((i) =>
             String.fromCharCode(0x2000 + i)
           ),
           "\u2028",

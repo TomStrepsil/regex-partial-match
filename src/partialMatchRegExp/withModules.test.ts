@@ -93,7 +93,7 @@ describe("withModules", () => {
     expect(() => new Bound(/(a)\1/)).toThrow(/backreferences module/);
   });
 
-  it.each<[string, Module, RegExp, string]>([
+  it.each([
     ["carets", carets, /(a)\1/, "Needs the backreferences module"],
     ["carets", carets, /(a)\1(^b)/, "Needs the backreferences module"],
     ["backreferences", backreferences, /(^a)/, "Needs the carets module"],
@@ -129,7 +129,7 @@ describe("withModules", () => {
       else expect(match).toMatchAt(expected);
     });
 
-    it.each<[RegExp, boolean[]]>([
+    it.each([
       [/(a)(?i:\1)\1/, [true, false]],
       [/(a)(?-i:\1)/i, [false]]
     ])(
@@ -144,7 +144,7 @@ describe("withModules", () => {
     );
   });
 
-  it.each<[RegExp, number]>([
+  it.each([
     [/^a/m, 0],
     [/^a|^b/m, 0],
     [/a$/m, 0],

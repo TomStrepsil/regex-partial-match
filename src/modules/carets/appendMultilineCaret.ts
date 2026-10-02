@@ -49,7 +49,7 @@ export function partDecidingCaret(
   scope: number,
   lookaheadSpans: LookaheadSpan[] | undefined,
   spanOffset: number
-): number {
+) {
   while (index > floor) {
     const part = result[index];
     if (lookaheadSpans !== undefined) {
@@ -219,7 +219,7 @@ function appendMultilineCaret(
   lastGroupLookaheadSpans: LookaheadSpan[] | undefined,
   lookaheadSpans: LookaheadSpan[] | undefined,
   scope: number
-): number {
+) {
   const caret = caretFor(scope);
   let lookedThroughGroup = false;
   let anchor = partDecidingCaret(

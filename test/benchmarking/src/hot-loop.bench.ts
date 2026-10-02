@@ -26,7 +26,7 @@ const nativeGlobal = /\b\w+\b/g;
 const partialGlobal = new PartialMatchRegExp(/\b\w+\b/, "g");
 const partialGlobalForMatchAll = new PartialMatchRegExp(/\b\w+\b/, "g");
 
-function execAll(re: RegExp, input: string): void {
+function execAll(re: RegExp, input: string) {
   re.lastIndex = 0;
   let match;
   while ((match = re.exec(input)) !== null) {

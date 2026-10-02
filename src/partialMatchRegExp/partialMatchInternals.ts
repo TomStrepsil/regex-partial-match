@@ -6,7 +6,7 @@ interface PartialMatchInternals {
   [compiledPartial]: CompiledPartial;
 }
 
-export function compiledOf(partial: RegExp): CompiledPartial {
+export function compiledOf(partial: RegExp) {
   return (partial as RegExp & PartialMatchInternals)[compiledPartial];
 }
 

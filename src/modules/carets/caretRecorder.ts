@@ -98,7 +98,7 @@ export default function caretRecorder(): CaretRecorder {
   let caretsSeen = 0;
   let verbatimMultilineCarets = 0;
 
-  return (result: Part[], scope: number): CaretFrame => {
+  return (result, scope): CaretFrame => {
     const caretsBefore = caretsSeen;
     const verbatimMultilineCaretsBefore = verbatimMultilineCarets;
     let lastGroupOpen = -1;
@@ -111,12 +111,12 @@ export default function caretRecorder(): CaretRecorder {
 
     return ((
       event: number,
-      body: Part[],
-      groupScope: number,
-      source: string,
-      i: number,
-      closing: string,
-      containsRawLookaround: boolean
+      body,
+      groupScope,
+      source,
+      i,
+      closing,
+      containsRawLookaround
     ) => {
       if (event === ON_CARET) {
         caretsSeen++;

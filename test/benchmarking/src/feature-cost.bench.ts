@@ -52,7 +52,7 @@ import { bench, group } from "mitata";
 import compilePartial from "../../../lib/partialMatchRegExp/compilePartial/index.js";
 import PartialMatchRegExp from "../../../lib/partialMatchRegExp/index.js";
 
-function emittedPartCount(pattern: RegExp): number {
+function emittedPartCount(pattern: RegExp) {
   const compiled = compilePartial(pattern);
   if (compiled.kind !== "static") {
     throw new Error(

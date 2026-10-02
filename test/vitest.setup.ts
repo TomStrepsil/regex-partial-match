@@ -6,7 +6,7 @@ import type { ToMatchAtParams, ToMatchPartiallyParams, ToNotMatchPartiallyParams
 export function hitEndOf(
   regex: PartialMatchRegExp,
   input: string
-): boolean | null {
+) {
   const match = regex.exec(input);
   return match === null ? null : hitEnd(regex, match);
 }

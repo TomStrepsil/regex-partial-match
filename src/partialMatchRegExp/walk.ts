@@ -75,12 +75,7 @@ export function walk(
   caretRecorder: CaretRecorder | undefined,
   backreferenceRecorder: BackreferenceRecorder | undefined,
   withModifiers: Hooks["modifiers"]
-): {
-  parts: Part[];
-  featureMask: number;
-  needs: number;
-  rawLookarounds: RawLookaroundInfo[] | undefined;
-} {
+) {
   const source = regex.source;
 
   let i = 0;

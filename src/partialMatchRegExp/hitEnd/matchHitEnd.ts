@@ -1,8 +1,4 @@
-import {
-  buildTruncationProbe,
-  tookTruncationBranch,
-  type TruncationProbe
-} from "./truncationProbe.ts";
+import { buildTruncationProbe, tookTruncationBranch } from "./truncationProbe.ts";
 import type { CompiledPartial } from "../compilePartial/compiled.ts";
 import type { CompiledDynamic } from "../../modules/backreferences/compiledDynamic.ts";
 import {
@@ -18,7 +14,7 @@ export default function matchHitEnd(
   match: RegExpExecArray,
   flags: string,
   cache: TruncationProbeCache
-): boolean {
+) {
   const probe =
     compiled.kind === "dynamic"
       ? dynamicProbe(compiled, match, flags, cache)
@@ -31,7 +27,7 @@ function dynamicProbe(
   match: RegExpExecArray,
   flags: string,
   cache: TruncationProbeCache
-): TruncationProbe {
+) {
   const parts =
     (match as ExpandedMatch)[backreferenceExpansion] ??
     expandedPartsAt(compiled, match, flags, cache);
@@ -48,7 +44,7 @@ function unexpandedProbe(
   compiled: CompiledPartial,
   flags: string,
   cache: TruncationProbeCache
-): TruncationProbe {
+) {
   return (cache.probe ??= probeOf(compiled.parts, flags, cache));
 }
 
@@ -56,7 +52,7 @@ function probeOf(
   parts: readonly Part[],
   flags: string,
   { source }: TruncationProbeCache
-): TruncationProbe {
+) {
   return buildTruncationProbe(
     parts,
     source.rawLookarounds,
@@ -70,7 +66,7 @@ function expandedPartsAt(
   match: RegExpExecArray,
   flags: string,
   cache: TruncationProbeCache
-): Part[] | undefined {
+) {
   const { preScan, expand } = compiled.dynamic;
   cache.stickyPreScan ??= new RegExp(
     preScan.source,
@@ -84,7 +80,7 @@ function expandedPartsAt(
   return parts.length === compiled.parts.length ? undefined : parts;
 }
 
-function sameParts(cached: readonly Part[], parts: readonly Part[]): boolean {
+function sameParts(cached: readonly Part[], parts: readonly Part[]) {
   if (cached.length !== parts.length) return false;
   for (let index = 0; index < parts.length; index++) {
     if (cached[index] !== parts[index]) return false;

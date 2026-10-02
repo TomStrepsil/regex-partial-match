@@ -3,7 +3,6 @@ import backreferences from "../../modules/backreferences/index.ts";
 import type { Hooks } from "../walk.ts";
 import { moduleHooks, type HooksOfModule } from "../moduleHooks.ts";
 import compileWith from "./compileWith.ts";
-import type { CompiledPartial } from "./compiled.ts";
 
 const fullHooks: Hooks = Object.assign(
   {},
@@ -11,6 +10,6 @@ const fullHooks: Hooks = Object.assign(
   (backreferences as unknown as HooksOfModule)[moduleHooks]
 );
 
-export default function compilePartial(regex: RegExp): CompiledPartial {
+export default function compilePartial(regex: RegExp) {
   return compileWith(regex, fullHooks);
 }

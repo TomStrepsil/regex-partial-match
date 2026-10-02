@@ -3,7 +3,7 @@ import escapeAtom from "./escapeAtom.ts";
 
 const METACHARACTERS = [".", "*", "+", "?", "^", "$", "{", "}", "(", ")", "|", "[", "]", "\\"];
 
-function runContractTests(escape: (s: string) => string): void {
+function runContractTests(escape: (s: string) => string) {
   it("returns an empty string unchanged", () => {
     expect(escape("")).toBe("");
   });

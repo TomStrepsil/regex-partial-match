@@ -100,7 +100,7 @@ function groupShiftTable(
   markings: readonly Marking[],
   rawLookarounds: RawLookarounds
 ) {
-  const shiftForGroup: number[] = [0];
+  const shiftForGroup = [0];
   let markerCount = 0;
   let rawLookaroundIndex = 0;
 
@@ -261,7 +261,7 @@ export const tookTruncationBranch = (
   probe: TruncationProbe,
   input: string,
   index: number
-): boolean => {
+) => {
   const { regex, markerName, markerCount } = probe;
   regex.lastIndex = index;
   const probed = regex.exec(input);

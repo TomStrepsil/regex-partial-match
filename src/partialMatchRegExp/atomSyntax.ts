@@ -28,7 +28,7 @@ export const isOptionalAtom = (part: Part | undefined): part is string =>
   part.startsWith(OPTIONAL_ATOM_OPENING) &&
   part.endsWith(DISJUNCTION_TO_END_OF_INPUT);
 
-export function isRawLookaround(part: string): boolean {
+export function isRawLookaround(part: string) {
   return (
     part.startsWith("(?!") ||
     (part.startsWith(NAMED_GROUP_OPENING) &&

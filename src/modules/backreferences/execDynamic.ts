@@ -13,7 +13,7 @@ export default function execDynamic(
   this: RegExp,
   dynamic: DynamicPath,
   input: string
-): RegExpExecArray | null {
+) {
   const { preScan, expand, expansionFitsCaptures } = dynamic;
 
   const honoursLastIndex = this.global || this.sticky;

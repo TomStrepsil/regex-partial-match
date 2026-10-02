@@ -73,7 +73,7 @@ describe("PartialMatchRegExp from ./core", () => {
     );
   });
 
-  it.each<[RegExp, string[]]>([
+  it.each([
     [/^ab|c$/, ["", "a", "ab", "xc", "x"]],
     [/^a/m, ["", "a", "b\na", "b"]],
     [/(?-m:a)^b/, ["", "a", "ab", "b"]],
@@ -171,7 +171,7 @@ describe("PartialMatchRegExp from ./core refuses a pattern exactly when a backre
 });
 
 describe("PartialMatchRegExp from ./core names, in one TypeError, every module a pattern needs", () => {
-  it.each<[RegExp, string]>([
+  it.each([
     [/(^a)/, "Needs the carets module"],
     [/x^a/m, "Needs the carets module"],
     [/(a)\1/, "Needs the backreferences module"],

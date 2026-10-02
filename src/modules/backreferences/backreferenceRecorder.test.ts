@@ -9,7 +9,7 @@ const stampsOf = (pattern: RegExp) =>
     .map(({ forward, caseInsensitive }) => ({ forward, caseInsensitive }));
 
 describe("backreferenceRecorder, through the walk", () => {
-  it.each<[RegExp, boolean[]]>([
+  it.each([
     [/(a)\1/, [false]],
     [/\1(a)/, [true]],
     [/(a\1)/, [true]],
@@ -21,7 +21,7 @@ describe("backreferenceRecorder, through the walk", () => {
     expect(stampsOf(pattern).map((stamp) => stamp.forward)).toEqual(forward);
   });
 
-  it.each<[RegExp, boolean[]]>([
+  it.each([
     [/^(?:(?<x>a)|\k<x>b(?<x>c))$/, [true]],
     [/^(?:(?<x>a)|(?<x>b))\k<x>$/, [true]],
     [/^(?:(?<x>a)|(?<x>b))(?<y>c)\k<y>\k<x>$/, [false, true]],
@@ -33,7 +33,7 @@ describe("backreferenceRecorder, through the walk", () => {
     }
   );
 
-  it.each<[RegExp, boolean[]]>([
+  it.each([
     [/(a)\1/, [false]],
     [/(a)\1/i, [true]],
     [/(a)(?i:\1)\1/, [true, false]],
