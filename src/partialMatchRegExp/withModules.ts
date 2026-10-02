@@ -45,6 +45,8 @@ export default function withModules(
   }
   return (
     boundByModuleMask[moduleMask] ||
-    (boundByModuleMask[moduleMask] = createPartialMatchRegExp(hooks))
+    (boundByModuleMask[moduleMask] = createPartialMatchRegExp(
+      Object.freeze(hooks)
+    ))
   );
 }

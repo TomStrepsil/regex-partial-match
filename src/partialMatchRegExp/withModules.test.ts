@@ -5,6 +5,7 @@ import PartialMatchRegExp from "../core/partialMatchRegExp.ts";
 import FullPartialMatchRegExp from "./partialMatchRegExp.ts";
 import carets from "../modules/carets/index.ts";
 import backreferences from "../modules/backreferences/index.ts";
+import * as everyModule from "../modules/index.ts";
 import type { Module } from "./module.ts";
 import { moduleHooks, type HooksOfModule } from "./moduleHooks.ts";
 import { isBackreference } from "./part.ts";
@@ -329,5 +330,54 @@ describe("withModules refuses anything but a module from regex-partial-match/mod
     expect(graph.withModules(graph.carets, graph.backreferences)).toBe(
       await graph.defaultClass()
     );
+  });
+
+  describe("freezes the rules a module and a class hold, so reflection that finds them can't change them", () => {
+    const hooksOf = (module: Module, brand: symbol) =>
+      (module as unknown as Record<symbol, Record<string, unknown>>)[brand];
+
+    it.each<[string, (graph: Graph) => unknown]>([
+      ["the carets module", ({ carets }) => carets],
+      ["the carets module's hooks", ({ carets, brand }) => hooksOf(carets, brand)],
+      ["the backreferences module", ({ backreferences }) => backreferences],
+      [
+        "the backreferences module's hooks",
+        ({ backreferences, brand }) => hooksOf(backreferences, brand)
+      ],
+    ])("%s", (_, held) => {
+      expect(Object.isFrozen(held(loadedGraph))).toBe(true);
+    });
+
+    it.each(Object.entries(everyModule))(
+      "every object the %s module's hooks hold",
+      (_, module) => {
+        const held = Object.values(hooksOf(module, moduleHooks)).filter(
+          (value) => typeof value === "object" && value !== null
+        );
+        for (const value of held) expect(Object.isFrozen(value)).toBe(true);
+      }
+    );
+
+    it("throws when a module's hook, found by reflection, is replaced before any class was built, and binds the module's own rules", async () => {
+      const graph = await inAFreshModuleGraph();
+      const hooks = hooksOf(graph.carets, graph.brand);
+
+      expect(() => {
+        hooks.caret = () => undefined;
+      }).toThrow(TypeError);
+      expect(new (graph.withModules(graph.carets))(/x^a/m).test("x")).toBe(
+        false
+      );
+    });
+
+    it("throws when the hooks a class holds, found through an instance, are replaced, and keeps the class's rules", () => {
+      const hooks = compiledOf(new (withModules(carets))(/x^a/m))
+        .hooks as Record<string, unknown>;
+
+      expect(() => {
+        hooks.caret = () => undefined;
+      }).toThrow(TypeError);
+      expect(new (withModules(carets))(/x^a/m).test("x")).toBe(false);
+    });
   });
 });

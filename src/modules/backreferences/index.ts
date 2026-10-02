@@ -16,10 +16,10 @@ import { scopeWithModifiers } from "../../partialMatchRegExp/scope.ts";
  */
 const backreferences: Module = defineModule({
   bit: BACKREFERENCES_MODULE,
-  backreferences: {
+  backreferences: Object.freeze({
     record: backreferenceRecorder,
     compile: compileDynamic
-  },
+  }),
   modifiers: scopeWithModifiers
 });
 

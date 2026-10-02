@@ -23,6 +23,8 @@ export interface HooksOfModule {
 export const definedModuleHooks = new WeakSet<ModuleHooks>();
 
 export function defineModule(hooks: ModuleHooks): Module {
-  definedModuleHooks.add(hooks);
-  return { [moduleHooks]: hooks } satisfies HooksOfModule as unknown as Module;
+  definedModuleHooks.add(Object.freeze(hooks));
+  return Object.freeze({
+    [moduleHooks]: hooks
+  }) satisfies HooksOfModule as unknown as Module;
 }
