@@ -3,6 +3,7 @@ import {
   LITERAL_BACKSLASH,
   LITERAL_K
 } from "./constants.ts";
+import { MAYBE_HAS_BACKREFERENCE_REGEX } from "./compilePartial/constants.ts";
 import {
   asOptionalAtom,
   isWordBoundaryAtom,
@@ -14,7 +15,7 @@ import {
   START_ANCHOR
 } from "./atomSyntax.ts";
 import { legacyEscapeAtoms } from "./legacyEscape.ts";
-import { Feature } from "./regexFeatures.ts";
+import { Feature } from "./featureMask.ts";
 import type { Backreference, Part } from "./part.ts";
 import {
   ON_ALTERNATIVE,
@@ -29,7 +30,11 @@ import type {
   BackreferenceRecorder,
   BackreferencesHook
 } from "./compilePartial/compiled.ts";
-import type { RawLookaroundRecorder } from "./hitEnd/rawLookaroundRecorder.ts";
+import type {
+  RawLookaroundInfo,
+  RawReference
+} from "./hitEnd/rawLookaroundInfo.ts";
+import { BACKREFERENCES_MODULE, CARETS_MODULE } from "./moduleHooks.ts";
 import { OCCURRENCES_REGEX } from "./quantifier.ts";
 import {
   MULTILINE,
@@ -63,28 +68,29 @@ const isZeroWidth = (part: Part) =>
     isWordBoundaryAtom(part) ||
     isRawLookaround(part));
 
-export const CARETS_NEEDED = new TypeError(
-  "Needs the carets module"
-);
-
 export function walk(
   regex: RegExp,
   declaresNamedGroup: boolean,
   groupLimit: number,
   caretRecorder: CaretRecorder | undefined,
   backreferenceRecorder: BackreferenceRecorder | undefined,
-  withModifiers: Hooks["modifiers"],
-  rawLookaroundRecorder?: RawLookaroundRecorder
+  withModifiers: Hooks["modifiers"]
 ): {
   parts: Part[];
   featureMask: number;
+  needs: number;
+  rawLookarounds: RawLookaroundInfo[] | undefined;
 } {
   const source = regex.source;
 
   let i = 0;
   let groupCount = 0;
   let featureMask = 0;
+  let needs = 0;
   let rawLookaroundCount = 0;
+  let outermostRawLookaroundCount = 0;
+  let rawLookarounds: RawLookaroundInfo[] | undefined;
+  let rawReferences: RawReference[] | undefined;
   let lastBodyRunsOut = false;
 
   function extractSlice(length: number) {
@@ -110,8 +116,7 @@ export function walk(
     function appendBackreference(backreference: Backreference) {
       if (backreferenceRecorder)
         backreferenceRecorder.backreference(backreference, scope);
-      else if (!(scope & WITHIN_RAW_LOOKAROUND))
-        throw new TypeError("Needs the backreferences module");
+      else if (!(scope & WITHIN_RAW_LOOKAROUND)) needs |= BACKREFERENCES_MODULE;
       result.push(backreference);
     }
 
@@ -124,7 +129,8 @@ export function walk(
       const end = nextNonDigit ? nextNonDigit.index : source.length;
       const ref = forcedRef ?? Number(source.slice(start + 1, end));
       i = end;
-      rawLookaroundRecorder?.reference(ref, start, end);
+      if (scope & WITHIN_RAW_LOOKAROUND)
+        (rawReferences ??= []).push({ ref, start, end });
       if (ref >= 1 && ref <= groupLimit) {
         appendBackreference({ ref });
         return;
@@ -140,11 +146,22 @@ export function walk(
       const groupCountBefore = groupCount;
       rawLookaroundCount++;
       process(scope | WITHIN_LOOKAROUND | WITHIN_RAW_LOOKAROUND);
-      if (!(scope & WITHIN_RAW_LOOKAROUND))
-        rawLookaroundRecorder?.rawLookaround(
-          start,
-          groupCount - groupCountBefore
-        );
+      if (!(scope & WITHIN_RAW_LOOKAROUND)) {
+        const capturingGroupsOpened = groupCount - groupCountBefore;
+        if (
+          rawReferences ||
+          (capturingGroupsOpened &&
+            MAYBE_HAS_BACKREFERENCE_REGEX.test(source))
+        ) {
+          (rawLookarounds ??= [])[outermostRawLookaroundCount] = {
+            sourceStart: start,
+            capturingGroupsOpened,
+            references: rawReferences ?? []
+          };
+          rawReferences = undefined;
+        }
+        outermostRawLookaroundCount++;
+      }
       result.push(source.slice(start, i));
     }
 
@@ -174,10 +191,11 @@ export function walk(
                 i = referenceEnd + 1;
                 if (result.length === alternativeStart)
                   alternativeRunsOut = true;
-                rawLookaroundRecorder?.reference(ref, start, i);
+                if (scope & WITHIN_RAW_LOOKAROUND)
+                  (rawReferences ??= []).push({ ref, start, end: i });
                 appendBackreference({ ref });
               } else if (scope & WITHIN_RAW_LOOKAROUND) {
-                rawLookaroundRecorder?.reference("", i, i + 2);
+                (rawReferences ??= []).push({ ref: "", start: i, end: i + 2 });
                 i += 2;
               } else {
                 i += 2;
@@ -318,13 +336,16 @@ export function walk(
           i++;
           const leadsAlternative = result.length === alternativeStart;
           if (caretFrame) caretFrame(ON_CARET);
-          else if (
-            scope & (WITHIN_GROUP | WITHIN_LOOKAROUND) ||
-            (scope & MULTILINE &&
-              !result.slice(alternativeStart).every(isZeroWidth))
-          )
-            throw CARETS_NEEDED;
-          else result.push(START_ANCHOR);
+          else {
+            if (
+              !(scope & WITHIN_RAW_LOOKAROUND) &&
+              (scope & (WITHIN_GROUP | WITHIN_LOOKAROUND) ||
+                (scope & MULTILINE &&
+                  !result.slice(alternativeStart).every(isZeroWidth)))
+            )
+              needs |= CARETS_MODULE;
+            result.push(START_ANCHOR);
+          }
           if (leadsAlternative) alternativeStart = result.length;
           break;
         }
@@ -479,5 +500,5 @@ export function walk(
 
   const parts = process(scopeOf(regex));
 
-  return { parts, featureMask };
+  return { parts, featureMask, needs, rawLookarounds };
 }

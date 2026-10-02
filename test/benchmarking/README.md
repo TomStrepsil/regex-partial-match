@@ -83,7 +83,7 @@ Three patterns span the complexity range the walker branches on:
 
 ### 6. `hitEnd()` (`hit-end.bench.ts`)
 
-`hitEnd()` re-runs a twin of the compiled pattern to recover whether a match took a truncation branch. The twin is built lazily, so the cost splits in two and both halves are tracked: the one-off probe build, which includes a second walk of the source for a pattern holding a raw lookaround, and the steady-state cost of one anchored `exec` per call thereafter. In each group the probe build is the delta between the first two benches, which differ only by the `hitEnd()` call.
+`hitEnd()` re-runs a twin of the compiled pattern to recover whether a match took a truncation branch. The twin is built lazily, so the cost splits in two and both halves are tracked: the one-off probe build and the steady-state cost of one anchored `exec` per call thereafter. In each group the probe build is the delta between the first two benches, which differ only by the `hitEnd()` call.
 
 The two paths cache the probe at different granularities, which is why they are measured separately:
 

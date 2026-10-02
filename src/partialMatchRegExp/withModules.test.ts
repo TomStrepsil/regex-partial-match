@@ -1,34 +1,51 @@
 import { describe, it, expect, vi } from "vitest";
 import withModules from "./withModules.ts";
+import createPartialMatchRegExp from "./createPartialMatchRegExp.ts";
 import PartialMatchRegExp from "../core/partialMatchRegExp.ts";
 import FullPartialMatchRegExp from "./partialMatchRegExp.ts";
 import carets from "../modules/carets/index.ts";
 import backreferences from "../modules/backreferences/index.ts";
+import type { Module } from "./module.ts";
+import { moduleHooks, type HooksOfModule } from "./moduleHooks.ts";
 import { isBackreference } from "./part.ts";
 import { compiledOf } from "./partialMatchInternals.ts";
 
 function countedCaretHooks() {
-  const append = vi.fn(carets.caret);
+  const append = vi.fn((carets as unknown as HooksOfModule)[moduleHooks].caret);
   return { append, hooks: { caret: append } };
 }
 
 const recordersBuilt = (append: ReturnType<typeof vi.fn>) =>
   append.mock.results.filter((result) => result.value !== undefined).length;
 
+const moduleLists: [string, Module[]][] = [
+  ["none", []],
+  ["carets", [carets]],
+  ["carets, carets", [carets, carets]],
+  ["backreferences", [backreferences]],
+  ["backreferences, backreferences", [backreferences, backreferences]],
+  ["carets, backreferences", [carets, backreferences]],
+  ["backreferences, carets", [backreferences, carets]],
+  ["carets, backreferences, carets", [carets, backreferences, carets]],
+  [
+    "backreferences, carets, backreferences",
+    [backreferences, carets, backreferences]
+  ]
+];
+
 describe("withModules", () => {
-  it("returns the same class for the same set of modules, in any order", () => {
-    const other = {};
-    expect(withModules(carets)).toBe(
-      withModules(carets)
-    );
-    expect(withModules(carets, other)).toBe(
-      withModules(other, carets)
-    );
-    expect(withModules(carets, carets)).toBe(
-      withModules(carets)
-    );
-    expect(withModules()).toBe(withModules());
-  });
+  it.each(moduleLists)(
+    "returns the class every list of the same set of modules returns, for %s",
+    (_, modules) => {
+      const sameSet = moduleLists.filter(
+        ([, other]) =>
+          other.every((module) => modules.indexOf(module) !== -1) &&
+          modules.every((module) => other.indexOf(module) !== -1)
+      );
+      for (const [, other] of sameSet)
+        expect(withModules(...other)).toBe(withModules(...modules));
+    }
+  );
 
   it("returns the default export of regex-partial-match for the carets and backreferences modules, in any order", () => {
     expect(withModules(carets, backreferences)).toBe(FullPartialMatchRegExp);
@@ -43,12 +60,22 @@ describe("withModules", () => {
   });
 
   it("returns a different class for a different set of modules", () => {
-    const other = countedCaretHooks().hooks;
-    expect(withModules(carets)).not.toBe(withModules(other));
-    expect(withModules(carets)).not.toBe(
-      withModules(carets, other)
+    const classes = [
+      withModules(),
+      withModules(carets),
+      withModules(backreferences),
+      withModules(carets, backreferences)
+    ];
+    expect(new Set(classes).size).toBe(4);
+  });
+
+  it("holds at most one class for each of the 4 sets of modules", () => {
+    const classes = new Set(
+      moduleLists.map(([, modules]) => withModules(...modules))
     );
-    expect(withModules()).not.toBe(withModules(carets));
+    for (let call = 0; call < 2000; call++)
+      classes.add(withModules({ ...carets }, { ...backreferences }));
+    expect(classes.size).toBe(4);
   });
 
   it("returns a RegExp subclass named as the ./core class is", () => {
@@ -64,6 +91,19 @@ describe("withModules", () => {
     expect(() => new Bound(/x^a/m)).toThrow(/carets module/);
     expect(() => new Bound(/(a)\1/)).toThrow(/backreferences module/);
   });
+
+  it.each<[string, Module, RegExp, string]>([
+    ["carets", carets, /(a)\1/, "Needs the backreferences module"],
+    ["carets", carets, /(a)\1(^b)/, "Needs the backreferences module"],
+    ["backreferences", backreferences, /(^a)/, "Needs the carets module"],
+    ["backreferences", backreferences, /(a)\1(^b)/, "Needs the carets module"]
+  ])(
+    "with only the %s module bound, refuses %s naming the other: %s",
+    (_, module, pattern, message) => {
+      const Bound = withModules(module);
+      expect(() => new Bound(pattern)).toThrow(new TypeError(message));
+    }
+  );
 
   it.each([/^a/m, /x(^a)+/m, /(?:a|b)(?=^c)/m, /(a|^b){2}^c/m, /(?m:^a)/])(
     "binds the multiline caret rules the full class applies to %s",
@@ -117,7 +157,7 @@ describe("withModules", () => {
     "builds the caret recorder for %s only when the pattern may need it (%i times)",
     (pattern, times) => {
       const { append, hooks } = countedCaretHooks();
-      const partial = new (withModules(hooks))(pattern);
+      const partial = new (createPartialMatchRegExp(hooks))(pattern);
       expect(recordersBuilt(append)).toBe(times);
       expect(compiledOf(partial).parts).toEqual(
         compiledOf(new FullPartialMatchRegExp(pattern)).parts
@@ -130,7 +170,7 @@ describe("withModules", () => {
 
     it("in split()", () => {
       const { append, hooks } = countedCaretHooks();
-      const partial = new (withModules(hooks))(/\n^b/m);
+      const partial = new (createPartialMatchRegExp(hooks))(/\n^b/m);
       expect(append).toHaveBeenCalledTimes(1);
       expect(input.split(partial)).toEqual(
         input.split(new FullPartialMatchRegExp(/\n^b/m))
@@ -140,7 +180,7 @@ describe("withModules", () => {
 
     it("in matchAll()", () => {
       const { append, hooks } = countedCaretHooks();
-      const partial = new (withModules(hooks))(/\n^b/gm);
+      const partial = new (createPartialMatchRegExp(hooks))(/\n^b/gm);
       expect(append).toHaveBeenCalledTimes(1);
       expect([...input.matchAll(partial)].map((match) => match.index)).toEqual(
         [...input.matchAll(new FullPartialMatchRegExp(/\n^b/gm))].map(
@@ -152,11 +192,123 @@ describe("withModules", () => {
 
     it("in replace(), which rebuilds nothing", () => {
       const { append, hooks } = countedCaretHooks();
-      const partial = new (withModules(hooks))(/\n^b/gm);
+      const partial = new (createPartialMatchRegExp(hooks))(/\n^b/gm);
       expect(input.replace(partial, "x")).toBe(
         input.replace(new FullPartialMatchRegExp(/\n^b/gm), "x")
       );
       expect(append).toHaveBeenCalledTimes(1);
     });
+  });
+});
+
+describe("withModules refuses anything but a module from regex-partial-match/modules, so nothing else can change the class a set of modules returns", () => {
+  interface Graph {
+    withModules: typeof withModules;
+    carets: Module;
+    backreferences: Module;
+    brand: symbol;
+  }
+
+  const notModules: [string, (graph: Graph) => unknown[]][] = [
+    ["a bit naming both modules", () => [{ bit: 3 }]],
+    ["the carets module's bit", () => [{ bit: 1 }]],
+    ["a bit no module has", () => [{ bit: 4 }]],
+    ["a bit as a string", () => [{ bit: "1" }]],
+    ["a fractional bit", () => [{ bit: 0.5 }]],
+    ["an empty object", () => [{}]],
+    ["null", () => [null]],
+    ["undefined", () => [undefined]],
+    [
+      "an object holding what the carets module holds",
+      () => [
+        {
+          bit: 1,
+          caret: () => undefined,
+          modifiers: (scope: number) => scope
+        }
+      ]
+    ],
+    ["a module and an empty object", ({ carets }) => [carets, {}]],
+    [
+      "the internal brand holding a bit naming both modules",
+      ({ brand }) => [{ [brand]: { bit: 3 } }]
+    ],
+    [
+      "the internal brand holding a bit as a string",
+      ({ brand }) => [{ [brand]: { bit: "1" } }]
+    ],
+    ["the internal brand holding nothing", ({ brand }) => [{ [brand]: null }]]
+  ];
+
+  const loadedGraph: Graph = {
+    withModules,
+    carets,
+    backreferences,
+    brand: moduleHooks
+  };
+
+  async function inAFreshModuleGraph() {
+    vi.resetModules();
+    const fresh = await import("../modules/index.ts");
+    return {
+      withModules: (await import("./withModules.ts")).default,
+      carets: fresh.carets,
+      backreferences: fresh.backreferences,
+      brand: (await import("./moduleHooks.ts")).moduleHooks,
+      defaultClass: async () => (await import("./partialMatchRegExp.ts")).default
+    };
+  }
+
+  it.each(notModules)("throws for %s", (_, modules) => {
+    expect(() => withModules(...(modules(loadedGraph) as Module[]))).toThrow(
+      new TypeError("Not a module")
+    );
+  });
+
+  it.each(notModules)(
+    "binds every module's rules after refusing %s before any class was built",
+    async (_, modules) => {
+      const graph = await inAFreshModuleGraph();
+      expect(() => graph.withModules(...(modules(graph) as Module[]))).toThrow(
+        new TypeError("Not a module")
+      );
+
+      expect(new (graph.withModules(graph.carets))(/x^a/m).test("x")).toBe(
+        false
+      );
+      expect(
+        new (graph.withModules(graph.backreferences))(/^(a)\1/).test("ab")
+      ).toBe(false);
+      const Both = graph.withModules(graph.carets, graph.backreferences);
+      expect(new Both(/x^a/m).test("x")).toBe(false);
+      expect(new Both(/^(a)\1/).test("ab")).toBe(false);
+      expect(Both).toBe(await graph.defaultClass());
+    }
+  );
+
+  it("binds a copy of a module as the module itself", () => {
+    expect(withModules({ ...carets })).toBe(withModules(carets));
+    expect(withModules({ ...carets }, { ...backreferences })).toBe(
+      FullPartialMatchRegExp
+    );
+  });
+
+  it("binds the module's own rules from a copy whose visible members were changed before any class was built", async () => {
+    const graph = await inAFreshModuleGraph();
+    const altered = Object.assign(
+      { ...graph.carets },
+      { bit: 3, caret: () => undefined, backreferences: undefined }
+    );
+
+    const Altered = graph.withModules(altered);
+
+    expect(Altered).toBe(graph.withModules(graph.carets));
+    expect(new Altered(/x^a/m).test("x")).toBe(false);
+    expect(() => new Altered(/(a)\1/)).toThrow(
+      new TypeError("Needs the backreferences module")
+    );
+    expect(graph.withModules(graph.carets, graph.backreferences)).toBe(
+      await graph.defaultClass()
+    );
   });
 });

@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import PartialMatchRegExp from "../index.ts";
+import CorePartialMatchRegExp from "../../core/index.ts";
 import { compiledOf } from "../partialMatchInternals.ts";
 import { buildTruncationProbe } from "./truncationProbe.ts";
 import probeSourceOf from "./probeSource.ts";
@@ -59,5 +60,41 @@ describe("buildTruncationProbe", () => {
     expect(probeOf(pattern).regex.source).toContain("(?!\\5)");
     expect(hitEndOf(partial, "abc")).toBe(true);
     expect(hitEndOf(partial, "abcd")).toBe(false);
+  });
+});
+
+describe("the raw lookarounds construction records for the probe", () => {
+  it.each([
+    ["no lookaround", PartialMatchRegExp, /^ab/],
+    ["a lookbehind and a negative lookahead holding no reference", PartialMatchRegExp, /^(?<=a)b(?!c)/],
+    ["groups opened inside raw lookarounds, with no reference anywhere", PartialMatchRegExp, /^(?<=(a))b(?!(c))/],
+    ["a numbered reference outside any raw lookaround", PartialMatchRegExp, /^(a)\1(?<=b)/],
+    ["a named reference outside any raw lookaround", PartialMatchRegExp, /^(?<g>a)\k<g>(?!b)/],
+    ["a group inside a lookbehind, on the core class", CorePartialMatchRegExp, /^(?<=(a))b(?!c)/]
+  ])("records nothing for %s", (_, PartialClass, pattern) => {
+    expect(compiledOf(new PartialClass(pattern)).rawLookarounds).toBeUndefined();
+  });
+
+  it("records only the lookaround holding a reference, in its place among the others", () => {
+    const { rawLookarounds } = compiledOf(
+      new PartialMatchRegExp(/^(?!x)(a)(?<=\1)b(?<=a)/)
+    );
+
+    expect(Object.keys(rawLookarounds ?? {})).toEqual(["1"]);
+    expect(rawLookarounds?.[1]).toEqual({
+      sourceStart: 9,
+      capturingGroupsOpened: 0,
+      references: [{ ref: 1, start: 13, end: 15 }]
+    });
+  });
+
+  it("records the groups a lookbehind opens, which a numbered reference after it counts past", () => {
+    const partial = new PartialMatchRegExp(/(?<=(a))(b)\2c/);
+
+    expect(compiledOf(partial).rawLookarounds).toEqual([
+      { sourceStart: 0, capturingGroupsOpened: 1, references: [] }
+    ]);
+    expect(hitEndOf(partial, "abb")).toBe(true);
+    expect(hitEndOf(partial, "abbc")).toBe(false);
   });
 });

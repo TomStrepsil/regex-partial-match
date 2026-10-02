@@ -1,4 +1,9 @@
-import type { Hooks } from "../../partialMatchRegExp/walk.ts";
+import type { Module } from "../../partialMatchRegExp/module.ts";
+import {
+  BACKREFERENCES_MODULE,
+  moduleHooks,
+  type HooksOfModule
+} from "../../partialMatchRegExp/moduleHooks.ts";
 import backreferenceRecorder from "./backreferenceRecorder.ts";
 import compileDynamic from "./compileDynamic.ts";
 import { scopeWithModifiers } from "../../partialMatchRegExp/scope.ts";
@@ -10,12 +15,15 @@ import { scopeWithModifiers } from "../../partialMatchRegExp/scope.ts";
  * Without it, the `core` class throws a `TypeError` for a pattern whose
  * backreference can only be resolved at match time.
  */
-const backreferences: Hooks = {
-  backreferences: {
-    record: backreferenceRecorder,
-    compile: compileDynamic
-  },
-  modifiers: scopeWithModifiers
-};
+const backreferences = {
+  [moduleHooks]: {
+    bit: BACKREFERENCES_MODULE,
+    backreferences: {
+      record: backreferenceRecorder,
+      compile: compileDynamic
+    },
+    modifiers: scopeWithModifiers
+  }
+} satisfies HooksOfModule as unknown as Module;
 
 export default backreferences;

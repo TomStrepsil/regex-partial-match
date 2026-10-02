@@ -21,6 +21,14 @@
  * Adding an entry point to "exports" without adding a case to SMOKE_TESTS
  * fails this script.
  *
+ * The declarations reachable from every entry point's "types" must be exactly
+ * PUBLIC_DECLARATIONS: whatever a consumer's compiler can reach is public API,
+ * so a new declaration has to be listed deliberately, and a list naming one no
+ * entry point reaches has gone stale. As a second layer, none of them may
+ * reach the walker's internal types (`walk`, `caretFrame`, `compiled`, `part`)
+ * nor declare the internal feature bits (`Feature`, `featureSet`), since
+ * publishing them would make any change to the walker a breaking one.
+ *
  * `SMOKE_TESTS` also receives each entry point's built file as a `URL`, for
  * cases that need to check its runtime import graph rather than just its
  * exports — e.g. that `regex-partial-match/extend` and
@@ -31,11 +39,13 @@
  */
 
 import assert from "node:assert/strict";
+import { existsSync } from "node:fs";
 import { readdir, readFile } from "node:fs/promises";
 import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 import { build } from "esbuild";
 import { Linter } from "eslint";
+import ts from "typescript";
 import type PartialMatchRegExpInstance from "../../src/partialMatchRegExp/index.ts";
 import type hitEndType from "../../src/partialMatchRegExp/hitEnd/index.ts";
 import type featuresType from "../../src/partialMatchRegExp/features/index.ts";
@@ -56,12 +66,33 @@ const MODULE_NAMES = Object.keys(MODULE_FILES) as ModuleName[];
 
 const FUNCTION_FILES = {
   hitEnd: ["/hitEnd/"],
-  features: ["/features/", "/regexFeatures.js"]
+  features: ["/features/", "/regexFeatures.js", "/featureMask.js"]
 };
 
 type FunctionName = keyof typeof FUNCTION_FILES;
 
 const FUNCTION_NAMES = Object.keys(FUNCTION_FILES) as FunctionName[];
+
+const PUBLIC_DECLARATIONS = [
+  "lib/core/index.d.ts",
+  "lib/core/partialMatchRegExp.d.ts",
+  "lib/extend/index.d.ts",
+  "lib/modules/backreferences/index.d.ts",
+  "lib/modules/carets/index.d.ts",
+  "lib/modules/index.d.ts",
+  "lib/partialMatchRegExp/features/index.d.ts",
+  "lib/partialMatchRegExp/hitEnd/index.d.ts",
+  "lib/partialMatchRegExp/index.d.ts",
+  "lib/partialMatchRegExp/module.d.ts",
+  "lib/partialMatchRegExp/partialMatchRegExp.d.ts",
+  "lib/partialMatchRegExp/regexFeatures.d.ts",
+  "lib/partialMatchRegExp/withModules.d.ts"
+];
+
+const INTERNAL_TYPINGS = /\/(walk|caretFrame|compiled|part)\.d\.ts$/;
+
+const INTERNAL_DECLARATION =
+  /\b(?:enum|function|const|let|var|class|interface|type)\s+(?:Feature|featureSet)\b/;
 
 const packageName = "regex-partial-match";
 const require = createRequire(import.meta.url);
@@ -416,8 +447,8 @@ const SMOKE_TESTS: Record<
     await assertBindsTheCaretsModule(loaded.carets);
     assert.ok(loaded.backreferences, "no backreferences named export");
     const Both = (await importCore()).withModules(
-      loaded.carets,
-      loaded.backreferences
+      loaded.carets as Parameters<typeof withModulesType>[0],
+      loaded.backreferences as Parameters<typeof withModulesType>[0]
     ) as unknown as PartialMatchRegExpConstructor;
     assertPartialMatchRegExpBehaves(Both);
     assert.equal(
@@ -452,6 +483,121 @@ const SMOKE_TESTS: Record<
     assertPartialMatchRegExpBehaves(PartialMatchRegExp);
   }
 };
+
+const PACKAGE_ROOT = new URL("../../", import.meta.url);
+
+interface Reach {
+  specifier: string;
+  through: string | undefined;
+}
+
+function packagePathOf(file: URL): string {
+  return file.href.slice(PACKAGE_ROOT.href.length);
+}
+
+function declarationFileOf(reference: string, referrer: URL): URL {
+  const target = new URL(reference, referrer);
+  const candidates = /\.d\.ts$/.test(target.pathname)
+    ? [target]
+    : /\.[jt]s$/.test(target.pathname)
+      ? [new URL(target.href.replace(/\.[jt]s$/, ".d.ts"))]
+      : [new URL(`${target.href}.d.ts`), new URL(`${target.href}/index.d.ts`)];
+  const found = candidates.find((candidate) => existsSync(candidate));
+  assert.ok(
+    found,
+    `${packagePathOf(referrer)} refers to "${reference}", which has no declaration file`
+  );
+  return found;
+}
+
+/**
+ * Everything a consumer's compiler reaches from `types`: each declaration file
+ * through `import`/`export … from`, side-effect `import "…"`, `import("…")`
+ * types, `declare module "…"` and `/// <reference path>`, plus each package
+ * named by a non-relative specifier or `/// <reference types>`. Each is mapped
+ * to the file that first reached it, or to `undefined` for `types` itself.
+ */
+async function declarationsReachedFrom(
+  types: URL
+): Promise<Map<string, string | undefined>> {
+  const reached = new Map<string, string | undefined>([
+    [packagePathOf(types), undefined]
+  ]);
+  const pending = [types];
+  for (const file of pending) {
+    const declarations = await readFile(file, "utf8");
+    assert.doesNotMatch(
+      declarations,
+      INTERNAL_DECLARATION,
+      `${packagePathOf(file)} declares an internal feature bit — only RegexFeature is public`
+    );
+    const { importedFiles, referencedFiles, typeReferenceDirectives } =
+      ts.preProcessFile(declarations, true, true);
+    const references = [
+      ...importedFiles.map(({ fileName }) => ({
+        fileName,
+        isPath: /^\.\.?\//.test(fileName)
+      })),
+      ...referencedFiles.map(({ fileName }) => ({ fileName, isPath: true })),
+      ...typeReferenceDirectives.map(({ fileName }) => ({
+        fileName,
+        isPath: false
+      }))
+    ];
+    for (const { fileName, isPath } of references) {
+      const target = isPath ? declarationFileOf(fileName, file) : undefined;
+      const name = target ? packagePathOf(target) : `the package "${fileName}"`;
+      assert.doesNotMatch(
+        name,
+        INTERNAL_TYPINGS,
+        `${packagePathOf(file)} imports ${fileName} — the walker's internals must not be published`
+      );
+      if (reached.has(name)) continue;
+      reached.set(name, packagePathOf(file));
+      if (target) pending.push(target);
+    }
+  }
+  return reached;
+}
+
+async function assertTypingsReachOnlyPublicDeclarations(
+  exportsManifest: Record<string, ExportEntry>
+): Promise<void> {
+  const reachedBy = new Map<string, Reach>();
+  for (const [subpath, entry] of Object.entries(exportsManifest)) {
+    const specifier = toSpecifier(packageName, subpath);
+    assert.ok(entry.types, `"exports" entry for ${specifier} has no "types"`);
+    const types = new URL(entry.types, PACKAGE_ROOT);
+    for (const [name, through] of await declarationsReachedFrom(types)) {
+      if (!reachedBy.has(name)) reachedBy.set(name, { specifier, through });
+    }
+  }
+
+  const problems = [
+    ...[...reachedBy]
+      .filter(([name]) => PUBLIC_DECLARATIONS.indexOf(name) === -1)
+      .map(([name, { specifier, through }]) =>
+        through
+          ? `${name} is reached from the types of "${specifier}", by ${through}, but is not in PUBLIC_DECLARATIONS`
+          : `${name} is the "types" of "${specifier}", but is not in PUBLIC_DECLARATIONS`
+      ),
+    ...PUBLIC_DECLARATIONS.filter((name) => !reachedBy.has(name)).map(
+      (name) =>
+        `${name} is in PUBLIC_DECLARATIONS, but the types of no entry point in "exports" reach it`
+    )
+  ];
+  assert.deepEqual(
+    problems,
+    [],
+    [
+      "The declarations a consumer can reach differ from PUBLIC_DECLARATIONS in .github/scripts/smoke-test-built-package.ts:",
+      ...problems.map((problem) => `  - ${problem}`),
+      "Every declaration a consumer's compiler reaches is public API, and changing it can break their build.",
+      "If a newly reached file is meant to be public, add it to PUBLIC_DECLARATIONS. If not, change the declaration that reaches it, for example by moving the type it needs into a public file.",
+      "If a listed file is no longer reached, remove it from PUBLIC_DECLARATIONS."
+    ].join("\n")
+  );
+}
 
 async function assertBuiltOutputParsesAtSupportedEcmaVersion(): Promise<void> {
   const linter = new Linter();
@@ -503,6 +649,11 @@ async function main(): Promise<void> {
   await assertBuiltOutputParsesAtSupportedEcmaVersion();
 
   const exportsManifest = await readExportsManifest();
+
+  await assertTypingsReachOnlyPublicDeclarations(exportsManifest);
+  console.log(
+    `  ✓ the types of every entry point reach exactly the ${String(PUBLIC_DECLARATIONS.length)} public declarations`
+  );
 
   for (const [subpath, entry] of Object.entries(exportsManifest)) {
     const specifier = toSpecifier(packageName, subpath);

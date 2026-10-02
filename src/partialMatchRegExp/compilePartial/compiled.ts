@@ -2,6 +2,7 @@ import type { Backreference, Part } from "../part.ts";
 import type { Hooks } from "../walk.ts";
 import type { RegexFeature } from "../regexFeatures.ts";
 import type { TruncationProbeCache } from "../hitEnd/truncationProbeCache.ts";
+import type { RawLookarounds } from "../hitEnd/rawLookaroundInfo.ts";
 import type { CompiledDynamic } from "../../modules/backreferences/compiledDynamic.ts";
 
 export interface BackreferenceRecorder {
@@ -24,6 +25,7 @@ export interface BackreferencesHook {
 export abstract class Compiled {
   features?: ReadonlySet<RegexFeature>;
   probeCache?: TruncationProbeCache;
+  declare rawLookarounds?: RawLookarounds;
 
   constructor(
     readonly parts: readonly Part[],
@@ -34,6 +36,7 @@ export abstract class Compiled {
 
 export class CompiledStatic extends Compiled {
   readonly kind = "static";
+  readonly honoursLastIndex: boolean;
 
   constructor(
     readonly regex: RegExp,
@@ -42,6 +45,7 @@ export class CompiledStatic extends Compiled {
     hooks: Hooks
   ) {
     super(parts, featureMask, hooks);
+    this.honoursLastIndex = regex.global || regex.sticky;
   }
 }
 

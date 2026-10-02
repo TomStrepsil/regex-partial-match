@@ -9,15 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- `regex-partial-match/core`: a `PartialMatchRegExp` without the precise `^` rules or match-time backreferences, for smaller bundles, and `withModules(...modules)` to bind them back. `regex-partial-match/modules/carets` and `regex-partial-match/modules/backreferences` are the modules, and `regex-partial-match/modules` exports both. With both bound, `withModules` returns the default `PartialMatchRegExp` class. `regex-partial-match`, `/extend` and `/partialMatchRegExp` transform patterns as before
-  - Without the carets module, a `^` is accepted outside groups and lookarounds and, under the `m` flag, only at the start of the pattern or of a top-level alternative behind nothing but `^`, `$`, `\b`, `\B`, a negative lookahead or a lookbehind; any other `^` throws `TypeError: Needs the carets module`, as `/x^a/m` and `/(^a)/` do. Every pattern accepted is transformed exactly as by the default class
-  - Without the backreferences module, a pattern whose backreference must be matched at run time throws `TypeError: Needs the backreferences module`; `/x\8y/` still compiles
-- `regex-partial-match/hitEnd` and `regex-partial-match/features`, each exporting its function alone
+- `regex-partial-match/core`: a smaller `PartialMatchRegExp` without the rules for a `^` inside a group or positive lookahead or after other input under `m`, or for a backreference that must be matched at run time
+- `withModules()` in `regex-partial-match/core`, to bind those rules back from the opaque modules in `regex-partial-match/modules`; a pattern needing a module that isn't bound throws a `TypeError` naming every module it lacks
+- `regex-partial-match/hitEnd` and `regex-partial-match/features` subpaths
+- The `Module`, `PartialMatchRegExp` and `PartialMatchRegExpConstructor` types
 
 ### Changed
 
 - **Breaking:** `isComplete()` is replaced by `hitEnd()`, following the JDK's [`Matcher.hitEnd()`](https://docs.oracle.com/javase/8/docs/api/java/util/regex/Matcher.html#hitEnd--): `true` when the match read the end of the input, so more input could change it. `isComplete(partial, match)` becomes `!hitEnd(partial, match)`, except that a greedy quantifier, `$`, `\b` or `\B` that read the end now also reports `true`
-- **Breaking:** the `features` getter is replaced by `features(partial)`, a named export of `regex-partial-match`, so a bundle that never calls it leaves the feature names out
+- **Breaking:** the `features` getter is replaced by the `features(partial)` export
 - Captures of a partial match are the closest they can be to what a full match reports: `/(abc)+\1/` on `"abcab"` gives `m[1] === "ab"`
 - Split some explanatory documentation from the main `README.md`
 - `exec()` on a pattern with a backreference is about 1.4x faster, restoring the speed lost in [1.3.0](#130---2026-09-06), and about 20x on a 100 kB input
@@ -37,6 +37,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A `^` under the `m` flag after a group that ran out part way no longer misses the earlier match: `/([a]\D)^/m` on `"a"` matches at index 0
 - A second `^` under the `m` flag after a group of alternatives is judged as the first: `/(?:\s*a?(?=x)|b)^^/m` on `"a"` matches at index 1
 - A backreference pattern no longer returns `null` where its re-derived captures fit a later index: `/(a?[^])\1/` on `"bab"` matches `"ab"` at index 1
+- `exec()` no longer throws on a frozen instance without the `g` or `y` flag
 - Updated JSDoc comment on `/extend` to match the class
 - Relative link in `README.md` footnote changed to absolute, to mitigate https://github.com/orgs/community/discussions/205358
 

@@ -807,7 +807,7 @@ describe("hitEnd()", () => {
     });
   });
 
-  // `hitEnd()` learns a raw lookaround's references, and the names the pattern declares, by walking the source again on its first call. A `\k<name>` inside a raw lookaround is a reference only where the pattern declares a named group; otherwise it is the Annex B literal `k<name>`. Each pattern below needs its lookbehind's reference read correctly for the complete input to settle.
+  // Construction records a raw lookaround's references, and `hitEnd()` asks for the names the pattern declares on its first call. A `\k<name>` inside a raw lookaround is a reference only where the pattern declares a named group; otherwise it is the Annex B literal `k<name>`. Each pattern below needs its lookbehind's reference read correctly for the complete input to settle.
   describe("a named reference inside a raw lookaround", () => {
     it.each([
       ["starts with $", "^(?<$g>a)b(?<=\\k<$g>b)c"],
@@ -850,7 +850,7 @@ describe("hitEnd()", () => {
     );
   });
 
-  // The walk reports each reference as it meets it, and each outermost raw lookaround as it closes; a lookaround claims the references after its own start. The probe renumbers each by the groups before it, including groups opened inside earlier lookarounds.
+  // The walk collects each reference inside a raw lookaround as it meets it, and hands them to the outermost raw lookaround when it closes. The probe renumbers each by the groups before it, including groups opened inside earlier lookarounds.
   describe("attributing a raw reference to its lookaround", () => {
     it.each([
       ["after a reference outside any lookaround", /^(a)\1(?<=\1)b/, "aa", "aab"],
@@ -874,7 +874,7 @@ describe("hitEnd()", () => {
     );
   });
 
-  // `hitEnd()` accepts an instance of any class, including `./core`'s, which binds no module. Its walk of the source must classify every escape as that class's construction did: an octal escape is not a backreference, so it needs no backreferences module.
+  // `hitEnd()` accepts an instance of any class, including `./core`'s, which binds no module. What its construction recorded must classify every escape as that class does: an octal escape is not a backreference, so it needs no backreferences module.
   describe("on an instance of the core class", () => {
     it.each([
       ["an octal escape before a negative lookahead", "^a\\5(?!b)c", "a\x05", "a\x05c"],

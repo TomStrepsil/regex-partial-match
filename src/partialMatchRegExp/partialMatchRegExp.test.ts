@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import PartialMatchRegExp from "./partialMatchRegExp.ts";
 import features from "./features/index.ts";
+import hitEnd from "./hitEnd/index.ts";
 
 describe("PartialMatchRegExp", () => {
   it("is an instance of RegExp", () => {
@@ -586,6 +587,57 @@ describe("PartialMatchRegExp", () => {
       expect(partial.sticky).toBe(true);
       expect(partial.exec("ab")).toMatchAt({ match: "ab", index: 0 });
     });
+  });
+
+  describe("lastIndex, and a frozen instance, as native RegExp treats them", () => {
+    it.each<[string, string, string]>([
+      ["ab", "", "xab"],
+      ["ab", "", "xa"],
+      ["^ab", "", "x"],
+      ["ab", "i", "XAB"],
+      ["^ab", "m", "x"],
+      ["ab", "d", "xab"],
+      ["(a)\\1", "", "a"],
+      ["^(a)\\1", "", "x"]
+    ])("leaves lastIndex 5 alone for /%s/%s on %j", (source, flags, input) => {
+      const partial = new PartialMatchRegExp(source, flags);
+      const native = new RegExp(source, flags);
+      partial.lastIndex = native.lastIndex = 5;
+      partial.exec(input);
+      native.exec(input);
+      expect(partial.lastIndex).toBe(native.lastIndex);
+    });
+
+    it.each<[string, string, { match: string; index: number } | null, boolean]>([
+      ["ab", "xab", { match: "ab", index: 1 }, false],
+      ["ab", "xa", { match: "a", index: 1 }, true],
+      ["^ab", "x", null, false],
+      ["(a)\\1", "a", { match: "a", index: 0 }, true]
+    ])(
+      "runs exec() and hitEnd() on a frozen instance of /%s/ on %j",
+      (source, input, expected, readEnd) => {
+        const partial = Object.freeze(new PartialMatchRegExp(source));
+        const match = partial.exec(input);
+        if (expected === null) expect(match).toBeNull();
+        else expect(match).toMatchAt(expected);
+        expect(match !== null && hitEnd(partial, match)).toBe(readEnd);
+      }
+    );
+
+    it.each<[string, string, string]>([
+      ["ab", "g", "xab"],
+      ["ab", "y", "ab"],
+      ["^ab", "g", "x"],
+      ["(a)\\1", "g", "a"]
+    ])(
+      "throws as native RegExp does on a frozen instance of /%s/%s",
+      (source, flags, input) => {
+        const native = Object.freeze(new RegExp(source, flags));
+        expect(() => native.exec(input)).toThrow(TypeError);
+        const partial = Object.freeze(new PartialMatchRegExp(source, flags));
+        expect(() => partial.exec(input)).toThrow(TypeError);
+      }
+    );
   });
 
   describe("validation via test()", () => {
@@ -4771,6 +4823,10 @@ describe("subclassing with class syntax", () => {
   it("keeps every module and species for the subclass", () => {
     class Sub extends PartialMatchRegExp {}
     const partial = new Sub(/^b/gm);
+
+    expect(Sub[Symbol.species]).toBe(Sub);
+    expect(PartialMatchRegExp[Symbol.species]).toBe(PartialMatchRegExp);
+    expect(partial).toBeInstanceOf(Sub);
 
     expect(partial).toBeInstanceOf(PartialMatchRegExp);
     expect(new Sub(/(a|b)\1/).exec("ab")?.[0]).toBe("b");

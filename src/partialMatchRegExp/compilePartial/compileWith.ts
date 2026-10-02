@@ -1,4 +1,5 @@
-import { CARETS_NEEDED, walk, type Hooks } from "../walk.ts";
+import { walk, type Hooks } from "../walk.ts";
+import { CARETS_MODULE, MODULES_NAMED_BY_MASK } from "../moduleHooks.ts";
 import type { CaretHook } from "../caretFrame.ts";
 import {
   MAYBE_HAS_BACKREFERENCE_REGEX,
@@ -8,40 +9,33 @@ import { isBackreference } from "../part.ts";
 import groupShape from "./groupShape.ts";
 import toStatic from "./toStatic.ts";
 import type { BackreferencesHook, CompiledPartial } from "./compiled.ts";
-import type { RawLookaroundRecorder } from "../hitEnd/rawLookaroundRecorder.ts";
 
-export function walkWithCaretRulesWhereNeeded(
+function walkWithCaretRulesWhereNeeded(
   regex: RegExp,
   declaresNamedGroup: boolean,
   groupLimit: number,
   caret: CaretHook | undefined,
   record: BackreferencesHook["record"] | undefined,
-  withModifiers: Hooks["modifiers"],
-  recordRawLookarounds?: () => RawLookaroundRecorder
+  withModifiers: Hooks["modifiers"]
 ) {
-  try {
-    return walk(
-      regex,
-      declaresNamedGroup,
-      groupLimit,
-      caret?.(regex.source),
-      record?.(),
-      withModifiers,
-      recordRawLookarounds?.()
-    );
-  } catch (error) {
-    if (error !== CARETS_NEEDED) throw error;
-    if (caret === undefined) throw new TypeError(CARETS_NEEDED.message);
-    return walk(
-      regex,
-      declaresNamedGroup,
-      groupLimit,
-      caret(),
-      record?.(),
-      withModifiers,
-      recordRawLookarounds?.()
-    );
-  }
+  const walked = walk(
+    regex,
+    declaresNamedGroup,
+    groupLimit,
+    caret?.(regex.source),
+    record?.(),
+    withModifiers
+  );
+  return walked.needs & CARETS_MODULE && caret !== undefined
+    ? walk(
+        regex,
+        declaresNamedGroup,
+        groupLimit,
+        caret(),
+        record?.(),
+        withModifiers
+      )
+    : walked;
 }
 
 export default function compileWith(
@@ -60,33 +54,31 @@ export default function compileWith(
   const backreferencesHook = maybeHasBackreference
     ? hooks.backreferences
     : undefined;
-  const { parts, featureMask } = walkWithCaretRulesWhereNeeded(
-    regex,
-    declaresNamedGroup,
-    groupLimit,
-    hooks.caret,
-    backreferencesHook?.record,
-    hooks.modifiers
-  );
+  const { parts, featureMask, needs, rawLookarounds } =
+    walkWithCaretRulesWhereNeeded(
+      regex,
+      declaresNamedGroup,
+      groupLimit,
+      hooks.caret,
+      backreferencesHook?.record,
+      hooks.modifiers
+    );
+  if (needs) throw new TypeError("Needs the " + MODULES_NAMED_BY_MASK[needs]);
 
   const backreferences = backreferencesHook
     ? parts.filter(isBackreference)
     : [];
-  if (backreferencesHook === undefined || backreferences.length === 0) {
-    return toStatic(
-      parts as string[],
-      flags,
-      featureMask,
-      hooks
-    );
-  }
-
-  return backreferencesHook.compile(
-    parts,
-    backreferences,
-    flags,
-    isUnicode,
-    featureMask,
-    hooks
-  );
+  const compiled =
+    backreferencesHook === undefined || backreferences.length === 0
+      ? toStatic(parts as string[], flags, featureMask, hooks)
+      : backreferencesHook.compile(
+          parts,
+          backreferences,
+          flags,
+          isUnicode,
+          featureMask,
+          hooks
+        );
+  if (rawLookarounds) compiled.rawLookarounds = rawLookarounds;
+  return compiled;
 }

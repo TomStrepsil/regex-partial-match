@@ -5,6 +5,27 @@ import type { RegexFeature } from "./regexFeatures.ts";
 
 export type { RegexFeature };
 
+declare const partialMatchRegExpBrand: unique symbol;
+
+/**
+ * An instance of `PartialMatchRegExp`, from any entry point. Declarations
+ * merged into this interface apply to every such instance.
+ */
+interface PartialMatchRegExp extends RegExp {
+  readonly [partialMatchRegExpBrand]: true;
+  exec(input: string): RegExpExecArray | null;
+}
+
+/**
+ * The type of a `PartialMatchRegExp` class, from any entry point or
+ * `withModules`.
+ */
+interface PartialMatchRegExpConstructor {
+  new (pattern: RegExp | string, flags?: string): PartialMatchRegExp;
+  readonly prototype: PartialMatchRegExp;
+  readonly [Symbol.species]: PartialMatchRegExpConstructor;
+}
+
 /**
  * A `RegExp` subclass that supports partial (prefix) matching.
  *
@@ -31,7 +52,10 @@ export type { RegexFeature };
  *
  * @see {@link https://github.com/TomStrepsil/regex-partial-match#readme | Documentation}
  */
-const PartialMatchRegExp = withModules(carets, backreferences);
-type PartialMatchRegExp = InstanceType<typeof PartialMatchRegExp>;
+const PartialMatchRegExp: PartialMatchRegExpConstructor = withModules(
+  carets,
+  backreferences
+);
 
 export default PartialMatchRegExp;
+export type { PartialMatchRegExp, PartialMatchRegExpConstructor };

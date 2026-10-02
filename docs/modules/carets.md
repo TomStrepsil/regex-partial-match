@@ -1,10 +1,10 @@
 # Carets
 
-Everything here belongs to the carets module, `regex-partial-match/modules/carets`. `regex-partial-match/core` without it accepts a caret only where its position is fixed, as [How It Works](../how-it-works.md#-a-caret-whose-position-is-fixed) describes, and throws `TypeError: Needs the carets module` for any other.
+Everything here belongs to the carets module, `regex-partial-match/modules/carets`. `regex-partial-match/core` without it accepts a caret only where its position is fixed, as [How It Works](../how-it-works.md#-a-caret-whose-position-is-fixed) describes, and throws `TypeError: Needs the carets module` for any other. A pattern that also needs the backreferences module throws `TypeError: Needs the carets and backreferences modules` instead, and one that needs only that module, with carets bound, throws `TypeError: Needs the backreferences module`.
 
 ## ⏱️ When the rules run
 
-A pattern that compiles without the rules compiles the same with them, so the module applies them only where a cheap look at the source finds a `^` that doesn't start the pattern, follow a `|` before any `(`, or open a class. A wrong guess costs a second walk, not a wrong result: the walk without the rules refuses the pattern, and it is walked again with them.
+A pattern that compiles without the rules compiles the same with them, so the module applies them only where a cheap look at the source finds a `^` that doesn't start the pattern, follow a `|` before any `(`, or open a class. A wrong guess costs a second walk, not a wrong result: the walk without the rules records that the pattern needs them, its output is discarded, and the pattern is walked again with them.
 
 ## ⚓ A start anchor leading a group
 
@@ -19,7 +19,7 @@ A group entered once drops the carets from its body. A repeated group keeps them
 /(^a)*/     → /(^(?:a|$(?![\s\S])))*/
 ```
 
-The first three return `null` on `"c"`, and the last matches `""` at index 0, as the original does. A body with an alternative that does not start with a caret is left alone, and so is a `(?-m:^...)` group inside a multiline pattern, where a caret in front of the group would mean a line start. A caret a `(?m:...)` group moves in front of itself inside a pattern without `m` is still a line start, judged by the [rule below](#--under-the-m-flag), so a group around it keeps its truncation branch: `/\n((?m:^a))/` on `"a"` matches `""` at index 1.
+The first three return `null` on `"c"`, and the last matches `""` at index 0, as the original does. Because this rule stays in the module to keep `core` small, `regex-partial-match/core` refuses `/(^\d+)/` even without `m`. Writing the caret in front of an unquantified group, as in `/^(\d+)/`, matches the same and needs no module. A body with an alternative that does not start with a caret is left alone, and so is a `(?-m:^...)` group inside a multiline pattern, where a caret in front of the group would mean a line start. A caret a `(?m:...)` group moves in front of itself inside a pattern without `m` is still a line start, judged by the [rule below](#--under-the-m-flag), so a group around it keeps its truncation branch: `/\n((?m:^a))/` on `"a"` matches `""` at index 1.
 
 ## ⚓ `^` under the `m` flag
 

@@ -1,12 +1,15 @@
-import createPartialMatchRegExp, {
-  type PartialMatchRegExp
-} from "./createPartialMatchRegExp.ts";
+import createPartialMatchRegExp from "./createPartialMatchRegExp.ts";
+import type { Module } from "./module.ts";
+import {
+  BACKREFERENCES_MODULE,
+  CARETS_MODULE,
+  moduleHooks,
+  type HooksOfModule
+} from "./moduleHooks.ts";
+import type { PartialMatchRegExpConstructor } from "./partialMatchRegExp.ts";
 import type { Hooks } from "./walk.ts";
 
-const bound: Array<{
-  modules: readonly Hooks[];
-  Bound: typeof PartialMatchRegExp;
-}> = [];
+const boundByModuleMask: (PartialMatchRegExpConstructor | undefined)[] = [];
 
 /**
  * The `PartialMatchRegExp` class that applies the rules the given modules
@@ -19,25 +22,27 @@ const bound: Array<{
  * exports. `split()` and `matchAll()` build their copies through
  * `Symbol.species`, which keeps the modules bound.
  *
- * @param modules - The modules to bind
+ * @param modules - The modules to bind, from `regex-partial-match/modules`
  * @returns The `PartialMatchRegExp` class that binds `modules`
+ * @throws `TypeError` if any argument is not a module
  */
 export default function withModules(
-  ...modules: Hooks[]
-): typeof PartialMatchRegExp {
-  const set = modules.filter(
-    (module, index) => modules.indexOf(module) === index
-  );
-  for (const entry of bound) {
-    if (
-      entry.modules.length === set.length &&
-      set.every((module) => entry.modules.indexOf(module) !== -1)
-    )
-      return entry.Bound;
-  }
+  ...modules: Module[]
+): PartialMatchRegExpConstructor {
   const hooks: Hooks = {};
-  for (const module of set) Object.assign(hooks, module);
-  const Bound = createPartialMatchRegExp(hooks);
-  bound.push({ modules: set, Bound });
-  return Bound;
+  let moduleMask = 0;
+  for (const module of modules as unknown as (HooksOfModule | null)[]) {
+    const bound = module && module[moduleHooks];
+    if (
+      !bound ||
+      (bound.bit !== CARETS_MODULE && bound.bit !== BACKREFERENCES_MODULE)
+    )
+      throw new TypeError("Not a module");
+    moduleMask |= bound.bit;
+    Object.assign(hooks, bound);
+  }
+  return (
+    boundByModuleMask[moduleMask] ||
+    (boundByModuleMask[moduleMask] = createPartialMatchRegExp(hooks))
+  );
 }

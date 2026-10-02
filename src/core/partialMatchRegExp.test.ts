@@ -6,6 +6,17 @@ import withModules from "../partialMatchRegExp/withModules.ts";
 import features from "../partialMatchRegExp/features/index.ts";
 import backreferences from "../modules/backreferences/index.ts";
 
+function renderedOf(partial: RegExp) {
+  const compiled = compiledOf(partial);
+  return compiled.kind === "static"
+    ? {
+        source: compiled.regex.source,
+        flags: compiled.regex.flags,
+        featureMask: compiled.featureMask
+      }
+    : compiled.kind;
+}
+
 function matchesOf(partial: RegExp, inputs: readonly string[]) {
   return inputs.map((input) => {
     partial.lastIndex = 0;
@@ -15,7 +26,7 @@ function matchesOf(partial: RegExp, inputs: readonly string[]) {
 }
 
 describe("PartialMatchRegExp from ./core", () => {
-  describe("refuses a caret in a group or lookaround, or under the m flag after a consuming part", () => {
+  describe("refuses a caret in a group or positive lookahead, or under the m flag after a consuming part", () => {
     it.each([
       /a^b/m,
       /x^a/m,
@@ -27,6 +38,11 @@ describe("PartialMatchRegExp from ./core", () => {
       /(?m:^a)/,
       /a(?m:^b)/,
       /(^a)/,
+      /(^\d+)/,
+      /(^https?):/,
+      /(?:^a|^b)c/,
+      /(^a)+/,
+      /x(^a)/,
       /(?:^|x)a/,
       /(?=^a)/,
       /(?-m:^a)b/m
@@ -37,7 +53,7 @@ describe("PartialMatchRegExp from ./core", () => {
       );
     });
 
-    it.each([/^foo/m, /a|^b/m, /\b^a/m, /$^a/m, /^^a/m, /a^b/, /x|a^/])(
+    it.each([/^foo/m, /a|^b/m, /\b^a/m, /$^a/m, /^^a/m, /a^b/, /x|a^/, /^(\d+)/])(
       "accepts %s and transforms it exactly as the full class does",
       (pattern) => {
         const lean = new PartialMatchRegExp(pattern);
@@ -47,6 +63,22 @@ describe("PartialMatchRegExp from ./core", () => {
         );
         expect(compiledOf(lean).featureMask).toBe(
           compiledOf(full).featureMask
+        );
+      }
+    );
+
+    it.each([
+      /(?<=^)a/,
+      /(?<!^)a/m,
+      /a(?!^)/m,
+      /x(?<=a^)/m,
+      /(a(?<=^))/,
+      /(?=(?<=^))a/
+    ])(
+      "accepts %s, whose caret a lookbehind or negative lookahead keeps as written, and renders it as the full class does",
+      (pattern) => {
+        expect(renderedOf(new PartialMatchRegExp(pattern))).toEqual(
+          renderedOf(new FullPartialMatchRegExp(pattern))
         );
       }
     );
@@ -93,6 +125,15 @@ describe("PartialMatchRegExp from ./core", () => {
     expect(PartialMatchRegExp).not.toBe(FullPartialMatchRegExp);
     expect(PartialMatchRegExp.name).toBe(FullPartialMatchRegExp.name);
     expect(Object.getPrototypeOf(PartialMatchRegExp)).toBe(RegExp);
+  });
+
+  it("is its own species, and a subclass's species is the subclass", () => {
+    class Sub extends PartialMatchRegExp {}
+    expect(PartialMatchRegExp[Symbol.species]).toBe(PartialMatchRegExp);
+    expect(Sub[Symbol.species]).toBe(Sub);
+    expect(new Sub(/b/g)).toBeInstanceOf(Sub);
+    expect(new Sub(/b/g)).toBeInstanceOf(PartialMatchRegExp);
+    expect("abcb".split(new Sub(/b/g))).toEqual(["a", "c", ""]);
   });
 
   it("rebuilds itself through Symbol.species", () => {
@@ -142,4 +183,19 @@ describe("PartialMatchRegExp from ./core refuses a pattern exactly when a backre
       expect(lean.parts).toEqual(full.parts);
     }
   );
+});
+
+describe("PartialMatchRegExp from ./core names, in one TypeError, every module a pattern needs", () => {
+  it.each<[RegExp, string]>([
+    [/(^a)/, "Needs the carets module"],
+    [/x^a/m, "Needs the carets module"],
+    [/(a)\1/, "Needs the backreferences module"],
+    [/(a)\1(^b)/, "Needs the carets and backreferences modules"],
+    [/(^b)(a)\2/, "Needs the carets and backreferences modules"],
+    [/(a)\1x^b/m, "Needs the carets and backreferences modules"]
+  ])("throws for %s: %s", (pattern, message) => {
+    expect(() => new PartialMatchRegExp(pattern)).toThrow(
+      new TypeError(message)
+    );
+  });
 });

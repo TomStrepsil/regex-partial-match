@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { Feature, featureSet, type RegexFeature } from "./regexFeatures.ts";
+import { Feature, featureSet } from "./featureMask.ts";
+import type { RegexFeature } from "./regexFeatures.ts";
 
 const bits: Record<RegexFeature, Feature> = {
   patternCharacter: Feature.patternCharacter,

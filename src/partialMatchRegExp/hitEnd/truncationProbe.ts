@@ -17,8 +17,9 @@ import {
 import { roleOf } from "./partRole.ts";
 import type {
   RawLookaroundInfo,
+  RawLookarounds,
   RawReference
-} from "./rawLookaroundRecorder.ts";
+} from "./rawLookaroundInfo.ts";
 
 export interface TruncationProbe {
   regex: RegExp;
@@ -97,7 +98,7 @@ function markersAddedBy(marking: Marking) {
 
 function groupShiftTable(
   markings: readonly Marking[],
-  rawLookarounds: readonly RawLookaroundInfo[]
+  rawLookarounds: RawLookarounds
 ) {
   const shiftForGroup: number[] = [0];
   let markerCount = 0;
@@ -107,7 +108,8 @@ function groupShiftTable(
     if (marking === MARKING.groupOpen) {
       shiftForGroup.push(markerCount);
     } else if (marking === MARKING.rawLookaround) {
-      const { capturingGroupsOpened } = rawLookarounds[rawLookaroundIndex++];
+      const capturingGroupsOpened =
+        rawLookarounds[rawLookaroundIndex++]?.capturingGroupsOpened ?? 0;
       for (let opened = 0; opened < capturingGroupsOpened; opened++) {
         shiftForGroup.push(markerCount);
       }
@@ -167,7 +169,7 @@ function rawReferenceReplacement(
 
 export const buildTruncationProbe = (
   parts: readonly Part[],
-  rawLookarounds: readonly RawLookaroundInfo[],
+  rawLookarounds: RawLookarounds,
   declaredNames: readonly string[],
   flags: string
 ): TruncationProbe => {
@@ -198,16 +200,20 @@ export const buildTruncationProbe = (
       continue;
     }
     switch (markings[index]) {
-      case MARKING.rawLookaround:
+      case MARKING.rawLookaround: {
+        const rawLookaround = rawLookarounds[rawLookaroundIndex++];
         probed.push(
-          renumberRawBackreferences(
-            part,
-            rawLookarounds[rawLookaroundIndex++],
-            shiftForGroup,
-            declaresNamedGroup
-          )
+          rawLookaround
+            ? renumberRawBackreferences(
+                part,
+                rawLookaround,
+                shiftForGroup,
+                declaresNamedGroup
+              )
+            : part
         );
         break;
+      }
       case MARKING.truncationBranch:
         probed.push(
           part.slice(0, -DISJUNCTION_TO_END_OF_INPUT.length) + truncationBranch()
