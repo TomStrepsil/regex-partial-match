@@ -233,7 +233,7 @@ export default function isCompleteToHitEnd(fileInfo, api) {
     .find(j.ExportNamedDeclaration, { source: { value: PACKAGE } })
     .forEach((path) => {
       for (const specifier of path.node.specifiers) {
-        if (specifier.local?.name === OLD_NAME) {
+        if ((specifier.local?.name ?? specifier.local?.value) === OLD_NAME) {
           flag(specifier, `"${OLD_NAME}" is re-exported; re-export \`hitEnd\` and update importers by hand`);
         } else if (specifier.type === "ExportNamespaceSpecifier") {
           flag(specifier, `\`export * as\` no longer exposes "${OLD_NAME}"; update importers by hand`);

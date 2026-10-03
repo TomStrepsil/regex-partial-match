@@ -170,13 +170,16 @@ export default function transform(fileInfo, api) {
     .find(j.MemberExpression)
     .filter((path) => namesFeatures(path.node) && !isWriteTarget(path))
     .forEach((path) => {
-      const object = j(path.node.object).toSource();
+      const read = j(path.node).toSource();
       const importIsVisible =
         featuresImport &&
         path.scope.lookup(featuresImport.local.name) === globalScope;
       const functionName = importIsVisible
         ? featuresImport.local.name
         : unboundName(path);
+      const replacement = j(
+        j.callExpression(j.identifier(functionName), [path.node.object])
+      ).toSource();
       const importLine = importIsVisible
         ? ""
         : `\n    add: import { ${
@@ -188,10 +191,10 @@ export default function transform(fileInfo, api) {
       const advice = isOptional
         ? `is a getter in v1 and a function in v2; it is an optional read, so ` +
           `\`${functionName}(...)\` would throw where it gave undefined: guard it by hand`
-        : `is a getter in v1 and a function in v2; write \`${functionName}(${object})\``;
+        : `is a getter in v1 and a function in v2; write \`${replacement}\``;
       findings.push(
         `${fileInfo.path}:${path.node.loc?.start.line ?? "?"}: ${rank}: ` +
-          `\`${object}.features\` ${advice}${importLine}`
+          `\`${read}\` ${advice}${importLine}`
       );
     });
 

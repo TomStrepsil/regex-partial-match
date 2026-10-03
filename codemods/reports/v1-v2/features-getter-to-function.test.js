@@ -412,6 +412,17 @@ describe("features-getter report", () => {
   });
 
   describe("computed access", () => {
+    it("keeps the parentheses of a sequence-expression receiver", () => {
+      const { report } = runTransform(
+        lines(
+          'import PartialMatchRegExp from "regex-partial-match";',
+          "const used = (prepare(), partial).features;"
+        )
+      );
+
+      expect(report).toContain("write `features((prepare(), partial))`");
+    });
+
     it("flags an optional read for manual migration", () => {
       const { report } = runTransform(
         lines(

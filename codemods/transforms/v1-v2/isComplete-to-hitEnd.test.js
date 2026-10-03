@@ -607,6 +607,15 @@ describe("isComplete-to-hitEnd codemod", () => {
       expect(report).toContain("is re-exported");
     });
 
+    it("flags a string-named re-export", () => {
+      const { report } = runTransform(
+        lines('export { "isComplete" as done } from "regex-partial-match";')
+      );
+
+      expect(report).toContain("fixture.ts:1");
+      expect(report).toContain("is re-exported");
+    });
+
     it("flags a wildcard re-export", () => {
       const { output, report } = runTransform(
         lines(
