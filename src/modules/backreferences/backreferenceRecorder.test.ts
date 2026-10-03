@@ -23,11 +23,13 @@ describe("backreferenceRecorder, through the walk", () => {
 
   it.each([
     [/^(?:(?<x>a)|\k<x>b(?<x>c))$/, [true]],
-    [/^(?:(?<x>a)|(?<x>b))\k<x>$/, [true]],
-    [/^(?:(?<x>a)|(?<x>b))(?<y>c)\k<y>\k<x>$/, [false, true]],
-    [new RegExp("^(?:(?<\\u0078>a)|(?<x>b))\\k<x>$"), [true]]
+    [/^(?:(?<x>a)|(?<x>b))\k<x>$/, [false]],
+    [/^(?:(?<x>a)|(?<x>b))(?<y>c)\k<y>\k<x>$/, [false, false]],
+    [new RegExp("^(?:(?<\\u0078>a)|(?<x>b))\\k<x>$"), [false]],
+    [new RegExp("^(?:(?<x>a)\\k<x>|(?<\\u0078>b))$"), [true]],
+    [/^(?:(?<x>a)|\k<x>b|(?<x>c))\k<x>$/, [true, false]]
   ])(
-    "stamps every reference to a name declared more than once in %s as forward, before or after the second declaration",
+    "stamps a reference to a name declared more than once in %s as forward only when a declaration of that name follows it",
     (pattern, forward) => {
       expect(stampsOf(pattern).map((stamp) => stamp.forward)).toEqual(forward);
     }

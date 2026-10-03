@@ -3,7 +3,9 @@
  *
  * Transforms:
  *   1. Renames the `isComplete` import specifier of "regex-partial-match" to
- *      `hitEnd`, or drops it when `hitEnd` is already imported from there.
+ *      `hitEnd`, or drops it when `hitEnd` is already imported from there. An
+ *      alias (`isComplete as done`) is kept and reported, since it now names
+ *      the opposite meaning.
  *   2. Rewrites each call through that binding, or through a namespace import
  *      (`rpm.isComplete(...)`), to the negated `hitEnd`:
  *        isComplete(partial, match)   -> !hitEnd(partial, match)
@@ -15,9 +17,7 @@
  * See the "hitEnd()" section of the README for the contract.
  *
  * Reported rather than rewritten:
- *   - an aliased import (`isComplete as done`) keeps its alias, which now names
- *     the opposite meaning
- *   - `isComplete` used as a value (callback, assignment, re-export, destructured
+ *   -`isComplete` used as a value (callback, assignment, re-export, destructured
  *     from a namespace); for the imported binding, the import and all its
  *     calls are then left as they are
  *   - a call where `hitEnd` is bound to something else in scope

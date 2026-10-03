@@ -78,7 +78,7 @@ The following cases remain atomic (full native value or exactly at true end of i
 - **Backreferences inside lookbehinds and negative lookarounds.** These are verbatim contexts — the value a lookbehind or negative lookahead requires must be fully present or fully absent, so there's no partial-prefix position to expand into.
 - **A backreference whose captured value can't be determined from a partial input.** This only affects the backreference site itself; it's strictly better than rejecting the input outright, and never accepts anything unsound.
 - **A forward reference, outside a lookbehind** — `\1` written before group 1 opens, or referencing it while it's still open (a self-reference inside the group's own body, e.g. `\1` in `/^(\1a)$/`). Its value can't come from the capture scan, which resolves it on a path it could never have taken, so it's left to the engine — which, per ECMAScript, always resolves it to empty there (it can't have participated yet, even on a later iteration of an enclosing quantifier). This costs nothing in practice: there's no real value being withheld. (Inside a lookbehind — already covered above — matching runs right-to-left, so a reference written first can still follow its own group's capture; that's exactly why the whole body stays atomic regardless of `forward`.)
-- **A `\k<name>` referencing a name declared more than once**, which ECMAScript permits only across disjoint alternatives. This one is stricter than the rest — see [docs/modules/backreferences.md](./modules/backreferences.md#duplicate-named-groups) for why, and for the workaround.
+- **A `\k<name>` written before a later declaration of its duplicated name.** ECMAScript permits a duplicated name only across disjoint alternatives. This one is stricter than the rest — see [docs/modules/backreferences.md](./modules/backreferences.md#duplicate-named-groups) for why, and for the workaround.
 
  The case-folding a backreference's expansion agrees against tracks a locally-scoped `(?i:...)`/`(?-i:...)` [modifier](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Modifier) around that specific backreference, rather than only the pattern's own flags. This holds for a backreference the local scope makes *more* case-insensitive than the pattern is, or *less*. V8 versions before [the fix](https://issues.chromium.org/issues/447583670) released in Node.js 24.12 can still mishandle the locally-disabled case when the surrounding pattern has `i`; Chromium/Electron support depends on their bundled V8 version.
 
@@ -136,6 +136,15 @@ e.g.
 ```
 
 "f" through "foo" is not a match, but "foob" is.
+
+## Duplicate Group Names V8 Accepts
+
+ECMAScript lets a group name be declared more than once only in alternatives that can't both take part. Node.js 24 (V8 13.6), and likely earlier V8 versions that support duplicate names, also accept some patterns the specification rejects, where both groups can take part, such as `/(?<n>a)(?=x|(?<n>y))/`. This is a V8 defect, [fixed](https://chromium.googlesource.com/v8/v8/+/0be3260ffee08dc6e7278a1e8549d007036b4093) in V8 13.9 (Chrome 139, Node.js 25). `PartialMatchRegExp` constructs these patterns but doesn't support them:
+
+- `exec()` can accept input no completion would match, when the pattern has a `\k<name>` to the duplicated name. `/(?<n>a)(?:x|(?<n>y))\k<n>/` never matches through `y` natively, yet `exec("ayy")` returns `["ayy", "a", "y"]`.
+- [`hitEnd()`](../README.md#hitend) throws a `SyntaxError`, because its probe adds capturing groups, which V8 then rejects.
+
+Node.js 25 and later and JavaScriptCore (Safari, Bun) follow the specification and reject these patterns at construction. Renaming one of the groups avoids the problem.
 
 ## Surrogate Pair Matching
 

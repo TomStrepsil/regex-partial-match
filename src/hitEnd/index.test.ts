@@ -343,6 +343,17 @@ describe("hitEnd()", () => {
     });
   });
 
+  describe("a name declared more than once", () => {
+    it("reads the end of the input a reference after both declarations ran out at", () => {
+      const partial = new PartialMatchRegExp(/^(?:(?<x>a+)|(?<x>b+))c\k<x>$/);
+
+      expect(hitEndOf(partial, "aac")).toBe(true);
+      expect(hitEndOf(partial, "aaca")).toBe(true);
+      expect(hitEndOf(partial, "aacaa")).toBe(true);
+      expect(hitEndOf(partial, "bbcb")).toBe(true);
+    });
+  });
+
   describe("a backreference in a higher-priority alternative, behind a native match", () => {
     it.each([
       [/(ab)\1|a/, "aba", "abab"],
