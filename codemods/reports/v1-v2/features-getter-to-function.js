@@ -177,8 +177,10 @@ export default function transform(fileInfo, api) {
       const functionName = importIsVisible
         ? featuresImport.local.name
         : unboundName(path);
+      const receiver =
+        path.node.object.type === "Super" ? j.thisExpression() : path.node.object;
       const replacement = j(
-        j.callExpression(j.identifier(functionName), [path.node.object])
+        j.callExpression(j.identifier(functionName), [receiver])
       ).toSource();
       const importLine = importIsVisible
         ? ""
