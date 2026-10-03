@@ -81,10 +81,11 @@ del rpm-codemod.js
 - A local function that happens to be called `isComplete` is not touched.
 - An aliased import (`isComplete as done`) becomes `hitEnd as done`, and its calls are rewritten like any other (`done(p, m)` becomes `!done(p, m)`). The alias now names the opposite meaning, so the import is printed with its file and line for you to rename.
 - Each of these is left as it is and printed with its file and line, for you to migrate by hand:
-  - `isComplete` used as a value rather than called: a callback, an assignment, a re-export, or destructured from a namespace import
+  - `isComplete` used as a value rather than called: a callback, an assignment, or an export of the imported binding. The import and every direct call of that binding are then left as they are, so nothing is left unbound.
+  - `isComplete` re-exported, or destructured from a namespace import
   - `require()` and dynamic `import()` of the package
-  - a call where `hitEnd` is bound to something else, or the file's own `hitEnd` is already taken
-- Direct calls in the same file are still rewritten when one of those sites is printed, so the file may need finishing by hand.
+  - a call where `hitEnd` is bound to something else, or the file's own `hitEnd` is already taken. The import and every direct call are then left as they are.
+- Calls through a namespace import are still rewritten when one of those sites is printed, so the file may need finishing by hand.
 
 ---
 

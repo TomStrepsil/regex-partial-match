@@ -511,7 +511,7 @@ describe("isComplete-to-hitEnd codemod", () => {
   });
 
   describe("sites it flags instead of rewriting", () => {
-    it("flags isComplete passed as a callback and still rewrites the calls", () => {
+    it("flags isComplete passed as a callback and leaves the import and calls alone", () => {
       const { output, report } = runTransform(
         lines(
           'import { isComplete } from "regex-partial-match";',
@@ -520,10 +520,38 @@ describe("isComplete-to-hitEnd codemod", () => {
         )
       );
 
-      expect(output).toContain("pairs.every(([p, m]) => !hitEnd(p, m));");
-      expect(output).toContain("pairs.map(isComplete);");
+      expect(output).toBeNull();
       expect(report).toContain("fixture.ts:3");
       expect(report).not.toContain("fixture.ts:2");
+      expect(report).toContain("throughout this file");
+    });
+
+    it("leaves an aliased import alone when the alias is used as a value", () => {
+      const { output, report } = runTransform(
+        lines(
+          'import { isComplete as done } from "regex-partial-match";',
+          "const a = done(p, m);",
+          "pairs.map(done);"
+        )
+      );
+
+      expect(output).toBeNull();
+      expect(report).toContain("fixture.ts:3");
+    });
+
+    it("still rewrites namespace calls when the imported binding is used as a value", () => {
+      const { output } = runTransform(
+        lines(
+          'import { isComplete } from "regex-partial-match";',
+          'import * as rpm from "regex-partial-match";',
+          "const a = rpm.isComplete(p, m);",
+          "pairs.map(isComplete);"
+        )
+      );
+
+      expect(output).toContain("const a = !rpm.hitEnd(p, m);");
+      expect(output).toContain('import { isComplete } from "regex-partial-match";');
+      expect(output).toContain("pairs.map(isComplete);");
     });
 
     it("flags isComplete assigned to another binding", () => {

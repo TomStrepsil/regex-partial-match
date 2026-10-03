@@ -18,7 +18,8 @@
  *   - an aliased import (`isComplete as done`) keeps its alias, which now names
  *     the opposite meaning
  *   - `isComplete` used as a value (callback, assignment, re-export, destructured
- *     from a namespace)
+ *     from a namespace); for the imported binding, the import and all its
+ *     calls are then left as they are
  *   - a call where `hitEnd` is bound to something else in scope
  *   - `require()` and dynamic `import()` of the package
  *
@@ -128,7 +129,26 @@ export default function isCompleteToHitEnd(fileInfo, api) {
       `"${targetByLocal.get(path.node.callee.name)}" is shadowed here, so "${OLD_NAME}" was left as it is throughout this file; migrate it by hand`
     );
   });
-  if (shadowedCalls.size() > 0) targetByLocal.clear();
+  const valueReferences = root.find(j.Identifier).filter((path) => {
+    const { name } = path.node;
+    const { node: parent } = path.parent;
+    return (
+      targetByLocal.has(name) &&
+      parent.type !== "ImportSpecifier" &&
+      !(NOT_A_REFERENCE_KEYS.includes(path.name) && !parent.computed) &&
+      !isCalled(path) &&
+      resolvesToImport(path, name)
+    );
+  });
+  valueReferences.forEach((path) => {
+    flag(
+      path.node,
+      `"${path.node.name}" is used as a value, not called, so "${OLD_NAME}" was left as it is throughout this file; \`!hitEnd(...)\` is its replacement, so rewrite it by hand`
+    );
+  });
+  if (shadowedCalls.size() > 0 || valueReferences.size() > 0) {
+    targetByLocal.clear();
+  }
   const handledSpecifiers = oldSpecifiers.filter((specifier) =>
     targetByLocal.has(specifier.local.name)
   );
@@ -205,23 +225,6 @@ export default function isCompleteToHitEnd(fileInfo, api) {
           flag(specifier, `"${OLD_NAME}" is re-exported; re-export \`hitEnd\` and update importers by hand`);
         }
       }
-    });
-
-  root
-    .find(j.Identifier)
-    .filter((path) => {
-      const { name } = path.node;
-      const { node: parent } = path.parent;
-      return (
-        targetByLocal.has(name) &&
-        parent.type !== "ImportSpecifier" &&
-        !(NOT_A_REFERENCE_KEYS.includes(path.name) && !parent.computed) &&
-        !isCalled(path) &&
-        resolvesToImport(path, name)
-      );
-    })
-    .forEach((path) => {
-      flag(path.node, `"${path.node.name}" is used as a value, not called; \`!hitEnd(...)\` is its replacement, so rewrite it by hand`);
     });
 
   for (const specifier of handledSpecifiers) {
