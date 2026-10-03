@@ -1,6 +1,5 @@
-import { describe, expect, it } from "vitest";
-import { Feature, featureSet } from "./featureMask.ts";
-import type { RegexFeature } from "./regexFeatures.ts";
+import { describe, expect, expectTypeOf, it } from "vitest";
+import { Feature, featureSet, type RegexFeature } from "./regexFeatures.ts";
 
 const bits: Record<RegexFeature, Feature> = {
   patternCharacter: Feature.patternCharacter,
@@ -42,4 +41,10 @@ describe("Feature, a const enum so the walker's bits inline as numbers and only 
       expect(featureSet(bits[name])).toEqual(new Set([name]));
     }
   );
+});
+
+describe("RegexFeature, the names the public type lists, against the Feature enum the walker sets bits from", () => {
+  it("names exactly the members of Feature, so neither list can gain an entry the other lacks", () => {
+    expectTypeOf<keyof typeof Feature>().toEqualTypeOf<RegexFeature>();
+  });
 });

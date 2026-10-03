@@ -15,7 +15,7 @@ import {
   START_ANCHOR
 } from "./atomSyntax.ts";
 import { legacyEscapeAtoms } from "./legacyEscape.ts";
-import { Feature } from "./featureMask.ts";
+import { Feature } from "./regexFeatures.ts";
 import type { Backreference, Part } from "./part.ts";
 import {
   ON_ALTERNATIVE,
