@@ -64,7 +64,9 @@ export default function transform(fileInfo, api) {
   const imported = packageImports.nodes().flatMap((declaration) =>
     declaration.specifiers.map((specifier) => ({
       specifier,
-      entry: declaration.source.value
+      entry: declaration.source.value,
+      isValue:
+        declaration.importKind !== "type" && specifier.importKind !== "type"
     }))
   );
   const classLocals = new Set(
@@ -79,10 +81,12 @@ export default function transform(fileInfo, api) {
       .map(({ specifier }) => specifier.local.name)
   );
   const featuresImport = imported.find(
-    ({ specifier, entry }) =>
-      (specifier.type === "ImportSpecifier" &&
+    ({ specifier, entry, isValue }) =>
+      isValue &&
+      ((specifier.type === "ImportSpecifier" &&
         specifier.imported.name === FEATURES) ||
-      (specifier.type === "ImportDefaultSpecifier" && entry === FEATURES_ENTRY)
+        (specifier.type === "ImportDefaultSpecifier" &&
+          entry === FEATURES_ENTRY))
   )?.specifier;
 
   const isInstanceExpression = (node) =>

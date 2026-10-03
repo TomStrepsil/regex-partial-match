@@ -289,6 +289,28 @@ describe("features-getter report", () => {
       expect(report).toContain("write `featuresOf(re)`");
     });
 
+    it("does not take a type-only features import for the function", () => {
+      for (const typeOnly of [
+        'import type { features } from "regex-partial-match";',
+        'import { type features } from "regex-partial-match";',
+        'import type features from "regex-partial-match/features";'
+      ]) {
+        const { report } = runTransform(
+          lines(
+            typeOnly,
+            'import PartialMatchRegExp from "regex-partial-match";',
+            "const re = new PartialMatchRegExp('a');",
+            "re.features;"
+          )
+        );
+
+        expect(report).toContain("write `featuresOf(re)`");
+        expect(report).toContain(
+          'add: import { features as featuresOf } from "regex-partial-match";'
+        );
+      }
+    });
+
     it("uses the local name of an existing alias", () => {
       const { report } = runTransform(
         lines(

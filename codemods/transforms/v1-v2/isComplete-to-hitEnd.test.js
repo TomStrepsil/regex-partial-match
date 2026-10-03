@@ -348,19 +348,39 @@ describe("isComplete-to-hitEnd codemod", () => {
       expect(output).toContain("const f = (isComplete) => isComplete(1, 2);");
     });
 
-    it("flags a call where hitEnd is shadowed, and leaves it", () => {
+    it("leaves the import and every call alone when one call has hitEnd shadowed", () => {
       const { output, report } = runTransform(
         lines(
           'import { isComplete } from "regex-partial-match";',
+          "const a = isComplete(p, m);",
           "function f(hitEnd) {",
           "  return isComplete(p, hitEnd);",
           "}"
         )
       );
 
-      expect(output).toContain("return isComplete(p, hitEnd);");
-      expect(report).toContain("fixture.ts:3");
+      expect(output).toBeNull();
+      expect(report).toContain("fixture.ts:4");
+      expect(report).not.toContain("fixture.ts:2");
       expect(report).toContain('"hitEnd" is shadowed here');
+      expect(report).toContain("throughout this file");
+    });
+
+    it("still rewrites namespace calls when a direct call is shadowed", () => {
+      const { output } = runTransform(
+        lines(
+          'import { isComplete } from "regex-partial-match";',
+          'import * as rpm from "regex-partial-match";',
+          "const a = rpm.isComplete(p, m);",
+          "function f(hitEnd) {",
+          "  return isComplete(p, hitEnd);",
+          "}"
+        )
+      );
+
+      expect(output).toContain("const a = !rpm.hitEnd(p, m);");
+      expect(output).toContain('import { isComplete } from "regex-partial-match";');
+      expect(output).toContain("return isComplete(p, hitEnd);");
     });
 
     it("leaves the file alone when hitEnd is already bound to something else", () => {

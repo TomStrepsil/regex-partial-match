@@ -95,17 +95,42 @@ export default function isCompleteToHitEnd(fileInfo, api) {
       `"${NEW_NAME}" is already bound in this file, so "${OLD_NAME}" was left as it is; migrate it by hand`
     );
   }
-  const handledSpecifiers = hitEndIsTaken ? [] : oldSpecifiers;
 
   const targetNameOf = (specifier) => {
     if (existingHitEnd) return existingHitEnd.local.name;
     return specifier.local.name === OLD_NAME ? NEW_NAME : specifier.local.name;
   };
   const targetByLocal = new Map(
-    handledSpecifiers.map((specifier) => [
+    (hitEndIsTaken ? [] : oldSpecifiers).map((specifier) => [
       specifier.local.name,
       targetNameOf(specifier)
     ])
+  );
+
+  const isShadowed = (path, target) => {
+    const scope = path.scope.lookup(target);
+    return Boolean(scope) && scope !== globalScope;
+  };
+  const callsThroughImport = () =>
+    root.find(j.CallExpression).filter(
+      (path) =>
+        path.node.callee.type === "Identifier" &&
+        targetByLocal.has(path.node.callee.name) &&
+        resolvesToImport(path, path.node.callee.name)
+    );
+
+  const shadowedCalls = callsThroughImport().filter((path) =>
+    isShadowed(path, targetByLocal.get(path.node.callee.name))
+  );
+  shadowedCalls.forEach((path) => {
+    flag(
+      path.node,
+      `"${targetByLocal.get(path.node.callee.name)}" is shadowed here, so "${OLD_NAME}" was left as it is throughout this file; migrate it by hand`
+    );
+  });
+  if (shadowedCalls.size() > 0) targetByLocal.clear();
+  const handledSpecifiers = oldSpecifiers.filter((specifier) =>
+    targetByLocal.has(specifier.local.name)
   );
 
   const invertCall = (callPath) => {
@@ -118,25 +143,10 @@ export default function isCompleteToHitEnd(fileInfo, api) {
     changed = true;
   };
 
-  root
-    .find(j.CallExpression)
-    .filter(
-      (path) =>
-        path.node.callee.type === "Identifier" &&
-        targetByLocal.has(path.node.callee.name) &&
-        resolvesToImport(path, path.node.callee.name)
-    )
-    .forEach((path) => {
-      const callee = path.node.callee;
-      const target = targetByLocal.get(callee.name);
-      const shadow = path.scope.lookup(target);
-      if (shadow && shadow !== globalScope) {
-        flag(path.node, `"${target}" is shadowed here, so this call was left as it is; migrate it by hand`);
-        return;
-      }
-      callee.name = target;
-      invertCall(path);
-    });
+  callsThroughImport().forEach((path) => {
+    path.node.callee.name = targetByLocal.get(path.node.callee.name);
+    invertCall(path);
+  });
 
   root
     .find(j.CallExpression)
