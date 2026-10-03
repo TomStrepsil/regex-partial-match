@@ -89,6 +89,7 @@
     "url": "git+https://github.com/TomStrepsil/regex-partial-match.git"
   },
   "workspaces": [
+    "codemods",
     "test/benchmarking"
   ],
   "sideEffects": [

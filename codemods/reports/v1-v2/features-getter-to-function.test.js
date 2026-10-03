@@ -1,0 +1,277 @@
+import { describe, expect, it } from "vitest";
+import jscodeshift from "jscodeshift";
+import transform from "./features-getter-to-function.js";
+
+const tsx = jscodeshift.withParser("tsx");
+
+function runTransform(source, path = "fixture.ts") {
+  const reports = [];
+  const output = transform(
+    { path, source },
+    {
+      jscodeshift: tsx,
+      j: tsx,
+      stats: () => undefined,
+      report: (message) => reports.push(message)
+    },
+    {}
+  );
+  return { output, report: reports.join("\n") };
+}
+
+const lines = (...rows) => [...rows, ""].join("\n");
+
+describe("features-getter report", () => {
+  it("never edits the file", () => {
+    const { output } = runTransform(
+      lines(
+        'import PartialMatchRegExp from "regex-partial-match";',
+        "const re = new PartialMatchRegExp('a');",
+        "const used = re.features;"
+      )
+    );
+
+    expect(output).toBeNull();
+  });
+
+  it("writes the replacement and the import line out", () => {
+    const { report } = runTransform(
+      lines(
+        'import PartialMatchRegExp from "regex-partial-match";',
+        "const re = new PartialMatchRegExp('a');",
+        "const used = re.features;"
+      )
+    );
+
+    expect(report).toContain("fixture.ts:3");
+    expect(report).toContain("write `features(re)`");
+    expect(report).toContain(
+      'add: import { features } from "regex-partial-match";'
+    );
+  });
+
+  describe("ranking", () => {
+    const header = 'import PartialMatchRegExp from "regex-partial-match";';
+
+    it("ranks a binding from new PartialMatchRegExp as likely", () => {
+      const { report } = runTransform(
+        lines(header, "const re = new PartialMatchRegExp('a');", "re.features;")
+      );
+
+      expect(report).toContain("fixture.ts:3: likely:");
+    });
+
+    it("ranks a binding from a renamed default import as likely", () => {
+      const { report } = runTransform(
+        lines(
+          'import Partial from "regex-partial-match";',
+          "const re = new Partial('a');",
+          "re.features;"
+        )
+      );
+
+      expect(report).toContain("fixture.ts:3: likely:");
+    });
+
+    it("ranks a binding from a named PartialMatchRegExp import as likely", () => {
+      const { report } = runTransform(
+        lines(
+          'import { PartialMatchRegExp as P } from "regex-partial-match";',
+          "const re = new P('a');",
+          "re.features;"
+        )
+      );
+
+      expect(report).toContain("fixture.ts:3: likely:");
+    });
+
+    it("ranks a binding from toPartialMatchRegex() as likely", () => {
+      const { report } = runTransform(
+        lines(
+          'import "regex-partial-match/extend";',
+          "const re = /a/.toPartialMatchRegex();",
+          "re.features;"
+        )
+      );
+
+      expect(report).toContain("fixture.ts:3: likely:");
+    });
+
+    it("ranks a parameter annotated PartialMatchRegExp as likely", () => {
+      const { report } = runTransform(
+        lines(
+          header,
+          "function f(re: PartialMatchRegExp) {",
+          "  return re.features.has('x');",
+          "}"
+        )
+      );
+
+      expect(report).toContain("fixture.ts:3: likely:");
+      expect(report).toContain("write `features(re)`");
+    });
+
+    it("ranks a variable annotated PartialMatchRegExp as likely", () => {
+      const { report } = runTransform(
+        lines(header, "const re: PartialMatchRegExp = make();", "re.features;")
+      );
+
+      expect(report).toContain("fixture.ts:3: likely:");
+    });
+
+    it("ranks a read straight off a new or a toPartialMatchRegex() call as likely", () => {
+      const { report } = runTransform(
+        lines(
+          header,
+          "new PartialMatchRegExp('a').features;",
+          "/a/.toPartialMatchRegex().features;"
+        )
+      );
+
+      expect(report).toContain("fixture.ts:2: likely:");
+      expect(report).toContain("fixture.ts:3: likely:");
+      expect(report).toContain("write `features(new PartialMatchRegExp('a'))`");
+    });
+
+    it("resolves a binding from an enclosing scope", () => {
+      const { report } = runTransform(
+        lines(
+          header,
+          "const re = new PartialMatchRegExp('a');",
+          "function f() {",
+          "  return re.features;",
+          "}"
+        )
+      );
+
+      expect(report).toContain("fixture.ts:4: likely:");
+    });
+
+    it("ranks everything else as possible", () => {
+      const { report } = runTransform(
+        lines(
+          header,
+          "const re = new PartialMatchRegExp('a');",
+          "const other = makeSomething();",
+          "other.features;",
+          "config.product.features;",
+          "function f(x: Product) { return x.features; }"
+        )
+      );
+
+      expect(report).toContain("fixture.ts:4: possible:");
+      expect(report).toContain("write `features(config.product)`");
+      expect(report).toContain("fixture.ts:5: possible:");
+      expect(report).toContain("fixture.ts:6: possible:");
+      expect(report).not.toContain("likely");
+    });
+
+    it("does not rank a same-named binding in another scope as likely", () => {
+      const { report } = runTransform(
+        lines(
+          header,
+          "function a() { const re = new PartialMatchRegExp('a'); }",
+          "function b(re) { return re.features; }"
+        )
+      );
+
+      expect(report).toContain("fixture.ts:3: possible:");
+    });
+  });
+
+  describe("import line", () => {
+    it("reports for an import of any entry point", () => {
+      for (const entry of [
+        "regex-partial-match",
+        "regex-partial-match/extend",
+        "regex-partial-match/partialMatchRegExp",
+        "regex-partial-match/features"
+      ]) {
+        const { report } = runTransform(
+          lines(`import "${entry}";`, "thing.features;")
+        );
+
+        expect(report).toContain("fixture.ts:2: possible:");
+      }
+    });
+
+    it("does not suggest an import the file already has", () => {
+      const { report } = runTransform(
+        lines(
+          'import PartialMatchRegExp, { features } from "regex-partial-match";',
+          "const re = new PartialMatchRegExp('a');",
+          "re.features;"
+        )
+      );
+
+      expect(report).toContain("write `features(re)`");
+      expect(report).not.toContain("add:");
+    });
+
+    it("uses the local name of an existing alias", () => {
+      const { report } = runTransform(
+        lines(
+          'import PartialMatchRegExp, { features as featuresOfRegex } from "regex-partial-match";',
+          "const re = new PartialMatchRegExp('a');",
+          "re.features;"
+        )
+      );
+
+      expect(report).toContain("write `featuresOfRegex(re)`");
+    });
+
+    it("aliases the import when features is already a binding in scope", () => {
+      const { report } = runTransform(
+        lines(
+          'import PartialMatchRegExp from "regex-partial-match";',
+          "const re = new PartialMatchRegExp('a');",
+          "const features = re.features;"
+        )
+      );
+
+      expect(report).toContain("write `featuresOf(re)`");
+      expect(report).toContain(
+        'add: import { features as featuresOf } from "regex-partial-match";'
+      );
+    });
+  });
+
+  describe("silence", () => {
+    it("reports nothing in a file that imports nothing from the package", () => {
+      const { report, output } = runTransform(
+        lines(
+          'import { thing } from "other-package";',
+          "const re = new Thing();",
+          "re.features;"
+        )
+      );
+
+      expect(report).toBe("");
+      expect(output).toBeNull();
+    });
+
+    it("reports nothing in a file with no features read", () => {
+      const { report } = runTransform(
+        lines(
+          'import PartialMatchRegExp from "regex-partial-match";',
+          "const re = new PartialMatchRegExp('a');",
+          "re.exec('b');"
+        )
+      );
+
+      expect(report).toBe("");
+    });
+
+    it("ignores a features call and a features property key", () => {
+      const { report } = runTransform(
+        lines(
+          'import PartialMatchRegExp from "regex-partial-match";',
+          "const o = { features: 1 };",
+          "features(re);"
+        )
+      );
+
+      expect(report).toBe("");
+    });
+  });
+});
