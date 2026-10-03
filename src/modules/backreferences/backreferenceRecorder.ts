@@ -13,23 +13,17 @@ const UNNAMED_GROUP_OPENING = "(";
 
 export default function backreferenceRecorder(): BackreferenceRecorder {
   let closedGroupNumbers: Set<number> | undefined;
-  let closedGroupNames: Set<string> | undefined;
-  let duplicatedNames: Set<string> | undefined;
-  let referencesToUnduplicatedName: Map<string, Backreference[]> | undefined;
+  let referencesSinceLastClose: Map<string, Backreference[]> | undefined;
 
   return {
     groupClosed(groupNumber, opening) {
       (closedGroupNumbers ??= new Set()).add(groupNumber);
       if (opening === UNNAMED_GROUP_OPENING) return;
       const name = decodeGroupName(groupNameOf(opening));
-      if (!closedGroupNames?.has(name)) {
-        (closedGroupNames ??= new Set()).add(name);
-        return;
-      }
-      (duplicatedNames ??= new Set()).add(name);
-      const earlierReferences = referencesToUnduplicatedName?.get(name) ?? [];
+      const earlierReferences = referencesSinceLastClose?.get(name);
+      if (earlierReferences === undefined) return;
       for (const earlier of earlierReferences) earlier.forward = true;
-      referencesToUnduplicatedName?.delete(name);
+      referencesSinceLastClose?.delete(name);
     },
     backreference(backreference, scope) {
       backreference.caseInsensitive = (scope & CASE_INSENSITIVE) !== 0;
@@ -38,15 +32,11 @@ export default function backreferenceRecorder(): BackreferenceRecorder {
         return;
       }
       const name = decodeGroupName(backreference.ref);
-      if (duplicatedNames?.has(name)) {
-        backreference.forward = true;
-        return;
-      }
-      backreference.forward = !closedGroupNames?.has(name);
-      referencesToUnduplicatedName ??= new Map();
-      const references = referencesToUnduplicatedName.get(name);
+      backreference.forward = false;
+      referencesSinceLastClose ??= new Map();
+      const references = referencesSinceLastClose.get(name);
       if (references === undefined) {
-        referencesToUnduplicatedName.set(name, [backreference]);
+        referencesSinceLastClose.set(name, [backreference]);
         return;
       }
       references.push(backreference);

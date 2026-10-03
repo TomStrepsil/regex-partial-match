@@ -39,6 +39,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A second `^` under the `m` flag after a group of alternatives is judged as the first: `/(?:\s*a?(?=x)|b)^^/m` on `"a"` matches at index 1
 - A backreference pattern no longer returns `null` where its re-derived captures fit a later index: `/(a?[^])\1/` on `"bab"` matches `"ab"` at index 1
 - `exec()` no longer throws on a frozen instance without the `g` or `y` flag
+- A `\k<name>` after every declaration of its duplicated name no longer rejects a partly typed value: `/^(?:(?<x>a+)|(?<x>b+))c\k<x>$/` on `"aaca"`
 - Updated JSDoc comment on `/extend` to match the class
 - Relative link in `README.md` footnote changed to absolute, to mitigate https://github.com/orgs/community/discussions/205358
 

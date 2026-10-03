@@ -55,13 +55,13 @@ These are sound but incomplete: an input is never wrongly accepted, but some val
 - captures the scan can't determine;
 - top-level alternatives that share a prefix;
 - a viable index that isn't the scan's leftmost;
-- duplicate named groups.[^118]
+- a `\k<name>` written before a later declaration of its duplicated name.
 
 ### Duplicate named groups
 
-Every `\k<name>` to a name declared more than once is treated as a forward reference, so it stays atomic. That holds even where its group has already closed, so `/^(?:(?<x>ab)\k<x>|z(?<x>q))$/` rejects `"aba"`, a prefix of `"abab"`. Renaming the duplicate avoids it.[^118]
+ECMAScript allows a name to be declared more than once only in alternatives that can't both take part, so a `\k<name>` after every declaration of its name reads whichever group took part, and is resolved per character like any other backward reference: `/^(?:(?<x>a+)|(?<x>b+))c\k<x>$/` accepts `"aaca"`.
 
-[^118]: Tracked in [#118](https://github.com/TomStrepsil/regex-partial-match/issues/118).
+A `\k<name>` written before a later declaration of its name is treated as a forward reference, so it stays atomic, even where a group of that name has already closed. `/^(?:(?<x>ab)\k<x>|z(?<x>q))$/` rejects `"aba"`, a prefix of `"abab"`. Renaming the duplicate avoids it.
 
 ## 👨‍🍳 Recipes
 
