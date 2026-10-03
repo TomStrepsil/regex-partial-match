@@ -57,6 +57,7 @@ function isWriteTarget(path) {
   const { node } = path;
   switch (parent.type) {
     case "AssignmentExpression":
+    case "AssignmentPattern":
     case "ForInStatement":
     case "ForOfStatement":
       return parent.left === node;
@@ -120,10 +121,13 @@ export default function transform(fileInfo, api) {
           entry === FEATURES_ENTRY))
   )?.specifier;
 
-  const isInstanceExpression = (node) =>
+  const globalScope = root.find(j.Program).get().scope;
+
+  const isInstanceExpression = (node, scope) =>
     (node?.type === "NewExpression" &&
       node.callee.type === "Identifier" &&
-      classLocals.has(node.callee.name)) ||
+      classLocals.has(node.callee.name) &&
+      scope.lookup(node.callee.name) === globalScope) ||
     isFactoryCall(node);
 
   const isAnnotatedAsClass = (node) => {
@@ -143,20 +147,19 @@ export default function transform(fileInfo, api) {
         isAnnotatedAsClass(binding.node) ||
         (declarator.type === "VariableDeclarator" &&
           declarator.id === binding.node &&
-          isInstanceExpression(declarator.init))
+          isInstanceExpression(declarator.init, binding.scope))
       );
     });
   };
 
   const isLikely = (path) => {
     const { object } = path.node;
-    if (isInstanceExpression(object)) return true;
+    if (isInstanceExpression(object, path.scope)) return true;
     return (
       object.type === "Identifier" && isBoundToInstance(path, object.name)
     );
   };
 
-  const globalScope = root.find(j.Program).get().scope;
   const unboundName = (path) => {
     for (const name of candidateNames()) {
       if (!path.scope.lookup(name)) return name;

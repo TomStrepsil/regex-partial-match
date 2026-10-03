@@ -224,8 +224,16 @@ export default function isCompleteToHitEnd(fileInfo, api) {
       for (const specifier of path.node.specifiers) {
         if (specifier.local?.name === OLD_NAME) {
           flag(specifier, `"${OLD_NAME}" is re-exported; re-export \`hitEnd\` and update importers by hand`);
+        } else if (specifier.type === "ExportNamespaceSpecifier") {
+          flag(specifier, `\`export * as\` no longer exposes "${OLD_NAME}"; update importers by hand`);
         }
       }
+    });
+
+  root
+    .find(j.ExportAllDeclaration, { source: { value: PACKAGE } })
+    .forEach((path) => {
+      flag(path.node, `\`export *\` no longer re-exports "${OLD_NAME}"; re-export \`hitEnd\` and update importers by hand`);
     });
 
   for (const specifier of handledSpecifiers) {

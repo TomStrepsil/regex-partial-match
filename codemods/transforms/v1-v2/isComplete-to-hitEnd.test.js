@@ -593,6 +593,21 @@ describe("isComplete-to-hitEnd codemod", () => {
       expect(report).toContain("is re-exported");
     });
 
+    it("flags a wildcard re-export", () => {
+      const { output, report } = runTransform(
+        lines(
+          'export * from "regex-partial-match";',
+          'export * as rpm from "regex-partial-match";',
+          'export * from "other-package";'
+        )
+      );
+
+      expect(output).toBeNull();
+      expect(report).toContain("fixture.ts:1");
+      expect(report).toContain("fixture.ts:2");
+      expect(report).not.toContain("fixture.ts:3");
+    });
+
     it("flags an export of the imported binding", () => {
       const { report } = runTransform(
         lines(

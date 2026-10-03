@@ -61,6 +61,20 @@ describe("features-getter report", () => {
       expect(report).toContain("fixture.ts:3: likely:");
     });
 
+    it("ranks a binding from a shadowed constructor as possible", () => {
+      const { report } = runTransform(
+        lines(
+          header,
+          "function f(PartialMatchRegExp) {",
+          "  const re = new PartialMatchRegExp('a');",
+          "  return re.features;",
+          "}"
+        )
+      );
+
+      expect(report).toContain("fixture.ts:4: possible:");
+    });
+
     it("ranks a binding from a renamed default import as likely", () => {
       const { report } = runTransform(
         lines(
@@ -386,6 +400,8 @@ describe("features-getter report", () => {
           "config.features++;",
           "delete config.features;",
           "[config.features] = list;",
+          "({ a: config.features = fallback } = obj);",
+          "[config.features = fallback] = list;",
           "({ a: config.features } = obj);",
           "for (config.features of list) {}"
         )
