@@ -10,14 +10,14 @@ import {
   isRawLookaround,
   isWordBoundaryAtom
 } from "../../partialMatchRegExp/atomSyntax.ts";
-import { caretFor, isCaret } from "./atomSyntax.ts";
+import { caretFor, isCaret } from "./caretSyntax.ts";
 import canMatchLineTerminator from "./lineTerminator.ts";
 import { isBackreference, type Part } from "../../partialMatchRegExp/part.ts";
 import {
   isQuantifier,
   quantifierEndingAt
 } from "../../partialMatchRegExp/quantifier.ts";
-import { minimumOf } from "./quantifier.ts";
+import { minimumOf } from "./quantifierBounds.ts";
 
 export type LookaheadSpan = [open: number, close: number];
 

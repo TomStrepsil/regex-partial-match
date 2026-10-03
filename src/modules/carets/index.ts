@@ -1,4 +1,4 @@
-import type { Module } from "../../partialMatchRegExp/module.ts";
+import type { Module } from "../../partialMatchRegExp/opaqueModule.ts";
 import {
   CARETS_MODULE,
   defineModule

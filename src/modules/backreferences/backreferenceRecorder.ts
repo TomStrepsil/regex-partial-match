@@ -1,13 +1,13 @@
 import {
   decodeGroupName,
   groupNameOf
-} from "../../partialMatchRegExp/groupName.ts";
+} from "./groupName.ts";
 import {
   isNumericBackreference,
   type Backreference
 } from "../../partialMatchRegExp/part.ts";
 import { CASE_INSENSITIVE } from "../../partialMatchRegExp/scope.ts";
-import type { BackreferenceRecorder } from "../../partialMatchRegExp/compilePartial/compiled.ts";
+import type { BackreferenceRecorder } from "../../partialMatchRegExp/backreferenceHook.ts";
 
 const UNNAMED_GROUP_OPENING = "(";
 

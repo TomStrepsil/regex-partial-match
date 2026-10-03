@@ -1,10 +1,10 @@
 import { describe, it, expect } from "vitest";
-import PartialMatchRegExp from "./partialMatchRegExp.ts";
-import FullPartialMatchRegExp from "../partialMatchRegExp/partialMatchRegExp.ts";
+import PartialMatchRegExp from "./corePartialMatchRegExp.ts";
+import FullPartialMatchRegExp from "../partialMatchRegExp/index.ts";
 import { compiledOf } from "../partialMatchRegExp/partialMatchInternals.ts";
 import { CompiledStatic } from "../partialMatchRegExp/compilePartial/compiled.ts";
 import withModules from "../partialMatchRegExp/withModules.ts";
-import features from "../partialMatchRegExp/features/index.ts";
+import features from "../features/index.ts";
 import backreferences from "../modules/backreferences/index.ts";
 
 function renderedOf(partial: RegExp) {

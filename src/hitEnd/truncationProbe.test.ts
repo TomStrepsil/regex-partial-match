@@ -1,10 +1,10 @@
 import { describe, it, expect } from "vitest";
 import PartialMatchRegExp from "../index.ts";
-import CorePartialMatchRegExp from "../../core/index.ts";
-import { compiledOf } from "../partialMatchInternals.ts";
+import CorePartialMatchRegExp from "../core/index.ts";
+import { compiledOf } from "../partialMatchRegExp/partialMatchInternals.ts";
 import { buildTruncationProbe } from "./truncationProbe.ts";
 import probeSourceOf from "./probeSource.ts";
-import { hitEndOf } from "../../../test/vitest.setup.ts";
+import { hitEndOf } from "../../test/hitEndOf.ts";
 
 function probeOf(pattern: RegExp) {
   const partial = new PartialMatchRegExp(pattern);

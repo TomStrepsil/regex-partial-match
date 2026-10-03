@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import PartialMatchRegExp, { hitEnd } from "../index.ts";
-import CorePartialMatchRegExp from "../../core/index.ts";
-import { hitEndOf } from "../../../test/vitest.setup.ts";
+import CorePartialMatchRegExp from "../core/index.ts";
+import { hitEndOf } from "../../test/hitEndOf.ts";
 
 describe("hitEnd()", () => {
   describe("distinguishing a match that ran out of input from one that settled", () => {

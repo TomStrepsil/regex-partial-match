@@ -1,4 +1,4 @@
-import type { Part } from "../part.ts";
+import type { Part } from "../partialMatchRegExp/part.ts";
 import type { ProbeSource } from "./probeSource.ts";
 import type { TruncationProbe } from "./truncationProbe.ts";
 

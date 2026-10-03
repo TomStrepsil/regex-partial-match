@@ -1,25 +1,17 @@
-import type { Backreference, Part } from "../part.ts";
+import type { Part } from "../part.ts";
 import type { Hooks } from "../walk.ts";
 import type { RegexFeature } from "../regexFeatures.ts";
-import type { TruncationProbeCache } from "../hitEnd/truncationProbeCache.ts";
-import type { RawLookarounds } from "../hitEnd/rawLookaroundInfo.ts";
-import type { CompiledDynamic } from "../../modules/backreferences/compiledDynamic.ts";
+import type { TruncationProbeCache } from "../../hitEnd/truncationProbeCache.ts";
+import type { RawLookarounds } from "../rawLookaroundInfo.ts";
 
-export interface BackreferenceRecorder {
-  groupClosed(groupNumber: number, opening: string): void;
-  backreference(backreference: Backreference, scope: number): void;
-}
-
-export interface BackreferencesHook {
-  record: () => BackreferenceRecorder;
-  compile: (
-    parts: readonly Part[],
-    backreferences: readonly Backreference[],
-    flags: string,
-    isUnicode: boolean,
-    featureMask: number,
-    hooks: Hooks
-  ) => CompiledDynamic;
+export interface DynamicPath {
+  preScan: RegExp;
+  expand: (capture: RegExpExecArray) => Part[];
+  expansionFitsCaptures: (
+    expandedFrom: RegExpExecArray,
+    match: RegExpExecArray,
+    input: string
+  ) => boolean;
 }
 
 export abstract class Compiled {
@@ -46,6 +38,15 @@ export class CompiledStatic extends Compiled {
     super(parts, featureMask, hooks);
     this.honoursLastIndex = regex.global || regex.sticky;
   }
+}
+
+export interface CompiledDynamic extends Compiled {
+  readonly dynamic: DynamicPath;
+  readonly execDynamic: (
+    this: RegExp,
+    dynamic: DynamicPath,
+    input: string
+  ) => RegExpExecArray | null;
 }
 
 export type CompiledPartial = CompiledStatic | CompiledDynamic;

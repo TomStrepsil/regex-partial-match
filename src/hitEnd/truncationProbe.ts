@@ -1,25 +1,25 @@
-import { legacyEscapeAsLiteral } from "../legacyEscape.ts";
-import { FLAGS_IRRELEVANT_TO_REBUILD } from "../constants.ts";
+import { legacyEscapeAsLiteral } from "../partialMatchRegExp/legacyEscape.ts";
+import { FLAGS_IRRELEVANT_TO_REBUILD } from "../partialMatchRegExp/constants.ts";
 import {
   DISJUNCTION_TO_END_OF_INPUT,
   END_ANCHOR,
   OPTIONAL_ATOM_OPENING,
   isOptionalAtom,
   isWordBoundaryAtom
-} from "../atomSyntax.ts";
-import { isQuantifier, quantifierEndingAt } from "../quantifier.ts";
+} from "../partialMatchRegExp/atomSyntax.ts";
+import { isQuantifier, quantifierEndingAt } from "../partialMatchRegExp/quantifier.ts";
 import {
   isBackreference,
   isNumericBackreference,
   type Backreference,
   type Part
-} from "../part.ts";
+} from "../partialMatchRegExp/part.ts";
 import { roleOf } from "./partRole.ts";
 import type {
   RawLookaroundInfo,
   RawLookarounds,
   RawReference
-} from "./rawLookaroundInfo.ts";
+} from "../partialMatchRegExp/rawLookaroundInfo.ts";
 
 export interface TruncationProbe {
   regex: RegExp;

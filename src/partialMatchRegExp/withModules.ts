@@ -1,11 +1,11 @@
 import createPartialMatchRegExp from "./createPartialMatchRegExp.ts";
-import type { Module } from "./module.ts";
+import type { Module } from "./opaqueModule.ts";
 import {
   definedModuleHooks,
   moduleHooks,
   type HooksOfModule
 } from "./moduleHooks.ts";
-import type { PartialMatchRegExpConstructor } from "./partialMatchRegExp.ts";
+import type { PartialMatchRegExpConstructor } from "./index.ts";
 import type { Hooks } from "./walk.ts";
 
 const boundByModuleMask: (PartialMatchRegExpConstructor | undefined)[] = [];

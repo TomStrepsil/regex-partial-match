@@ -1,12 +1,12 @@
 import { describe, it, expect, vi } from "vitest";
 import withModules from "./withModules.ts";
 import createPartialMatchRegExp from "./createPartialMatchRegExp.ts";
-import PartialMatchRegExp from "../core/partialMatchRegExp.ts";
-import FullPartialMatchRegExp from "./partialMatchRegExp.ts";
+import PartialMatchRegExp from "../core/corePartialMatchRegExp.ts";
+import FullPartialMatchRegExp from "./index.ts";
 import carets from "../modules/carets/index.ts";
 import backreferences from "../modules/backreferences/index.ts";
 import * as everyModule from "../modules/index.ts";
-import type { Module } from "./module.ts";
+import type { Module } from "./opaqueModule.ts";
 import { moduleHooks, type HooksOfModule } from "./moduleHooks.ts";
 import { isBackreference } from "./part.ts";
 import { compiledOf } from "./partialMatchInternals.ts";
@@ -267,7 +267,7 @@ describe("withModules refuses anything but a module from regex-partial-match/mod
       carets: fresh.carets,
       backreferences: fresh.backreferences,
       brand: (await import("./moduleHooks.ts")).moduleHooks,
-      defaultClass: async () => (await import("./partialMatchRegExp.ts")).default
+      defaultClass: async () => (await import("./index.ts")).default
     };
   }
 
@@ -317,7 +317,7 @@ describe("withModules refuses anything but a module from regex-partial-match/mod
     const graph = await inAFreshModuleGraph();
     const altered = Object.assign(
       { ...graph.carets },
-      { bit: 3, caret: () => undefined, backreferences: undefined }
+      { bit: 3, caret: () => undefined, backreference: undefined }
     );
 
     const Altered = graph.withModules(altered);

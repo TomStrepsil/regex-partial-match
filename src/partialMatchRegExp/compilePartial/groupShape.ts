@@ -1,4 +1,4 @@
-import { FLAGS_IRRELEVANT_TO_REBUILD } from "./constants.ts";
+import { FLAGS_IRRELEVANT_TO_REBUILD } from "../constants.ts";
 
 export default function groupShape(regex: RegExp) {
   const emptyMatch = new RegExp(

@@ -1,12 +1,12 @@
-import carets from "../../modules/carets/index.ts";
-import backreferences from "../../modules/backreferences/index.ts";
-import type { Module } from "../module.ts";
-import type { Hooks } from "../walk.ts";
+import carets from "../../../lib/modules/carets/index.js";
+import backreferences from "../../../lib/modules/backreferences/index.js";
+import compileWith from "../../../lib/partialMatchRegExp/compilePartial/compileWith.js";
+import type { Module } from "../../../lib/partialMatchRegExp/opaqueModule.js";
 import {
   moduleHooks,
   type ModuleHooks
-} from "../moduleHooks.ts";
-import compileWith from "./compileWith.ts";
+} from "../../../lib/partialMatchRegExp/moduleHooks.js";
+import type { Hooks } from "../../../lib/partialMatchRegExp/walk.js";
 
 interface HooksOfModule extends Module {
   readonly [moduleHooks]?: ModuleHooks;

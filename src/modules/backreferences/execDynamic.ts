@@ -1,13 +1,14 @@
-import renderParts from "../../partialMatchRegExp/compilePartial/renderParts.ts";
-import type { DynamicPath } from "./compiledDynamic.ts";
+import renderParts from "./renderParts.ts";
+import type { DynamicPath } from "../../partialMatchRegExp/compilePartial/compiled.ts";
 import {
   backreferenceExpansion,
   type ExpandedMatch
 } from "../../partialMatchRegExp/backreferenceExpansion.ts";
-import {
-  execFrom,
-  isAtOrBefore
-} from "../../partialMatchRegExp/partialMatchInternals.ts";
+import execFrom from "../../partialMatchRegExp/execFrom.ts";
+
+function isAtOrBefore(match: RegExpExecArray | null, index: number) {
+  return match !== null && match.index <= index;
+}
 
 export default function execDynamic(
   this: RegExp,

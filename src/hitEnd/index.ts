@@ -1,5 +1,5 @@
-import type PartialMatchRegExp from "../partialMatchRegExp.ts";
-import { compiledOf } from "../partialMatchInternals.ts";
+import type PartialMatchRegExp from "../partialMatchRegExp/index.ts";
+import { compiledOf } from "../partialMatchRegExp/partialMatchInternals.ts";
 import matchHitEnd from "./matchHitEnd.ts";
 import probeSourceOf from "./probeSource.ts";
 

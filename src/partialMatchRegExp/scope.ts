@@ -30,6 +30,8 @@ export function scopeOf(regex: RegExp) {
   );
 }
 
+export type ModifiersHook = (scope: number, modifiers: string) => number;
+
 export function scopeWithModifiers(scope: number, modifiers: string) {
   let removing = false;
   for (let index = 0; index < modifiers.length; index++) {

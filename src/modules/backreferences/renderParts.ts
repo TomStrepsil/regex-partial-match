@@ -1,4 +1,4 @@
-import { isBackreference, type Part } from "../part.ts";
+import { isBackreference, type Part } from "../../partialMatchRegExp/part.ts";
 import asNativeAtom from "./asNativeAtom.ts";
 
 export default function renderParts(parts: readonly Part[]) {

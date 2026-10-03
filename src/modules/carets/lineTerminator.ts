@@ -1,4 +1,4 @@
-import { optionalAtomTextOf } from "./atomSyntax.ts";
+import { optionalAtomTextOf } from "./caretSyntax.ts";
 import {
   DOT_ALL,
   UNICODE_SETS,

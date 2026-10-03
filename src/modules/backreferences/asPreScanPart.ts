@@ -1,6 +1,6 @@
-import { ANY_CAPTURED_TEXT } from "../../partialMatchRegExp/compilePartial/constants.ts";
+import { ANY_CAPTURED_TEXT } from "./constants.ts";
 import { isBackreference, type Part } from "../../partialMatchRegExp/part.ts";
-import asNativeAtom from "../../partialMatchRegExp/compilePartial/asNativeAtom.ts";
+import asNativeAtom from "./asNativeAtom.ts";
 
 export default function asPreScanPart(part: Part) {
   if (!isBackreference(part)) return part;

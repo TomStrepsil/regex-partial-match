@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import createPartialMatchRegExp from "../../partialMatchRegExp/createPartialMatchRegExp.ts";
-import PartialMatchRegExp from "../../partialMatchRegExp/partialMatchRegExp.ts";
+import PartialMatchRegExp from "../../partialMatchRegExp/index.ts";
 import { compiledOf } from "../../partialMatchRegExp/partialMatchInternals.ts";
 import caretRecorder from "./caretRecorder.ts";
 import needsCaretRules from "./needsCaretRules.ts";

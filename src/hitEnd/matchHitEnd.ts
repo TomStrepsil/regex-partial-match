@@ -1,13 +1,15 @@
 import { buildTruncationProbe, tookTruncationBranch } from "./truncationProbe.ts";
-import type { CompiledPartial } from "../compilePartial/compiled.ts";
-import type { CompiledDynamic } from "../../modules/backreferences/compiledDynamic.ts";
+import type {
+  CompiledDynamic,
+  CompiledPartial
+} from "../partialMatchRegExp/compilePartial/compiled.ts";
 import {
   backreferenceExpansion,
   type ExpandedMatch
-} from "../backreferenceExpansion.ts";
+} from "../partialMatchRegExp/backreferenceExpansion.ts";
 import type { TruncationProbeCache } from "./truncationProbeCache.ts";
-import type { Part } from "../part.ts";
-import { FLAGS_IRRELEVANT_TO_REBUILD } from "../constants.ts";
+import type { Part } from "../partialMatchRegExp/part.ts";
+import { FLAGS_IRRELEVANT_TO_REBUILD } from "../partialMatchRegExp/constants.ts";
 
 export default function matchHitEnd(
   compiled: CompiledPartial,

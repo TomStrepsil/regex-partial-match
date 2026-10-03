@@ -1,8 +1,9 @@
 import compileWith from "./compilePartial/compileWith.ts";
 import type { CompiledPartial } from "./compilePartial/compiled.ts";
-import { compiledPartial, execFrom } from "./partialMatchInternals.ts";
+import { compiledPartial } from "./partialMatchInternals.ts";
+import execFrom from "./execFrom.ts";
 import type { Hooks } from "./walk.ts";
-import type { PartialMatchRegExpConstructor } from "./partialMatchRegExp.ts";
+import type { PartialMatchRegExpConstructor } from "./index.ts";
 
 export default function createPartialMatchRegExp(
   hooks: Hooks

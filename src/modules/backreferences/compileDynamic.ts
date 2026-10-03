@@ -1,5 +1,5 @@
-import escapeAtom from "../../partialMatchRegExp/escapeAtom.ts";
-import { ALTERNATION } from "../../partialMatchRegExp/compilePartial/constants.ts";
+import escapeAtom from "./escapeAtom.ts";
+import { ALTERNATION } from "./constants.ts";
 import {
   GROUP_CLOSING,
   ONLY_AT_END_OF_INPUT,
@@ -12,7 +12,8 @@ import {
   type Part
 } from "../../partialMatchRegExp/part.ts";
 import type { Hooks } from "../../partialMatchRegExp/walk.ts";
-import { CompiledDynamic, type DynamicPath } from "./compiledDynamic.ts";
+import type { DynamicPath } from "../../partialMatchRegExp/compilePartial/compiled.ts";
+import { CompiledBackreferences } from "./compiledBackreferences.ts";
 import asPreScanPart from "./asPreScanPart.ts";
 import resolvedFromScan from "./resolvedFromScan.ts";
 import startsWithUnderFlags from "./startsWithUnderFlags.ts";
@@ -68,7 +69,7 @@ export default function compileDynamic(
       return expanded;
     }
   };
-  return new CompiledDynamic(
+  return new CompiledBackreferences(
     dynamic,
     parts,
     featureMask,

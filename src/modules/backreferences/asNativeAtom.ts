@@ -1,5 +1,5 @@
-import { isNumericBackreference, type Backreference } from "../part.ts";
-import { asOptionalAtom } from "../atomSyntax.ts";
+import { isNumericBackreference, type Backreference } from "../../partialMatchRegExp/part.ts";
+import { asOptionalAtom } from "../../partialMatchRegExp/atomSyntax.ts";
 
 function backrefToken(backref: Backreference) {
   return isNumericBackreference(backref)

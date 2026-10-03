@@ -3,7 +3,7 @@ import PartialMatchRegExp, {
   hitEnd,
   features,
   type PartialMatchRegExpConstructor
-} from "../../src/partialMatchRegExp/index.ts";
+} from "../../src/index.ts";
 import CorePartialMatchRegExp, {
   withModules,
   type Module,
@@ -17,7 +17,7 @@ import {
 } from "../../src/modules/index.ts";
 import "../../src/extend/index.ts";
 
-declare module "../../src/partialMatchRegExp/index.ts" {
+declare module "../../src/index.ts" {
   interface PartialMatchRegExp {
     mergedByDeclaration?: true;
   }

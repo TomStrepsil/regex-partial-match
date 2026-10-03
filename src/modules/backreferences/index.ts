@@ -1,4 +1,4 @@
-import type { Module } from "../../partialMatchRegExp/module.ts";
+import type { Module } from "../../partialMatchRegExp/opaqueModule.ts";
 import {
   BACKREFERENCES_MODULE,
   defineModule
@@ -16,7 +16,7 @@ import { scopeWithModifiers } from "../../partialMatchRegExp/scope.ts";
  */
 const backreferences: Module = defineModule({
   bit: BACKREFERENCES_MODULE,
-  backreferences: Object.freeze({
+  backreference: Object.freeze({
     record: backreferenceRecorder,
     compile: compileDynamic
   }),

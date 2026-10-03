@@ -1,7 +1,7 @@
-import type PartialMatchRegExp from "../partialMatchRegExp.ts";
-import { compiledOf } from "../partialMatchInternals.ts";
-import { featureSet } from "../featureMask.ts";
-import type { RegexFeature } from "../regexFeatures.ts";
+import type PartialMatchRegExp from "../partialMatchRegExp/index.ts";
+import { compiledOf } from "../partialMatchRegExp/partialMatchInternals.ts";
+import { featureSet } from "../partialMatchRegExp/featureMask.ts";
+import type { RegexFeature } from "../partialMatchRegExp/regexFeatures.ts";
 
 export type { RegexFeature };
 

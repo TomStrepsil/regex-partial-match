@@ -23,12 +23,12 @@ import {
   ON_LOOKAHEAD,
   type CaretFrame,
   type CaretRecorder
-} from "../../partialMatchRegExp/caretFrame.ts";
+} from "../../partialMatchRegExp/caretHook.ts";
 import appendMultilineCaret, {
   canEndLine,
   type LookaheadSpan
 } from "./appendMultilineCaret.ts";
-import { isQuantifierAhead, minimumOf, quantifierAhead } from "./quantifier.ts";
+import { isQuantifierAhead, minimumOf, quantifierAhead } from "./quantifierBounds.ts";
 
 const NO_ALTERNATIVES: readonly number[] = [0];
 const NO_LOOKAHEAD_SPANS: readonly LookaheadSpan[] = [];

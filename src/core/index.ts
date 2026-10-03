@@ -1,7 +1,7 @@
-export { default } from "./partialMatchRegExp.ts";
+export { default } from "./corePartialMatchRegExp.ts";
 export type {
   PartialMatchRegExp,
   PartialMatchRegExpConstructor
-} from "./partialMatchRegExp.ts";
+} from "./corePartialMatchRegExp.ts";
 export { default as withModules } from "../partialMatchRegExp/withModules.ts";
-export type { Module } from "../partialMatchRegExp/module.ts";
+export type { Module } from "../partialMatchRegExp/opaqueModule.ts";

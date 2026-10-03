@@ -1,9 +1,9 @@
 import {
   NOT_NUMBERS_REGEX,
   LITERAL_BACKSLASH,
-  LITERAL_K
+  LITERAL_K,
+  MAYBE_HAS_BACKREFERENCE_REGEX
 } from "./constants.ts";
-import { MAYBE_HAS_BACKREFERENCE_REGEX } from "./compilePartial/constants.ts";
 import {
   asOptionalAtom,
   isWordBoundaryAtom,
@@ -25,15 +25,15 @@ import {
   ON_LOOKAHEAD,
   type CaretHook,
   type CaretRecorder
-} from "./caretFrame.ts";
+} from "./caretHook.ts";
 import type {
   BackreferenceRecorder,
-  BackreferencesHook
-} from "./compilePartial/compiled.ts";
+  BackreferenceHook
+} from "./backreferenceHook.ts";
 import type {
   RawLookaroundInfo,
   RawReference
-} from "./hitEnd/rawLookaroundInfo.ts";
+} from "./rawLookaroundInfo.ts";
 import { BACKREFERENCES_MODULE, CARETS_MODULE } from "./moduleHooks.ts";
 import { OCCURRENCES_REGEX } from "./quantifier.ts";
 import {
@@ -43,7 +43,8 @@ import {
   WITHIN_GROUP,
   WITHIN_LOOKAROUND,
   WITHIN_RAW_LOOKAROUND,
-  scopeOf
+  scopeOf,
+  type ModifiersHook
 } from "./scope.ts";
 
 const ASCII_LETTER = /[a-z]/iy;
@@ -52,8 +53,8 @@ const FOUR_HEX_DIGITS = /[0-9a-f]{4}/iy;
 
 export interface Hooks {
   caret?: CaretHook;
-  backreferences?: BackreferencesHook;
-  modifiers?: (scope: number, modifiers: string) => number;
+  backreference?: BackreferenceHook;
+  modifiers?: ModifiersHook;
 }
 
 function matchesAt(source: string, start: number, pattern: RegExp) {

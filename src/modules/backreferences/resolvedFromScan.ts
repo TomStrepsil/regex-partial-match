@@ -1,4 +1,4 @@
-import { decodeGroupName } from "../../partialMatchRegExp/groupName.ts";
+import { decodeGroupName } from "./groupName.ts";
 import {
   isNumericBackreference,
   type Backreference

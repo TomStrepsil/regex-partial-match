@@ -12,8 +12,8 @@
  */
 
 import { bench, group } from "mitata";
-import compilePartial from "../../../lib/partialMatchRegExp/compilePartial/index.js";
-import PartialMatchRegExp from "../../../lib/partialMatchRegExp/index.js";
+import compilePartial from "./compilePartial.ts";
+import PartialMatchRegExp from "../../../lib/index.js";
 
 const pattern = /^[a-z]+(?:\s\w+){1,3}/;
 

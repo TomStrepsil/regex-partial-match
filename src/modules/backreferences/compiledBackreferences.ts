@@ -1,19 +1,13 @@
-import { Compiled } from "../../partialMatchRegExp/compilePartial/compiled.ts";
+import {
+  Compiled,
+  type CompiledDynamic,
+  type DynamicPath
+} from "../../partialMatchRegExp/compilePartial/compiled.ts";
 import type { Part } from "../../partialMatchRegExp/part.ts";
 import type { Hooks } from "../../partialMatchRegExp/walk.ts";
 import execDynamic from "./execDynamic.ts";
 
-export interface DynamicPath {
-  preScan: RegExp;
-  expand: (capture: RegExpExecArray) => Part[];
-  expansionFitsCaptures: (
-    expandedFrom: RegExpExecArray,
-    match: RegExpExecArray,
-    input: string
-  ) => boolean;
-}
-
-export class CompiledDynamic extends Compiled {
+export class CompiledBackreferences extends Compiled implements CompiledDynamic {
   readonly execDynamic = execDynamic;
 
   constructor(

@@ -1,4 +1,4 @@
-import escapeAtom from "../../partialMatchRegExp/escapeAtom.ts";
+import escapeAtom from "./escapeAtom.ts";
 import caseFoldFlags from "./caseFoldFlags.ts";
 
 type FoldMatchers = Partial<Record<string, RegExp | null>>;

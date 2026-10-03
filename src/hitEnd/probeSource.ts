@@ -1,6 +1,6 @@
-import type { CompiledPartial } from "../compilePartial/compiled.ts";
-import groupShape from "../compilePartial/groupShape.ts";
-import type { RawLookarounds } from "./rawLookaroundInfo.ts";
+import type { CompiledPartial } from "../partialMatchRegExp/compilePartial/compiled.ts";
+import groupShape from "../partialMatchRegExp/compilePartial/groupShape.ts";
+import type { RawLookarounds } from "../partialMatchRegExp/rawLookaroundInfo.ts";
 
 export interface ProbeSource {
   rawLookarounds: RawLookarounds;

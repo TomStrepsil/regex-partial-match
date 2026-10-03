@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
-import PartialMatchRegExp from "./partialMatchRegExp.ts";
-import features from "./features/index.ts";
-import hitEnd from "./hitEnd/index.ts";
+import PartialMatchRegExp from "./index.ts";
+import features from "../features/index.ts";
+import hitEnd from "../hitEnd/index.ts";
 
 describe("PartialMatchRegExp", () => {
   it("is an instance of RegExp", () => {

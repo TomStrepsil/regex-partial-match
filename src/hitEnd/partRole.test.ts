@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { roleOf } from "./partRole.ts";
-import type { Backreference } from "../part.ts";
+import type { Backreference } from "../partialMatchRegExp/part.ts";
 import {
   GROUP_CLOSING,
   MULTILINE_CARET,
@@ -10,7 +10,7 @@ import {
   WORD_BOUNDARY_ATOMS,
   asOptionalAtom,
   isWordBoundaryAtom
-} from "../atomSyntax.ts";
+} from "../partialMatchRegExp/atomSyntax.ts";
 
 describe("roleOf (pins the exact Part shapes walk() renders, so a future rendering change fails here rather than silently desyncing truncationProbe.ts)", () => {
   it("classifies an unnamed capturing group open", () => {

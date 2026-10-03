@@ -2,8 +2,8 @@ import {
   NAMED_GROUP_OPENING,
   endsAtTruncationBranch,
   isRawLookaround
-} from "../atomSyntax.ts";
-import { isBackreference, type Part } from "../part.ts";
+} from "../partialMatchRegExp/atomSyntax.ts";
+import { isBackreference, type Part } from "../partialMatchRegExp/part.ts";
 
 export type PartRole =
   | "backreference"

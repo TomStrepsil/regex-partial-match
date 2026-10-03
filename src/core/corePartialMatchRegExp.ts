@@ -1,5 +1,5 @@
 import withModules from "../partialMatchRegExp/withModules.ts";
-import type { PartialMatchRegExpConstructor } from "../partialMatchRegExp/partialMatchRegExp.ts";
+import type { PartialMatchRegExpConstructor } from "../partialMatchRegExp/index.ts";
 
 /**
  * `PartialMatchRegExp` without the rules that place a `^` in a group or after

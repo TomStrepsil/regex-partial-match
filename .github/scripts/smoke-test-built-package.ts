@@ -25,7 +25,7 @@
  * PUBLIC_DECLARATIONS: whatever a consumer's compiler can reach is public API,
  * so a new declaration has to be listed deliberately, and a list naming one no
  * entry point reaches has gone stale. As a second layer, none of them may
- * reach the walker's internal types (`walk`, `caretFrame`, `compiled`, `part`)
+ * reach the walker's internal types (`walk`, `caretHook`, `backreferenceHook`, `compiled`, `part`)
  * nor declare the internal feature bits (`Feature`, `featureSet`), since
  * publishing them would make any change to the walker a breaking one.
  *
@@ -46,9 +46,9 @@ import { fileURLToPath } from "node:url";
 import { build } from "esbuild";
 import { Linter } from "eslint";
 import ts from "typescript";
-import type PartialMatchRegExpInstance from "../../src/partialMatchRegExp/index.ts";
-import type hitEndType from "../../src/partialMatchRegExp/hitEnd/index.ts";
-import type featuresType from "../../src/partialMatchRegExp/features/index.ts";
+import type PartialMatchRegExpInstance from "../../src/index.ts";
+import type hitEndType from "../../src/hitEnd/index.ts";
+import type featuresType from "../../src/features/index.ts";
 import type withModulesType from "../../src/partialMatchRegExp/withModules.ts";
 
 const SUPPORTED_ECMA_VERSION = 2015;
@@ -75,21 +75,21 @@ const FUNCTION_NAMES = Object.keys(FUNCTION_FILES) as FunctionName[];
 
 const PUBLIC_DECLARATIONS = [
   "lib/core/index.d.ts",
-  "lib/core/partialMatchRegExp.d.ts",
+  "lib/core/corePartialMatchRegExp.d.ts",
   "lib/extend/index.d.ts",
   "lib/modules/backreferences/index.d.ts",
   "lib/modules/carets/index.d.ts",
   "lib/modules/index.d.ts",
-  "lib/partialMatchRegExp/features/index.d.ts",
-  "lib/partialMatchRegExp/hitEnd/index.d.ts",
+  "lib/features/index.d.ts",
+  "lib/hitEnd/index.d.ts",
+  "lib/index.d.ts",
   "lib/partialMatchRegExp/index.d.ts",
-  "lib/partialMatchRegExp/module.d.ts",
-  "lib/partialMatchRegExp/partialMatchRegExp.d.ts",
+  "lib/partialMatchRegExp/opaqueModule.d.ts",
   "lib/partialMatchRegExp/regexFeatures.d.ts",
   "lib/partialMatchRegExp/withModules.d.ts"
 ];
 
-const INTERNAL_TYPINGS = /\/(walk|caretFrame|compiled|part)\.d\.ts$/;
+const INTERNAL_TYPINGS = /\/(walk|caretHook|backreferenceHook|compiled|part)\.d\.ts$/;
 
 const INTERNAL_DECLARATION =
   /\b(?:enum|function|const|let|var|class|interface|type)\s+(?:Feature|featureSet)\b/;

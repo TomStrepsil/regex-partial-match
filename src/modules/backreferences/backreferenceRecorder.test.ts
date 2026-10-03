@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import PartialMatchRegExp from "../../partialMatchRegExp/partialMatchRegExp.ts";
+import PartialMatchRegExp from "../../partialMatchRegExp/index.ts";
 import { compiledOf } from "../../partialMatchRegExp/partialMatchInternals.ts";
 import { isBackreference } from "../../partialMatchRegExp/part.ts";
 

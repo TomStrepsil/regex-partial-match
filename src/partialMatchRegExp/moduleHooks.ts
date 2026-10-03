@@ -1,4 +1,4 @@
-import type { Module } from "./module.ts";
+import type { Module } from "./opaqueModule.ts";
 import type { Hooks } from "./walk.ts";
 
 export const CARETS_MODULE = 1;
