@@ -313,6 +313,24 @@ describe("withModules refuses anything but a module from regex-partial-match/mod
     expect(withModules(sharingHooks)).toBe(withModules(carets));
   });
 
+  it("binds the module's own rules from a module whose hooks change between reads, before any class was built", async () => {
+    const graph = await inAFreshModuleGraph();
+    const genuine = (graph.carets as unknown as Record<symbol, unknown>)[
+      graph.brand
+    ];
+    let reads = 0;
+    const shapeShifting = {
+      get [graph.brand]() {
+        return reads++ === 0 ? genuine : { bit: 1, caret: () => undefined };
+      }
+    } as unknown as Module;
+
+    const Bound = graph.withModules(shapeShifting);
+
+    expect(Bound).toBe(graph.withModules(graph.carets));
+    expect(new Bound(/x^a/m).test("x")).toBe(false);
+  });
+
   it("binds the module's own rules from a copy whose visible members were changed before any class was built", async () => {
     const graph = await inAFreshModuleGraph();
     const altered = Object.assign(
