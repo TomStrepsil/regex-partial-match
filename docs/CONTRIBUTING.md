@@ -166,7 +166,7 @@ describe("feature name", () => {
 
 ### Adding a `RegexFeature`
 
-Append the tag to `REGEX_FEATURES` in `src/partialMatchRegExp/regexFeatures.ts`, give it the next bit in the `Feature` const enum in `src/partialMatchRegExp/featureMask.ts`, add it to the table in `featureMask.test.ts`, and record it during the walk with `featureMask |= Feature.yourTag`. The `RegexFeature` union and the `Set` handed to consumers are derived from the list; `Feature` is a const enum so the walker's bits compile to numbers, leaving the names out of bundles that never call `features()`. The test fails if a bit and its name disagree.
+Append the tag to `REGEX_FEATURES` and give it the next bit in the `Feature` const enum, both in `src/partialMatchRegExp/regexFeatures.ts`, add it to the table in `src/partialMatchRegExp/regexFeatures.test.ts`, and record it during the walk with `featureMask |= Feature.yourTag`. The `RegexFeature` union and the `Set` handed to consumers are derived from the list; `Feature` is a const enum so the walker's bits compile to numbers, leaving the names out of bundles that never call `features()`. The test fails if a bit and its name disagree, and `tsc` fails if the list and the enum name different features.
 
 Those bits live in a single 32-bit mask, so the list has room for 32 tags — 30 are used. A 33rd would silently alias the first (`1 << 32 === 1`), so `LengthUpToOneBitMask` fails the build before it can: past 32, the mask has to become a pair of numbers.
 
