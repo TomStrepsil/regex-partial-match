@@ -3992,6 +3992,44 @@ c`)
         expect(partial.exec("bc")).toMatchAt({ match: "bc", index: 0 });
       });
 
+      it("named: resolves a reference after every declaration of a duplicated name per character", () => {
+        const partial = new PartialMatchRegExp(/^(?:(?<x>a+)|(?<x>b+))c\k<x>$/);
+
+        expect(partial.exec("aac")).toMatchAt({ match: "aac", index: 0 });
+        expect(partial.exec("aaca")).toMatchAt({ match: "aaca", index: 0 });
+        expect(partial.exec("aacaa")).toMatchAt({ match: "aacaa", index: 0 });
+        expect(partial.exec("aacb")).toBeNull();
+        expect(partial.exec("bbcb")).toMatchAt({ match: "bbcb", index: 0 });
+        expect(partial.exec("bbca")).toBeNull();
+      });
+
+      it("named: reports the capture of whichever duplicate took part, for a reference after both", () => {
+        const partial = new PartialMatchRegExp(/^(?:(?<x>a+)|(?<x>b+))c\k<x>$/);
+        const match = partial.exec("aaca");
+
+        expect(Array.from(match ?? [])).toEqual(["aaca", "aa", undefined]);
+        expect(match?.groups?.x).toBe("aa");
+      });
+
+      it("named: keeps a reference before a later declaration of its name forward, so a prefix that depends on the later group is rejected", () => {
+        const partial = new PartialMatchRegExp(/^(?:(?<x>ab)\k<x>|z(?<x>q))$/);
+
+        expect(partial.exec("ab")).toMatchAt({ match: "ab", index: 0 });
+        expect(partial.exec("abab")).toMatchAt({ match: "abab", index: 0 });
+        expect(partial.exec("aba")).toBeNull();
+        expect(partial.exec("zq")).toMatchAt({ match: "zq", index: 0 });
+      });
+
+      it("named: resolves per character a reference after a duplicated name that follows an expansion's first native alternative", () => {
+        const partial = new PartialMatchRegExp(
+          /^(?:(?<x>a+)|(?<x>b+))\k<x>c(?<y>d+)\k<y>$/
+        );
+
+        expect(partial.exec("aaa")).toMatchAt({ match: "aaa", index: 0 });
+        expect(partial.exec("aaaacdd")).toMatchAt({ match: "aaaacdd", index: 0 });
+        expect(partial.exec("aaaacdc")).toBeNull();
+      });
+
       it("named: still resolves a reference to a name declared once, though another name in the same pattern is duplicated", () => {
         const partial = new PartialMatchRegExp(
           /^(?:(?<x>a)|(?<x>b))(?<y>cd)\k<y>$/
