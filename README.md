@@ -36,6 +36,16 @@ partial.test("hello world"); // true - full match
 partial.test("goodbye"); // false - cannot match
 ```
 
+### Extending RegExp.prototype
+
+```javascript
+import "regex-partial-match/extend";
+
+const partial = /^hello world/.toPartialMatchRegex();
+
+partial.test("hel"); // true
+```
+
 ### Telling a settled match from one still reading
 
 `test()` and `exec()` answer "could this match?", which is `true` for a prefix and for a complete match alike. [`hitEnd()`](#hitendpartial-partialmatchregexp-match-regexpexecarray-boolean) reports whether the engine reached the end of the input while producing the match, so more input could still change it [^1]. Testing the original pattern instead doesn't answer that [^2]. Together they give progressive validation its three states:
@@ -77,17 +87,7 @@ import hitEnd from "regex-partial-match/hitEnd";
 import features from "regex-partial-match/features";
 ```
 
-`hitEnd` and `features` accept an instance of any `PartialMatchRegExp` class, including those from [`regex-partial-match/core`](#the-lean-entry-regex-partial-matchcore).
-
-### Extending RegExp.prototype
-
-```javascript
-import "regex-partial-match/extend";
-
-const partial = /^hello world/.toPartialMatchRegex();
-
-partial.test("hel"); // true
-```
+[`hitEnd`](#hitend) and [`features`](#features) accept an instance of any `PartialMatchRegExp` class, including those from [`regex-partial-match/core`](#the-lean-entry-regex-partial-matchcore).
 
 ### The lean entry: `regex-partial-match/core`
 
@@ -272,7 +272,11 @@ Useful for parsing log files, network streams, or any chunked data where records
 
 ## 🔌 API
 
-### `new PartialMatchRegExp(pattern: RegExp | string, flags?: string)`
+### `new PartialMatchRegExp()`
+
+```typescript
+new PartialMatchRegExp(pattern: RegExp | string, flags?: string)
+```
 
 Extends `RegExp`. An instance behaves like a normal `RegExp`; `instanceof RegExp` is `true`, and `.test()`, `.exec()`, `.match()`, `.matchAll()`, `.replace()` etc. all work as expected, but also matches any input string that is a valid prefix of the original pattern, in addition to full matches.
 
@@ -295,11 +299,15 @@ When using `import 'regex-partial-match/extend'`, this method is added to `RegEx
 
 - A new `PartialMatchRegExp` that matches partial strings, created from the `RegExp` instance the method was called on.
 
-### `hitEnd(partial: PartialMatchRegExp, match: RegExpExecArray): boolean`
+### `hitEnd()`
+
+```typescript
+hitEnd(partial: PartialMatchRegExp, match: RegExpExecArray): boolean
+```
 
 Reports whether the engine **reached the end of the input** while producing `match`, so that more input could change it — the contract of the JDK's [`Matcher.hitEnd()`](https://docs.oracle.com/javase/8/docs/api/java/util/regex/Matcher.html#hitEnd--): when it returns `false`, no continuation of the input changes the match's index or text. `exec()` alone cannot say: it returns the same shape of array for `"h"`, `"hello"` and `"hello world"` against `/hello world/`.
 
-Available as a named export of the default entry point, `import { hitEnd } from 'regex-partial-match'`, or as the default export of `regex-partial-match/hitEnd`. Its probe requires ES2018+, so in an environment that doesn't tree-shake and has no use for it, import `PartialMatchRegExp` from `regex-partial-match/partialMatchRegExp` instead of the default entry to avoid loading `hitEnd`'s code; see [A note on Tree-Shaking](#a-note-on-tree-shaking).
+Available as a named export of the default entry point, `import { hitEnd } from 'regex-partial-match'`, or as the default export of `regex-partial-match/hitEnd`.
 
 **Parameters:**
 
@@ -330,14 +338,19 @@ hitEnd(greedy, greedy.exec("hello world")); // true  — \w+ read the end lookin
 
 See [How It Works](./docs/how-it-works.md#why-the-question-cant-be-answered-from-the-outside) for why this can't be worked out from the match alone, and how `hitEnd()` records a read of the end.
 
-> [!NOTE]
+> [!WARNING]
 > `hitEnd()` itself always requires ES2018+, regardless of the pattern: its truncation probe is built from named capturing groups internally, even for a pattern as plain as `/^abc/`. See [Browser Compatibility](#browser-compatibility) — every other method holds to the ES2015 floor stated there.
 
 #### What it cannot see
 
 - **A read of the end inside a lookahead in an earlier iteration of a quantified group.** The probe's [markers](./docs/how-it-works.md#recording-a-read-of-the-end) are capturing groups, and [`RepeatMatcher`](https://tc39.es/ecma262/#sec-runtime-semantics-repeatmatcher-abstract-operation) resets a quantified group's captures at the start of every iteration. `/(?:a(?=bcd)|b)+/` on `"abc"` reads the end inside `(?=bcd)` in its first iteration, matches `b` in its second, and reports `false` — although `"abcx"` changes the match to `"b"` at index 1. Nothing placed inside the repeated atom survives the reset, so this is a limit of the marker approach rather than an oversight, and it is pinned by a test.
 - **A read of the end inside a raw lookaround.** Negative lookaheads and both lookbehinds are kept verbatim (see [Caveats](./docs/caveats.md)), so a read of the end inside them leaves no marker: `/^a(?!b)/` on `"a"` reports `false`, although `"ab"` invalidates the match. A scanner whose output must not depend on where its input was chunked should refuse or buffer patterns that use them, as [`replace-content-transformer`](https://github.com/TomStrepsil/replace-content-transformer) does.
-### `features(partial: PartialMatchRegExp): ReadonlySet<RegexFeature>`
+
+### `features()`
+
+```typescript
+features(partial: PartialMatchRegExp): ReadonlySet<RegexFeature>
+```
 
 Building the partial-match regex requires walking the entire source pattern, usually once. The [carets module](./docs/modules/carets.md) guesses from a cheap look at the source whether a pattern needs its rules, and when it guesses wrong the pattern is walked a second time with them. As a side effect of the walk that builds the regex, each instance records which syntactic constructs its pattern actually uses, and `features()` names them as a set — no separate scan of the source is performed to produce it. The set is built on the first call for an instance and the same set is returned after that.
 
