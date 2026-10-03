@@ -66,7 +66,7 @@ This path belongs to the backreferences module. `regex-partial-match/core` witho
 
 ## 🎯 `hitEnd()`
 
-[`hitEnd()`](../README.md#hitendpartial-partialmatchregexp-match-regexpexecarray-boolean) reports whether a match read the end of the input, so more input could still change it.
+[`hitEnd()`](../README.md#hitend) reports whether a match read the end of the input, so more input could still change it.
 
 ### Why the question can't be answered from the outside
 

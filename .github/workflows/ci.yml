@@ -54,6 +54,9 @@ jobs:
       - name: Run tests
         run: corepack npm test
 
+      - name: Run codemod tests
+        run: corepack npm test --workspace codemods
+
       - name: Build publishable output
         run: corepack npm run build
 

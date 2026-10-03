@@ -1,0 +1,16 @@
+{
+  "name": "regex-partial-match-codemods",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Codemods for regex-partial-match breaking changes",
+  "type": "module",
+  "scripts": {
+    "codemod:isComplete-to-hitEnd": "jscodeshift -t transforms/v1-v2/isComplete-to-hitEnd.js --parser=tsx --extensions=js,jsx,ts,tsx,mjs,cjs,mts,cts",
+    "report:features-getter": "jscodeshift -t reports/v1-v2/features-getter-to-function.js --parser=tsx --extensions=js,jsx,ts,tsx,mjs,cjs,mts,cts",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "jscodeshift": "^17.3.0",
+    "vitest": "^4.0.15"
+  }
+}

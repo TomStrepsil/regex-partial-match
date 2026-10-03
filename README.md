@@ -71,6 +71,8 @@ state("2024-06-15"); // 'complete'   - accept, enable submit
 > [!NOTE]
 > `hitEnd()` answers "could more input change this match?", not "is this text a match?". `/hello \w+/` matches `"hello world"` in full, and `hitEnd()` is still `true`: `\w+` read the end of the input looking for more. For an exact-length pattern like the date above the two questions coincide, which is what makes the three states work; a validator for an open-ended pattern that wants "valid so far" should test the original pattern as well.
 
+Upgrading from 1.x, where this was `isComplete()`? See the [migration guide](./codemods/transforms/v1-v2/README.md).
+
 [^1]: 
     Mimicking JDK's [`Matcher.hitEnd()`](https://docs.oracle.com/javase/8/docs/api/java/util/regex/Matcher.html#hitEnd--)
 

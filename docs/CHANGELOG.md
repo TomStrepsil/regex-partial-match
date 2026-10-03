@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `withModules()` in `regex-partial-match/core`, to bind those rules back from the opaque modules in `regex-partial-match/modules`; a pattern needing a module that isn't bound throws a `TypeError` naming every module it lacks
 - `regex-partial-match/hitEnd` and `regex-partial-match/features` subpaths
 - The `Module`, `PartialMatchRegExp` and `PartialMatchRegExpConstructor` types
+- Codemods for upgrading from 1.x: `isComplete()` to `!hitEnd()`, and a report of `features` getter reads ([migration guide](../codemods/transforms/v1-v2/README.md))
 
 ### Changed
 
