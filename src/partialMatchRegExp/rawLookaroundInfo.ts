@@ -1,5 +1,5 @@
 export interface RawReference {
-  ref: number | string;
+  ref: number;
   start: number;
   end: number;
 }

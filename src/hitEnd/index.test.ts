@@ -2,6 +2,8 @@ import { describe, it, expect } from "vitest";
 import PartialMatchRegExp, { hitEnd } from "../index.ts";
 import CorePartialMatchRegExp from "../core/index.ts";
 import { hitEndOf } from "../../test/hitEndOf.ts";
+import { compiledOf } from "../partialMatchRegExp/partialMatchInternals.ts";
+import { EXPANDED_PROBES_KEPT } from "./matchHitEnd.ts";
 
 describe("hitEnd()", () => {
   describe("distinguishing a match that ran out of input from one that settled", () => {
@@ -425,8 +427,8 @@ describe("hitEnd()", () => {
     });
   });
 
-  describe("marker names that the pattern could collide with", () => {
-    it("renames its markers past a named group of the same name", () => {
+  describe("group names and class content spelled like a marker", () => {
+    it("answers beside a named group spelled like a marker", () => {
       const partial = new PartialMatchRegExp(/^(?<truncation0>a)b/);
 
       expect(hitEndOf(partial, "a")).toBe(true);
@@ -434,7 +436,7 @@ describe("hitEnd()", () => {
       expect(partial.exec("ab")?.groups?.truncation0).toBe("a");
     });
 
-    it("keeps renaming until the name is free", () => {
+    it("answers beside named groups spelled like successive markers", () => {
       const partial = new PartialMatchRegExp(
         /^(?<truncation0>a)(?<truncation_0>b)c/
       );
@@ -461,7 +463,7 @@ describe("hitEnd()", () => {
       expect(hitEndOf(partial, "(a")).toBe(false);
     });
 
-    it("does not rename past a marker name that only appears as class content", () => {
+    it("answers beside a marker's spelling that only appears as class content", () => {
       const partial = new PartialMatchRegExp(
         new RegExp("^[(?<truncation0>]a")
       );
@@ -686,6 +688,45 @@ describe("hitEnd()", () => {
       expect(hitEnd(partial, match)).toBe(true);
     });
 
+    it("answers for each capture when more distinct captures alternate than it keeps probes for", () => {
+      const partial = new PartialMatchRegExp(/^<(\w+)>[^<]*<\/\1>/);
+      const tags = Array.from(
+        { length: EXPANDED_PROBES_KEPT + 1 },
+        (_, index) => "t" + String(index)
+      );
+
+      for (let round = 0; round < 2; round++) {
+        for (const tag of tags) {
+          expect(hitEndOf(partial, `<${tag}>x</${tag}>`)).toBe(false);
+          expect(hitEndOf(partial, `<${tag}>x</${tag.slice(0, -1)}`)).toBe(true);
+        }
+      }
+    });
+
+    it("reuses the probe kept for each recent capture, replacing the oldest once full", () => {
+      const partial = new PartialMatchRegExp(/^<(\w+)>[^<]*<\/\1>/);
+      const keptAfter = (tags: readonly string[]) => {
+        for (const tag of tags) hitEndOf(partial, `<${tag}>x</${tag}>`);
+        return compiledOf(partial).probeCache?.expansions.map(
+          ({ probe }) => probe
+        );
+      };
+      const tags = Array.from(
+        { length: EXPANDED_PROBES_KEPT },
+        (_, index) => "t" + String(index)
+      );
+      const kept = keptAfter(tags);
+      const keptAfterRepeat = keptAfter(tags);
+      const keptAfterNewCapture = keptAfter(["other"]);
+
+      expect(kept).toHaveLength(EXPANDED_PROBES_KEPT);
+      kept?.forEach((probe, index) => {
+        expect(keptAfterRepeat?.[index]).toBe(probe);
+        if (index > 0) expect(keptAfterNewCapture?.[index]).toBe(probe);
+      });
+      expect(keptAfterNewCapture?.[0]).not.toBe(kept?.[0]);
+    });
+
     it("returns null, with nothing to report, when no partial match exists", () => {
       expect(new PartialMatchRegExp(/^(ab)\1/).exec("z")).toBeNull();
       expect(
@@ -886,6 +927,20 @@ describe("hitEnd()", () => {
   });
 
   // `hitEnd()` accepts an instance of any class, including `./core`'s, which binds no module. What its construction recorded must classify every escape as that class does: an octal escape is not a backreference, so it needs no backreferences module.
+  describe("a group opened inside a raw lookaround that nothing refers to", () => {
+    it.each([
+      ["a negative lookahead", PartialMatchRegExp, /^(?!(x))ab/, 1],
+      ["a lookbehind", PartialMatchRegExp, /^(?<=(q)?)ab/, 1],
+      ["two groups in a negative lookahead, on the core class", CorePartialMatchRegExp, /^(?!(x)(y))ab/, 2]
+    ])("numbers the markers past the groups of %s", (_, PartialClass, pattern, groupsOpened) => {
+      const partial = new PartialClass(pattern);
+
+      expect(compiledOf(partial).rawLookarounds?.[0]?.capturingGroupsOpened).toBe(groupsOpened);
+      expect(hitEndOf(partial, "a")).toBe(true);
+      expect(hitEndOf(partial, "ab")).toBe(false);
+    });
+  });
+
   describe("on an instance of the core class", () => {
     it.each([
       ["an octal escape before a negative lookahead", "^a\\5(?!b)c", "a\x05", "a\x05c"],

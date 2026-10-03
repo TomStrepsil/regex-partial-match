@@ -88,18 +88,13 @@ Neither of the obvious workarounds answers it:
 
 ### Recording a read of the end
 
-The information only exists during matching. `hitEnd()` recovers it by re-running the compiled pattern, [sticky](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/sticky) at `match.index`, with an empty named group in front of each truncation branch, after each greedy quantifier and after `$`, `\b` and `\B`, the latter three placed so that they can only match at the true end of the input; an empty group is zero-width and always succeeds, so the twin walks the identical path, and any marker that comes back defined is a read of the end the match actually made.
+The information only exists during matching. `hitEnd()` recovers it by re-running the compiled pattern, [sticky](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/sticky) at `match.index`, with an empty group in front of each truncation branch, after each greedy quantifier and after `$`, `\b` and `\B`, the latter three placed so that they can only match at the true end of the input; an empty group is zero-width and always succeeds, so the twin walks the identical path, and any marker that comes back defined is a read of the end the match actually made.
 
 Recognising a truncation branch, a raw lookaround, or a group open back out of the rendered pattern is one classification, shared by every pass that needs it, rather than re-derived independently wherever it's needed.
 
 The marked copy, the twin, is built on first use and stays inside the library: the array, `groups`, numbering and `d`-flag indices you hold are the ones `exec()` produced.
 
-Beyond the rendered pattern, the twin needs:
-
-- **The backreferences inside each raw lookaround**, renumbered past the markers before them. Construction records a raw lookaround only when it holds a backreference, or when it opens a group and the source may hold a `\1` or `\k<name>` anywhere.
-- **The group names a marker must not reuse.** The first `hitEnd()` asks the engine for them, and only when the source may declare one.
-
-So a pattern with neither records nothing, and an instance that never calls `hitEnd()` never pays for the names.
+Beyond the rendered pattern, the twin needs the numbered backreferences and groups inside each raw lookaround: its numbered backreferences are renumbered past the markers before it, and the markers after it are numbered past its groups. A `\k<name>` needs no renumbering and is copied unchanged. Construction records a raw lookaround only when it holds a numbered backreference or a group, so a pattern with neither records nothing.
 
 Without [backreferences](./caveats.md#backreferences), one twin is cached per instance. With them, the pattern is re-expanded per input, so each twin belongs to an expansion:
 
@@ -107,7 +102,7 @@ Without [backreferences](./caveats.md#backreferences), one twin is cached per in
 - **A match the native pattern found outright** has no expansion behind it. The capture scan is re-run sticky at its index, and the twin is built from what it resolves. That is how a backreference that ran out part way through its capture is seen: `/(ab)\1|a/` on `"aba"` returns `"a"`, and `hitEnd()` is `true`.
 - **Where the scan resolves nothing**, the un-expanded twin is used. It follows the transformed pattern's own alternative order, so a higher-priority alternative that ran out of input behind a native match is still reported: `/(a)\1b|a/` on `"aa"` returns `"a"`, and `hitEnd()` is `true`.
 
-The last expansion is kept per instance, from either path, so while a capture stays the same as the input grows, its twin is built once.
+The last twelve expansions are kept per instance, from either path, the oldest replaced first. A capture that stays the same as the input grows, or one of a few captures that recur, such as the tag names of a document, has its twin built once.
 
 > [!NOTE]
 > See [Partial Match Parity](./partial-match-parity.md) for full details on how the library compares to reference implementations

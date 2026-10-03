@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Split some explanatory documentation from the main `README.md`
 - `exec()` on a pattern with a backreference is about 1.4x faster, restoring the speed lost in [1.3.0](#130---2026-09-06), and about 20x on a 100 kB input
 - The published `package.json` no longer carries development-only fields such as `scripts`, `devDependencies` and `devEngines`
+- `hitEnd()` holds to the ES2015 floor, where `isComplete()` required ES2018+
 
 ### Fixed
 

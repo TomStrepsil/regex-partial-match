@@ -1,7 +1,6 @@
 import type PartialMatchRegExp from "../partialMatchRegExp/index.ts";
 import { compiledOf } from "../partialMatchRegExp/partialMatchInternals.ts";
 import matchHitEnd from "./matchHitEnd.ts";
-import probeSourceOf from "./probeSource.ts";
 
 /**
  * Whether the engine reached the end of the input while producing `match` —
@@ -29,8 +28,6 @@ import probeSourceOf from "./probeSource.ts";
  * settled short of it
  *
  * @remarks
- * Requires ES2018+ regardless of the pattern, unlike `exec()` and `test()`.
- *
  * Conservative where the JDK is exact in one place: a bounded greedy
  * quantifier (`?`, `{n,m}`) fully taken at the end of the input reports
  * `true` — on a group, and the same way for an unequal-bound `{n,m}`
@@ -57,11 +54,12 @@ export default function hitEnd(
     compiled,
     match,
     (compiled.probeCache ??= {
-      source: probeSourceOf(partial, compiled),
+      rawLookarounds: compiled.rawLookarounds ?? [],
       flags: partial.flags,
       probe: undefined,
       stickyPreScan: undefined,
-      expansion: undefined
+      expansions: [],
+      oldestExpansion: 0
     })
   );
 }

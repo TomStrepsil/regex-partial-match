@@ -180,7 +180,7 @@ The library is compiled to **ES2015** (ECMAScript 6). Certain regular expression
 - [**`v` (unicodeSets) flag**](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/unicodeSets) - ES2024+
 - [**Modifiers**](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Modifier) (`(?ims:...)`, `(?-ims:...)`, `(?i-ms:...)`) - ES2025+
 
-Each of these applies only when the *original* pattern uses the feature — everything else, including construction, `exec()` and `test()`, holds to the ES2015 floor. [`hitEnd()`](#hitend) is the one exception: it always requires **ES2018+**, regardless of the pattern, since its internal probe uses named capturing groups.
+Each of these applies only when the *original* pattern uses the feature — everything else, including construction, `exec()`, `test()` and [`hitEnd()`](#hitend), holds to the ES2015 floor.
 
 ## ⚠️ Caveats
 
@@ -343,9 +343,6 @@ hitEnd(greedy, greedy.exec("hello world")); // true  — \w+ read the end lookin
 > Where the JDK is exact, `hitEnd()` is conservative in one place: a bounded greedy quantifier (`?`, `{n,m}`) fully taken at the end of the input reports `true`, although the engine attempted no further read there — on a *group* (`/(ab)?/` on `"ab"` is `true` here and `false` in Java), and the same way for an unequal-bound `{n,m}` directly on a single atom once it's saturated at its maximum (`/a{1,2}/` on `"aa"` is `true`, though no continuation can add a third `a`). Outside the two limits in [What it cannot see](#what-it-cannot-see), it is never wrong in the other direction.
 
 See [How It Works](./docs/how-it-works.md#why-the-question-cant-be-answered-from-the-outside) for why this can't be worked out from the match alone, and how `hitEnd()` records a read of the end.
-
-> [!WARNING]
-> `hitEnd()` itself always requires ES2018+, regardless of the pattern: its truncation probe is built from named capturing groups internally, even for a pattern as plain as `/^abc/`. See [Browser Compatibility](#browser-compatibility) — every other method holds to the ES2015 floor stated there.
 
 #### What it cannot see
 
