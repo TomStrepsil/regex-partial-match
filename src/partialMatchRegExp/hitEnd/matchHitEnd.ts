@@ -12,46 +12,42 @@ import { FLAGS_IRRELEVANT_TO_REBUILD } from "../constants.ts";
 export default function matchHitEnd(
   compiled: CompiledPartial,
   match: RegExpExecArray,
-  flags: string,
   cache: TruncationProbeCache
 ) {
   const probe =
     "dynamic" in compiled
-      ? dynamicProbe(compiled, match, flags, cache)
-      : unexpandedProbe(compiled, flags, cache);
+      ? dynamicProbe(compiled, match, cache)
+      : unexpandedProbe(compiled, cache);
   return tookTruncationBranch(probe, match.input, match.index);
 }
 
 function dynamicProbe(
   compiled: CompiledDynamic,
   match: RegExpExecArray,
-  flags: string,
   cache: TruncationProbeCache
 ) {
   const parts =
     (match as ExpandedMatch)[backreferenceExpansion] ??
-    expandedPartsAt(compiled, match, flags, cache);
-  if (parts === undefined) return unexpandedProbe(compiled, flags, cache);
+    expandedPartsAt(compiled, match, cache);
+  if (parts === undefined) return unexpandedProbe(compiled, cache);
   const cached = cache.expansion;
   if (cached !== undefined && sameParts(cached.parts, parts)) {
     return cached.probe;
   }
-  cache.expansion = { parts, probe: probeOf(parts, flags, cache) };
+  cache.expansion = { parts, probe: probeOf(parts, cache) };
   return cache.expansion.probe;
 }
 
 function unexpandedProbe(
   compiled: CompiledPartial,
-  flags: string,
   cache: TruncationProbeCache
 ) {
-  return (cache.probe ??= probeOf(compiled.parts, flags, cache));
+  return (cache.probe ??= probeOf(compiled.parts, cache));
 }
 
 function probeOf(
   parts: readonly Part[],
-  flags: string,
-  { source }: TruncationProbeCache
+  { source, flags }: TruncationProbeCache
 ) {
   return buildTruncationProbe(
     parts,
@@ -64,13 +60,12 @@ function probeOf(
 function expandedPartsAt(
   compiled: CompiledDynamic,
   match: RegExpExecArray,
-  flags: string,
   cache: TruncationProbeCache
 ) {
   const { preScan, expand } = compiled.dynamic;
   cache.stickyPreScan ??= new RegExp(
     preScan.source,
-    flags.replace(FLAGS_IRRELEVANT_TO_REBUILD, "") + "y"
+    cache.flags.replace(FLAGS_IRRELEVANT_TO_REBUILD, "") + "y"
   );
   cache.stickyPreScan.lastIndex = match.index;
   const capture = cache.stickyPreScan.exec(match.input);

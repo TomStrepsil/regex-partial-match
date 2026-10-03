@@ -58,9 +58,9 @@ export default function hitEnd(
   return matchHitEnd(
     compiled,
     match,
-    partial.flags,
     (compiled.probeCache ??= {
       source: probeSourceOf(partial, compiled),
+      flags: partial.flags,
       probe: undefined,
       stickyPreScan: undefined,
       expansion: undefined
