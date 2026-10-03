@@ -105,7 +105,9 @@
       </div>
     </header>
     <div class="notice">
-      Results are reported as a ratio to a fixed native-<code>RegExp</code> calibration workload measured in the same run, not in nanoseconds, so that a change in GitHub runner hardware does not read as a change in the library. Points before 14 September 2026 were recalculated from the calibration workloads already recorded in each run. Every point keeps its original nanosecond figure, and the calibration it was divided by, in its tooltip.
+      <p>Results are reported as a ratio to a fixed native-<code>RegExp</code> calibration workload measured in the same run, not in nanoseconds, so that a change in GitHub runner hardware does not read as a change in the library.</p>
+      <p>Points before 14 September 2026 were recalculated from the calibration workloads already recorded in each run. Every point keeps its original nanosecond figure, and the calibration it was divided by, in its tooltip.</p>
+      <p>Points before 26 September 2026 (#117) were measured against <code>src/</code> run through tsx, whose esbuild transform slows closure-heavy code such as construction; later points measure the compiled <code>lib/</code> that consumers run. The library did not change at that commit, so the drop is a change of measurement, not a speed-up. Each series that dropped was scaled by its own factor, the median of its points just after the change divided by the median of its points just before it, because the effect is 2-3x for construction and nothing for plain <code>exec</code>. Series within run-to-run noise of that change were left alone. A rescaled point's tooltip shows its factor and its original value.</p>
     </div>
     <main id="main"></main>
     <footer>

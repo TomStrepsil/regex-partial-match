@@ -849,7 +849,7 @@ window.BENCHMARK_DATA = {
             "extra": "362.48ns  calibration: 64.30ns  [bridged from native test (~7% extra noise)]"
           },
           {
-            "name": "keystroke simulation — phone number (18 chars) — partial RegExp.test per keystroke",
+            "name": "keystroke simulation — phone number (18 chars) — plain partial RegExp.test per keystroke",
             "value": 21.4145,
             "range": "± 0.0406",
             "unit": "× calibration",
@@ -863,7 +863,7 @@ window.BENCHMARK_DATA = {
             "extra": "218.74ns  calibration: 64.30ns  [bridged from native test (~7% extra noise)]"
           },
           {
-            "name": "keystroke simulation — ISO date (10 chars) — partial RegExp.test per keystroke",
+            "name": "keystroke simulation — ISO date (10 chars) — plain partial RegExp.test per keystroke",
             "value": 6.5303,
             "range": "± 0.1964",
             "unit": "× calibration",
@@ -901,7 +901,7 @@ window.BENCHMARK_DATA = {
             "extra": "368.07ns  calibration: 65.30ns  [bridged from native test (~7% extra noise)]"
           },
           {
-            "name": "keystroke simulation — phone number (18 chars) — partial RegExp.test per keystroke",
+            "name": "keystroke simulation — phone number (18 chars) — plain partial RegExp.test per keystroke",
             "value": 21.689,
             "range": "± 0.0697",
             "unit": "× calibration",
@@ -915,7 +915,7 @@ window.BENCHMARK_DATA = {
             "extra": "223.03ns  calibration: 65.30ns  [bridged from native test (~7% extra noise)]"
           },
           {
-            "name": "keystroke simulation — ISO date (10 chars) — partial RegExp.test per keystroke",
+            "name": "keystroke simulation — ISO date (10 chars) — plain partial RegExp.test per keystroke",
             "value": 6.1283,
             "range": "± 0.0654",
             "unit": "× calibration",
@@ -953,7 +953,7 @@ window.BENCHMARK_DATA = {
             "extra": "361.73ns  calibration: 64.17ns  [bridged from native test (~7% extra noise)]"
           },
           {
-            "name": "keystroke simulation — phone number (18 chars) — partial RegExp.test per keystroke",
+            "name": "keystroke simulation — phone number (18 chars) — plain partial RegExp.test per keystroke",
             "value": 21.8368,
             "range": "± 0.0961",
             "unit": "× calibration",
@@ -967,7 +967,7 @@ window.BENCHMARK_DATA = {
             "extra": "215.79ns  calibration: 64.17ns  [bridged from native test (~7% extra noise)]"
           },
           {
-            "name": "keystroke simulation — ISO date (10 chars) — partial RegExp.test per keystroke",
+            "name": "keystroke simulation — ISO date (10 chars) — plain partial RegExp.test per keystroke",
             "value": 6.349,
             "range": "± 0.0781",
             "unit": "× calibration",
@@ -1005,7 +1005,7 @@ window.BENCHMARK_DATA = {
             "extra": "356.20ns  calibration: 63.19ns  [bridged from native test (~7% extra noise)]"
           },
           {
-            "name": "keystroke simulation — phone number (18 chars) — partial RegExp.test per keystroke",
+            "name": "keystroke simulation — phone number (18 chars) — plain partial RegExp.test per keystroke",
             "value": 21.9967,
             "range": "± 0.2127",
             "unit": "× calibration",
@@ -1019,7 +1019,7 @@ window.BENCHMARK_DATA = {
             "extra": "214.20ns  calibration: 63.19ns  [bridged from native test (~7% extra noise)]"
           },
           {
-            "name": "keystroke simulation — ISO date (10 chars) — partial RegExp.test per keystroke",
+            "name": "keystroke simulation — ISO date (10 chars) — plain partial RegExp.test per keystroke",
             "value": 6.2544,
             "range": "± 0.0421",
             "unit": "× calibration",
@@ -1057,7 +1057,7 @@ window.BENCHMARK_DATA = {
             "extra": "371.70ns  calibration: 65.94ns  [bridged from native test (~7% extra noise)]"
           },
           {
-            "name": "keystroke simulation — phone number (18 chars) — partial RegExp.test per keystroke",
+            "name": "keystroke simulation — phone number (18 chars) — plain partial RegExp.test per keystroke",
             "value": 21.552,
             "range": "± 0.4412",
             "unit": "× calibration",
@@ -1071,7 +1071,7 @@ window.BENCHMARK_DATA = {
             "extra": "212.74ns  calibration: 65.94ns  [bridged from native test (~7% extra noise)]"
           },
           {
-            "name": "keystroke simulation — ISO date (10 chars) — partial RegExp.test per keystroke",
+            "name": "keystroke simulation — ISO date (10 chars) — plain partial RegExp.test per keystroke",
             "value": 5.9018,
             "range": "± 0.0358",
             "unit": "× calibration",
@@ -1109,7 +1109,7 @@ window.BENCHMARK_DATA = {
             "extra": "366.69ns  calibration: 65.05ns  [bridged from native test (~7% extra noise)]"
           },
           {
-            "name": "keystroke simulation — phone number (18 chars) — partial RegExp.test per keystroke",
+            "name": "keystroke simulation — phone number (18 chars) — plain partial RegExp.test per keystroke",
             "value": 21.1546,
             "range": "± 0.1251",
             "unit": "× calibration",
@@ -1123,7 +1123,7 @@ window.BENCHMARK_DATA = {
             "extra": "207.72ns  calibration: 65.05ns  [bridged from native test (~7% extra noise)]"
           },
           {
-            "name": "keystroke simulation — ISO date (10 chars) — partial RegExp.test per keystroke",
+            "name": "keystroke simulation — ISO date (10 chars) — plain partial RegExp.test per keystroke",
             "value": 5.8704,
             "range": "± 0.0347",
             "unit": "× calibration",
@@ -2332,17 +2332,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — simple pattern (no groups, no backreferences) — compilePartial()",
-            "value": 45.116,
-            "range": "± 0.2493",
+            "value": 17.3901,
+            "range": "± 0.0961",
             "unit": "× calibration",
-            "extra": "2955.58ns  calibration: 65.51ns"
+            "extra": "2955.58ns  calibration: 65.51ns  [rescaled ×0.39 for the lib/ harness (#117); original 45.116]"
           },
           {
             "name": "construction — simple pattern (no groups, no backreferences) — new PartialMatchRegExp()",
-            "value": 53.9724,
-            "range": "± 0.3117",
+            "value": 22.9008,
+            "range": "± 0.1323",
             "unit": "× calibration",
-            "extra": "3535.77ns  calibration: 65.51ns"
+            "extra": "3535.77ns  calibration: 65.51ns  [rescaled ×0.42 for the lib/ harness (#117); original 53.9724]"
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — native new RegExp()",
@@ -2353,17 +2353,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — compilePartial()",
-            "value": 66.4522,
-            "range": "± 0.2600",
+            "value": 41.191,
+            "range": "± 0.1612",
             "unit": "× calibration",
-            "extra": "4353.33ns  calibration: 65.51ns"
+            "extra": "4353.33ns  calibration: 65.51ns  [rescaled ×0.62 for the lib/ harness (#117); original 66.4522]"
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — new PartialMatchRegExp()",
-            "value": 75.1627,
-            "range": "± 0.4219",
+            "value": 46.9711,
+            "range": "± 0.2637",
             "unit": "× calibration",
-            "extra": "4923.96ns  calibration: 65.51ns"
+            "extra": "4923.96ns  calibration: 65.51ns  [rescaled ×0.62 for the lib/ harness (#117); original 75.1627]"
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — native new RegExp()",
@@ -2374,17 +2374,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — compilePartial()",
-            "value": 153.5081,
-            "range": "± 8.8276",
+            "value": 62.2441,
+            "range": "± 3.5794",
             "unit": "× calibration",
-            "extra": "10056.42ns  calibration: 65.51ns"
+            "extra": "10056.42ns  calibration: 65.51ns  [rescaled ×0.41 for the lib/ harness (#117); original 153.5081]"
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — new PartialMatchRegExp()",
-            "value": 160.8797,
-            "range": "± 14.7887",
+            "value": 68.1272,
+            "range": "± 6.2625",
             "unit": "× calibration",
-            "extra": "10539.34ns  calibration: 65.51ns"
+            "extra": "10539.34ns  calibration: 65.51ns  [rescaled ×0.42 for the lib/ harness (#117); original 160.8797]"
           }
         ]
       },
@@ -2594,17 +2594,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — simple pattern (no groups, no backreferences) — compilePartial()",
-            "value": 44.8301,
-            "range": "± 1.1758",
+            "value": 17.2799,
+            "range": "± 0.4532",
             "unit": "× calibration",
-            "extra": "1839.71ns  calibration: 41.04ns"
+            "extra": "1839.71ns  calibration: 41.04ns  [rescaled ×0.39 for the lib/ harness (#117); original 44.8301]"
           },
           {
             "name": "construction — simple pattern (no groups, no backreferences) — new PartialMatchRegExp()",
-            "value": 55.5174,
-            "range": "± 0.8909",
+            "value": 23.5563,
+            "range": "± 0.3780",
             "unit": "× calibration",
-            "extra": "2278.29ns  calibration: 41.04ns"
+            "extra": "2278.29ns  calibration: 41.04ns  [rescaled ×0.42 for the lib/ harness (#117); original 55.5174]"
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — native new RegExp()",
@@ -2615,17 +2615,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — compilePartial()",
-            "value": 74.4373,
-            "range": "± 1.2479",
+            "value": 46.1407,
+            "range": "± 0.7735",
             "unit": "× calibration",
-            "extra": "3054.71ns  calibration: 41.04ns"
+            "extra": "3054.71ns  calibration: 41.04ns  [rescaled ×0.62 for the lib/ harness (#117); original 74.4373]"
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — new PartialMatchRegExp()",
-            "value": 84.5091,
-            "range": "± 1.0603",
+            "value": 52.8119,
+            "range": "± 0.6626",
             "unit": "× calibration",
-            "extra": "3468.03ns  calibration: 41.04ns"
+            "extra": "3468.03ns  calibration: 41.04ns  [rescaled ×0.62 for the lib/ harness (#117); original 84.5091]"
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — native new RegExp()",
@@ -2636,17 +2636,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — compilePartial()",
-            "value": 156.6572,
-            "range": "± 6.3150",
+            "value": 63.521,
+            "range": "± 2.5606",
             "unit": "× calibration",
-            "extra": "6428.80ns  calibration: 41.04ns"
+            "extra": "6428.80ns  calibration: 41.04ns  [rescaled ×0.41 for the lib/ harness (#117); original 156.6572]"
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — new PartialMatchRegExp()",
-            "value": 162.5363,
-            "range": "± 13.6997",
+            "value": 68.8287,
+            "range": "± 5.8014",
             "unit": "× calibration",
-            "extra": "6670.06ns  calibration: 41.04ns"
+            "extra": "6670.06ns  calibration: 41.04ns  [rescaled ×0.42 for the lib/ harness (#117); original 162.5363]"
           }
         ]
       },
@@ -2856,17 +2856,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — simple pattern (no groups, no backreferences) — compilePartial()",
-            "value": 49.4856,
-            "range": "± 0.3770",
+            "value": 19.0743,
+            "range": "± 0.1453",
             "unit": "× calibration",
-            "extra": "3241.05ns  calibration: 65.49ns"
+            "extra": "3241.05ns  calibration: 65.49ns  [rescaled ×0.39 for the lib/ harness (#117); original 49.4856]"
           },
           {
             "name": "construction — simple pattern (no groups, no backreferences) — new PartialMatchRegExp()",
-            "value": 57.8363,
-            "range": "± 0.4419",
+            "value": 24.5402,
+            "range": "± 0.1875",
             "unit": "× calibration",
-            "extra": "3787.98ns  calibration: 65.49ns"
+            "extra": "3787.98ns  calibration: 65.49ns  [rescaled ×0.42 for the lib/ harness (#117); original 57.8363]"
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — native new RegExp()",
@@ -2877,17 +2877,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — compilePartial()",
-            "value": 75.0146,
-            "range": "± 0.6830",
+            "value": 46.4985,
+            "range": "± 0.4234",
             "unit": "× calibration",
-            "extra": "4913.07ns  calibration: 65.49ns"
+            "extra": "4913.07ns  calibration: 65.49ns  [rescaled ×0.62 for the lib/ harness (#117); original 75.0146]"
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — new PartialMatchRegExp()",
-            "value": 82.8392,
-            "range": "± 0.3315",
+            "value": 51.7683,
+            "range": "± 0.2072",
             "unit": "× calibration",
-            "extra": "5425.54ns  calibration: 65.49ns"
+            "extra": "5425.54ns  calibration: 65.49ns  [rescaled ×0.62 for the lib/ harness (#117); original 82.8392]"
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — native new RegExp()",
@@ -2898,17 +2898,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — compilePartial()",
-            "value": 164.1376,
-            "range": "± 8.4678",
+            "value": 66.5541,
+            "range": "± 3.4335",
             "unit": "× calibration",
-            "extra": "10750.17ns  calibration: 65.49ns"
+            "extra": "10750.17ns  calibration: 65.49ns  [rescaled ×0.41 for the lib/ harness (#117); original 164.1376]"
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — new PartialMatchRegExp()",
-            "value": 175.1458,
-            "range": "± 1.6395",
+            "value": 74.1684,
+            "range": "± 0.6943",
             "unit": "× calibration",
-            "extra": "11471.15ns  calibration: 65.49ns"
+            "extra": "11471.15ns  calibration: 65.49ns  [rescaled ×0.42 for the lib/ harness (#117); original 175.1458]"
           }
         ]
       },
@@ -3118,17 +3118,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — simple pattern (no groups, no backreferences) — compilePartial()",
-            "value": 47.4836,
-            "range": "± 0.2423",
+            "value": 18.3027,
+            "range": "± 0.0934",
             "unit": "× calibration",
-            "extra": "3097.83ns  calibration: 65.24ns"
+            "extra": "3097.83ns  calibration: 65.24ns  [rescaled ×0.39 for the lib/ harness (#117); original 47.4836]"
           },
           {
             "name": "construction — simple pattern (no groups, no backreferences) — new PartialMatchRegExp()",
-            "value": 54.6559,
-            "range": "± 0.2103",
+            "value": 23.1908,
+            "range": "± 0.0892",
             "unit": "× calibration",
-            "extra": "3565.75ns  calibration: 65.24ns"
+            "extra": "3565.75ns  calibration: 65.24ns  [rescaled ×0.42 for the lib/ harness (#117); original 54.6559]"
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — native new RegExp()",
@@ -3139,17 +3139,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — compilePartial()",
-            "value": 73.3527,
-            "range": "± 0.3041",
+            "value": 45.4684,
+            "range": "± 0.1885",
             "unit": "× calibration",
-            "extra": "4785.53ns  calibration: 65.24ns"
+            "extra": "4785.53ns  calibration: 65.24ns  [rescaled ×0.62 for the lib/ harness (#117); original 73.3527]"
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — new PartialMatchRegExp()",
-            "value": 81.6723,
-            "range": "± 0.1631",
+            "value": 51.0391,
+            "range": "± 0.1019",
             "unit": "× calibration",
-            "extra": "5328.30ns  calibration: 65.24ns"
+            "extra": "5328.30ns  calibration: 65.24ns  [rescaled ×0.62 for the lib/ harness (#117); original 81.6723]"
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — native new RegExp()",
@@ -3160,17 +3160,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — compilePartial()",
-            "value": 161.9324,
-            "range": "± 7.4834",
+            "value": 65.66,
+            "range": "± 3.0344",
             "unit": "× calibration",
-            "extra": "10564.47ns  calibration: 65.24ns"
+            "extra": "10564.47ns  calibration: 65.24ns  [rescaled ×0.41 for the lib/ harness (#117); original 161.9324]"
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — new PartialMatchRegExp()",
-            "value": 171.5284,
-            "range": "± 8.4641",
+            "value": 72.6365,
+            "range": "± 3.5843",
             "unit": "× calibration",
-            "extra": "11190.51ns  calibration: 65.24ns"
+            "extra": "11190.51ns  calibration: 65.24ns  [rescaled ×0.42 for the lib/ harness (#117); original 171.5284]"
           }
         ]
       },
@@ -3366,10 +3366,10 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "backref — leftmost bound check (native match at a later index) — bound doesn't reject — full pipeline still runs",
-            "value": 30.8944,
-            "range": "± 0.1322",
+            "value": 24.8076,
+            "range": "± 0.1062",
             "unit": "× calibration",
-            "extra": "1995.91ns  calibration: 64.60ns"
+            "extra": "1995.91ns  calibration: 64.60ns  [rescaled ×0.80 for the lib/ harness (#117); original 30.8944]"
           },
           {
             "name": "backref — keystroke simulation (accumulated exec cost) — repeated word: 7 keystrokes",
@@ -3394,17 +3394,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — simple pattern (no groups, no backreferences) — compilePartial()",
-            "value": 48.7554,
-            "range": "± 0.5325",
+            "value": 18.7929,
+            "range": "± 0.2053",
             "unit": "× calibration",
-            "extra": "3149.81ns  calibration: 64.60ns"
+            "extra": "3149.81ns  calibration: 64.60ns  [rescaled ×0.39 for the lib/ harness (#117); original 48.7554]"
           },
           {
             "name": "construction — simple pattern (no groups, no backreferences) — new PartialMatchRegExp()",
-            "value": 55.8144,
-            "range": "± 0.3503",
+            "value": 23.6823,
+            "range": "± 0.1486",
             "unit": "× calibration",
-            "extra": "3605.85ns  calibration: 64.60ns"
+            "extra": "3605.85ns  calibration: 64.60ns  [rescaled ×0.42 for the lib/ harness (#117); original 55.8144]"
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — native new RegExp()",
@@ -3415,17 +3415,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — compilePartial()",
-            "value": 74.9454,
-            "range": "± 0.4158",
+            "value": 46.4556,
+            "range": "± 0.2577",
             "unit": "× calibration",
-            "extra": "4841.80ns  calibration: 64.60ns"
+            "extra": "4841.80ns  calibration: 64.60ns  [rescaled ×0.62 for the lib/ harness (#117); original 74.9454]"
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — new PartialMatchRegExp()",
-            "value": 82.9853,
-            "range": "± 0.3684",
+            "value": 51.8596,
+            "range": "± 0.2302",
             "unit": "× calibration",
-            "extra": "5361.21ns  calibration: 64.60ns"
+            "extra": "5361.21ns  calibration: 64.60ns  [rescaled ×0.62 for the lib/ harness (#117); original 82.9853]"
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — native new RegExp()",
@@ -3436,17 +3436,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — compilePartial()",
-            "value": 164.6588,
-            "range": "± 7.8066",
+            "value": 66.7655,
+            "range": "± 3.1654",
             "unit": "× calibration",
-            "extra": "10637.67ns  calibration: 64.60ns"
+            "extra": "10637.67ns  calibration: 64.60ns  [rescaled ×0.41 for the lib/ harness (#117); original 164.6588]"
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — new PartialMatchRegExp()",
-            "value": 174.7004,
-            "range": "± 8.2903",
+            "value": 73.9798,
+            "range": "± 3.5107",
             "unit": "× calibration",
-            "extra": "11286.40ns  calibration: 64.60ns"
+            "extra": "11286.40ns  calibration: 64.60ns  [rescaled ×0.42 for the lib/ harness (#117); original 174.7004]"
           }
         ]
       },
@@ -3642,10 +3642,10 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "backref — leftmost bound check (native match at a later index) — bound doesn't reject — full pipeline still runs",
-            "value": 30.9032,
-            "range": "± 0.3766",
+            "value": 24.8147,
+            "range": "± 0.3024",
             "unit": "× calibration",
-            "extra": "2002.99ns  calibration: 64.82ns"
+            "extra": "2002.99ns  calibration: 64.82ns  [rescaled ×0.80 for the lib/ harness (#117); original 30.9032]"
           },
           {
             "name": "backref — keystroke simulation (accumulated exec cost) — repeated word: 7 keystrokes",
@@ -3670,17 +3670,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — simple pattern (no groups, no backreferences) — compilePartial()",
-            "value": 47.2364,
-            "range": "± 0.3430",
+            "value": 18.2074,
+            "range": "± 0.1322",
             "unit": "× calibration",
-            "extra": "3061.63ns  calibration: 64.82ns"
+            "extra": "3061.63ns  calibration: 64.82ns  [rescaled ×0.39 for the lib/ harness (#117); original 47.2364]"
           },
           {
             "name": "construction — simple pattern (no groups, no backreferences) — new PartialMatchRegExp()",
-            "value": 55.5632,
-            "range": "± 0.3960",
+            "value": 23.5757,
+            "range": "± 0.1680",
             "unit": "× calibration",
-            "extra": "3601.33ns  calibration: 64.82ns"
+            "extra": "3601.33ns  calibration: 64.82ns  [rescaled ×0.42 for the lib/ harness (#117); original 55.5632]"
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — native new RegExp()",
@@ -3691,17 +3691,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — compilePartial()",
-            "value": 77.6134,
-            "range": "± 0.6943",
+            "value": 48.1094,
+            "range": "± 0.4304",
             "unit": "× calibration",
-            "extra": "5030.52ns  calibration: 64.82ns"
+            "extra": "5030.52ns  calibration: 64.82ns  [rescaled ×0.62 for the lib/ harness (#117); original 77.6134]"
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — new PartialMatchRegExp()",
-            "value": 81.9936,
-            "range": "± 0.6111",
+            "value": 51.2399,
+            "range": "± 0.3819",
             "unit": "× calibration",
-            "extra": "5314.42ns  calibration: 64.82ns"
+            "extra": "5314.42ns  calibration: 64.82ns  [rescaled ×0.62 for the lib/ harness (#117); original 81.9936]"
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — native new RegExp()",
@@ -3712,17 +3712,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — compilePartial()",
-            "value": 172.0841,
-            "range": "± 8.9900",
+            "value": 69.7763,
+            "range": "± 3.6452",
             "unit": "× calibration",
-            "extra": "11153.64ns  calibration: 64.82ns"
+            "extra": "11153.64ns  calibration: 64.82ns  [rescaled ×0.41 for the lib/ harness (#117); original 172.0841]"
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — new PartialMatchRegExp()",
-            "value": 171.6604,
-            "range": "± 10.1779",
+            "value": 72.6924,
+            "range": "± 4.3100",
             "unit": "× calibration",
-            "extra": "11126.18ns  calibration: 64.82ns"
+            "extra": "11126.18ns  calibration: 64.82ns  [rescaled ×0.42 for the lib/ harness (#117); original 171.6604]"
           }
         ]
       },
@@ -3918,10 +3918,10 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "backref — leftmost bound check (native match at a later index) — bound doesn't reject — full pipeline still runs",
-            "value": 28.6622,
-            "range": "± 0.1694",
+            "value": 23.0152,
+            "range": "± 0.1360",
             "unit": "× calibration",
-            "extra": "1884.66ns  calibration: 65.75ns"
+            "extra": "1884.66ns  calibration: 65.75ns  [rescaled ×0.80 for the lib/ harness (#117); original 28.6622]"
           },
           {
             "name": "backref — keystroke simulation (accumulated exec cost) — repeated word: 7 keystrokes",
@@ -3946,17 +3946,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — simple pattern (no groups, no backreferences) — compilePartial()",
-            "value": 44.6163,
-            "range": "± 0.3080",
+            "value": 17.1975,
+            "range": "± 0.1187",
             "unit": "× calibration",
-            "extra": "2933.71ns  calibration: 65.75ns"
+            "extra": "2933.71ns  calibration: 65.75ns  [rescaled ×0.39 for the lib/ harness (#117); original 44.6163]"
           },
           {
             "name": "construction — simple pattern (no groups, no backreferences) — new PartialMatchRegExp()",
-            "value": 54.5729,
-            "range": "± 1.4318",
+            "value": 23.1556,
+            "range": "± 0.6075",
             "unit": "× calibration",
-            "extra": "3588.40ns  calibration: 65.75ns"
+            "extra": "3588.40ns  calibration: 65.75ns  [rescaled ×0.42 for the lib/ harness (#117); original 54.5729]"
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — native new RegExp()",
@@ -3967,17 +3967,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — compilePartial()",
-            "value": 67.4498,
-            "range": "± 0.3892",
+            "value": 41.8094,
+            "range": "± 0.2412",
             "unit": "× calibration",
-            "extra": "4435.11ns  calibration: 65.75ns"
+            "extra": "4435.11ns  calibration: 65.75ns  [rescaled ×0.62 for the lib/ harness (#117); original 67.4498]"
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — new PartialMatchRegExp()",
-            "value": 77.955,
-            "range": "± 2.5113",
+            "value": 48.7161,
+            "range": "± 1.5694",
             "unit": "× calibration",
-            "extra": "5125.87ns  calibration: 65.75ns"
+            "extra": "5125.87ns  calibration: 65.75ns  [rescaled ×0.62 for the lib/ harness (#117); original 77.955]"
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — native new RegExp()",
@@ -3988,17 +3988,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — compilePartial()",
-            "value": 152.5892,
-            "range": "± 5.7043",
+            "value": 61.8715,
+            "range": "± 2.3130",
             "unit": "× calibration",
-            "extra": "10033.39ns  calibration: 65.75ns"
+            "extra": "10033.39ns  calibration: 65.75ns  [rescaled ×0.41 for the lib/ harness (#117); original 152.5892]"
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — new PartialMatchRegExp()",
-            "value": 169.8126,
-            "range": "± 3.6544",
+            "value": 71.9099,
+            "range": "± 1.5475",
             "unit": "× calibration",
-            "extra": "11165.90ns  calibration: 65.75ns"
+            "extra": "11165.90ns  calibration: 65.75ns  [rescaled ×0.42 for the lib/ harness (#117); original 169.8126]"
           }
         ]
       },
@@ -4194,10 +4194,10 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "backref — leftmost bound check (native match at a later index) — bound doesn't reject — full pipeline still runs",
-            "value": 29.1282,
-            "range": "± 0.1534",
+            "value": 23.3894,
+            "range": "± 0.1232",
             "unit": "× calibration",
-            "extra": "1842.06ns  calibration: 63.24ns"
+            "extra": "1842.06ns  calibration: 63.24ns  [rescaled ×0.80 for the lib/ harness (#117); original 29.1282]"
           },
           {
             "name": "backref — keystroke simulation (accumulated exec cost) — repeated word: 7 keystrokes",
@@ -4222,17 +4222,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — simple pattern (no groups, no backreferences) — compilePartial()",
-            "value": 45.7354,
-            "range": "± 0.4211",
+            "value": 17.6288,
+            "range": "± 0.1623",
             "unit": "× calibration",
-            "extra": "2892.30ns  calibration: 63.24ns"
+            "extra": "2892.30ns  calibration: 63.24ns  [rescaled ×0.39 for the lib/ harness (#117); original 45.7354]"
           },
           {
             "name": "construction — simple pattern (no groups, no backreferences) — new PartialMatchRegExp()",
-            "value": 55.2046,
-            "range": "± 1.2552",
+            "value": 23.4236,
+            "range": "± 0.5326",
             "unit": "× calibration",
-            "extra": "3491.13ns  calibration: 63.24ns"
+            "extra": "3491.13ns  calibration: 63.24ns  [rescaled ×0.42 for the lib/ harness (#117); original 55.2046]"
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — native new RegExp()",
@@ -4243,17 +4243,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — compilePartial()",
-            "value": 69.2548,
-            "range": "± 0.5003",
+            "value": 42.9283,
+            "range": "± 0.3101",
             "unit": "× calibration",
-            "extra": "4379.66ns  calibration: 63.24ns"
+            "extra": "4379.66ns  calibration: 63.24ns  [rescaled ×0.62 for the lib/ harness (#117); original 69.2548]"
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — new PartialMatchRegExp()",
-            "value": 79.9694,
-            "range": "± 1.4186",
+            "value": 49.9749,
+            "range": "± 0.8865",
             "unit": "× calibration",
-            "extra": "5057.25ns  calibration: 63.24ns"
+            "extra": "5057.25ns  calibration: 63.24ns  [rescaled ×0.62 for the lib/ harness (#117); original 79.9694]"
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — native new RegExp()",
@@ -4264,17 +4264,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — compilePartial()",
-            "value": 160.1877,
-            "range": "± 7.5408",
+            "value": 64.9525,
+            "range": "± 3.0576",
             "unit": "× calibration",
-            "extra": "10130.24ns  calibration: 63.24ns"
+            "extra": "10130.24ns  calibration: 63.24ns  [rescaled ×0.41 for the lib/ harness (#117); original 160.1877]"
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — new PartialMatchRegExp()",
-            "value": 171.8694,
-            "range": "± 11.9679",
+            "value": 72.7809,
+            "range": "± 5.0680",
             "unit": "× calibration",
-            "extra": "10868.99ns  calibration: 63.24ns"
+            "extra": "10868.99ns  calibration: 63.24ns  [rescaled ×0.42 for the lib/ harness (#117); original 171.8694]"
           }
         ]
       },
@@ -4470,10 +4470,10 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "backref — leftmost bound check (native match at a later index) — bound doesn't reject — full pipeline still runs",
-            "value": 30.5103,
-            "range": "± 0.3918",
+            "value": 24.4992,
+            "range": "± 0.3146",
             "unit": "× calibration",
-            "extra": "1996.70ns  calibration: 65.44ns"
+            "extra": "1996.70ns  calibration: 65.44ns  [rescaled ×0.80 for the lib/ harness (#117); original 30.5103]"
           },
           {
             "name": "backref — keystroke simulation (accumulated exec cost) — repeated word: 7 keystrokes",
@@ -4498,17 +4498,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — simple pattern (no groups, no backreferences) — compilePartial()",
-            "value": 52.1569,
-            "range": "± 0.4798",
+            "value": 20.104,
+            "range": "± 0.1849",
             "unit": "× calibration",
-            "extra": "3413.33ns  calibration: 65.44ns"
+            "extra": "3413.33ns  calibration: 65.44ns  [rescaled ×0.39 for the lib/ harness (#117); original 52.1569]"
           },
           {
             "name": "construction — simple pattern (no groups, no backreferences) — new PartialMatchRegExp()",
-            "value": 62.2989,
-            "range": "± 1.6961",
+            "value": 26.4337,
+            "range": "± 0.7197",
             "unit": "× calibration",
-            "extra": "4077.06ns  calibration: 65.44ns"
+            "extra": "4077.06ns  calibration: 65.44ns  [rescaled ×0.42 for the lib/ harness (#117); original 62.2989]"
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — native new RegExp()",
@@ -4519,17 +4519,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — compilePartial()",
-            "value": 75.6845,
-            "range": "± 0.5438",
+            "value": 46.9138,
+            "range": "± 0.3371",
             "unit": "× calibration",
-            "extra": "4953.06ns  calibration: 65.44ns"
+            "extra": "4953.06ns  calibration: 65.44ns  [rescaled ×0.62 for the lib/ harness (#117); original 75.6845]"
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — new PartialMatchRegExp()",
-            "value": 87.5471,
-            "range": "± 2.7445",
+            "value": 54.7104,
+            "range": "± 1.7151",
             "unit": "× calibration",
-            "extra": "5729.39ns  calibration: 65.44ns"
+            "extra": "5729.39ns  calibration: 65.44ns  [rescaled ×0.62 for the lib/ harness (#117); original 87.5471]"
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — native new RegExp()",
@@ -4540,80 +4540,80 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — compilePartial()",
-            "value": 175.0009,
-            "range": "± 2.2487",
+            "value": 70.9589,
+            "range": "± 0.9118",
             "unit": "× calibration",
-            "extra": "11452.67ns  calibration: 65.44ns"
+            "extra": "11452.67ns  calibration: 65.44ns  [rescaled ×0.41 for the lib/ harness (#117); original 175.0009]"
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — new PartialMatchRegExp()",
-            "value": 183.229,
-            "range": "± 2.1805",
+            "value": 77.5913,
+            "range": "± 0.9234",
             "unit": "× calibration",
-            "extra": "11991.15ns  calibration: 65.44ns"
+            "extra": "11991.15ns  calibration: 65.44ns  [rescaled ×0.42 for the lib/ harness (#117); original 183.229]"
           },
           {
-            "name": "construction — legacy numeric escape reclassification — native new RegExp()",
+            "name": "construction — legacy numeric escape (\\N past the group count) — native new RegExp()",
             "value": 1.449,
             "range": "± 0.0183",
             "unit": "× calibration",
             "extra": "94.83ns  calibration: 65.44ns"
           },
           {
-            "name": "construction — legacy numeric escape reclassification — compilePartial()",
-            "value": 93.6774,
-            "range": "± 7.9476",
+            "name": "construction — legacy numeric escape (\\N past the group count) — compilePartial()",
+            "value": 37.2777,
+            "range": "± 3.1626",
             "unit": "× calibration",
-            "extra": "6130.58ns  calibration: 65.44ns"
+            "extra": "6130.58ns  calibration: 65.44ns  [rescaled ×0.40 for the lib/ harness (#117); original 93.6774]"
           },
           {
-            "name": "construction — legacy numeric escape reclassification — new PartialMatchRegExp()",
-            "value": 104.5509,
-            "range": "± 5.6634",
+            "name": "construction — legacy numeric escape (\\N past the group count) — new PartialMatchRegExp()",
+            "value": 45.3712,
+            "range": "± 2.4577",
             "unit": "× calibration",
-            "extra": "6842.18ns  calibration: 65.44ns"
+            "extra": "6842.18ns  calibration: 65.44ns  [rescaled ×0.43 for the lib/ harness (#117); original 104.5509]"
           },
           {
-            "name": "construction — legacy named escape fallback (double walk()) — native new RegExp()",
+            "name": "construction — legacy named escape (\\k<name> naming no group) — native new RegExp()",
             "value": 1.5911,
             "range": "± 0.0177",
             "unit": "× calibration",
             "extra": "104.13ns  calibration: 65.44ns"
           },
           {
-            "name": "construction — legacy named escape fallback (double walk()) — compilePartial()",
-            "value": 172.2522,
-            "range": "± 2.3692",
+            "name": "construction — legacy named escape (\\k<name> naming no group) — compilePartial()",
+            "value": 88.2739,
+            "range": "± 1.2141",
             "unit": "× calibration",
-            "extra": "11272.79ns  calibration: 65.44ns"
+            "extra": "11272.79ns  calibration: 65.44ns  [rescaled ×0.51 for the lib/ harness (#117); original 172.2522]"
           },
           {
-            "name": "construction — legacy named escape fallback (double walk()) — new PartialMatchRegExp()",
-            "value": 185.2901,
-            "range": "± 3.2588",
+            "name": "construction — legacy named escape (\\k<name> naming no group) — new PartialMatchRegExp()",
+            "value": 96.665,
+            "range": "± 1.7001",
             "unit": "× calibration",
-            "extra": "12126.03ns  calibration: 65.44ns"
+            "extra": "12126.03ns  calibration: 65.44ns  [rescaled ×0.52 for the lib/ harness (#117); original 185.2901]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec (baseline, never asks)",
-            "value": 69.6204,
-            "range": "± 1.5095",
+            "value": 35.5541,
+            "range": "± 0.7709",
             "unit": "× calibration",
-            "extra": "4556.20ns  calibration: 65.44ns"
+            "extra": "4556.20ns  calibration: 65.44ns  [rescaled ×0.51 for the lib/ harness (#117); original 69.6204]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (includes probe build)",
-            "value": 146.3664,
-            "range": "± 1.9864",
+            "value": 83.0269,
+            "range": "± 1.1268",
             "unit": "× calibration",
-            "extra": "9578.73ns  calibration: 65.44ns"
+            "extra": "9578.73ns  calibration: 65.44ns  [rescaled ×0.57 for the lib/ harness (#117); original 146.3664]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (complete, includes probe build)",
-            "value": 137.808,
-            "range": "± 0.3522",
+            "value": 79.2746,
+            "range": "± 0.2026",
             "unit": "× calibration",
-            "extra": "9018.64ns  calibration: 65.44ns"
+            "extra": "9018.64ns  calibration: 65.44ns  [rescaled ×0.58 for the lib/ harness (#117); original 137.808]"
           },
           {
             "name": "hitEnd — static path (ISO date) — hitEnd — incomplete match, warm probe",
@@ -4631,17 +4631,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — backreference path (repeated word) — construct + exec (baseline, never asks)",
-            "value": 153.4493,
-            "range": "± 11.9433",
+            "value": 66.3793,
+            "range": "± 5.1665",
             "unit": "× calibration",
-            "extra": "10042.26ns  calibration: 65.44ns"
+            "extra": "10042.26ns  calibration: 65.44ns  [rescaled ×0.43 for the lib/ harness (#117); original 153.4493]"
           },
           {
             "name": "hitEnd — backreference path (repeated word) — construct + exec + hitEnd (includes probe build)",
-            "value": 237.8818,
-            "range": "± 3.4457",
+            "value": 126.1355,
+            "range": "± 1.8271",
             "unit": "× calibration",
-            "extra": "15567.82ns  calibration: 65.44ns"
+            "extra": "15567.82ns  calibration: 65.44ns  [rescaled ×0.53 for the lib/ harness (#117); original 237.8818]"
           },
           {
             "name": "hitEnd — backreference path (repeated word) — hitEnd — same match, expansion probe cached",
@@ -4652,24 +4652,24 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — backreference path (repeated word) — exec + hitEnd — fresh match, alternating capture, probe rebuilt per match",
-            "value": 105.1822,
-            "range": "± 6.2925",
+            "value": 84.3961,
+            "range": "± 5.0490",
             "unit": "× calibration",
-            "extra": "6883.49ns  calibration: 65.44ns"
+            "extra": "6883.49ns  calibration: 65.44ns  [rescaled ×0.80 for the lib/ harness (#117); original 105.1822]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — construct + exec (baseline, never asks)",
-            "value": 162.8435,
-            "range": "± 2.6514",
+            "value": 54.9745,
+            "range": "± 0.8951",
             "unit": "× calibration",
-            "extra": "10657.05ns  calibration: 65.44ns"
+            "extra": "10657.05ns  calibration: 65.44ns  [rescaled ×0.34 for the lib/ harness (#117); original 162.8435]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — construct + exec + hitEnd (includes probe build)",
-            "value": 241.1628,
-            "range": "± 6.1270",
+            "value": 97.1376,
+            "range": "± 2.4679",
             "unit": "× calibration",
-            "extra": "15782.54ns  calibration: 65.44ns"
+            "extra": "15782.54ns  calibration: 65.44ns  [rescaled ×0.40 for the lib/ harness (#117); original 241.1628]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — hitEnd — warm instance",
@@ -4680,143 +4680,143 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "feature cost — construction, one construct per bench — literal characters (baseline)",
-            "value": 74.3377,
-            "range": "± 2.1260",
+            "value": 49.9799,
+            "range": "± 1.4294",
             "unit": "× calibration",
-            "extra": "4864.92ns  calibration: 65.44ns"
+            "extra": "4864.92ns  calibration: 65.44ns  [rescaled ×0.67 for the lib/ harness (#117); original 74.3377]"
           },
           {
             "name": "feature cost — construction, one construct per bench — character class",
-            "value": 64.7924,
-            "range": "± 1.8721",
+            "value": 41.9909,
+            "range": "± 1.2133",
             "unit": "× calibration",
-            "extra": "4240.24ns  calibration: 65.44ns"
+            "extra": "4240.24ns  calibration: 65.44ns  [rescaled ×0.65 for the lib/ harness (#117); original 64.7924]"
           },
           {
             "name": "feature cost — construction, one construct per bench — quantifier",
-            "value": 70.1133,
-            "range": "± 1.7553",
+            "value": 44.4512,
+            "range": "± 1.1128",
             "unit": "× calibration",
-            "extra": "4588.46ns  calibration: 65.44ns"
+            "extra": "4588.46ns  calibration: 65.44ns  [rescaled ×0.63 for the lib/ harness (#117); original 70.1133]"
           },
           {
             "name": "feature cost — construction, one construct per bench — disjunction",
-            "value": 99.5353,
-            "range": "± 2.1234",
+            "value": 51.0687,
+            "range": "± 1.0895",
             "unit": "× calibration",
-            "extra": "6513.94ns  calibration: 65.44ns"
+            "extra": "6513.94ns  calibration: 65.44ns  [rescaled ×0.51 for the lib/ harness (#117); original 99.5353]"
           },
           {
             "name": "feature cost — construction, one construct per bench — non-capturing group",
-            "value": 102.4831,
-            "range": "± 2.1371",
+            "value": 52.5225,
+            "range": "± 1.0953",
             "unit": "× calibration",
-            "extra": "6706.85ns  calibration: 65.44ns"
+            "extra": "6706.85ns  calibration: 65.44ns  [rescaled ×0.51 for the lib/ harness (#117); original 102.4831]"
           },
           {
             "name": "feature cost — construction, one construct per bench — capturing group",
-            "value": 102.4293,
-            "range": "± 2.3634",
+            "value": 52.7197,
+            "range": "± 1.2164",
             "unit": "× calibration",
-            "extra": "6703.33ns  calibration: 65.44ns"
+            "extra": "6703.33ns  calibration: 65.44ns  [rescaled ×0.51 for the lib/ harness (#117); original 102.4293]"
           },
           {
             "name": "feature cost — construction, one construct per bench — named group",
-            "value": 99.4841,
-            "range": "± 2.6209",
+            "value": 53.0858,
+            "range": "± 1.3985",
             "unit": "× calibration",
-            "extra": "6510.59ns  calibration: 65.44ns"
+            "extra": "6510.59ns  calibration: 65.44ns  [rescaled ×0.53 for the lib/ harness (#117); original 99.4841]"
           },
           {
             "name": "feature cost — construction, one construct per bench — lookahead",
-            "value": 102.8198,
-            "range": "± 1.0189",
+            "value": 53.1604,
+            "range": "± 0.5268",
             "unit": "× calibration",
-            "extra": "6728.89ns  calibration: 65.44ns"
+            "extra": "6728.89ns  calibration: 65.44ns  [rescaled ×0.52 for the lib/ harness (#117); original 102.8198]"
           },
           {
             "name": "feature cost — construction, one construct per bench — negative lookahead (raw)",
-            "value": 95.7531,
-            "range": "± 1.9033",
+            "value": 56.5487,
+            "range": "± 1.1240",
             "unit": "× calibration",
-            "extra": "6266.42ns  calibration: 65.44ns"
+            "extra": "6266.42ns  calibration: 65.44ns  [rescaled ×0.59 for the lib/ harness (#117); original 95.7531]"
           },
           {
             "name": "feature cost — construction, one construct per bench — lookbehind (raw)",
-            "value": 106.1494,
-            "range": "± 2.0784",
+            "value": 56.9127,
+            "range": "± 1.1143",
             "unit": "× calibration",
-            "extra": "6946.79ns  calibration: 65.44ns"
+            "extra": "6946.79ns  calibration: 65.44ns  [rescaled ×0.54 for the lib/ harness (#117); original 106.1494]"
           },
           {
             "name": "feature cost — construction, one construct per bench — control escapes",
-            "value": 71.0153,
-            "range": "± 2.4979",
+            "value": 46.289,
+            "range": "± 1.6282",
             "unit": "× calibration",
-            "extra": "4647.49ns  calibration: 65.44ns"
+            "extra": "4647.49ns  calibration: 65.44ns  [rescaled ×0.65 for the lib/ harness (#117); original 71.0153]"
           },
           {
             "name": "feature cost — construction, one construct per bench — control-letter escape",
-            "value": 62.0651,
-            "range": "± 1.9001",
+            "value": 40.7865,
+            "range": "± 1.2487",
             "unit": "× calibration",
-            "extra": "4061.76ns  calibration: 65.44ns"
+            "extra": "4061.76ns  calibration: 65.44ns  [rescaled ×0.66 for the lib/ harness (#117); original 62.0651]"
           },
           {
             "name": "feature cost — construction, one construct per bench — hex and unicode escapes",
-            "value": 67.6202,
-            "range": "± 1.8255",
+            "value": 45.5716,
+            "range": "± 1.2303",
             "unit": "× calibration",
-            "extra": "4425.30ns  calibration: 65.44ns"
+            "extra": "4425.30ns  calibration: 65.44ns  [rescaled ×0.67 for the lib/ harness (#117); original 67.6202]"
           },
           {
             "name": "feature cost — construction, one construct per bench — unicode property escape (u)",
-            "value": 65.2196,
-            "range": "± 2.1021",
+            "value": 44.089,
+            "range": "± 1.4210",
             "unit": "× calibration",
-            "extra": "4268.20ns  calibration: 65.44ns"
+            "extra": "4268.20ns  calibration: 65.44ns  [rescaled ×0.68 for the lib/ harness (#117); original 65.2196]"
           },
           {
             "name": "feature cost — construction, one construct per bench — nested character class (v)",
-            "value": 66.77,
-            "range": "± 1.8387",
+            "value": 45.0054,
+            "range": "± 1.2393",
             "unit": "× calibration",
-            "extra": "4369.66ns  calibration: 65.44ns"
+            "extra": "4369.66ns  calibration: 65.44ns  [rescaled ×0.67 for the lib/ harness (#117); original 66.77]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — capturing group, no reference (static path)",
-            "value": 97.7694,
-            "range": "± 1.9391",
+            "value": 45.8813,
+            "range": "± 0.9100",
             "unit": "× calibration",
-            "extra": "6398.37ns  calibration: 65.44ns"
+            "extra": "6398.37ns  calibration: 65.44ns  [rescaled ×0.47 for the lib/ harness (#117); original 97.7694]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — numeric backreference (dynamic path)",
-            "value": 140.0182,
-            "range": "± 14.2359",
+            "value": 60.6788,
+            "range": "± 6.1693",
             "unit": "× calibration",
-            "extra": "9163.28ns  calibration: 65.44ns"
+            "extra": "9163.28ns  calibration: 65.44ns  [rescaled ×0.43 for the lib/ harness (#117); original 140.0182]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — named backreference (dynamic path)",
-            "value": 141.4713,
-            "range": "± 14.7789",
+            "value": 61.0676,
+            "range": "± 6.3795",
             "unit": "× calibration",
-            "extra": "9258.38ns  calibration: 65.44ns"
+            "extra": "9258.38ns  calibration: 65.44ns  [rescaled ×0.43 for the lib/ harness (#117); original 141.4713]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — reclassified octal escape (static)",
-            "value": 115.2753,
-            "range": "± 8.2991",
+            "value": 60.1897,
+            "range": "± 4.3333",
             "unit": "× calibration",
-            "extra": "7544.02ns  calibration: 65.44ns"
+            "extra": "7544.02ns  calibration: 65.44ns  [rescaled ×0.52 for the lib/ harness (#117); original 115.2753]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — reclassified \\k literal (static)",
-            "value": 199.2219,
-            "range": "± 0.2242",
+            "value": 116.0913,
+            "range": "± 0.1306",
             "unit": "× calibration",
-            "extra": "13037.78ns  calibration: 65.44ns"
+            "extra": "13037.78ns  calibration: 65.44ns  [rescaled ×0.58 for the lib/ harness (#117); original 199.2219]"
           },
           {
             "name": "feature cost — exec, legacy escape vs genuine backreference — legacy \\k literal — partial input",
@@ -5040,10 +5040,10 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "backref — leftmost bound check (native match at a later index) — bound doesn't reject — full pipeline still runs",
-            "value": 31.4644,
-            "range": "± 0.3318",
+            "value": 25.2653,
+            "range": "± 0.2664",
             "unit": "× calibration",
-            "extra": "1994.47ns  calibration: 63.39ns"
+            "extra": "1994.47ns  calibration: 63.39ns  [rescaled ×0.80 for the lib/ harness (#117); original 31.4644]"
           },
           {
             "name": "backref — keystroke simulation (accumulated exec cost) — repeated word: 7 keystrokes",
@@ -5068,17 +5068,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — simple pattern (no groups, no backreferences) — compilePartial()",
-            "value": 54.2217,
-            "range": "± 0.4099",
+            "value": 20.8999,
+            "range": "± 0.1580",
             "unit": "× calibration",
-            "extra": "3437.02ns  calibration: 63.39ns"
+            "extra": "3437.02ns  calibration: 63.39ns  [rescaled ×0.39 for the lib/ harness (#117); original 54.2217]"
           },
           {
             "name": "construction — simple pattern (no groups, no backreferences) — new PartialMatchRegExp()",
-            "value": 64.517,
-            "range": "± 2.3642",
+            "value": 27.3749,
+            "range": "± 1.0031",
             "unit": "× calibration",
-            "extra": "4089.62ns  calibration: 63.39ns"
+            "extra": "4089.62ns  calibration: 63.39ns  [rescaled ×0.42 for the lib/ harness (#117); original 64.517]"
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — native new RegExp()",
@@ -5089,17 +5089,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — compilePartial()",
-            "value": 80.6817,
-            "range": "± 0.6814",
+            "value": 50.0113,
+            "range": "± 0.4224",
             "unit": "× calibration",
-            "extra": "5114.27ns  calibration: 63.39ns"
+            "extra": "5114.27ns  calibration: 63.39ns  [rescaled ×0.62 for the lib/ harness (#117); original 80.6817]"
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — new PartialMatchRegExp()",
-            "value": 90.7743,
-            "range": "± 2.7780",
+            "value": 56.7272,
+            "range": "± 1.7360",
             "unit": "× calibration",
-            "extra": "5754.02ns  calibration: 63.39ns"
+            "extra": "5754.02ns  calibration: 63.39ns  [rescaled ×0.62 for the lib/ harness (#117); original 90.7743]"
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — native new RegExp()",
@@ -5110,80 +5110,80 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — compilePartial()",
-            "value": 184.0007,
-            "range": "± 4.7633",
+            "value": 74.6082,
+            "range": "± 1.9314",
             "unit": "× calibration",
-            "extra": "11663.48ns  calibration: 63.39ns"
+            "extra": "11663.48ns  calibration: 63.39ns  [rescaled ×0.41 for the lib/ harness (#117); original 184.0007]"
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — new PartialMatchRegExp()",
-            "value": 197.501,
-            "range": "± 1.9035",
+            "value": 83.6351,
+            "range": "± 0.8061",
             "unit": "× calibration",
-            "extra": "12519.24ns  calibration: 63.39ns"
+            "extra": "12519.24ns  calibration: 63.39ns  [rescaled ×0.42 for the lib/ harness (#117); original 197.501]"
           },
           {
-            "name": "construction — legacy numeric escape reclassification — native new RegExp()",
+            "name": "construction — legacy numeric escape (\\N past the group count) — native new RegExp()",
             "value": 1.5127,
             "range": "± 0.0204",
             "unit": "× calibration",
             "extra": "95.89ns  calibration: 63.39ns"
           },
           {
-            "name": "construction — legacy numeric escape reclassification — compilePartial()",
-            "value": 97.151,
-            "range": "± 8.7041",
+            "name": "construction — legacy numeric escape (\\N past the group count) — compilePartial()",
+            "value": 38.66,
+            "range": "± 3.4637",
             "unit": "× calibration",
-            "extra": "6158.23ns  calibration: 63.39ns"
+            "extra": "6158.23ns  calibration: 63.39ns  [rescaled ×0.40 for the lib/ harness (#117); original 97.151]"
           },
           {
-            "name": "construction — legacy numeric escape reclassification — new PartialMatchRegExp()",
-            "value": 113.2575,
-            "range": "± 8.8660",
+            "name": "construction — legacy numeric escape (\\N past the group count) — new PartialMatchRegExp()",
+            "value": 49.1495,
+            "range": "± 3.8475",
             "unit": "× calibration",
-            "extra": "7179.19ns  calibration: 63.39ns"
+            "extra": "7179.19ns  calibration: 63.39ns  [rescaled ×0.43 for the lib/ harness (#117); original 113.2575]"
           },
           {
-            "name": "construction — legacy named escape fallback (double walk()) — native new RegExp()",
+            "name": "construction — legacy named escape (\\k<name> naming no group) — native new RegExp()",
             "value": 1.6596,
             "range": "± 0.0202",
             "unit": "× calibration",
             "extra": "105.20ns  calibration: 63.39ns"
           },
           {
-            "name": "construction — legacy named escape fallback (double walk()) — compilePartial()",
-            "value": 178.4503,
-            "range": "± 1.5441",
+            "name": "construction — legacy named escape (\\k<name> naming no group) — compilePartial()",
+            "value": 91.4502,
+            "range": "± 0.7913",
             "unit": "× calibration",
-            "extra": "11311.65ns  calibration: 63.39ns"
+            "extra": "11311.65ns  calibration: 63.39ns  [rescaled ×0.51 for the lib/ harness (#117); original 178.4503]"
           },
           {
-            "name": "construction — legacy named escape fallback (double walk()) — new PartialMatchRegExp()",
-            "value": 192.098,
-            "range": "± 3.5955",
+            "name": "construction — legacy named escape (\\k<name> naming no group) — new PartialMatchRegExp()",
+            "value": 100.2166,
+            "range": "± 1.8758",
             "unit": "× calibration",
-            "extra": "12176.75ns  calibration: 63.39ns"
+            "extra": "12176.75ns  calibration: 63.39ns  [rescaled ×0.52 for the lib/ harness (#117); original 192.098]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec (baseline, never asks)",
-            "value": 73.1396,
-            "range": "± 2.4658",
+            "value": 37.3513,
+            "range": "± 1.2592",
             "unit": "× calibration",
-            "extra": "4636.19ns  calibration: 63.39ns"
+            "extra": "4636.19ns  calibration: 63.39ns  [rescaled ×0.51 for the lib/ harness (#117); original 73.1396]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (includes probe build)",
-            "value": 163.2551,
-            "range": "± 1.8221",
+            "value": 92.6071,
+            "range": "± 1.0336",
             "unit": "× calibration",
-            "extra": "10348.45ns  calibration: 63.39ns"
+            "extra": "10348.45ns  calibration: 63.39ns  [rescaled ×0.57 for the lib/ harness (#117); original 163.2551]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (complete, includes probe build)",
-            "value": 147.8036,
-            "range": "± 0.5192",
+            "value": 85.0246,
+            "range": "± 0.2987",
             "unit": "× calibration",
-            "extra": "9369.01ns  calibration: 63.39ns"
+            "extra": "9369.01ns  calibration: 63.39ns  [rescaled ×0.58 for the lib/ harness (#117); original 147.8036]"
           },
           {
             "name": "hitEnd — static path (ISO date) — hitEnd — incomplete match, warm probe",
@@ -5201,17 +5201,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — backreference path (repeated word) — construct + exec (baseline, never asks)",
-            "value": 165.4395,
-            "range": "± 10.8749",
+            "value": 71.5661,
+            "range": "± 4.7043",
             "unit": "× calibration",
-            "extra": "10486.92ns  calibration: 63.39ns"
+            "extra": "10486.92ns  calibration: 63.39ns  [rescaled ×0.43 for the lib/ harness (#117); original 165.4395]"
           },
           {
             "name": "hitEnd — backreference path (repeated word) — construct + exec + hitEnd (includes probe build)",
-            "value": 269.8835,
-            "range": "± 4.9773",
+            "value": 143.1043,
+            "range": "± 2.6392",
             "unit": "× calibration",
-            "extra": "17107.44ns  calibration: 63.39ns"
+            "extra": "17107.44ns  calibration: 63.39ns  [rescaled ×0.53 for the lib/ harness (#117); original 269.8835]"
           },
           {
             "name": "hitEnd — backreference path (repeated word) — hitEnd — same match, expansion probe cached",
@@ -5222,24 +5222,24 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — backreference path (repeated word) — exec + hitEnd — fresh match, alternating capture, probe rebuilt per match",
-            "value": 110.8523,
-            "range": "± 8.3064",
+            "value": 88.9457,
+            "range": "± 6.6649",
             "unit": "× calibration",
-            "extra": "7026.73ns  calibration: 63.39ns"
+            "extra": "7026.73ns  calibration: 63.39ns  [rescaled ×0.80 for the lib/ harness (#117); original 110.8523]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — construct + exec (baseline, never asks)",
-            "value": 169.8604,
-            "range": "± 3.0013",
+            "value": 57.3433,
+            "range": "± 1.0132",
             "unit": "× calibration",
-            "extra": "10767.15ns  calibration: 63.39ns"
+            "extra": "10767.15ns  calibration: 63.39ns  [rescaled ×0.34 for the lib/ harness (#117); original 169.8604]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — construct + exec + hitEnd (includes probe build)",
-            "value": 267.8527,
-            "range": "± 3.1630",
+            "value": 107.888,
+            "range": "± 1.2740",
             "unit": "× calibration",
-            "extra": "16978.71ns  calibration: 63.39ns"
+            "extra": "16978.71ns  calibration: 63.39ns  [rescaled ×0.40 for the lib/ harness (#117); original 267.8527]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — hitEnd — warm instance",
@@ -5250,143 +5250,143 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "feature cost — construction, one construct per bench — literal characters (baseline)",
-            "value": 82.8826,
-            "range": "± 2.5129",
+            "value": 55.725,
+            "range": "± 1.6895",
             "unit": "× calibration",
-            "extra": "5253.78ns  calibration: 63.39ns"
+            "extra": "5253.78ns  calibration: 63.39ns  [rescaled ×0.67 for the lib/ harness (#117); original 82.8826]"
           },
           {
             "name": "feature cost — construction, one construct per bench — character class",
-            "value": 84.496,
-            "range": "± 3.4410",
+            "value": 54.7605,
+            "range": "± 2.2301",
             "unit": "× calibration",
-            "extra": "5356.05ns  calibration: 63.39ns"
+            "extra": "5356.05ns  calibration: 63.39ns  [rescaled ×0.65 for the lib/ harness (#117); original 84.496]"
           },
           {
             "name": "feature cost — construction, one construct per bench — quantifier",
-            "value": 82.2612,
-            "range": "± 2.8048",
+            "value": 52.1528,
+            "range": "± 1.7782",
             "unit": "× calibration",
-            "extra": "5214.39ns  calibration: 63.39ns"
+            "extra": "5214.39ns  calibration: 63.39ns  [rescaled ×0.63 for the lib/ harness (#117); original 82.2612]"
           },
           {
             "name": "feature cost — construction, one construct per bench — disjunction",
-            "value": 108.2452,
-            "range": "± 2.0223",
+            "value": 55.5375,
+            "range": "± 1.0376",
             "unit": "× calibration",
-            "extra": "6861.47ns  calibration: 63.39ns"
+            "extra": "6861.47ns  calibration: 63.39ns  [rescaled ×0.51 for the lib/ harness (#117); original 108.2452]"
           },
           {
             "name": "feature cost — construction, one construct per bench — non-capturing group",
-            "value": 109.9057,
-            "range": "± 1.0892",
+            "value": 56.3266,
+            "range": "± 0.5582",
             "unit": "× calibration",
-            "extra": "6966.73ns  calibration: 63.39ns"
+            "extra": "6966.73ns  calibration: 63.39ns  [rescaled ×0.51 for the lib/ harness (#117); original 109.9057]"
           },
           {
             "name": "feature cost — construction, one construct per bench — capturing group",
-            "value": 108.4466,
-            "range": "± 0.9622",
+            "value": 55.8167,
+            "range": "± 0.4952",
             "unit": "× calibration",
-            "extra": "6874.24ns  calibration: 63.39ns"
+            "extra": "6874.24ns  calibration: 63.39ns  [rescaled ×0.51 for the lib/ harness (#117); original 108.4466]"
           },
           {
             "name": "feature cost — construction, one construct per bench — named group",
-            "value": 109.8097,
-            "range": "± 1.6331",
+            "value": 58.5957,
+            "range": "± 0.8714",
             "unit": "× calibration",
-            "extra": "6960.64ns  calibration: 63.39ns"
+            "extra": "6960.64ns  calibration: 63.39ns  [rescaled ×0.53 for the lib/ harness (#117); original 109.8097]"
           },
           {
             "name": "feature cost — construction, one construct per bench — lookahead",
-            "value": 110.7794,
-            "range": "± 1.4132",
+            "value": 57.2757,
+            "range": "± 0.7307",
             "unit": "× calibration",
-            "extra": "7022.11ns  calibration: 63.39ns"
+            "extra": "7022.11ns  calibration: 63.39ns  [rescaled ×0.52 for the lib/ harness (#117); original 110.7794]"
           },
           {
             "name": "feature cost — construction, one construct per bench — negative lookahead (raw)",
-            "value": 117.123,
-            "range": "± 1.9669",
+            "value": 69.169,
+            "range": "± 1.1616",
             "unit": "× calibration",
-            "extra": "7424.22ns  calibration: 63.39ns"
+            "extra": "7424.22ns  calibration: 63.39ns  [rescaled ×0.59 for the lib/ harness (#117); original 117.123]"
           },
           {
             "name": "feature cost — construction, one construct per bench — lookbehind (raw)",
-            "value": 113.0655,
-            "range": "± 1.8445",
+            "value": 60.6209,
+            "range": "± 0.9889",
             "unit": "× calibration",
-            "extra": "7167.02ns  calibration: 63.39ns"
+            "extra": "7167.02ns  calibration: 63.39ns  [rescaled ×0.54 for the lib/ harness (#117); original 113.0655]"
           },
           {
             "name": "feature cost — construction, one construct per bench — control escapes",
-            "value": 84.8271,
-            "range": "± 2.2329",
+            "value": 55.2917,
+            "range": "± 1.4554",
             "unit": "× calibration",
-            "extra": "5377.04ns  calibration: 63.39ns"
+            "extra": "5377.04ns  calibration: 63.39ns  [rescaled ×0.65 for the lib/ harness (#117); original 84.8271]"
           },
           {
             "name": "feature cost — construction, one construct per bench — control-letter escape",
-            "value": 84.1158,
-            "range": "± 2.9925",
+            "value": 55.2773,
+            "range": "± 1.9665",
             "unit": "× calibration",
-            "extra": "5331.95ns  calibration: 63.39ns"
+            "extra": "5331.95ns  calibration: 63.39ns  [rescaled ×0.66 for the lib/ harness (#117); original 84.1158]"
           },
           {
             "name": "feature cost — construction, one construct per bench — hex and unicode escapes",
-            "value": 85.1213,
-            "range": "± 2.3487",
+            "value": 57.3661,
+            "range": "± 1.5829",
             "unit": "× calibration",
-            "extra": "5395.69ns  calibration: 63.39ns"
+            "extra": "5395.69ns  calibration: 63.39ns  [rescaled ×0.67 for the lib/ harness (#117); original 85.1213]"
           },
           {
             "name": "feature cost — construction, one construct per bench — unicode property escape (u)",
-            "value": 85.0136,
-            "range": "± 2.6772",
+            "value": 57.4699,
+            "range": "± 1.8098",
             "unit": "× calibration",
-            "extra": "5388.86ns  calibration: 63.39ns"
+            "extra": "5388.86ns  calibration: 63.39ns  [rescaled ×0.68 for the lib/ harness (#117); original 85.0136]"
           },
           {
             "name": "feature cost — construction, one construct per bench — nested character class (v)",
-            "value": 85.9566,
-            "range": "± 2.5322",
+            "value": 57.9378,
+            "range": "± 1.7068",
             "unit": "× calibration",
-            "extra": "5448.64ns  calibration: 63.39ns"
+            "extra": "5448.64ns  calibration: 63.39ns  [rescaled ×0.67 for the lib/ harness (#117); original 85.9566]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — capturing group, no reference (static path)",
-            "value": 102.1249,
-            "range": "± 2.1062",
+            "value": 47.9253,
+            "range": "± 0.9884",
             "unit": "× calibration",
-            "extra": "6473.52ns  calibration: 63.39ns"
+            "extra": "6473.52ns  calibration: 63.39ns  [rescaled ×0.47 for the lib/ harness (#117); original 102.1249]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — numeric backreference (dynamic path)",
-            "value": 147.3873,
-            "range": "± 13.9862",
+            "value": 63.8723,
+            "range": "± 6.0611",
             "unit": "× calibration",
-            "extra": "9342.62ns  calibration: 63.39ns"
+            "extra": "9342.62ns  calibration: 63.39ns  [rescaled ×0.43 for the lib/ harness (#117); original 147.3873]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — named backreference (dynamic path)",
-            "value": 147.6795,
-            "range": "± 15.4734",
+            "value": 63.7475,
+            "range": "± 6.6793",
             "unit": "× calibration",
-            "extra": "9361.14ns  calibration: 63.39ns"
+            "extra": "9361.14ns  calibration: 63.39ns  [rescaled ×0.43 for the lib/ harness (#117); original 147.6795]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — reclassified octal escape (static)",
-            "value": 120.2501,
-            "range": "± 9.2318",
+            "value": 62.7872,
+            "range": "± 4.8203",
             "unit": "× calibration",
-            "extra": "7622.44ns  calibration: 63.39ns"
+            "extra": "7622.44ns  calibration: 63.39ns  [rescaled ×0.52 for the lib/ harness (#117); original 120.2501]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — reclassified \\k literal (static)",
-            "value": 207.828,
-            "range": "± 0.7853",
+            "value": 121.1063,
+            "range": "± 0.4576",
             "unit": "× calibration",
-            "extra": "13173.85ns  calibration: 63.39ns"
+            "extra": "13173.85ns  calibration: 63.39ns  [rescaled ×0.58 for the lib/ harness (#117); original 207.828]"
           },
           {
             "name": "feature cost — exec, legacy escape vs genuine backreference — legacy \\k literal — partial input",
@@ -5610,10 +5610,10 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "backref — leftmost bound check (native match at a later index) — bound doesn't reject — full pipeline still runs",
-            "value": 31.3806,
-            "range": "± 0.6261",
+            "value": 25.1981,
+            "range": "± 0.5027",
             "unit": "× calibration",
-            "extra": "1612.96ns  calibration: 51.40ns"
+            "extra": "1612.96ns  calibration: 51.40ns  [rescaled ×0.80 for the lib/ harness (#117); original 31.3806]"
           },
           {
             "name": "backref — keystroke simulation (accumulated exec cost) — repeated word: 7 keystrokes",
@@ -5638,17 +5638,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — simple pattern (no groups, no backreferences) — compilePartial()",
-            "value": 57.9939,
-            "range": "± 0.9463",
+            "value": 22.3539,
+            "range": "± 0.3648",
             "unit": "× calibration",
-            "extra": "2980.88ns  calibration: 51.40ns"
+            "extra": "2980.88ns  calibration: 51.40ns  [rescaled ×0.39 for the lib/ harness (#117); original 57.9939]"
           },
           {
             "name": "construction — simple pattern (no groups, no backreferences) — new PartialMatchRegExp()",
-            "value": 67.6424,
-            "range": "± 1.3045",
+            "value": 28.701,
+            "range": "± 0.5535",
             "unit": "× calibration",
-            "extra": "3476.81ns  calibration: 51.40ns"
+            "extra": "3476.81ns  calibration: 51.40ns  [rescaled ×0.42 for the lib/ harness (#117); original 67.6424]"
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — native new RegExp()",
@@ -5659,17 +5659,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — compilePartial()",
-            "value": 84.9457,
-            "range": "± 1.4693",
+            "value": 52.6544,
+            "range": "± 0.9108",
             "unit": "× calibration",
-            "extra": "4366.20ns  calibration: 51.40ns"
+            "extra": "4366.20ns  calibration: 51.40ns  [rescaled ×0.62 for the lib/ harness (#117); original 84.9457]"
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — new PartialMatchRegExp()",
-            "value": 96.206,
-            "range": "± 2.6735",
+            "value": 60.1216,
+            "range": "± 1.6707",
             "unit": "× calibration",
-            "extra": "4944.98ns  calibration: 51.40ns"
+            "extra": "4944.98ns  calibration: 51.40ns  [rescaled ×0.62 for the lib/ harness (#117); original 96.206]"
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — native new RegExp()",
@@ -5680,80 +5680,80 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — compilePartial()",
-            "value": 184.3333,
-            "range": "± 3.9975",
+            "value": 74.743,
+            "range": "± 1.6209",
             "unit": "× calibration",
-            "extra": "9474.71ns  calibration: 51.40ns"
+            "extra": "9474.71ns  calibration: 51.40ns  [rescaled ×0.41 for the lib/ harness (#117); original 184.3333]"
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — new PartialMatchRegExp()",
-            "value": 197.166,
-            "range": "± 3.6090",
+            "value": 83.4932,
+            "range": "± 1.5283",
             "unit": "× calibration",
-            "extra": "10134.31ns  calibration: 51.40ns"
+            "extra": "10134.31ns  calibration: 51.40ns  [rescaled ×0.42 for the lib/ harness (#117); original 197.166]"
           },
           {
-            "name": "construction — legacy numeric escape reclassification — native new RegExp()",
+            "name": "construction — legacy numeric escape (\\N past the group count) — native new RegExp()",
             "value": 1.4862,
             "range": "± 0.0632",
             "unit": "× calibration",
             "extra": "76.39ns  calibration: 51.40ns"
           },
           {
-            "name": "construction — legacy numeric escape reclassification — compilePartial()",
-            "value": 100.4617,
-            "range": "± 9.2810",
+            "name": "construction — legacy numeric escape (\\N past the group count) — compilePartial()",
+            "value": 39.9774,
+            "range": "± 3.6933",
             "unit": "× calibration",
-            "extra": "5163.72ns  calibration: 51.40ns"
+            "extra": "5163.72ns  calibration: 51.40ns  [rescaled ×0.40 for the lib/ harness (#117); original 100.4617]"
           },
           {
-            "name": "construction — legacy numeric escape reclassification — new PartialMatchRegExp()",
-            "value": 115.2178,
-            "range": "± 6.7712",
+            "name": "construction — legacy numeric escape (\\N past the group count) — new PartialMatchRegExp()",
+            "value": 50.0002,
+            "range": "± 2.9384",
             "unit": "× calibration",
-            "extra": "5922.18ns  calibration: 51.40ns"
+            "extra": "5922.18ns  calibration: 51.40ns  [rescaled ×0.43 for the lib/ harness (#117); original 115.2178]"
           },
           {
-            "name": "construction — legacy named escape fallback (double walk()) — native new RegExp()",
+            "name": "construction — legacy named escape (\\k<name> naming no group) — native new RegExp()",
             "value": 1.6911,
             "range": "± 0.0463",
             "unit": "× calibration",
             "extra": "86.92ns  calibration: 51.40ns"
           },
           {
-            "name": "construction — legacy named escape fallback (double walk()) — compilePartial()",
-            "value": 179.0545,
-            "range": "± 2.6911",
+            "name": "construction — legacy named escape (\\k<name> naming no group) — compilePartial()",
+            "value": 91.7598,
+            "range": "± 1.3791",
             "unit": "× calibration",
-            "extra": "9203.38ns  calibration: 51.40ns"
+            "extra": "9203.38ns  calibration: 51.40ns  [rescaled ×0.51 for the lib/ harness (#117); original 179.0545]"
           },
           {
-            "name": "construction — legacy named escape fallback (double walk()) — new PartialMatchRegExp()",
-            "value": 194.2882,
-            "range": "± 4.2562",
+            "name": "construction — legacy named escape (\\k<name> naming no group) — new PartialMatchRegExp()",
+            "value": 101.3592,
+            "range": "± 2.2204",
             "unit": "× calibration",
-            "extra": "9986.39ns  calibration: 51.40ns"
+            "extra": "9986.39ns  calibration: 51.40ns  [rescaled ×0.52 for the lib/ harness (#117); original 194.2882]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec (baseline, never asks)",
-            "value": 75.2515,
-            "range": "± 2.2288",
+            "value": 38.4298,
+            "range": "± 1.1382",
             "unit": "× calibration",
-            "extra": "3867.92ns  calibration: 51.40ns"
+            "extra": "3867.92ns  calibration: 51.40ns  [rescaled ×0.51 for the lib/ harness (#117); original 75.2515]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (includes probe build)",
-            "value": 155.2159,
-            "range": "± 7.2082",
+            "value": 88.0469,
+            "range": "± 4.0889",
             "unit": "× calibration",
-            "extra": "7978.08ns  calibration: 51.40ns"
+            "extra": "7978.08ns  calibration: 51.40ns  [rescaled ×0.57 for the lib/ harness (#117); original 155.2159]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (complete, includes probe build)",
-            "value": 148.667,
-            "range": "± 1.9784",
+            "value": 85.5213,
+            "range": "± 1.1381",
             "unit": "× calibration",
-            "extra": "7641.47ns  calibration: 51.40ns"
+            "extra": "7641.47ns  calibration: 51.40ns  [rescaled ×0.58 for the lib/ harness (#117); original 148.667]"
           },
           {
             "name": "hitEnd — static path (ISO date) — hitEnd — incomplete match, warm probe",
@@ -5771,17 +5771,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — backreference path (repeated word) — construct + exec (baseline, never asks)",
-            "value": 164.3717,
-            "range": "± 15.0354",
+            "value": 71.1042,
+            "range": "± 6.5040",
             "unit": "× calibration",
-            "extra": "8448.69ns  calibration: 51.40ns"
+            "extra": "8448.69ns  calibration: 51.40ns  [rescaled ×0.43 for the lib/ harness (#117); original 164.3717]"
           },
           {
             "name": "hitEnd — backreference path (repeated word) — construct + exec + hitEnd (includes probe build)",
-            "value": 259.1437,
-            "range": "± 11.9942",
+            "value": 137.4096,
+            "range": "± 6.3599",
             "unit": "× calibration",
-            "extra": "13319.96ns  calibration: 51.40ns"
+            "extra": "13319.96ns  calibration: 51.40ns  [rescaled ×0.53 for the lib/ harness (#117); original 259.1437]"
           },
           {
             "name": "hitEnd — backreference path (repeated word) — hitEnd — same match, expansion probe cached",
@@ -5792,24 +5792,24 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — backreference path (repeated word) — exec + hitEnd — fresh match, alternating capture, probe rebuilt per match",
-            "value": 115.4117,
-            "range": "± 9.1732",
+            "value": 92.6041,
+            "range": "± 7.3604",
             "unit": "× calibration",
-            "extra": "5932.15ns  calibration: 51.40ns"
+            "extra": "5932.15ns  calibration: 51.40ns  [rescaled ×0.80 for the lib/ harness (#117); original 115.4117]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — construct + exec (baseline, never asks)",
-            "value": 166.5198,
-            "range": "± 6.6922",
+            "value": 56.2156,
+            "range": "± 2.2592",
             "unit": "× calibration",
-            "extra": "8559.10ns  calibration: 51.40ns"
+            "extra": "8559.10ns  calibration: 51.40ns  [rescaled ×0.34 for the lib/ harness (#117); original 166.5198]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — construct + exec + hitEnd (includes probe build)",
-            "value": 247.2112,
-            "range": "± 3.0582",
+            "value": 99.5738,
+            "range": "± 1.2318",
             "unit": "× calibration",
-            "extra": "12706.63ns  calibration: 51.40ns"
+            "extra": "12706.63ns  calibration: 51.40ns  [rescaled ×0.40 for the lib/ harness (#117); original 247.2112]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — hitEnd — warm instance",
@@ -5820,143 +5820,143 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "feature cost — construction, one construct per bench — literal characters (baseline)",
-            "value": 88.8416,
-            "range": "± 2.4115",
+            "value": 59.7314,
+            "range": "± 1.6213",
             "unit": "× calibration",
-            "extra": "4566.45ns  calibration: 51.40ns"
+            "extra": "4566.45ns  calibration: 51.40ns  [rescaled ×0.67 for the lib/ harness (#117); original 88.8416]"
           },
           {
             "name": "feature cost — construction, one construct per bench — character class",
-            "value": 88.9698,
-            "range": "± 2.2769",
+            "value": 57.6599,
+            "range": "± 1.4756",
             "unit": "× calibration",
-            "extra": "4573.04ns  calibration: 51.40ns"
+            "extra": "4573.04ns  calibration: 51.40ns  [rescaled ×0.65 for the lib/ harness (#117); original 88.9698]"
           },
           {
             "name": "feature cost — construction, one construct per bench — quantifier",
-            "value": 86.6512,
-            "range": "± 2.5580",
+            "value": 54.936,
+            "range": "± 1.6217",
             "unit": "× calibration",
-            "extra": "4453.86ns  calibration: 51.40ns"
+            "extra": "4453.86ns  calibration: 51.40ns  [rescaled ×0.63 for the lib/ harness (#117); original 86.6512]"
           },
           {
             "name": "feature cost — construction, one construct per bench — disjunction",
-            "value": 111.8281,
-            "range": "± 1.3255",
+            "value": 57.3758,
+            "range": "± 0.6801",
             "unit": "× calibration",
-            "extra": "5747.95ns  calibration: 51.40ns"
+            "extra": "5747.95ns  calibration: 51.40ns  [rescaled ×0.51 for the lib/ harness (#117); original 111.8281]"
           },
           {
             "name": "feature cost — construction, one construct per bench — non-capturing group",
-            "value": 113.2214,
-            "range": "± 2.7362",
+            "value": 58.0259,
+            "range": "± 1.4023",
             "unit": "× calibration",
-            "extra": "5819.57ns  calibration: 51.40ns"
+            "extra": "5819.57ns  calibration: 51.40ns  [rescaled ×0.51 for the lib/ harness (#117); original 113.2214]"
           },
           {
             "name": "feature cost — construction, one construct per bench — capturing group",
-            "value": 115.2084,
-            "range": "± 3.4199",
+            "value": 59.297,
+            "range": "± 1.7602",
             "unit": "× calibration",
-            "extra": "5921.70ns  calibration: 51.40ns"
+            "extra": "5921.70ns  calibration: 51.40ns  [rescaled ×0.51 for the lib/ harness (#117); original 115.2084]"
           },
           {
             "name": "feature cost — construction, one construct per bench — named group",
-            "value": 115.8952,
-            "range": "± 4.8261",
+            "value": 61.843,
+            "range": "± 2.5753",
             "unit": "× calibration",
-            "extra": "5957.00ns  calibration: 51.40ns"
+            "extra": "5957.00ns  calibration: 51.40ns  [rescaled ×0.53 for the lib/ harness (#117); original 115.8952]"
           },
           {
             "name": "feature cost — construction, one construct per bench — lookahead",
-            "value": 112.1347,
-            "range": "± 2.7389",
+            "value": 57.9765,
+            "range": "± 1.4161",
             "unit": "× calibration",
-            "extra": "5763.71ns  calibration: 51.40ns"
+            "extra": "5763.71ns  calibration: 51.40ns  [rescaled ×0.52 for the lib/ harness (#117); original 112.1347]"
           },
           {
             "name": "feature cost — construction, one construct per bench — negative lookahead (raw)",
-            "value": 120.8271,
-            "range": "± 4.1901",
+            "value": 71.3565,
+            "range": "± 2.4745",
             "unit": "× calibration",
-            "extra": "6210.50ns  calibration: 51.40ns"
+            "extra": "6210.50ns  calibration: 51.40ns  [rescaled ×0.59 for the lib/ harness (#117); original 120.8271]"
           },
           {
             "name": "feature cost — construction, one construct per bench — lookbehind (raw)",
-            "value": 118.9215,
-            "range": "± 3.2346",
+            "value": 63.7606,
+            "range": "± 1.7343",
             "unit": "× calibration",
-            "extra": "6112.55ns  calibration: 51.40ns"
+            "extra": "6112.55ns  calibration: 51.40ns  [rescaled ×0.54 for the lib/ harness (#117); original 118.9215]"
           },
           {
             "name": "feature cost — construction, one construct per bench — control escapes",
-            "value": 90.8652,
-            "range": "± 2.6193",
+            "value": 59.2275,
+            "range": "± 1.7073",
             "unit": "× calibration",
-            "extra": "4670.46ns  calibration: 51.40ns"
+            "extra": "4670.46ns  calibration: 51.40ns  [rescaled ×0.65 for the lib/ harness (#117); original 90.8652]"
           },
           {
             "name": "feature cost — construction, one construct per bench — control-letter escape",
-            "value": 89.1768,
-            "range": "± 3.2045",
+            "value": 58.6031,
+            "range": "± 2.1059",
             "unit": "× calibration",
-            "extra": "4583.68ns  calibration: 51.40ns"
+            "extra": "4583.68ns  calibration: 51.40ns  [rescaled ×0.66 for the lib/ harness (#117); original 89.1768]"
           },
           {
             "name": "feature cost — construction, one construct per bench — hex and unicode escapes",
-            "value": 89.7278,
-            "range": "± 2.4136",
+            "value": 60.4706,
+            "range": "± 1.6266",
             "unit": "× calibration",
-            "extra": "4612.00ns  calibration: 51.40ns"
+            "extra": "4612.00ns  calibration: 51.40ns  [rescaled ×0.67 for the lib/ harness (#117); original 89.7278]"
           },
           {
             "name": "feature cost — construction, one construct per bench — unicode property escape (u)",
-            "value": 88.2525,
-            "range": "± 2.4198",
+            "value": 59.6594,
+            "range": "± 1.6358",
             "unit": "× calibration",
-            "extra": "4536.17ns  calibration: 51.40ns"
+            "extra": "4536.17ns  calibration: 51.40ns  [rescaled ×0.68 for the lib/ harness (#117); original 88.2525]"
           },
           {
             "name": "feature cost — construction, one construct per bench — nested character class (v)",
-            "value": 91.6634,
-            "range": "± 3.0206",
+            "value": 61.7844,
+            "range": "± 2.0360",
             "unit": "× calibration",
-            "extra": "4711.49ns  calibration: 51.40ns"
+            "extra": "4711.49ns  calibration: 51.40ns  [rescaled ×0.67 for the lib/ harness (#117); original 91.6634]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — capturing group, no reference (static path)",
-            "value": 105.1364,
-            "range": "± 2.6463",
+            "value": 49.3385,
+            "range": "± 1.2419",
             "unit": "× calibration",
-            "extra": "5404.00ns  calibration: 51.40ns"
+            "extra": "5404.00ns  calibration: 51.40ns  [rescaled ×0.47 for the lib/ harness (#117); original 105.1364]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — numeric backreference (dynamic path)",
-            "value": 149.1653,
-            "range": "± 15.1152",
+            "value": 64.6428,
+            "range": "± 6.5504",
             "unit": "× calibration",
-            "extra": "7667.08ns  calibration: 51.40ns"
+            "extra": "7667.08ns  calibration: 51.40ns  [rescaled ×0.43 for the lib/ harness (#117); original 149.1653]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — named backreference (dynamic path)",
-            "value": 151.0163,
-            "range": "± 14.9413",
+            "value": 65.1878,
+            "range": "± 6.4496",
             "unit": "× calibration",
-            "extra": "7762.22ns  calibration: 51.40ns"
+            "extra": "7762.22ns  calibration: 51.40ns  [rescaled ×0.43 for the lib/ harness (#117); original 151.0163]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — reclassified octal escape (static)",
-            "value": 123.3292,
-            "range": "± 11.6168",
+            "value": 64.3949,
+            "range": "± 6.0656",
             "unit": "× calibration",
-            "extra": "6339.11ns  calibration: 51.40ns"
+            "extra": "6339.11ns  calibration: 51.40ns  [rescaled ×0.52 for the lib/ harness (#117); original 123.3292]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — reclassified \\k literal (static)",
-            "value": 211.4137,
-            "range": "± 4.2977",
+            "value": 123.1958,
+            "range": "± 2.5044",
             "unit": "× calibration",
-            "extra": "10866.64ns  calibration: 51.40ns"
+            "extra": "10866.64ns  calibration: 51.40ns  [rescaled ×0.58 for the lib/ harness (#117); original 211.4137]"
           },
           {
             "name": "feature cost — exec, legacy escape vs genuine backreference — legacy \\k literal — partial input",
@@ -6180,10 +6180,10 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "backref — leftmost bound check (native match at a later index) — bound doesn't reject — full pipeline still runs",
-            "value": 29.0121,
-            "range": "± 0.8464",
+            "value": 23.2962,
+            "range": "± 0.6796",
             "unit": "× calibration",
-            "extra": "1513.40ns  calibration: 52.16ns"
+            "extra": "1513.40ns  calibration: 52.16ns  [rescaled ×0.80 for the lib/ harness (#117); original 29.0121]"
           },
           {
             "name": "backref — keystroke simulation (accumulated exec cost) — repeated word: 7 keystrokes",
@@ -6208,17 +6208,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — simple pattern (no groups, no backreferences) — compilePartial()",
-            "value": 57.171,
-            "range": "± 2.2552",
+            "value": 22.0367,
+            "range": "± 0.8693",
             "unit": "× calibration",
-            "extra": "2982.29ns  calibration: 52.16ns"
+            "extra": "2982.29ns  calibration: 52.16ns  [rescaled ×0.39 for the lib/ harness (#117); original 57.171]"
           },
           {
             "name": "construction — simple pattern (no groups, no backreferences) — new PartialMatchRegExp()",
-            "value": 66.7615,
-            "range": "± 3.9266",
+            "value": 28.3272,
+            "range": "± 1.6661",
             "unit": "× calibration",
-            "extra": "3482.57ns  calibration: 52.16ns"
+            "extra": "3482.57ns  calibration: 52.16ns  [rescaled ×0.42 for the lib/ harness (#117); original 66.7615]"
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — native new RegExp()",
@@ -6229,17 +6229,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — compilePartial()",
-            "value": 79.3039,
-            "range": "± 1.0952",
+            "value": 49.1573,
+            "range": "± 0.6789",
             "unit": "× calibration",
-            "extra": "4136.84ns  calibration: 52.16ns"
+            "extra": "4136.84ns  calibration: 52.16ns  [rescaled ×0.62 for the lib/ harness (#117); original 79.3039]"
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — new PartialMatchRegExp()",
-            "value": 91.8156,
-            "range": "± 2.7293",
+            "value": 57.3779,
+            "range": "± 1.7056",
             "unit": "× calibration",
-            "extra": "4789.50ns  calibration: 52.16ns"
+            "extra": "4789.50ns  calibration: 52.16ns  [rescaled ×0.62 for the lib/ harness (#117); original 91.8156]"
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — native new RegExp()",
@@ -6250,80 +6250,80 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — compilePartial()",
-            "value": 178.773,
-            "range": "± 4.2270",
+            "value": 72.4885,
+            "range": "± 1.7140",
             "unit": "× calibration",
-            "extra": "9325.58ns  calibration: 52.16ns"
+            "extra": "9325.58ns  calibration: 52.16ns  [rescaled ×0.41 for the lib/ harness (#117); original 178.773]"
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — new PartialMatchRegExp()",
-            "value": 186.8214,
-            "range": "± 3.4305",
+            "value": 79.1126,
+            "range": "± 1.4527",
             "unit": "× calibration",
-            "extra": "9745.42ns  calibration: 52.16ns"
+            "extra": "9745.42ns  calibration: 52.16ns  [rescaled ×0.42 for the lib/ harness (#117); original 186.8214]"
           },
           {
-            "name": "construction — legacy numeric escape reclassification — native new RegExp()",
+            "name": "construction — legacy numeric escape (\\N past the group count) — native new RegExp()",
             "value": 1.418,
             "range": "± 0.0661",
             "unit": "× calibration",
             "extra": "73.97ns  calibration: 52.16ns"
           },
           {
-            "name": "construction — legacy numeric escape reclassification — compilePartial()",
-            "value": 107.289,
-            "range": "± 7.4486",
+            "name": "construction — legacy numeric escape (\\N past the group count) — compilePartial()",
+            "value": 42.6943,
+            "range": "± 2.9641",
             "unit": "× calibration",
-            "extra": "5596.66ns  calibration: 52.16ns"
+            "extra": "5596.66ns  calibration: 52.16ns  [rescaled ×0.40 for the lib/ harness (#117); original 107.289]"
           },
           {
-            "name": "construction — legacy numeric escape reclassification — new PartialMatchRegExp()",
-            "value": 119.1482,
-            "range": "± 10.9609",
+            "name": "construction — legacy numeric escape (\\N past the group count) — new PartialMatchRegExp()",
+            "value": 51.7058,
+            "range": "± 4.7566",
             "unit": "× calibration",
-            "extra": "6215.29ns  calibration: 52.16ns"
+            "extra": "6215.29ns  calibration: 52.16ns  [rescaled ×0.43 for the lib/ harness (#117); original 119.1482]"
           },
           {
-            "name": "construction — legacy named escape fallback (double walk()) — native new RegExp()",
+            "name": "construction — legacy named escape (\\k<name> naming no group) — native new RegExp()",
             "value": 1.6465,
             "range": "± 0.0633",
             "unit": "× calibration",
             "extra": "85.89ns  calibration: 52.16ns"
           },
           {
-            "name": "construction — legacy named escape fallback (double walk()) — compilePartial()",
-            "value": 183.68,
-            "range": "± 4.7295",
+            "name": "construction — legacy named escape (\\k<name> naming no group) — compilePartial()",
+            "value": 94.1302,
+            "range": "± 2.4237",
             "unit": "× calibration",
-            "extra": "9581.55ns  calibration: 52.16ns"
+            "extra": "9581.55ns  calibration: 52.16ns  [rescaled ×0.51 for the lib/ harness (#117); original 183.68]"
           },
           {
-            "name": "construction — legacy named escape fallback (double walk()) — new PartialMatchRegExp()",
-            "value": 195.0377,
-            "range": "± 7.1225",
+            "name": "construction — legacy named escape (\\k<name> naming no group) — new PartialMatchRegExp()",
+            "value": 101.7502,
+            "range": "± 3.7158",
             "unit": "× calibration",
-            "extra": "10174.02ns  calibration: 52.16ns"
+            "extra": "10174.02ns  calibration: 52.16ns  [rescaled ×0.52 for the lib/ harness (#117); original 195.0377]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec (baseline, never asks)",
-            "value": 71.7651,
-            "range": "± 2.4670",
+            "value": 36.6493,
+            "range": "± 1.2599",
             "unit": "× calibration",
-            "extra": "3743.58ns  calibration: 52.16ns"
+            "extra": "3743.58ns  calibration: 52.16ns  [rescaled ×0.51 for the lib/ harness (#117); original 71.7651]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (includes probe build)",
-            "value": 152.5413,
-            "range": "± 10.2369",
+            "value": 86.5297,
+            "range": "± 5.8069",
             "unit": "× calibration",
-            "extra": "7957.22ns  calibration: 52.16ns"
+            "extra": "7957.22ns  calibration: 52.16ns  [rescaled ×0.57 for the lib/ harness (#117); original 152.5413]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (complete, includes probe build)",
-            "value": 153.3658,
-            "range": "± 3.2275",
+            "value": 88.2243,
+            "range": "± 1.8566",
             "unit": "× calibration",
-            "extra": "8000.23ns  calibration: 52.16ns"
+            "extra": "8000.23ns  calibration: 52.16ns  [rescaled ×0.58 for the lib/ harness (#117); original 153.3658]"
           },
           {
             "name": "hitEnd — static path (ISO date) — hitEnd — incomplete match, warm probe",
@@ -6341,17 +6341,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — backreference path (repeated word) — construct + exec (baseline, never asks)",
-            "value": 160.3857,
-            "range": "± 5.1223",
+            "value": 69.3799,
+            "range": "± 2.2158",
             "unit": "× calibration",
-            "extra": "8366.42ns  calibration: 52.16ns"
+            "extra": "8366.42ns  calibration: 52.16ns  [rescaled ×0.43 for the lib/ harness (#117); original 160.3857]"
           },
           {
             "name": "hitEnd — backreference path (repeated word) — construct + exec + hitEnd (includes probe build)",
-            "value": 251.6429,
-            "range": "± 14.1380",
+            "value": 133.4323,
+            "range": "± 7.4966",
             "unit": "× calibration",
-            "extra": "13126.79ns  calibration: 52.16ns"
+            "extra": "13126.79ns  calibration: 52.16ns  [rescaled ×0.53 for the lib/ harness (#117); original 251.6429]"
           },
           {
             "name": "hitEnd — backreference path (repeated word) — hitEnd — same match, expansion probe cached",
@@ -6362,24 +6362,24 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — backreference path (repeated word) — exec + hitEnd — fresh match, alternating capture, probe rebuilt per match",
-            "value": 115.313,
-            "range": "± 4.7216",
+            "value": 92.5249,
+            "range": "± 3.7885",
             "unit": "× calibration",
-            "extra": "6015.23ns  calibration: 52.16ns"
+            "extra": "6015.23ns  calibration: 52.16ns  [rescaled ×0.80 for the lib/ harness (#117); original 115.313]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — construct + exec (baseline, never asks)",
-            "value": 168.4734,
-            "range": "± 9.6186",
+            "value": 56.8751,
+            "range": "± 3.2472",
             "unit": "× calibration",
-            "extra": "8788.31ns  calibration: 52.16ns"
+            "extra": "8788.31ns  calibration: 52.16ns  [rescaled ×0.34 for the lib/ harness (#117); original 168.4734]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — construct + exec + hitEnd (includes probe build)",
-            "value": 247.0342,
-            "range": "± 1.8106",
+            "value": 99.5025,
+            "range": "± 0.7293",
             "unit": "× calibration",
-            "extra": "12886.38ns  calibration: 52.16ns"
+            "extra": "12886.38ns  calibration: 52.16ns  [rescaled ×0.40 for the lib/ harness (#117); original 247.0342]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — hitEnd — warm instance",
@@ -6390,143 +6390,143 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "feature cost — construction, one construct per bench — literal characters (baseline)",
-            "value": 86.5173,
-            "range": "± 3.5785",
+            "value": 58.1687,
+            "range": "± 2.4060",
             "unit": "× calibration",
-            "extra": "4513.12ns  calibration: 52.16ns"
+            "extra": "4513.12ns  calibration: 52.16ns  [rescaled ×0.67 for the lib/ harness (#117); original 86.5173]"
           },
           {
             "name": "feature cost — construction, one construct per bench — character class",
-            "value": 89.8625,
-            "range": "± 4.4015",
+            "value": 58.2384,
+            "range": "± 2.8525",
             "unit": "× calibration",
-            "extra": "4687.62ns  calibration: 52.16ns"
+            "extra": "4687.62ns  calibration: 52.16ns  [rescaled ×0.65 for the lib/ harness (#117); original 89.8625]"
           },
           {
             "name": "feature cost — construction, one construct per bench — quantifier",
-            "value": 89.5776,
-            "range": "± 4.5922",
+            "value": 56.7914,
+            "range": "± 2.9114",
             "unit": "× calibration",
-            "extra": "4672.76ns  calibration: 52.16ns"
+            "extra": "4672.76ns  calibration: 52.16ns  [rescaled ×0.63 for the lib/ harness (#117); original 89.5776]"
           },
           {
             "name": "feature cost — construction, one construct per bench — disjunction",
-            "value": 112.5955,
-            "range": "± 4.9576",
+            "value": 57.7695,
+            "range": "± 2.5436",
             "unit": "× calibration",
-            "extra": "5873.47ns  calibration: 52.16ns"
+            "extra": "5873.47ns  calibration: 52.16ns  [rescaled ×0.51 for the lib/ harness (#117); original 112.5955]"
           },
           {
             "name": "feature cost — construction, one construct per bench — non-capturing group",
-            "value": 115.3356,
-            "range": "± 4.0008",
+            "value": 59.1094,
+            "range": "± 2.0504",
             "unit": "× calibration",
-            "extra": "6016.41ns  calibration: 52.16ns"
+            "extra": "6016.41ns  calibration: 52.16ns  [rescaled ×0.51 for the lib/ harness (#117); original 115.3356]"
           },
           {
             "name": "feature cost — construction, one construct per bench — capturing group",
-            "value": 112.4252,
-            "range": "± 2.9712",
+            "value": 57.8645,
+            "range": "± 1.5293",
             "unit": "× calibration",
-            "extra": "5864.59ns  calibration: 52.16ns"
+            "extra": "5864.59ns  calibration: 52.16ns  [rescaled ×0.51 for the lib/ harness (#117); original 112.4252]"
           },
           {
             "name": "feature cost — construction, one construct per bench — named group",
-            "value": 122.0195,
-            "range": "± 2.8146",
+            "value": 65.111,
+            "range": "± 1.5019",
             "unit": "× calibration",
-            "extra": "6365.07ns  calibration: 52.16ns"
+            "extra": "6365.07ns  calibration: 52.16ns  [rescaled ×0.53 for the lib/ harness (#117); original 122.0195]"
           },
           {
             "name": "feature cost — construction, one construct per bench — lookahead",
-            "value": 109.3898,
-            "range": "± 3.5020",
+            "value": 56.5573,
+            "range": "± 1.8106",
             "unit": "× calibration",
-            "extra": "5706.25ns  calibration: 52.16ns"
+            "extra": "5706.25ns  calibration: 52.16ns  [rescaled ×0.52 for the lib/ harness (#117); original 109.3898]"
           },
           {
             "name": "feature cost — construction, one construct per bench — negative lookahead (raw)",
-            "value": 122.4643,
-            "range": "± 5.1422",
+            "value": 72.3234,
+            "range": "± 3.0368",
             "unit": "× calibration",
-            "extra": "6388.27ns  calibration: 52.16ns"
+            "extra": "6388.27ns  calibration: 52.16ns  [rescaled ×0.59 for the lib/ harness (#117); original 122.4643]"
           },
           {
             "name": "feature cost — construction, one construct per bench — lookbehind (raw)",
-            "value": 112.4772,
-            "range": "± 3.0383",
+            "value": 60.3054,
+            "range": "± 1.6290",
             "unit": "× calibration",
-            "extra": "5867.30ns  calibration: 52.16ns"
+            "extra": "5867.30ns  calibration: 52.16ns  [rescaled ×0.54 for the lib/ harness (#117); original 112.4772]"
           },
           {
             "name": "feature cost — construction, one construct per bench — control escapes",
-            "value": 93.2577,
-            "range": "± 4.8062",
+            "value": 60.7869,
+            "range": "± 3.1328",
             "unit": "× calibration",
-            "extra": "4864.73ns  calibration: 52.16ns"
+            "extra": "4864.73ns  calibration: 52.16ns  [rescaled ×0.65 for the lib/ harness (#117); original 93.2577]"
           },
           {
             "name": "feature cost — construction, one construct per bench — control-letter escape",
-            "value": 91.1766,
-            "range": "± 6.7115",
+            "value": 59.9173,
+            "range": "± 4.4105",
             "unit": "× calibration",
-            "extra": "4756.17ns  calibration: 52.16ns"
+            "extra": "4756.17ns  calibration: 52.16ns  [rescaled ×0.66 for the lib/ harness (#117); original 91.1766]"
           },
           {
             "name": "feature cost — construction, one construct per bench — hex and unicode escapes",
-            "value": 89.6378,
-            "range": "± 2.2799",
+            "value": 60.41,
+            "range": "± 1.5365",
             "unit": "× calibration",
-            "extra": "4675.90ns  calibration: 52.16ns"
+            "extra": "4675.90ns  calibration: 52.16ns  [rescaled ×0.67 for the lib/ harness (#117); original 89.6378]"
           },
           {
             "name": "feature cost — construction, one construct per bench — unicode property escape (u)",
-            "value": 89.3986,
-            "range": "± 4.0783",
+            "value": 60.4342,
+            "range": "± 2.7570",
             "unit": "× calibration",
-            "extra": "4663.42ns  calibration: 52.16ns"
+            "extra": "4663.42ns  calibration: 52.16ns  [rescaled ×0.68 for the lib/ harness (#117); original 89.3986]"
           },
           {
             "name": "feature cost — construction, one construct per bench — nested character class (v)",
-            "value": 92.6889,
-            "range": "± 2.7047",
+            "value": 62.4756,
+            "range": "± 1.8231",
             "unit": "× calibration",
-            "extra": "4835.06ns  calibration: 52.16ns"
+            "extra": "4835.06ns  calibration: 52.16ns  [rescaled ×0.67 for the lib/ harness (#117); original 92.6889]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — capturing group, no reference (static path)",
-            "value": 104.8578,
-            "range": "± 4.4751",
+            "value": 49.2078,
+            "range": "± 2.1001",
             "unit": "× calibration",
-            "extra": "5469.84ns  calibration: 52.16ns"
+            "extra": "5469.84ns  calibration: 52.16ns  [rescaled ×0.47 for the lib/ harness (#117); original 104.8578]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — numeric backreference (dynamic path)",
-            "value": 143.667,
-            "range": "± 13.0127",
+            "value": 62.26,
+            "range": "± 5.6392",
             "unit": "× calibration",
-            "extra": "7494.30ns  calibration: 52.16ns"
+            "extra": "7494.30ns  calibration: 52.16ns  [rescaled ×0.43 for the lib/ harness (#117); original 143.667]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — named backreference (dynamic path)",
-            "value": 157.64,
-            "range": "± 14.9662",
+            "value": 68.047,
+            "range": "± 6.4603",
             "unit": "× calibration",
-            "extra": "8223.19ns  calibration: 52.16ns"
+            "extra": "8223.19ns  calibration: 52.16ns  [rescaled ×0.43 for the lib/ harness (#117); original 157.64]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — reclassified octal escape (static)",
-            "value": 123.2439,
-            "range": "± 8.2328",
+            "value": 64.3504,
+            "range": "± 4.2987",
             "unit": "× calibration",
-            "extra": "6428.94ns  calibration: 52.16ns"
+            "extra": "6428.94ns  calibration: 52.16ns  [rescaled ×0.52 for the lib/ harness (#117); original 123.2439]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — reclassified \\k literal (static)",
-            "value": 206.7743,
-            "range": "± 3.7236",
+            "value": 120.4923,
+            "range": "± 2.1698",
             "unit": "× calibration",
-            "extra": "10786.25ns  calibration: 52.16ns"
+            "extra": "10786.25ns  calibration: 52.16ns  [rescaled ×0.58 for the lib/ harness (#117); original 206.7743]"
           },
           {
             "name": "feature cost — exec, legacy escape vs genuine backreference — legacy \\k literal — partial input",
@@ -6750,10 +6750,10 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "backref — leftmost bound check (native match at a later index) — bound doesn't reject — full pipeline still runs",
-            "value": 28.7999,
-            "range": "± 0.1924",
+            "value": 23.1258,
+            "range": "± 0.1545",
             "unit": "× calibration",
-            "extra": "1951.46ns  calibration: 67.76ns"
+            "extra": "1951.46ns  calibration: 67.76ns  [rescaled ×0.80 for the lib/ harness (#117); original 28.7999]"
           },
           {
             "name": "backref — keystroke simulation (accumulated exec cost) — repeated word: 7 keystrokes",
@@ -6778,17 +6778,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — simple pattern (no groups, no backreferences) — compilePartial()",
-            "value": 50.2277,
-            "range": "± 0.1865",
+            "value": 19.3604,
+            "range": "± 0.0719",
             "unit": "× calibration",
-            "extra": "3403.39ns  calibration: 67.76ns"
+            "extra": "3403.39ns  calibration: 67.76ns  [rescaled ×0.39 for the lib/ harness (#117); original 50.2277]"
           },
           {
             "name": "construction — simple pattern (no groups, no backreferences) — new PartialMatchRegExp()",
-            "value": 59.9886,
-            "range": "± 2.4938",
+            "value": 25.4535,
+            "range": "± 1.0581",
             "unit": "× calibration",
-            "extra": "4064.78ns  calibration: 67.76ns"
+            "extra": "4064.78ns  calibration: 67.76ns  [rescaled ×0.42 for the lib/ harness (#117); original 59.9886]"
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — native new RegExp()",
@@ -6799,17 +6799,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — compilePartial()",
-            "value": 73.1384,
-            "range": "± 0.1950",
+            "value": 45.3355,
+            "range": "± 0.1209",
             "unit": "× calibration",
-            "extra": "4955.80ns  calibration: 67.76ns"
+            "extra": "4955.80ns  calibration: 67.76ns  [rescaled ×0.62 for the lib/ harness (#117); original 73.1384]"
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — new PartialMatchRegExp()",
-            "value": 83.745,
-            "range": "± 2.4197",
+            "value": 52.3344,
+            "range": "± 1.5121",
             "unit": "× calibration",
-            "extra": "5674.49ns  calibration: 67.76ns"
+            "extra": "5674.49ns  calibration: 67.76ns  [rescaled ×0.62 for the lib/ harness (#117); original 83.745]"
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — native new RegExp()",
@@ -6820,80 +6820,80 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — compilePartial()",
-            "value": 168.5686,
-            "range": "± 1.4163",
+            "value": 68.3508,
+            "range": "± 0.5743",
             "unit": "× calibration",
-            "extra": "11422.07ns  calibration: 67.76ns"
+            "extra": "11422.07ns  calibration: 67.76ns  [rescaled ×0.41 for the lib/ harness (#117); original 168.5686]"
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — new PartialMatchRegExp()",
-            "value": 180.6678,
-            "range": "± 2.1026",
+            "value": 76.5068,
+            "range": "± 0.8904",
             "unit": "× calibration",
-            "extra": "12241.90ns  calibration: 67.76ns"
+            "extra": "12241.90ns  calibration: 67.76ns  [rescaled ×0.42 for the lib/ harness (#117); original 180.6678]"
           },
           {
-            "name": "construction — legacy numeric escape reclassification — native new RegExp()",
+            "name": "construction — legacy numeric escape (\\N past the group count) — native new RegExp()",
             "value": 1.5183,
             "range": "± 0.0201",
             "unit": "× calibration",
             "extra": "102.88ns  calibration: 67.76ns"
           },
           {
-            "name": "construction — legacy numeric escape reclassification — compilePartial()",
-            "value": 90.0616,
-            "range": "± 7.3749",
+            "name": "construction — legacy numeric escape (\\N past the group count) — compilePartial()",
+            "value": 35.8388,
+            "range": "± 2.9347",
             "unit": "× calibration",
-            "extra": "6102.50ns  calibration: 67.76ns"
+            "extra": "6102.50ns  calibration: 67.76ns  [rescaled ×0.40 for the lib/ harness (#117); original 90.0616]"
           },
           {
-            "name": "construction — legacy numeric escape reclassification — new PartialMatchRegExp()",
-            "value": 100.3734,
-            "range": "± 6.9115",
+            "name": "construction — legacy numeric escape (\\N past the group count) — new PartialMatchRegExp()",
+            "value": 43.5583,
+            "range": "± 2.9993",
             "unit": "× calibration",
-            "extra": "6801.22ns  calibration: 67.76ns"
+            "extra": "6801.22ns  calibration: 67.76ns  [rescaled ×0.43 for the lib/ harness (#117); original 100.3734]"
           },
           {
-            "name": "construction — legacy named escape fallback (double walk()) — native new RegExp()",
+            "name": "construction — legacy named escape (\\k<name> naming no group) — native new RegExp()",
             "value": 1.686,
             "range": "± 0.0202",
             "unit": "× calibration",
             "extra": "114.24ns  calibration: 67.76ns"
           },
           {
-            "name": "construction — legacy named escape fallback (double walk()) — compilePartial()",
-            "value": 168.4915,
-            "range": "± 0.2106",
+            "name": "construction — legacy named escape (\\k<name> naming no group) — compilePartial()",
+            "value": 86.3466,
+            "range": "± 0.1079",
             "unit": "× calibration",
-            "extra": "11416.85ns  calibration: 67.76ns"
+            "extra": "11416.85ns  calibration: 67.76ns  [rescaled ×0.51 for the lib/ harness (#117); original 168.4915]"
           },
           {
-            "name": "construction — legacy named escape fallback (double walk()) — new PartialMatchRegExp()",
-            "value": 180.4759,
-            "range": "± 1.0319",
+            "name": "construction — legacy named escape (\\k<name> naming no group) — new PartialMatchRegExp()",
+            "value": 94.1534,
+            "range": "± 0.5383",
             "unit": "× calibration",
-            "extra": "12228.90ns  calibration: 67.76ns"
+            "extra": "12228.90ns  calibration: 67.76ns  [rescaled ×0.52 for the lib/ harness (#117); original 180.4759]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec (baseline, never asks)",
-            "value": 67.084,
-            "range": "± 2.4423",
+            "value": 34.2588,
+            "range": "± 1.2472",
             "unit": "× calibration",
-            "extra": "4545.56ns  calibration: 67.76ns"
+            "extra": "4545.56ns  calibration: 67.76ns  [rescaled ×0.51 for the lib/ harness (#117); original 67.084]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (includes probe build)",
-            "value": 150.1755,
-            "range": "± 1.7710",
+            "value": 85.1877,
+            "range": "± 1.0046",
             "unit": "× calibration",
-            "extra": "10175.77ns  calibration: 67.76ns"
+            "extra": "10175.77ns  calibration: 67.76ns  [rescaled ×0.57 for the lib/ harness (#117); original 150.1755]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (complete, includes probe build)",
-            "value": 137.4543,
-            "range": "± 1.0812",
+            "value": 79.0711,
+            "range": "± 0.6220",
             "unit": "× calibration",
-            "extra": "9313.79ns  calibration: 67.76ns"
+            "extra": "9313.79ns  calibration: 67.76ns  [rescaled ×0.58 for the lib/ harness (#117); original 137.4543]"
           },
           {
             "name": "hitEnd — static path (ISO date) — hitEnd — incomplete match, warm probe",
@@ -6911,17 +6911,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — backreference path (repeated word) — construct + exec (baseline, never asks)",
-            "value": 151.5259,
-            "range": "± 10.3100",
+            "value": 65.5473,
+            "range": "± 4.4599",
             "unit": "× calibration",
-            "extra": "10267.27ns  calibration: 67.76ns"
+            "extra": "10267.27ns  calibration: 67.76ns  [rescaled ×0.43 for the lib/ harness (#117); original 151.5259]"
           },
           {
             "name": "hitEnd — backreference path (repeated word) — construct + exec + hitEnd (includes probe build)",
-            "value": 249.9773,
-            "range": "± 3.1804",
+            "value": 132.5491,
+            "range": "± 1.6864",
             "unit": "× calibration",
-            "extra": "16938.26ns  calibration: 67.76ns"
+            "extra": "16938.26ns  calibration: 67.76ns  [rescaled ×0.53 for the lib/ harness (#117); original 249.9773]"
           },
           {
             "name": "hitEnd — backreference path (repeated word) — hitEnd — same match, expansion probe cached",
@@ -6932,24 +6932,24 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — backreference path (repeated word) — exec + hitEnd — fresh match, alternating capture, probe rebuilt per match",
-            "value": 101.4047,
-            "range": "± 6.5299",
+            "value": 81.3651,
+            "range": "± 5.2395",
             "unit": "× calibration",
-            "extra": "6871.10ns  calibration: 67.76ns"
+            "extra": "6871.10ns  calibration: 67.76ns  [rescaled ×0.80 for the lib/ harness (#117); original 101.4047]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — construct + exec (baseline, never asks)",
-            "value": 157.397,
-            "range": "± 1.4832",
+            "value": 53.1358,
+            "range": "± 0.5007",
             "unit": "× calibration",
-            "extra": "10665.09ns  calibration: 67.76ns"
+            "extra": "10665.09ns  calibration: 67.76ns  [rescaled ×0.34 for the lib/ harness (#117); original 157.397]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — construct + exec + hitEnd (includes probe build)",
-            "value": 237.1206,
-            "range": "± 8.6406",
+            "value": 95.5094,
+            "range": "± 3.4803",
             "unit": "× calibration",
-            "extra": "16067.10ns  calibration: 67.76ns"
+            "extra": "16067.10ns  calibration: 67.76ns  [rescaled ×0.40 for the lib/ harness (#117); original 237.1206]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — hitEnd — warm instance",
@@ -6960,143 +6960,143 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "feature cost — construction, one construct per bench — literal characters (baseline)",
-            "value": 76.2052,
-            "range": "± 2.6597",
+            "value": 51.2355,
+            "range": "± 1.7882",
             "unit": "× calibration",
-            "extra": "5163.60ns  calibration: 67.76ns"
+            "extra": "5163.60ns  calibration: 67.76ns  [rescaled ×0.67 for the lib/ harness (#117); original 76.2052]"
           },
           {
             "name": "feature cost — construction, one construct per bench — character class",
-            "value": 77.2106,
-            "range": "± 2.1358",
+            "value": 50.0389,
+            "range": "± 1.3842",
             "unit": "× calibration",
-            "extra": "5231.73ns  calibration: 67.76ns"
+            "extra": "5231.73ns  calibration: 67.76ns  [rescaled ×0.65 for the lib/ harness (#117); original 77.2106]"
           },
           {
             "name": "feature cost — construction, one construct per bench — quantifier",
-            "value": 75.5399,
-            "range": "± 2.2542",
+            "value": 47.8916,
+            "range": "± 1.4291",
             "unit": "× calibration",
-            "extra": "5118.52ns  calibration: 67.76ns"
+            "extra": "5118.52ns  calibration: 67.76ns  [rescaled ×0.63 for the lib/ harness (#117); original 75.5399]"
           },
           {
             "name": "feature cost — construction, one construct per bench — disjunction",
-            "value": 99.8003,
-            "range": "± 1.7559",
+            "value": 51.2047,
+            "range": "± 0.9009",
             "unit": "× calibration",
-            "extra": "6762.39ns  calibration: 67.76ns"
+            "extra": "6762.39ns  calibration: 67.76ns  [rescaled ×0.51 for the lib/ harness (#117); original 99.8003]"
           },
           {
             "name": "feature cost — construction, one construct per bench — non-capturing group",
-            "value": 100.6492,
-            "range": "± 0.6113",
+            "value": 51.5826,
+            "range": "± 0.3133",
             "unit": "× calibration",
-            "extra": "6819.91ns  calibration: 67.76ns"
+            "extra": "6819.91ns  calibration: 67.76ns  [rescaled ×0.51 for the lib/ harness (#117); original 100.6492]"
           },
           {
             "name": "feature cost — construction, one construct per bench — capturing group",
-            "value": 100.735,
-            "range": "± 0.8507",
+            "value": 51.8476,
+            "range": "± 0.4378",
             "unit": "× calibration",
-            "extra": "6825.72ns  calibration: 67.76ns"
+            "extra": "6825.72ns  calibration: 67.76ns  [rescaled ×0.51 for the lib/ harness (#117); original 100.735]"
           },
           {
             "name": "feature cost — construction, one construct per bench — named group",
-            "value": 107.5302,
-            "range": "± 1.0195",
+            "value": 57.3793,
+            "range": "± 0.5440",
             "unit": "× calibration",
-            "extra": "7286.16ns  calibration: 67.76ns"
+            "extra": "7286.16ns  calibration: 67.76ns  [rescaled ×0.53 for the lib/ harness (#117); original 107.5302]"
           },
           {
             "name": "feature cost — construction, one construct per bench — lookahead",
-            "value": 100.2773,
-            "range": "± 1.2561",
+            "value": 51.8459,
+            "range": "± 0.6494",
             "unit": "× calibration",
-            "extra": "6794.71ns  calibration: 67.76ns"
+            "extra": "6794.71ns  calibration: 67.76ns  [rescaled ×0.52 for the lib/ harness (#117); original 100.2773]"
           },
           {
             "name": "feature cost — construction, one construct per bench — negative lookahead (raw)",
-            "value": 104.3957,
-            "range": "± 1.0698",
+            "value": 61.6527,
+            "range": "± 0.6318",
             "unit": "× calibration",
-            "extra": "7073.77ns  calibration: 67.76ns"
+            "extra": "7073.77ns  calibration: 67.76ns  [rescaled ×0.59 for the lib/ harness (#117); original 104.3957]"
           },
           {
             "name": "feature cost — construction, one construct per bench — lookbehind (raw)",
-            "value": 102.9369,
-            "range": "± 2.9082",
+            "value": 55.1903,
+            "range": "± 1.5593",
             "unit": "× calibration",
-            "extra": "6974.92ns  calibration: 67.76ns"
+            "extra": "6974.92ns  calibration: 67.76ns  [rescaled ×0.54 for the lib/ harness (#117); original 102.9369]"
           },
           {
             "name": "feature cost — construction, one construct per bench — control escapes",
-            "value": 77.5663,
-            "range": "± 2.0365",
+            "value": 50.559,
+            "range": "± 1.3274",
             "unit": "× calibration",
-            "extra": "5255.83ns  calibration: 67.76ns"
+            "extra": "5255.83ns  calibration: 67.76ns  [rescaled ×0.65 for the lib/ harness (#117); original 77.5663]"
           },
           {
             "name": "feature cost — construction, one construct per bench — control-letter escape",
-            "value": 77.0378,
-            "range": "± 2.5360",
+            "value": 50.6259,
+            "range": "± 1.6665",
             "unit": "× calibration",
-            "extra": "5220.02ns  calibration: 67.76ns"
+            "extra": "5220.02ns  calibration: 67.76ns  [rescaled ×0.66 for the lib/ harness (#117); original 77.0378]"
           },
           {
             "name": "feature cost — construction, one construct per bench — hex and unicode escapes",
-            "value": 77.6962,
-            "range": "± 2.2207",
+            "value": 52.3621,
+            "range": "± 1.4966",
             "unit": "× calibration",
-            "extra": "5264.63ns  calibration: 67.76ns"
+            "extra": "5264.63ns  calibration: 67.76ns  [rescaled ×0.67 for the lib/ harness (#117); original 77.6962]"
           },
           {
             "name": "feature cost — construction, one construct per bench — unicode property escape (u)",
-            "value": 77.342,
-            "range": "± 2.1385",
+            "value": 52.2838,
+            "range": "± 1.4456",
             "unit": "× calibration",
-            "extra": "5240.63ns  calibration: 67.76ns"
+            "extra": "5240.63ns  calibration: 67.76ns  [rescaled ×0.68 for the lib/ harness (#117); original 77.342]"
           },
           {
             "name": "feature cost — construction, one construct per bench — nested character class (v)",
-            "value": 79.4345,
-            "range": "± 2.3160",
+            "value": 53.5417,
+            "range": "± 1.5611",
             "unit": "× calibration",
-            "extra": "5382.42ns  calibration: 67.76ns"
+            "extra": "5382.42ns  calibration: 67.76ns  [rescaled ×0.67 for the lib/ harness (#117); original 79.4345]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — capturing group, no reference (static path)",
-            "value": 95.7336,
-            "range": "± 2.7562",
+            "value": 44.926,
+            "range": "± 1.2934",
             "unit": "× calibration",
-            "extra": "6486.83ns  calibration: 67.76ns"
+            "extra": "6486.83ns  calibration: 67.76ns  [rescaled ×0.47 for the lib/ harness (#117); original 95.7336]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — numeric backreference (dynamic path)",
-            "value": 134.7881,
-            "range": "± 12.4625",
+            "value": 58.4122,
+            "range": "± 5.4008",
             "unit": "× calibration",
-            "extra": "9133.13ns  calibration: 67.76ns"
+            "extra": "9133.13ns  calibration: 67.76ns  [rescaled ×0.43 for the lib/ harness (#117); original 134.7881]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — named backreference (dynamic path)",
-            "value": 149.3341,
-            "range": "± 14.3365",
+            "value": 64.4617,
+            "range": "± 6.1885",
             "unit": "× calibration",
-            "extra": "10118.76ns  calibration: 67.76ns"
+            "extra": "10118.76ns  calibration: 67.76ns  [rescaled ×0.43 for the lib/ harness (#117); original 149.3341]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — reclassified octal escape (static)",
-            "value": 111.7255,
-            "range": "± 7.5960",
+            "value": 58.3362,
+            "range": "± 3.9662",
             "unit": "× calibration",
-            "extra": "7570.43ns  calibration: 67.76ns"
+            "extra": "7570.43ns  calibration: 67.76ns  [rescaled ×0.52 for the lib/ harness (#117); original 111.7255]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — reclassified \\k literal (static)",
-            "value": 194.1161,
-            "range": "± 0.4159",
+            "value": 113.116,
+            "range": "± 0.2424",
             "unit": "× calibration",
-            "extra": "13153.15ns  calibration: 67.76ns"
+            "extra": "13153.15ns  calibration: 67.76ns  [rescaled ×0.58 for the lib/ harness (#117); original 194.1161]"
           },
           {
             "name": "feature cost — exec, legacy escape vs genuine backreference — legacy \\k literal — partial input",
@@ -7320,10 +7320,10 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "backref — leftmost bound check (native match at a later index) — bound doesn't reject — full pipeline still runs",
-            "value": 28.6814,
-            "range": "± 0.2607",
+            "value": 23.0306,
+            "range": "± 0.2093",
             "unit": "× calibration",
-            "extra": "1968.42ns  calibration: 68.63ns"
+            "extra": "1968.42ns  calibration: 68.63ns  [rescaled ×0.80 for the lib/ harness (#117); original 28.6814]"
           },
           {
             "name": "backref — keystroke simulation (accumulated exec cost) — repeated word: 7 keystrokes",
@@ -7348,17 +7348,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — simple pattern (no groups, no backreferences) — compilePartial()",
-            "value": 49.7347,
-            "range": "± 0.2422",
+            "value": 19.1704,
+            "range": "± 0.0934",
             "unit": "× calibration",
-            "extra": "3413.32ns  calibration: 68.63ns"
+            "extra": "3413.32ns  calibration: 68.63ns  [rescaled ×0.39 for the lib/ harness (#117); original 49.7347]"
           },
           {
             "name": "construction — simple pattern (no groups, no backreferences) — new PartialMatchRegExp()",
-            "value": 58.3029,
-            "range": "± 1.8103",
+            "value": 24.7382,
+            "range": "± 0.7681",
             "unit": "× calibration",
-            "extra": "4001.36ns  calibration: 68.63ns"
+            "extra": "4001.36ns  calibration: 68.63ns  [rescaled ×0.42 for the lib/ harness (#117); original 58.3029]"
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — native new RegExp()",
@@ -7369,17 +7369,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — compilePartial()",
-            "value": 72.0491,
-            "range": "± 0.2021",
+            "value": 44.6603,
+            "range": "± 0.1253",
             "unit": "× calibration",
-            "extra": "4944.77ns  calibration: 68.63ns"
+            "extra": "4944.77ns  calibration: 68.63ns  [rescaled ×0.62 for the lib/ harness (#117); original 72.0491]"
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — new PartialMatchRegExp()",
-            "value": 83.0084,
-            "range": "± 1.8919",
+            "value": 51.8741,
+            "range": "± 1.1823",
             "unit": "× calibration",
-            "extra": "5696.91ns  calibration: 68.63ns"
+            "extra": "5696.91ns  calibration: 68.63ns  [rescaled ×0.62 for the lib/ harness (#117); original 83.0084]"
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — native new RegExp()",
@@ -7390,80 +7390,80 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — compilePartial()",
-            "value": 166.8445,
-            "range": "± 2.0816",
+            "value": 67.6517,
+            "range": "± 0.8440",
             "unit": "× calibration",
-            "extra": "11450.63ns  calibration: 68.63ns"
+            "extra": "11450.63ns  calibration: 68.63ns  [rescaled ×0.41 for the lib/ harness (#117); original 166.8445]"
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — new PartialMatchRegExp()",
-            "value": 176.7705,
-            "range": "± 3.1656",
+            "value": 74.8564,
+            "range": "± 1.3405",
             "unit": "× calibration",
-            "extra": "12131.86ns  calibration: 68.63ns"
+            "extra": "12131.86ns  calibration: 68.63ns  [rescaled ×0.42 for the lib/ harness (#117); original 176.7705]"
           },
           {
-            "name": "construction — legacy numeric escape reclassification — native new RegExp()",
+            "name": "construction — legacy numeric escape (\\N past the group count) — native new RegExp()",
             "value": 1.4919,
             "range": "± 0.0187",
             "unit": "× calibration",
             "extra": "102.39ns  calibration: 68.63ns"
           },
           {
-            "name": "construction — legacy numeric escape reclassification — compilePartial()",
-            "value": 88.4908,
-            "range": "± 6.9256",
+            "name": "construction — legacy numeric escape (\\N past the group count) — compilePartial()",
+            "value": 35.2138,
+            "range": "± 2.7560",
             "unit": "× calibration",
-            "extra": "6073.17ns  calibration: 68.63ns"
+            "extra": "6073.17ns  calibration: 68.63ns  [rescaled ×0.40 for the lib/ harness (#117); original 88.4908]"
           },
           {
-            "name": "construction — legacy numeric escape reclassification — new PartialMatchRegExp()",
-            "value": 98.7368,
-            "range": "± 6.8268",
+            "name": "construction — legacy numeric escape (\\N past the group count) — new PartialMatchRegExp()",
+            "value": 42.8481,
+            "range": "± 2.9626",
             "unit": "× calibration",
-            "extra": "6776.36ns  calibration: 68.63ns"
+            "extra": "6776.36ns  calibration: 68.63ns  [rescaled ×0.43 for the lib/ harness (#117); original 98.7368]"
           },
           {
-            "name": "construction — legacy named escape fallback (double walk()) — native new RegExp()",
+            "name": "construction — legacy named escape (\\k<name> naming no group) — native new RegExp()",
             "value": 1.6539,
             "range": "± 0.0188",
             "unit": "× calibration",
             "extra": "113.51ns  calibration: 68.63ns"
           },
           {
-            "name": "construction — legacy named escape fallback (double walk()) — compilePartial()",
-            "value": 166.6444,
-            "range": "± 0.2833",
+            "name": "construction — legacy named escape (\\k<name> naming no group) — compilePartial()",
+            "value": 85.4,
+            "range": "± 0.1452",
             "unit": "× calibration",
-            "extra": "11436.90ns  calibration: 68.63ns"
+            "extra": "11436.90ns  calibration: 68.63ns  [rescaled ×0.51 for the lib/ harness (#117); original 166.6444]"
           },
           {
-            "name": "construction — legacy named escape fallback (double walk()) — new PartialMatchRegExp()",
-            "value": 179.5841,
-            "range": "± 1.4604",
+            "name": "construction — legacy named escape (\\k<name> naming no group) — new PartialMatchRegExp()",
+            "value": 93.6882,
+            "range": "± 0.7619",
             "unit": "× calibration",
-            "extra": "12324.96ns  calibration: 68.63ns"
+            "extra": "12324.96ns  calibration: 68.63ns  [rescaled ×0.52 for the lib/ harness (#117); original 179.5841]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec (baseline, never asks)",
-            "value": 66.3524,
-            "range": "± 2.1435",
+            "value": 33.8851,
+            "range": "± 1.0947",
             "unit": "× calibration",
-            "extra": "4553.80ns  calibration: 68.63ns"
+            "extra": "4553.80ns  calibration: 68.63ns  [rescaled ×0.51 for the lib/ harness (#117); original 66.3524]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (includes probe build)",
-            "value": 143.2782,
-            "range": "± 1.8213",
+            "value": 81.2752,
+            "range": "± 1.0331",
             "unit": "× calibration",
-            "extra": "9833.26ns  calibration: 68.63ns"
+            "extra": "9833.26ns  calibration: 68.63ns  [rescaled ×0.57 for the lib/ harness (#117); original 143.2782]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (complete, includes probe build)",
-            "value": 136.3017,
-            "range": "± 1.1212",
+            "value": 78.4081,
+            "range": "± 0.6450",
             "unit": "× calibration",
-            "extra": "9354.46ns  calibration: 68.63ns"
+            "extra": "9354.46ns  calibration: 68.63ns  [rescaled ×0.58 for the lib/ harness (#117); original 136.3017]"
           },
           {
             "name": "hitEnd — static path (ISO date) — hitEnd — incomplete match, warm probe",
@@ -7481,17 +7481,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — backreference path (repeated word) — construct + exec (baseline, never asks)",
-            "value": 148.3526,
-            "range": "± 8.1783",
+            "value": 64.1746,
+            "range": "± 3.5378",
             "unit": "× calibration",
-            "extra": "10181.52ns  calibration: 68.63ns"
+            "extra": "10181.52ns  calibration: 68.63ns  [rescaled ×0.43 for the lib/ harness (#117); original 148.3526]"
           },
           {
             "name": "hitEnd — backreference path (repeated word) — construct + exec + hitEnd (includes probe build)",
-            "value": 249.475,
-            "range": "± 2.9870",
+            "value": 132.2828,
+            "range": "± 1.5838",
             "unit": "× calibration",
-            "extra": "17121.61ns  calibration: 68.63ns"
+            "extra": "17121.61ns  calibration: 68.63ns  [rescaled ×0.53 for the lib/ harness (#117); original 249.475]"
           },
           {
             "name": "hitEnd — backreference path (repeated word) — hitEnd — same match, expansion probe cached",
@@ -7502,24 +7502,24 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — backreference path (repeated word) — exec + hitEnd — fresh match, alternating capture, probe rebuilt per match",
-            "value": 102.3426,
-            "range": "± 6.5453",
+            "value": 82.1177,
+            "range": "± 5.2518",
             "unit": "× calibration",
-            "extra": "7023.83ns  calibration: 68.63ns"
+            "extra": "7023.83ns  calibration: 68.63ns  [rescaled ×0.80 for the lib/ harness (#117); original 102.3426]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — construct + exec (baseline, never asks)",
-            "value": 157.665,
-            "range": "± 1.4571",
+            "value": 53.2263,
+            "range": "± 0.4919",
             "unit": "× calibration",
-            "extra": "10820.64ns  calibration: 68.63ns"
+            "extra": "10820.64ns  calibration: 68.63ns  [rescaled ×0.34 for the lib/ harness (#117); original 157.665]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — construct + exec + hitEnd (includes probe build)",
-            "value": 232.0013,
-            "range": "± 6.8392",
+            "value": 93.4474,
+            "range": "± 2.7548",
             "unit": "× calibration",
-            "extra": "15922.38ns  calibration: 68.63ns"
+            "extra": "15922.38ns  calibration: 68.63ns  [rescaled ×0.40 for the lib/ harness (#117); original 232.0013]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — hitEnd — warm instance",
@@ -7530,143 +7530,143 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "feature cost — construction, one construct per bench — literal characters (baseline)",
-            "value": 75.1279,
-            "range": "± 2.2509",
+            "value": 50.5112,
+            "range": "± 1.5134",
             "unit": "× calibration",
-            "extra": "5156.07ns  calibration: 68.63ns"
+            "extra": "5156.07ns  calibration: 68.63ns  [rescaled ×0.67 for the lib/ harness (#117); original 75.1279]"
           },
           {
             "name": "feature cost — construction, one construct per bench — character class",
-            "value": 76.029,
-            "range": "± 1.9353",
+            "value": 49.2732,
+            "range": "± 1.2542",
             "unit": "× calibration",
-            "extra": "5217.91ns  calibration: 68.63ns"
+            "extra": "5217.91ns  calibration: 68.63ns  [rescaled ×0.65 for the lib/ harness (#117); original 76.029]"
           },
           {
             "name": "feature cost — construction, one construct per bench — quantifier",
-            "value": 74.5905,
-            "range": "± 2.0811",
+            "value": 47.2897,
+            "range": "± 1.3194",
             "unit": "× calibration",
-            "extra": "5119.19ns  calibration: 68.63ns"
+            "extra": "5119.19ns  calibration: 68.63ns  [rescaled ×0.63 for the lib/ harness (#117); original 74.5905]"
           },
           {
             "name": "feature cost — construction, one construct per bench — disjunction",
-            "value": 97.2575,
-            "range": "± 1.0140",
+            "value": 49.9,
+            "range": "± 0.5203",
             "unit": "× calibration",
-            "extra": "6674.84ns  calibration: 68.63ns"
+            "extra": "6674.84ns  calibration: 68.63ns  [rescaled ×0.51 for the lib/ harness (#117); original 97.2575]"
           },
           {
             "name": "feature cost — construction, one construct per bench — non-capturing group",
-            "value": 98.4754,
-            "range": "± 1.3749",
+            "value": 50.4685,
+            "range": "± 0.7046",
             "unit": "× calibration",
-            "extra": "6758.42ns  calibration: 68.63ns"
+            "extra": "6758.42ns  calibration: 68.63ns  [rescaled ×0.51 for the lib/ harness (#117); original 98.4754]"
           },
           {
             "name": "feature cost — construction, one construct per bench — capturing group",
-            "value": 98.8124,
-            "range": "± 1.9305",
+            "value": 50.8581,
+            "range": "± 0.9936",
             "unit": "× calibration",
-            "extra": "6781.55ns  calibration: 68.63ns"
+            "extra": "6781.55ns  calibration: 68.63ns  [rescaled ×0.51 for the lib/ harness (#117); original 98.8124]"
           },
           {
             "name": "feature cost — construction, one construct per bench — named group",
-            "value": 105.8088,
-            "range": "± 1.1912",
+            "value": 56.4607,
+            "range": "± 0.6356",
             "unit": "× calibration",
-            "extra": "7261.72ns  calibration: 68.63ns"
+            "extra": "7261.72ns  calibration: 68.63ns  [rescaled ×0.53 for the lib/ harness (#117); original 105.8088]"
           },
           {
             "name": "feature cost — construction, one construct per bench — lookahead",
-            "value": 99.0202,
-            "range": "± 0.9856",
+            "value": 51.1959,
+            "range": "± 0.5096",
             "unit": "× calibration",
-            "extra": "6795.81ns  calibration: 68.63ns"
+            "extra": "6795.81ns  calibration: 68.63ns  [rescaled ×0.52 for the lib/ harness (#117); original 99.0202]"
           },
           {
             "name": "feature cost — construction, one construct per bench — negative lookahead (raw)",
-            "value": 103.5817,
-            "range": "± 1.6067",
+            "value": 61.172,
+            "range": "± 0.9489",
             "unit": "× calibration",
-            "extra": "7108.87ns  calibration: 68.63ns"
+            "extra": "7108.87ns  calibration: 68.63ns  [rescaled ×0.59 for the lib/ harness (#117); original 103.5817]"
           },
           {
             "name": "feature cost — construction, one construct per bench — lookbehind (raw)",
-            "value": 101.9387,
-            "range": "± 1.8506",
+            "value": 54.6551,
+            "range": "± 0.9922",
             "unit": "× calibration",
-            "extra": "6996.11ns  calibration: 68.63ns"
+            "extra": "6996.11ns  calibration: 68.63ns  [rescaled ×0.54 for the lib/ harness (#117); original 101.9387]"
           },
           {
             "name": "feature cost — construction, one construct per bench — control escapes",
-            "value": 76.0695,
-            "range": "± 1.7087",
+            "value": 49.5834,
+            "range": "± 1.1138",
             "unit": "× calibration",
-            "extra": "5220.69ns  calibration: 68.63ns"
+            "extra": "5220.69ns  calibration: 68.63ns  [rescaled ×0.65 for the lib/ harness (#117); original 76.0695]"
           },
           {
             "name": "feature cost — construction, one construct per bench — control-letter escape",
-            "value": 76.1881,
-            "range": "± 2.1069",
+            "value": 50.0675,
+            "range": "± 1.3846",
             "unit": "× calibration",
-            "extra": "5228.83ns  calibration: 68.63ns"
+            "extra": "5228.83ns  calibration: 68.63ns  [rescaled ×0.66 for the lib/ harness (#117); original 76.1881]"
           },
           {
             "name": "feature cost — construction, one construct per bench — hex and unicode escapes",
-            "value": 76.7623,
-            "range": "± 1.9069",
+            "value": 51.7327,
+            "range": "± 1.2851",
             "unit": "× calibration",
-            "extra": "5268.24ns  calibration: 68.63ns"
+            "extra": "5268.24ns  calibration: 68.63ns  [rescaled ×0.67 for the lib/ harness (#117); original 76.7623]"
           },
           {
             "name": "feature cost — construction, one construct per bench — unicode property escape (u)",
-            "value": 76.3106,
-            "range": "± 1.8569",
+            "value": 51.5866,
+            "range": "± 1.2553",
             "unit": "× calibration",
-            "extra": "5237.24ns  calibration: 68.63ns"
+            "extra": "5237.24ns  calibration: 68.63ns  [rescaled ×0.68 for the lib/ harness (#117); original 76.3106]"
           },
           {
             "name": "feature cost — construction, one construct per bench — nested character class (v)",
-            "value": 78.2074,
-            "range": "± 2.0548",
+            "value": 52.7146,
+            "range": "± 1.3850",
             "unit": "× calibration",
-            "extra": "5367.42ns  calibration: 68.63ns"
+            "extra": "5367.42ns  calibration: 68.63ns  [rescaled ×0.67 for the lib/ harness (#117); original 78.2074]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — capturing group, no reference (static path)",
-            "value": 93.3921,
-            "range": "± 2.0929",
+            "value": 43.8271,
+            "range": "± 0.9822",
             "unit": "× calibration",
-            "extra": "6409.55ns  calibration: 68.63ns"
+            "extra": "6409.55ns  calibration: 68.63ns  [rescaled ×0.47 for the lib/ harness (#117); original 93.3921]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — numeric backreference (dynamic path)",
-            "value": 130.8545,
-            "range": "± 11.5081",
+            "value": 56.7076,
+            "range": "± 4.9872",
             "unit": "× calibration",
-            "extra": "8980.62ns  calibration: 68.63ns"
+            "extra": "8980.62ns  calibration: 68.63ns  [rescaled ×0.43 for the lib/ harness (#117); original 130.8545]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — named backreference (dynamic path)",
-            "value": 145.5835,
-            "range": "± 12.6349",
+            "value": 62.8427,
+            "range": "± 5.4540",
             "unit": "× calibration",
-            "extra": "9991.48ns  calibration: 68.63ns"
+            "extra": "9991.48ns  calibration: 68.63ns  [rescaled ×0.43 for the lib/ harness (#117); original 145.5835]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — reclassified octal escape (static)",
-            "value": 109.928,
-            "range": "± 7.3024",
+            "value": 57.3976,
+            "range": "± 3.8129",
             "unit": "× calibration",
-            "extra": "7544.42ns  calibration: 68.63ns"
+            "extra": "7544.42ns  calibration: 68.63ns  [rescaled ×0.52 for the lib/ harness (#117); original 109.928]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — reclassified \\k literal (static)",
-            "value": 190.0818,
-            "range": "± 0.3946",
+            "value": 110.7652,
+            "range": "± 0.2299",
             "unit": "× calibration",
-            "extra": "13045.42ns  calibration: 68.63ns"
+            "extra": "13045.42ns  calibration: 68.63ns  [rescaled ×0.58 for the lib/ harness (#117); original 190.0818]"
           },
           {
             "name": "feature cost — exec, legacy escape vs genuine backreference — legacy \\k literal — partial input",
@@ -7890,10 +7890,10 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "backref — leftmost bound check (native match at a later index) — bound doesn't reject — full pipeline still runs",
-            "value": 29.332,
-            "range": "± 0.3361",
+            "value": 23.5531,
+            "range": "± 0.2699",
             "unit": "× calibration",
-            "extra": "1420.74ns  calibration: 48.44ns"
+            "extra": "1420.74ns  calibration: 48.44ns  [rescaled ×0.80 for the lib/ harness (#117); original 29.332]"
           },
           {
             "name": "backref — keystroke simulation (accumulated exec cost) — repeated word: 7 keystrokes",
@@ -7918,17 +7918,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — simple pattern (no groups, no backreferences) — compilePartial()",
-            "value": 60.0063,
-            "range": "± 1.2445",
+            "value": 23.1296,
+            "range": "± 0.4797",
             "unit": "× calibration",
-            "extra": "2906.50ns  calibration: 48.44ns"
+            "extra": "2906.50ns  calibration: 48.44ns  [rescaled ×0.39 for the lib/ harness (#117); original 60.0063]"
           },
           {
             "name": "construction — simple pattern (no groups, no backreferences) — new PartialMatchRegExp()",
-            "value": 64.0892,
-            "range": "± 2.1862",
+            "value": 27.1934,
+            "range": "± 0.9276",
             "unit": "× calibration",
-            "extra": "3104.26ns  calibration: 48.44ns"
+            "extra": "3104.26ns  calibration: 48.44ns  [rescaled ×0.42 for the lib/ harness (#117); original 64.0892]"
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — native new RegExp()",
@@ -7939,17 +7939,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — compilePartial()",
-            "value": 80.3777,
-            "range": "± 1.4041",
+            "value": 49.8229,
+            "range": "± 0.8703",
             "unit": "× calibration",
-            "extra": "3893.22ns  calibration: 48.44ns"
+            "extra": "3893.22ns  calibration: 48.44ns  [rescaled ×0.62 for the lib/ harness (#117); original 80.3777]"
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — new PartialMatchRegExp()",
-            "value": 95.2743,
-            "range": "± 2.5179",
+            "value": 59.5393,
+            "range": "± 1.5735",
             "unit": "× calibration",
-            "extra": "4614.76ns  calibration: 48.44ns"
+            "extra": "4614.76ns  calibration: 48.44ns  [rescaled ×0.62 for the lib/ harness (#117); original 95.2743]"
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — native new RegExp()",
@@ -7960,80 +7960,80 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — compilePartial()",
-            "value": 178.9607,
-            "range": "± 5.5468",
+            "value": 72.5646,
+            "range": "± 2.2491",
             "unit": "× calibration",
-            "extra": "8668.24ns  calibration: 48.44ns"
+            "extra": "8668.24ns  calibration: 48.44ns  [rescaled ×0.41 for the lib/ harness (#117); original 178.9607]"
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — new PartialMatchRegExp()",
-            "value": 188.6827,
-            "range": "± 2.3071",
+            "value": 79.9008,
+            "range": "± 0.9770",
             "unit": "× calibration",
-            "extra": "9139.14ns  calibration: 48.44ns"
+            "extra": "9139.14ns  calibration: 48.44ns  [rescaled ×0.42 for the lib/ harness (#117); original 188.6827]"
           },
           {
-            "name": "construction — legacy numeric escape reclassification — native new RegExp()",
+            "name": "construction — legacy numeric escape (\\N past the group count) — native new RegExp()",
             "value": 1.4361,
             "range": "± 0.0320",
             "unit": "× calibration",
             "extra": "69.56ns  calibration: 48.44ns"
           },
           {
-            "name": "construction — legacy numeric escape reclassification — compilePartial()",
-            "value": 96.3875,
-            "range": "± 6.4583",
+            "name": "construction — legacy numeric escape (\\N past the group count) — compilePartial()",
+            "value": 38.3562,
+            "range": "± 2.5700",
             "unit": "× calibration",
-            "extra": "4668.68ns  calibration: 48.44ns"
+            "extra": "4668.68ns  calibration: 48.44ns  [rescaled ×0.40 for the lib/ harness (#117); original 96.3875]"
           },
           {
-            "name": "construction — legacy numeric escape reclassification — new PartialMatchRegExp()",
-            "value": 109.1463,
-            "range": "± 8.1963",
+            "name": "construction — legacy numeric escape (\\N past the group count) — new PartialMatchRegExp()",
+            "value": 47.3654,
+            "range": "± 3.5569",
             "unit": "× calibration",
-            "extra": "5286.67ns  calibration: 48.44ns"
+            "extra": "5286.67ns  calibration: 48.44ns  [rescaled ×0.43 for the lib/ harness (#117); original 109.1463]"
           },
           {
-            "name": "construction — legacy named escape fallback (double walk()) — native new RegExp()",
+            "name": "construction — legacy named escape (\\k<name> naming no group) — native new RegExp()",
             "value": 1.6948,
             "range": "± 0.0434",
             "unit": "× calibration",
             "extra": "82.09ns  calibration: 48.44ns"
           },
           {
-            "name": "construction — legacy named escape fallback (double walk()) — compilePartial()",
-            "value": 181.8285,
-            "range": "± 4.2658",
+            "name": "construction — legacy named escape (\\k<name> naming no group) — compilePartial()",
+            "value": 93.1814,
+            "range": "± 2.1861",
             "unit": "× calibration",
-            "extra": "8807.15ns  calibration: 48.44ns"
+            "extra": "8807.15ns  calibration: 48.44ns  [rescaled ×0.51 for the lib/ harness (#117); original 181.8285]"
           },
           {
-            "name": "construction — legacy named escape fallback (double walk()) — new PartialMatchRegExp()",
-            "value": 193.822,
-            "range": "± 1.9580",
+            "name": "construction — legacy named escape (\\k<name> naming no group) — new PartialMatchRegExp()",
+            "value": 101.116,
+            "range": "± 1.0215",
             "unit": "× calibration",
-            "extra": "9388.07ns  calibration: 48.44ns"
+            "extra": "9388.07ns  calibration: 48.44ns  [rescaled ×0.52 for the lib/ harness (#117); original 193.822]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec (baseline, never asks)",
-            "value": 73.3859,
-            "range": "± 2.8165",
+            "value": 37.477,
+            "range": "± 1.4383",
             "unit": "× calibration",
-            "extra": "3554.56ns  calibration: 48.44ns"
+            "extra": "3554.56ns  calibration: 48.44ns  [rescaled ×0.51 for the lib/ harness (#117); original 73.3859]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (includes probe build)",
-            "value": 151.8561,
-            "range": "± 2.2297",
+            "value": 86.141,
+            "range": "± 1.2648",
             "unit": "× calibration",
-            "extra": "7355.39ns  calibration: 48.44ns"
+            "extra": "7355.39ns  calibration: 48.44ns  [rescaled ×0.57 for the lib/ harness (#117); original 151.8561]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (complete, includes probe build)",
-            "value": 149.1745,
-            "range": "± 1.5338",
+            "value": 85.8132,
+            "range": "± 0.8823",
             "unit": "× calibration",
-            "extra": "7225.50ns  calibration: 48.44ns"
+            "extra": "7225.50ns  calibration: 48.44ns  [rescaled ×0.58 for the lib/ harness (#117); original 149.1745]"
           },
           {
             "name": "hitEnd — static path (ISO date) — hitEnd — incomplete match, warm probe",
@@ -8051,17 +8051,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — backreference path (repeated word) — construct + exec (baseline, never asks)",
-            "value": 158.5038,
-            "range": "± 11.3006",
+            "value": 68.5658,
+            "range": "± 4.8884",
             "unit": "× calibration",
-            "extra": "7677.38ns  calibration: 48.44ns"
+            "extra": "7677.38ns  calibration: 48.44ns  [rescaled ×0.43 for the lib/ harness (#117); original 158.5038]"
           },
           {
             "name": "hitEnd — backreference path (repeated word) — construct + exec + hitEnd (includes probe build)",
-            "value": 248.0217,
-            "range": "± 1.3799",
+            "value": 131.5122,
+            "range": "± 0.7317",
             "unit": "× calibration",
-            "extra": "12013.32ns  calibration: 48.44ns"
+            "extra": "12013.32ns  calibration: 48.44ns  [rescaled ×0.53 for the lib/ harness (#117); original 248.0217]"
           },
           {
             "name": "hitEnd — backreference path (repeated word) — hitEnd — same match, expansion probe cached",
@@ -8072,24 +8072,24 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — backreference path (repeated word) — exec + hitEnd — fresh match, alternating capture, probe rebuilt per match",
-            "value": 109.862,
-            "range": "± 6.0580",
+            "value": 88.1511,
+            "range": "± 4.8608",
             "unit": "× calibration",
-            "extra": "5321.34ns  calibration: 48.44ns"
+            "extra": "5321.34ns  calibration: 48.44ns  [rescaled ×0.80 for the lib/ harness (#117); original 109.862]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — construct + exec (baseline, never asks)",
-            "value": 162.2124,
-            "range": "± 2.3311",
+            "value": 54.7614,
+            "range": "± 0.7870",
             "unit": "× calibration",
-            "extra": "7857.01ns  calibration: 48.44ns"
+            "extra": "7857.01ns  calibration: 48.44ns  [rescaled ×0.34 for the lib/ harness (#117); original 162.2124]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — construct + exec + hitEnd (includes probe build)",
-            "value": 241.086,
-            "range": "± 0.7657",
+            "value": 97.1066,
+            "range": "± 0.3084",
             "unit": "× calibration",
-            "extra": "11677.38ns  calibration: 48.44ns"
+            "extra": "11677.38ns  calibration: 48.44ns  [rescaled ×0.40 for the lib/ harness (#117); original 241.086]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — hitEnd — warm instance",
@@ -8100,143 +8100,143 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "feature cost — construction, one construct per bench — literal characters (baseline)",
-            "value": 86.2427,
-            "range": "± 2.9558",
+            "value": 57.9841,
+            "range": "± 1.9873",
             "unit": "× calibration",
-            "extra": "4177.30ns  calibration: 48.44ns"
+            "extra": "4177.30ns  calibration: 48.44ns  [rescaled ×0.67 for the lib/ harness (#117); original 86.2427]"
           },
           {
             "name": "feature cost — construction, one construct per bench — character class",
-            "value": 86.534,
-            "range": "± 1.7609",
+            "value": 56.0813,
+            "range": "± 1.1412",
             "unit": "× calibration",
-            "extra": "4191.41ns  calibration: 48.44ns"
+            "extra": "4191.41ns  calibration: 48.44ns  [rescaled ×0.65 for the lib/ harness (#117); original 86.534]"
           },
           {
             "name": "feature cost — construction, one construct per bench — quantifier",
-            "value": 84.206,
-            "range": "± 2.0286",
+            "value": 53.3858,
+            "range": "± 1.2861",
             "unit": "× calibration",
-            "extra": "4078.65ns  calibration: 48.44ns"
+            "extra": "4078.65ns  calibration: 48.44ns  [rescaled ×0.63 for the lib/ harness (#117); original 84.206]"
           },
           {
             "name": "feature cost — construction, one construct per bench — disjunction",
-            "value": 108.8911,
-            "range": "± 2.8270",
+            "value": 55.8689,
+            "range": "± 1.4505",
             "unit": "× calibration",
-            "extra": "5274.31ns  calibration: 48.44ns"
+            "extra": "5274.31ns  calibration: 48.44ns  [rescaled ×0.51 for the lib/ harness (#117); original 108.8911]"
           },
           {
             "name": "feature cost — construction, one construct per bench — non-capturing group",
-            "value": 109.6413,
-            "range": "± 2.2964",
+            "value": 56.1911,
+            "range": "± 1.1769",
             "unit": "× calibration",
-            "extra": "5310.65ns  calibration: 48.44ns"
+            "extra": "5310.65ns  calibration: 48.44ns  [rescaled ×0.51 for the lib/ harness (#117); original 109.6413]"
           },
           {
             "name": "feature cost — construction, one construct per bench — capturing group",
-            "value": 111.0754,
-            "range": "± 1.7927",
+            "value": 57.1697,
+            "range": "± 0.9227",
             "unit": "× calibration",
-            "extra": "5380.11ns  calibration: 48.44ns"
+            "extra": "5380.11ns  calibration: 48.44ns  [rescaled ×0.51 for the lib/ harness (#117); original 111.0754]"
           },
           {
             "name": "feature cost — construction, one construct per bench — named group",
-            "value": 116.6602,
-            "range": "± 2.6412",
+            "value": 62.2512,
+            "range": "± 1.4094",
             "unit": "× calibration",
-            "extra": "5650.62ns  calibration: 48.44ns"
+            "extra": "5650.62ns  calibration: 48.44ns  [rescaled ×0.53 for the lib/ harness (#117); original 116.6602]"
           },
           {
             "name": "feature cost — construction, one construct per bench — lookahead",
-            "value": 109.8117,
-            "range": "± 2.9661",
+            "value": 56.7754,
+            "range": "± 1.5335",
             "unit": "× calibration",
-            "extra": "5318.90ns  calibration: 48.44ns"
+            "extra": "5318.90ns  calibration: 48.44ns  [rescaled ×0.52 for the lib/ harness (#117); original 109.8117]"
           },
           {
             "name": "feature cost — construction, one construct per bench — negative lookahead (raw)",
-            "value": 116.9779,
-            "range": "± 2.5873",
+            "value": 69.0833,
+            "range": "± 1.5280",
             "unit": "× calibration",
-            "extra": "5666.01ns  calibration: 48.44ns"
+            "extra": "5666.01ns  calibration: 48.44ns  [rescaled ×0.59 for the lib/ harness (#117); original 116.9779]"
           },
           {
             "name": "feature cost — construction, one construct per bench — lookbehind (raw)",
-            "value": 113.5252,
-            "range": "± 1.8393",
+            "value": 60.8673,
+            "range": "± 0.9862",
             "unit": "× calibration",
-            "extra": "5498.77ns  calibration: 48.44ns"
+            "extra": "5498.77ns  calibration: 48.44ns  [rescaled ×0.54 for the lib/ harness (#117); original 113.5252]"
           },
           {
             "name": "feature cost — construction, one construct per bench — control escapes",
-            "value": 87.658,
-            "range": "± 2.3662",
+            "value": 57.137,
+            "range": "± 1.5423",
             "unit": "× calibration",
-            "extra": "4245.85ns  calibration: 48.44ns"
+            "extra": "4245.85ns  calibration: 48.44ns  [rescaled ×0.65 for the lib/ harness (#117); original 87.658]"
           },
           {
             "name": "feature cost — construction, one construct per bench — control-letter escape",
-            "value": 85.3095,
-            "range": "± 2.3703",
+            "value": 56.0617,
+            "range": "± 1.5577",
             "unit": "× calibration",
-            "extra": "4132.10ns  calibration: 48.44ns"
+            "extra": "4132.10ns  calibration: 48.44ns  [rescaled ×0.66 for the lib/ harness (#117); original 85.3095]"
           },
           {
             "name": "feature cost — construction, one construct per bench — hex and unicode escapes",
-            "value": 86.797,
-            "range": "± 2.1876",
+            "value": 58.4955,
+            "range": "± 1.4743",
             "unit": "× calibration",
-            "extra": "4204.15ns  calibration: 48.44ns"
+            "extra": "4204.15ns  calibration: 48.44ns  [rescaled ×0.67 for the lib/ harness (#117); original 86.797]"
           },
           {
             "name": "feature cost — construction, one construct per bench — unicode property escape (u)",
-            "value": 86.6529,
-            "range": "± 2.2116",
+            "value": 58.5781,
+            "range": "± 1.4951",
             "unit": "× calibration",
-            "extra": "4197.17ns  calibration: 48.44ns"
+            "extra": "4197.17ns  calibration: 48.44ns  [rescaled ×0.68 for the lib/ harness (#117); original 86.6529]"
           },
           {
             "name": "feature cost — construction, one construct per bench — nested character class (v)",
-            "value": 89.706,
-            "range": "± 1.7057",
+            "value": 60.465,
+            "range": "± 1.1497",
             "unit": "× calibration",
-            "extra": "4345.05ns  calibration: 48.44ns"
+            "extra": "4345.05ns  calibration: 48.44ns  [rescaled ×0.67 for the lib/ harness (#117); original 89.706]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — capturing group, no reference (static path)",
-            "value": 102.6828,
-            "range": "± 3.1532",
+            "value": 48.1871,
+            "range": "± 1.4797",
             "unit": "× calibration",
-            "extra": "4973.60ns  calibration: 48.44ns"
+            "extra": "4973.60ns  calibration: 48.44ns  [rescaled ×0.47 for the lib/ harness (#117); original 102.6828]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — numeric backreference (dynamic path)",
-            "value": 141.8592,
-            "range": "± 10.1574",
+            "value": 61.4766,
+            "range": "± 4.4018",
             "unit": "× calibration",
-            "extra": "6871.17ns  calibration: 48.44ns"
+            "extra": "6871.17ns  calibration: 48.44ns  [rescaled ×0.43 for the lib/ harness (#117); original 141.8592]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — named backreference (dynamic path)",
-            "value": 156.7293,
-            "range": "± 12.6175",
+            "value": 67.6539,
+            "range": "± 5.4465",
             "unit": "× calibration",
-            "extra": "7591.43ns  calibration: 48.44ns"
+            "extra": "7591.43ns  calibration: 48.44ns  [rescaled ×0.43 for the lib/ harness (#117); original 156.7293]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — reclassified octal escape (static)",
-            "value": 119.1016,
-            "range": "± 7.7956",
+            "value": 62.1875,
+            "range": "± 4.0704",
             "unit": "× calibration",
-            "extra": "5768.87ns  calibration: 48.44ns"
+            "extra": "5768.87ns  calibration: 48.44ns  [rescaled ×0.52 for the lib/ harness (#117); original 119.1016]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — reclassified \\k literal (static)",
-            "value": 205.7549,
-            "range": "± 1.1770",
+            "value": 119.8982,
+            "range": "± 0.6859",
             "unit": "× calibration",
-            "extra": "9966.06ns  calibration: 48.44ns"
+            "extra": "9966.06ns  calibration: 48.44ns  [rescaled ×0.58 for the lib/ harness (#117); original 205.7549]"
           },
           {
             "name": "feature cost — exec, legacy escape vs genuine backreference — legacy \\k literal — partial input",
@@ -8460,10 +8460,10 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "backref — leftmost bound check (native match at a later index) — bound doesn't reject — full pipeline still runs",
-            "value": 27.8437,
-            "range": "± 0.1251",
+            "value": 22.358,
+            "range": "± 0.1005",
             "unit": "× calibration",
-            "extra": "1895.86ns  calibration: 68.09ns"
+            "extra": "1895.86ns  calibration: 68.09ns  [rescaled ×0.80 for the lib/ harness (#117); original 27.8437]"
           },
           {
             "name": "backref — keystroke simulation (accumulated exec cost) — repeated word: 7 keystrokes",
@@ -8488,17 +8488,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — simple pattern (no groups, no backreferences) — compilePartial()",
-            "value": 52.2394,
-            "range": "± 0.3534",
+            "value": 20.1358,
+            "range": "± 0.1362",
             "unit": "× calibration",
-            "extra": "3556.95ns  calibration: 68.09ns"
+            "extra": "3556.95ns  calibration: 68.09ns  [rescaled ×0.39 for the lib/ harness (#117); original 52.2394]"
           },
           {
             "name": "construction — simple pattern (no groups, no backreferences) — new PartialMatchRegExp()",
-            "value": 61.1643,
-            "range": "± 2.2586",
+            "value": 25.9523,
+            "range": "± 0.9583",
             "unit": "× calibration",
-            "extra": "4164.64ns  calibration: 68.09ns"
+            "extra": "4164.64ns  calibration: 68.09ns  [rescaled ×0.42 for the lib/ harness (#117); original 61.1643]"
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — native new RegExp()",
@@ -8509,17 +8509,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — compilePartial()",
-            "value": 74.3608,
-            "range": "± 0.5885",
+            "value": 46.0933,
+            "range": "± 0.3648",
             "unit": "× calibration",
-            "extra": "5063.18ns  calibration: 68.09ns"
+            "extra": "5063.18ns  calibration: 68.09ns  [rescaled ×0.62 for the lib/ harness (#117); original 74.3608]"
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — new PartialMatchRegExp()",
-            "value": 85.6664,
-            "range": "± 2.0673",
+            "value": 53.5351,
+            "range": "± 1.2919",
             "unit": "× calibration",
-            "extra": "5832.97ns  calibration: 68.09ns"
+            "extra": "5832.97ns  calibration: 68.09ns  [rescaled ×0.62 for the lib/ harness (#117); original 85.6664]"
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — native new RegExp()",
@@ -8530,80 +8530,80 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — compilePartial()",
-            "value": 181.607,
-            "range": "± 4.7345",
+            "value": 73.6376,
+            "range": "± 1.9197",
             "unit": "× calibration",
-            "extra": "12365.51ns  calibration: 68.09ns"
+            "extra": "12365.51ns  calibration: 68.09ns  [rescaled ×0.41 for the lib/ harness (#117); original 181.607]"
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — new PartialMatchRegExp()",
-            "value": 187.6821,
-            "range": "± 3.3976",
+            "value": 79.4771,
+            "range": "± 1.4388",
             "unit": "× calibration",
-            "extra": "12779.16ns  calibration: 68.09ns"
+            "extra": "12779.16ns  calibration: 68.09ns  [rescaled ×0.42 for the lib/ harness (#117); original 187.6821]"
           },
           {
-            "name": "construction — legacy numeric escape reclassification — native new RegExp()",
+            "name": "construction — legacy numeric escape (\\N past the group count) — native new RegExp()",
             "value": 1.5013,
             "range": "± 0.0192",
             "unit": "× calibration",
             "extra": "102.22ns  calibration: 68.09ns"
           },
           {
-            "name": "construction — legacy numeric escape reclassification — compilePartial()",
-            "value": 94.2345,
-            "range": "± 7.9391",
+            "name": "construction — legacy numeric escape (\\N past the group count) — compilePartial()",
+            "value": 37.4994,
+            "range": "± 3.1593",
             "unit": "× calibration",
-            "extra": "6416.37ns  calibration: 68.09ns"
+            "extra": "6416.37ns  calibration: 68.09ns  [rescaled ×0.40 for the lib/ harness (#117); original 94.2345]"
           },
           {
-            "name": "construction — legacy numeric escape reclassification — new PartialMatchRegExp()",
-            "value": 105.8086,
-            "range": "± 7.8948",
+            "name": "construction — legacy numeric escape (\\N past the group count) — new PartialMatchRegExp()",
+            "value": 45.917,
+            "range": "± 3.4260",
             "unit": "× calibration",
-            "extra": "7204.44ns  calibration: 68.09ns"
+            "extra": "7204.44ns  calibration: 68.09ns  [rescaled ×0.43 for the lib/ harness (#117); original 105.8086]"
           },
           {
-            "name": "construction — legacy named escape fallback (double walk()) — native new RegExp()",
+            "name": "construction — legacy named escape (\\k<name> naming no group) — native new RegExp()",
             "value": 1.6769,
             "range": "± 0.0192",
             "unit": "× calibration",
             "extra": "114.18ns  calibration: 68.09ns"
           },
           {
-            "name": "construction — legacy named escape fallback (double walk()) — compilePartial()",
-            "value": 175.6867,
-            "range": "± 0.8307",
+            "name": "construction — legacy named escape (\\k<name> naming no group) — compilePartial()",
+            "value": 90.0339,
+            "range": "± 0.4257",
             "unit": "× calibration",
-            "extra": "11962.40ns  calibration: 68.09ns"
+            "extra": "11962.40ns  calibration: 68.09ns  [rescaled ×0.51 for the lib/ harness (#117); original 175.6867]"
           },
           {
-            "name": "construction — legacy named escape fallback (double walk()) — new PartialMatchRegExp()",
-            "value": 189.567,
-            "range": "± 0.4222",
+            "name": "construction — legacy named escape (\\k<name> naming no group) — new PartialMatchRegExp()",
+            "value": 98.8962,
+            "range": "± 0.2203",
             "unit": "× calibration",
-            "extra": "12907.50ns  calibration: 68.09ns"
+            "extra": "12907.50ns  calibration: 68.09ns  [rescaled ×0.52 for the lib/ harness (#117); original 189.567]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec (baseline, never asks)",
-            "value": 70.3409,
-            "range": "± 2.2100",
+            "value": 35.922,
+            "range": "± 1.1286",
             "unit": "× calibration",
-            "extra": "4789.47ns  calibration: 68.09ns"
+            "extra": "4789.47ns  calibration: 68.09ns  [rescaled ×0.51 for the lib/ harness (#117); original 70.3409]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (includes probe build)",
-            "value": 156.7252,
-            "range": "± 1.6155",
+            "value": 88.903,
+            "range": "± 0.9164",
             "unit": "× calibration",
-            "extra": "10671.32ns  calibration: 68.09ns"
+            "extra": "10671.32ns  calibration: 68.09ns  [rescaled ×0.57 for the lib/ harness (#117); original 156.7252]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (complete, includes probe build)",
-            "value": 141.1556,
-            "range": "± 0.9391",
+            "value": 81.2003,
+            "range": "± 0.5402",
             "unit": "× calibration",
-            "extra": "9611.20ns  calibration: 68.09ns"
+            "extra": "9611.20ns  calibration: 68.09ns  [rescaled ×0.58 for the lib/ harness (#117); original 141.1556]"
           },
           {
             "name": "hitEnd — static path (ISO date) — hitEnd — incomplete match, warm probe",
@@ -8621,17 +8621,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — backreference path (repeated word) — construct + exec (baseline, never asks)",
-            "value": 154.1453,
-            "range": "± 8.2229",
+            "value": 66.6804,
+            "range": "± 3.5571",
             "unit": "× calibration",
-            "extra": "10495.66ns  calibration: 68.09ns"
+            "extra": "10495.66ns  calibration: 68.09ns  [rescaled ×0.43 for the lib/ harness (#117); original 154.1453]"
           },
           {
             "name": "hitEnd — backreference path (repeated word) — construct + exec + hitEnd (includes probe build)",
-            "value": 262.298,
-            "range": "± 4.2591",
+            "value": 139.0821,
+            "range": "± 2.2584",
             "unit": "× calibration",
-            "extra": "17859.71ns  calibration: 68.09ns"
+            "extra": "17859.71ns  calibration: 68.09ns  [rescaled ×0.53 for the lib/ harness (#117); original 262.298]"
           },
           {
             "name": "hitEnd — backreference path (repeated word) — hitEnd — same match, expansion probe cached",
@@ -8642,24 +8642,24 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — backreference path (repeated word) — exec + hitEnd — fresh match, alternating capture, probe rebuilt per match",
-            "value": 99.4933,
-            "range": "± 0.7160",
+            "value": 79.8315,
+            "range": "± 0.5745",
             "unit": "× calibration",
-            "extra": "6774.44ns  calibration: 68.09ns"
+            "extra": "6774.44ns  calibration: 68.09ns  [rescaled ×0.80 for the lib/ harness (#117); original 99.4933]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — construct + exec (baseline, never asks)",
-            "value": 162.5177,
-            "range": "± 2.0802",
+            "value": 54.8645,
+            "range": "± 0.7023",
             "unit": "× calibration",
-            "extra": "11065.73ns  calibration: 68.09ns"
+            "extra": "11065.73ns  calibration: 68.09ns  [rescaled ×0.34 for the lib/ harness (#117); original 162.5177]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — construct + exec + hitEnd (includes probe build)",
-            "value": 248.4807,
-            "range": "± 1.9565",
+            "value": 100.0851,
+            "range": "± 0.7881",
             "unit": "× calibration",
-            "extra": "16918.90ns  calibration: 68.09ns"
+            "extra": "16918.90ns  calibration: 68.09ns  [rescaled ×0.40 for the lib/ harness (#117); original 248.4807]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — hitEnd — warm instance",
@@ -8670,143 +8670,143 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "feature cost — construction, one construct per bench — literal characters (baseline)",
-            "value": 78.4266,
-            "range": "± 2.2688",
+            "value": 52.729,
+            "range": "± 1.5254",
             "unit": "× calibration",
-            "extra": "5340.02ns  calibration: 68.09ns"
+            "extra": "5340.02ns  calibration: 68.09ns  [rescaled ×0.67 for the lib/ harness (#117); original 78.4266]"
           },
           {
             "name": "feature cost — construction, one construct per bench — character class",
-            "value": 80.1937,
-            "range": "± 2.7821",
+            "value": 51.9722,
+            "range": "± 1.8030",
             "unit": "× calibration",
-            "extra": "5460.34ns  calibration: 68.09ns"
+            "extra": "5460.34ns  calibration: 68.09ns  [rescaled ×0.65 for the lib/ harness (#117); original 80.1937]"
           },
           {
             "name": "feature cost — construction, one construct per bench — quantifier",
-            "value": 77.9846,
-            "range": "± 2.3211",
+            "value": 49.4415,
+            "range": "± 1.4716",
             "unit": "× calibration",
-            "extra": "5309.92ns  calibration: 68.09ns"
+            "extra": "5309.92ns  calibration: 68.09ns  [rescaled ×0.63 for the lib/ harness (#117); original 77.9846]"
           },
           {
             "name": "feature cost — construction, one construct per bench — disjunction",
-            "value": 102.7019,
-            "range": "± 1.3080",
+            "value": 52.6934,
+            "range": "± 0.6711",
             "unit": "× calibration",
-            "extra": "6992.91ns  calibration: 68.09ns"
+            "extra": "6992.91ns  calibration: 68.09ns  [rescaled ×0.51 for the lib/ harness (#117); original 102.7019]"
           },
           {
             "name": "feature cost — construction, one construct per bench — non-capturing group",
-            "value": 105.3201,
-            "range": "± 1.7238",
+            "value": 53.9764,
+            "range": "± 0.8834",
             "unit": "× calibration",
-            "extra": "7171.18ns  calibration: 68.09ns"
+            "extra": "7171.18ns  calibration: 68.09ns  [rescaled ×0.51 for the lib/ harness (#117); original 105.3201]"
           },
           {
             "name": "feature cost — construction, one construct per bench — capturing group",
-            "value": 104.318,
-            "range": "± 1.6094",
+            "value": 53.6918,
+            "range": "± 0.8283",
             "unit": "× calibration",
-            "extra": "7102.95ns  calibration: 68.09ns"
+            "extra": "7102.95ns  calibration: 68.09ns  [rescaled ×0.51 for the lib/ harness (#117); original 104.318]"
           },
           {
             "name": "feature cost — construction, one construct per bench — named group",
-            "value": 111.0617,
-            "range": "± 1.4187",
+            "value": 59.2637,
+            "range": "± 0.7570",
             "unit": "× calibration",
-            "extra": "7562.12ns  calibration: 68.09ns"
+            "extra": "7562.12ns  calibration: 68.09ns  [rescaled ×0.53 for the lib/ harness (#117); original 111.0617]"
           },
           {
             "name": "feature cost — construction, one construct per bench — lookahead",
-            "value": 103.082,
-            "range": "± 1.6323",
+            "value": 53.296,
+            "range": "± 0.8439",
             "unit": "× calibration",
-            "extra": "7018.79ns  calibration: 68.09ns"
+            "extra": "7018.79ns  calibration: 68.09ns  [rescaled ×0.52 for the lib/ harness (#117); original 103.082]"
           },
           {
             "name": "feature cost — construction, one construct per bench — negative lookahead (raw)",
-            "value": 112.0949,
-            "range": "± 2.4220",
+            "value": 66.1996,
+            "range": "± 1.4304",
             "unit": "× calibration",
-            "extra": "7632.47ns  calibration: 68.09ns"
+            "extra": "7632.47ns  calibration: 68.09ns  [rescaled ×0.59 for the lib/ harness (#117); original 112.0949]"
           },
           {
             "name": "feature cost — construction, one construct per bench — lookbehind (raw)",
-            "value": 108.531,
-            "range": "± 2.1210",
+            "value": 58.1897,
+            "range": "± 1.1372",
             "unit": "× calibration",
-            "extra": "7389.81ns  calibration: 68.09ns"
+            "extra": "7389.81ns  calibration: 68.09ns  [rescaled ×0.54 for the lib/ harness (#117); original 108.531]"
           },
           {
             "name": "feature cost — construction, one construct per bench — control escapes",
-            "value": 79.9354,
-            "range": "± 2.1510",
+            "value": 52.1032,
+            "range": "± 1.4021",
             "unit": "× calibration",
-            "extra": "5442.75ns  calibration: 68.09ns"
+            "extra": "5442.75ns  calibration: 68.09ns  [rescaled ×0.65 for the lib/ harness (#117); original 79.9354]"
           },
           {
             "name": "feature cost — construction, one construct per bench — control-letter escape",
-            "value": 78.5491,
-            "range": "± 1.9118",
+            "value": 51.6191,
+            "range": "± 1.2564",
             "unit": "× calibration",
-            "extra": "5348.36ns  calibration: 68.09ns"
+            "extra": "5348.36ns  calibration: 68.09ns  [rescaled ×0.66 for the lib/ harness (#117); original 78.5491]"
           },
           {
             "name": "feature cost — construction, one construct per bench — hex and unicode escapes",
-            "value": 80.3444,
-            "range": "± 2.4321",
+            "value": 54.1468,
+            "range": "± 1.6391",
             "unit": "× calibration",
-            "extra": "5470.60ns  calibration: 68.09ns"
+            "extra": "5470.60ns  calibration: 68.09ns  [rescaled ×0.67 for the lib/ harness (#117); original 80.3444]"
           },
           {
             "name": "feature cost — construction, one construct per bench — unicode property escape (u)",
-            "value": 80.6615,
-            "range": "± 2.1212",
+            "value": 54.5278,
+            "range": "± 1.4339",
             "unit": "× calibration",
-            "extra": "5492.19ns  calibration: 68.09ns"
+            "extra": "5492.19ns  calibration: 68.09ns  [rescaled ×0.68 for the lib/ harness (#117); original 80.6615]"
           },
           {
             "name": "feature cost — construction, one construct per bench — nested character class (v)",
-            "value": 81.3678,
-            "range": "± 1.9480",
+            "value": 54.8448,
+            "range": "± 1.3130",
             "unit": "× calibration",
-            "extra": "5540.28ns  calibration: 68.09ns"
+            "extra": "5540.28ns  calibration: 68.09ns  [rescaled ×0.67 for the lib/ harness (#117); original 81.3678]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — capturing group, no reference (static path)",
-            "value": 98.0191,
-            "range": "± 1.8517",
+            "value": 45.9985,
+            "range": "± 0.8690",
             "unit": "× calibration",
-            "extra": "6674.06ns  calibration: 68.09ns"
+            "extra": "6674.06ns  calibration: 68.09ns  [rescaled ×0.47 for the lib/ harness (#117); original 98.0191]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — numeric backreference (dynamic path)",
-            "value": 140.1051,
-            "range": "± 12.8406",
+            "value": 60.7164,
+            "range": "± 5.5646",
             "unit": "× calibration",
-            "extra": "9539.67ns  calibration: 68.09ns"
+            "extra": "9539.67ns  calibration: 68.09ns  [rescaled ×0.43 for the lib/ harness (#117); original 140.1051]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — named backreference (dynamic path)",
-            "value": 157.0132,
-            "range": "± 13.7369",
+            "value": 67.7764,
+            "range": "± 5.9297",
             "unit": "× calibration",
-            "extra": "10690.93ns  calibration: 68.09ns"
+            "extra": "10690.93ns  calibration: 68.09ns  [rescaled ×0.43 for the lib/ harness (#117); original 157.0132]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — reclassified octal escape (static)",
-            "value": 115.5882,
-            "range": "± 7.3133",
+            "value": 60.353,
+            "range": "± 3.8186",
             "unit": "× calibration",
-            "extra": "7870.33ns  calibration: 68.09ns"
+            "extra": "7870.33ns  calibration: 68.09ns  [rescaled ×0.52 for the lib/ harness (#117); original 115.5882]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — reclassified \\k literal (static)",
-            "value": 198.2971,
-            "range": "± 0.7727",
+            "value": 115.5524,
+            "range": "± 0.4503",
             "unit": "× calibration",
-            "extra": "13501.93ns  calibration: 68.09ns"
+            "extra": "13501.93ns  calibration: 68.09ns  [rescaled ×0.58 for the lib/ harness (#117); original 198.2971]"
           },
           {
             "name": "feature cost — exec, legacy escape vs genuine backreference — legacy \\k literal — partial input",
@@ -9030,10 +9030,10 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "backref — leftmost bound check (native match at a later index) — bound doesn't reject — full pipeline still runs",
-            "value": 26.4057,
-            "range": "± 0.2367",
+            "value": 21.2033,
+            "range": "± 0.1901",
             "unit": "× calibration",
-            "extra": "1633.46ns  calibration: 61.86ns"
+            "extra": "1633.46ns  calibration: 61.86ns  [rescaled ×0.80 for the lib/ harness (#117); original 26.4057]"
           },
           {
             "name": "backref — keystroke simulation (accumulated exec cost) — repeated word: 7 keystrokes",
@@ -9058,17 +9058,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — simple pattern (no groups, no backreferences) — compilePartial()",
-            "value": 53.7929,
-            "range": "± 0.5960",
+            "value": 20.7346,
+            "range": "± 0.2297",
             "unit": "× calibration",
-            "extra": "3327.63ns  calibration: 61.86ns"
+            "extra": "3327.63ns  calibration: 61.86ns  [rescaled ×0.39 for the lib/ harness (#117); original 53.7929]"
           },
           {
             "name": "construction — simple pattern (no groups, no backreferences) — new PartialMatchRegExp()",
-            "value": 62.6866,
-            "range": "± 1.9520",
+            "value": 26.5982,
+            "range": "± 0.8282",
             "unit": "× calibration",
-            "extra": "3877.80ns  calibration: 61.86ns"
+            "extra": "3877.80ns  calibration: 61.86ns  [rescaled ×0.42 for the lib/ harness (#117); original 62.6866]"
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — native new RegExp()",
@@ -9079,17 +9079,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — compilePartial()",
-            "value": 77.7857,
-            "range": "± 0.5388",
+            "value": 48.2162,
+            "range": "± 0.3340",
             "unit": "× calibration",
-            "extra": "4811.83ns  calibration: 61.86ns"
+            "extra": "4811.83ns  calibration: 61.86ns  [rescaled ×0.62 for the lib/ harness (#117); original 77.7857]"
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — new PartialMatchRegExp()",
-            "value": 88.7568,
-            "range": "± 2.1613",
+            "value": 55.4664,
+            "range": "± 1.3507",
             "unit": "× calibration",
-            "extra": "5490.50ns  calibration: 61.86ns"
+            "extra": "5490.50ns  calibration: 61.86ns  [rescaled ×0.62 for the lib/ harness (#117); original 88.7568]"
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — native new RegExp()",
@@ -9100,80 +9100,80 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — compilePartial()",
-            "value": 179.9413,
-            "range": "± 3.7719",
+            "value": 72.9622,
+            "range": "± 1.5294",
             "unit": "× calibration",
-            "extra": "11131.18ns  calibration: 61.86ns"
+            "extra": "11131.18ns  calibration: 61.86ns  [rescaled ×0.41 for the lib/ harness (#117); original 179.9413]"
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — new PartialMatchRegExp()",
-            "value": 191.2835,
-            "range": "± 3.4218",
+            "value": 81.0022,
+            "range": "± 1.4490",
             "unit": "× calibration",
-            "extra": "11832.81ns  calibration: 61.86ns"
+            "extra": "11832.81ns  calibration: 61.86ns  [rescaled ×0.42 for the lib/ harness (#117); original 191.2835]"
           },
           {
-            "name": "construction — legacy numeric escape reclassification — native new RegExp()",
+            "name": "construction — legacy numeric escape (\\N past the group count) — native new RegExp()",
             "value": 1.4214,
             "range": "± 0.0533",
             "unit": "× calibration",
             "extra": "87.93ns  calibration: 61.86ns"
           },
           {
-            "name": "construction — legacy numeric escape reclassification — compilePartial()",
-            "value": 95.0348,
-            "range": "± 8.3374",
+            "name": "construction — legacy numeric escape (\\N past the group count) — compilePartial()",
+            "value": 37.8179,
+            "range": "± 3.3178",
             "unit": "× calibration",
-            "extra": "5878.86ns  calibration: 61.86ns"
+            "extra": "5878.86ns  calibration: 61.86ns  [rescaled ×0.40 for the lib/ harness (#117); original 95.0348]"
           },
           {
-            "name": "construction — legacy numeric escape reclassification — new PartialMatchRegExp()",
-            "value": 105.0383,
-            "range": "± 5.2911",
+            "name": "construction — legacy numeric escape (\\N past the group count) — new PartialMatchRegExp()",
+            "value": 45.5827,
+            "range": "± 2.2961",
             "unit": "× calibration",
-            "extra": "6497.68ns  calibration: 61.86ns"
+            "extra": "6497.68ns  calibration: 61.86ns  [rescaled ×0.43 for the lib/ harness (#117); original 105.0383]"
           },
           {
-            "name": "construction — legacy named escape fallback (double walk()) — native new RegExp()",
+            "name": "construction — legacy named escape (\\k<name> naming no group) — native new RegExp()",
             "value": 1.6009,
             "range": "± 0.0380",
             "unit": "× calibration",
             "extra": "99.03ns  calibration: 61.86ns"
           },
           {
-            "name": "construction — legacy named escape fallback (double walk()) — compilePartial()",
-            "value": 173.5979,
-            "range": "± 0.7245",
+            "name": "construction — legacy named escape (\\k<name> naming no group) — compilePartial()",
+            "value": 88.9635,
+            "range": "± 0.3713",
             "unit": "× calibration",
-            "extra": "10738.78ns  calibration: 61.86ns"
+            "extra": "10738.78ns  calibration: 61.86ns  [rescaled ×0.51 for the lib/ harness (#117); original 173.5979]"
           },
           {
-            "name": "construction — legacy named escape fallback (double walk()) — new PartialMatchRegExp()",
-            "value": 185.0475,
-            "range": "± 1.3649",
+            "name": "construction — legacy named escape (\\k<name> naming no group) — new PartialMatchRegExp()",
+            "value": 96.5384,
+            "range": "± 0.7121",
             "unit": "× calibration",
-            "extra": "11447.05ns  calibration: 61.86ns"
+            "extra": "11447.05ns  calibration: 61.86ns  [rescaled ×0.52 for the lib/ harness (#117); original 185.0475]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec (baseline, never asks)",
-            "value": 70.3384,
-            "range": "± 2.5744",
+            "value": 35.9207,
+            "range": "± 1.3147",
             "unit": "× calibration",
-            "extra": "4351.14ns  calibration: 61.86ns"
+            "extra": "4351.14ns  calibration: 61.86ns  [rescaled ×0.51 for the lib/ harness (#117); original 70.3384]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (includes probe build)",
-            "value": 145.6293,
-            "range": "± 2.6026",
+            "value": 82.6088,
+            "range": "± 1.4763",
             "unit": "× calibration",
-            "extra": "9008.64ns  calibration: 61.86ns"
+            "extra": "9008.64ns  calibration: 61.86ns  [rescaled ×0.57 for the lib/ harness (#117); original 145.6293]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (complete, includes probe build)",
-            "value": 141.0527,
-            "range": "± 1.0417",
+            "value": 81.1411,
+            "range": "± 0.5992",
             "unit": "× calibration",
-            "extra": "8725.53ns  calibration: 61.86ns"
+            "extra": "8725.53ns  calibration: 61.86ns  [rescaled ×0.58 for the lib/ harness (#117); original 141.0527]"
           },
           {
             "name": "hitEnd — static path (ISO date) — hitEnd — incomplete match, warm probe",
@@ -9191,17 +9191,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — backreference path (repeated word) — construct + exec (baseline, never asks)",
-            "value": 146.8325,
-            "range": "± 9.1752",
+            "value": 63.517,
+            "range": "± 3.9690",
             "unit": "× calibration",
-            "extra": "9083.07ns  calibration: 61.86ns"
+            "extra": "9083.07ns  calibration: 61.86ns  [rescaled ×0.43 for the lib/ harness (#117); original 146.8325]"
           },
           {
             "name": "hitEnd — backreference path (repeated word) — construct + exec + hitEnd (includes probe build)",
-            "value": 231.7836,
-            "range": "± 4.2273",
+            "value": 122.902,
+            "range": "± 2.2415",
             "unit": "× calibration",
-            "extra": "14338.15ns  calibration: 61.86ns"
+            "extra": "14338.15ns  calibration: 61.86ns  [rescaled ×0.53 for the lib/ harness (#117); original 231.7836]"
           },
           {
             "name": "hitEnd — backreference path (repeated word) — hitEnd — same match, expansion probe cached",
@@ -9212,24 +9212,24 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — backreference path (repeated word) — exec + hitEnd — fresh match, alternating capture, probe rebuilt per match",
-            "value": 100.1358,
-            "range": "± 0.4567",
+            "value": 80.347,
+            "range": "± 0.3664",
             "unit": "× calibration",
-            "extra": "6194.41ns  calibration: 61.86ns"
+            "extra": "6194.41ns  calibration: 61.86ns  [rescaled ×0.80 for the lib/ harness (#117); original 100.1358]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — construct + exec (baseline, never asks)",
-            "value": 159.9445,
-            "range": "± 2.8023",
+            "value": 53.9958,
+            "range": "± 0.9460",
             "unit": "× calibration",
-            "extra": "9894.18ns  calibration: 61.86ns"
+            "extra": "9894.18ns  calibration: 61.86ns  [rescaled ×0.34 for the lib/ harness (#117); original 159.9445]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — construct + exec + hitEnd (includes probe build)",
-            "value": 238.9279,
-            "range": "± 4.3566",
+            "value": 96.2374,
+            "range": "± 1.7548",
             "unit": "× calibration",
-            "extra": "14780.10ns  calibration: 61.86ns"
+            "extra": "14780.10ns  calibration: 61.86ns  [rescaled ×0.40 for the lib/ harness (#117); original 238.9279]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — hitEnd — warm instance",
@@ -9240,143 +9240,143 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "feature cost — construction, one construct per bench — literal characters (baseline)",
-            "value": 83.7146,
-            "range": "± 2.4046",
+            "value": 56.2843,
+            "range": "± 1.6167",
             "unit": "× calibration",
-            "extra": "5178.59ns  calibration: 61.86ns"
+            "extra": "5178.59ns  calibration: 61.86ns  [rescaled ×0.67 for the lib/ harness (#117); original 83.7146]"
           },
           {
             "name": "feature cost — construction, one construct per bench — character class",
-            "value": 84.3166,
-            "range": "± 2.0218",
+            "value": 54.6442,
+            "range": "± 1.3103",
             "unit": "× calibration",
-            "extra": "5215.83ns  calibration: 61.86ns"
+            "extra": "5215.83ns  calibration: 61.86ns  [rescaled ×0.65 for the lib/ harness (#117); original 84.3166]"
           },
           {
             "name": "feature cost — construction, one construct per bench — quantifier",
-            "value": 82.3779,
-            "range": "± 1.4596",
+            "value": 52.2268,
+            "range": "± 0.9254",
             "unit": "× calibration",
-            "extra": "5095.90ns  calibration: 61.86ns"
+            "extra": "5095.90ns  calibration: 61.86ns  [rescaled ×0.63 for the lib/ harness (#117); original 82.3779]"
           },
           {
             "name": "feature cost — construction, one construct per bench — disjunction",
-            "value": 105.3064,
-            "range": "± 1.2443",
+            "value": 54.0297,
+            "range": "± 0.6384",
             "unit": "× calibration",
-            "extra": "6514.26ns  calibration: 61.86ns"
+            "extra": "6514.26ns  calibration: 61.86ns  [rescaled ×0.51 for the lib/ harness (#117); original 105.3064]"
           },
           {
             "name": "feature cost — construction, one construct per bench — non-capturing group",
-            "value": 107.2621,
-            "range": "± 2.1798",
+            "value": 54.9717,
+            "range": "± 1.1171",
             "unit": "× calibration",
-            "extra": "6635.24ns  calibration: 61.86ns"
+            "extra": "6635.24ns  calibration: 61.86ns  [rescaled ×0.51 for the lib/ harness (#117); original 107.2621]"
           },
           {
             "name": "feature cost — construction, one construct per bench — capturing group",
-            "value": 106.297,
-            "range": "± 1.4069",
+            "value": 54.7103,
+            "range": "± 0.7241",
             "unit": "× calibration",
-            "extra": "6575.54ns  calibration: 61.86ns"
+            "extra": "6575.54ns  calibration: 61.86ns  [rescaled ×0.51 for the lib/ harness (#117); original 106.297]"
           },
           {
             "name": "feature cost — construction, one construct per bench — named group",
-            "value": 113.5482,
-            "range": "± 1.1916",
+            "value": 60.5906,
+            "range": "± 0.6359",
             "unit": "× calibration",
-            "extra": "7024.10ns  calibration: 61.86ns"
+            "extra": "7024.10ns  calibration: 61.86ns  [rescaled ×0.53 for the lib/ harness (#117); original 113.5482]"
           },
           {
             "name": "feature cost — construction, one construct per bench — lookahead",
-            "value": 106.0577,
-            "range": "± 1.4610",
+            "value": 54.8345,
+            "range": "± 0.7554",
             "unit": "× calibration",
-            "extra": "6560.74ns  calibration: 61.86ns"
+            "extra": "6560.74ns  calibration: 61.86ns  [rescaled ×0.52 for the lib/ harness (#117); original 106.0577]"
           },
           {
             "name": "feature cost — construction, one construct per bench — negative lookahead (raw)",
-            "value": 115.9493,
-            "range": "± 2.9711",
+            "value": 68.4759,
+            "range": "± 1.7546",
             "unit": "× calibration",
-            "extra": "7172.63ns  calibration: 61.86ns"
+            "extra": "7172.63ns  calibration: 61.86ns  [rescaled ×0.59 for the lib/ harness (#117); original 115.9493]"
           },
           {
             "name": "feature cost — construction, one construct per bench — lookbehind (raw)",
-            "value": 110.6929,
-            "range": "± 2.6287",
+            "value": 59.3488,
+            "range": "± 1.4094",
             "unit": "× calibration",
-            "extra": "6847.47ns  calibration: 61.86ns"
+            "extra": "6847.47ns  calibration: 61.86ns  [rescaled ×0.54 for the lib/ harness (#117); original 110.6929]"
           },
           {
             "name": "feature cost — construction, one construct per bench — control escapes",
-            "value": 86.132,
-            "range": "± 1.9525",
+            "value": 56.1423,
+            "range": "± 1.2727",
             "unit": "× calibration",
-            "extra": "5328.13ns  calibration: 61.86ns"
+            "extra": "5328.13ns  calibration: 61.86ns  [rescaled ×0.65 for the lib/ harness (#117); original 86.132]"
           },
           {
             "name": "feature cost — construction, one construct per bench — control-letter escape",
-            "value": 83.7395,
-            "range": "± 1.9132",
+            "value": 55.03,
+            "range": "± 1.2573",
             "unit": "× calibration",
-            "extra": "5180.13ns  calibration: 61.86ns"
+            "extra": "5180.13ns  calibration: 61.86ns  [rescaled ×0.66 for the lib/ harness (#117); original 83.7395]"
           },
           {
             "name": "feature cost — construction, one construct per bench — hex and unicode escapes",
-            "value": 85.1257,
-            "range": "± 2.1081",
+            "value": 57.3691,
+            "range": "± 1.4207",
             "unit": "× calibration",
-            "extra": "5265.88ns  calibration: 61.86ns"
+            "extra": "5265.88ns  calibration: 61.86ns  [rescaled ×0.67 for the lib/ harness (#117); original 85.1257]"
           },
           {
             "name": "feature cost — construction, one construct per bench — unicode property escape (u)",
-            "value": 85.8017,
-            "range": "± 2.4239",
+            "value": 58.0027,
+            "range": "± 1.6386",
             "unit": "× calibration",
-            "extra": "5307.70ns  calibration: 61.86ns"
+            "extra": "5307.70ns  calibration: 61.86ns  [rescaled ×0.68 for the lib/ harness (#117); original 85.8017]"
           },
           {
             "name": "feature cost — construction, one construct per bench — nested character class (v)",
-            "value": 87.6467,
-            "range": "± 2.2221",
+            "value": 59.077,
+            "range": "± 1.4978",
             "unit": "× calibration",
-            "extra": "5421.83ns  calibration: 61.86ns"
+            "extra": "5421.83ns  calibration: 61.86ns  [rescaled ×0.67 for the lib/ harness (#117); original 87.6467]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — capturing group, no reference (static path)",
-            "value": 100.0946,
-            "range": "± 1.8406",
+            "value": 46.9725,
+            "range": "± 0.8638",
             "unit": "× calibration",
-            "extra": "6191.86ns  calibration: 61.86ns"
+            "extra": "6191.86ns  calibration: 61.86ns  [rescaled ×0.47 for the lib/ harness (#117); original 100.0946]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — numeric backreference (dynamic path)",
-            "value": 139.7446,
-            "range": "± 13.3679",
+            "value": 60.5602,
+            "range": "± 5.7932",
             "unit": "× calibration",
-            "extra": "8644.61ns  calibration: 61.86ns"
+            "extra": "8644.61ns  calibration: 61.86ns  [rescaled ×0.43 for the lib/ harness (#117); original 139.7446]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — named backreference (dynamic path)",
-            "value": 157.9592,
-            "range": "± 12.1023",
+            "value": 68.1848,
+            "range": "± 5.2241",
             "unit": "× calibration",
-            "extra": "9771.37ns  calibration: 61.86ns"
+            "extra": "9771.37ns  calibration: 61.86ns  [rescaled ×0.43 for the lib/ harness (#117); original 157.9592]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — reclassified octal escape (static)",
-            "value": 117.1292,
-            "range": "± 9.3115",
+            "value": 61.1576,
+            "range": "± 4.8619",
             "unit": "× calibration",
-            "extra": "7245.62ns  calibration: 61.86ns"
+            "extra": "7245.62ns  calibration: 61.86ns  [rescaled ×0.52 for the lib/ harness (#117); original 117.1292]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — reclassified \\k literal (static)",
-            "value": 199.0652,
-            "range": "± 1.6912",
+            "value": 116,
+            "range": "± 0.9855",
             "unit": "× calibration",
-            "extra": "12314.19ns  calibration: 61.86ns"
+            "extra": "12314.19ns  calibration: 61.86ns  [rescaled ×0.58 for the lib/ harness (#117); original 199.0652]"
           },
           {
             "name": "feature cost — exec, legacy escape vs genuine backreference — legacy \\k literal — partial input",
@@ -9600,10 +9600,10 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "backref — leftmost bound check (native match at a later index) — bound doesn't reject — full pipeline still runs",
-            "value": 27.1285,
-            "range": "± 0.1649",
+            "value": 21.7837,
+            "range": "± 0.1324",
             "unit": "× calibration",
-            "extra": "1896.66ns  calibration: 69.91ns"
+            "extra": "1896.66ns  calibration: 69.91ns  [rescaled ×0.80 for the lib/ harness (#117); original 27.1285]"
           },
           {
             "name": "backref — keystroke simulation (accumulated exec cost) — repeated word: 7 keystrokes",
@@ -9628,17 +9628,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — simple pattern (no groups, no backreferences) — compilePartial()",
-            "value": 48.9843,
-            "range": "± 0.2522",
+            "value": 18.8811,
+            "range": "± 0.0972",
             "unit": "× calibration",
-            "extra": "3424.68ns  calibration: 69.91ns"
+            "extra": "3424.68ns  calibration: 69.91ns  [rescaled ×0.39 for the lib/ harness (#117); original 48.9843]"
           },
           {
             "name": "construction — simple pattern (no groups, no backreferences) — new PartialMatchRegExp()",
-            "value": 58.8217,
-            "range": "± 2.1654",
+            "value": 24.9583,
+            "range": "± 0.9188",
             "unit": "× calibration",
-            "extra": "4112.45ns  calibration: 69.91ns"
+            "extra": "4112.45ns  calibration: 69.91ns  [rescaled ×0.42 for the lib/ harness (#117); original 58.8217]"
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — native new RegExp()",
@@ -9649,17 +9649,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — compilePartial()",
-            "value": 74.7948,
-            "range": "± 1.2972",
+            "value": 46.3623,
+            "range": "± 0.8041",
             "unit": "× calibration",
-            "extra": "5229.19ns  calibration: 69.91ns"
+            "extra": "5229.19ns  calibration: 69.91ns  [rescaled ×0.62 for the lib/ harness (#117); original 74.7948]"
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — new PartialMatchRegExp()",
-            "value": 83.7539,
-            "range": "± 2.0891",
+            "value": 52.3399,
+            "range": "± 1.3055",
             "unit": "× calibration",
-            "extra": "5855.56ns  calibration: 69.91ns"
+            "extra": "5855.56ns  calibration: 69.91ns  [rescaled ×0.62 for the lib/ harness (#117); original 83.7539]"
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — native new RegExp()",
@@ -9670,80 +9670,80 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — compilePartial()",
-            "value": 174.7743,
-            "range": "± 5.8323",
+            "value": 70.8671,
+            "range": "± 2.3649",
             "unit": "× calibration",
-            "extra": "12219.14ns  calibration: 69.91ns"
+            "extra": "12219.14ns  calibration: 69.91ns  [rescaled ×0.41 for the lib/ harness (#117); original 174.7743]"
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — new PartialMatchRegExp()",
-            "value": 195.8672,
-            "range": "± 13.1171",
+            "value": 82.9432,
+            "range": "± 5.5547",
             "unit": "× calibration",
-            "extra": "13693.83ns  calibration: 69.91ns"
+            "extra": "13693.83ns  calibration: 69.91ns  [rescaled ×0.42 for the lib/ harness (#117); original 195.8672]"
           },
           {
-            "name": "construction — legacy numeric escape reclassification — native new RegExp()",
+            "name": "construction — legacy numeric escape (\\N past the group count) — native new RegExp()",
             "value": 1.5359,
             "range": "± 0.0169",
             "unit": "× calibration",
             "extra": "107.38ns  calibration: 69.91ns"
           },
           {
-            "name": "construction — legacy numeric escape reclassification — compilePartial()",
-            "value": 89.3322,
-            "range": "± 8.3048",
+            "name": "construction — legacy numeric escape (\\N past the group count) — compilePartial()",
+            "value": 35.5486,
+            "range": "± 3.3048",
             "unit": "× calibration",
-            "extra": "6245.56ns  calibration: 69.91ns"
+            "extra": "6245.56ns  calibration: 69.91ns  [rescaled ×0.40 for the lib/ harness (#117); original 89.3322]"
           },
           {
-            "name": "construction — legacy numeric escape reclassification — new PartialMatchRegExp()",
-            "value": 98.5826,
-            "range": "± 7.3930",
+            "name": "construction — legacy numeric escape (\\N past the group count) — new PartialMatchRegExp()",
+            "value": 42.7811,
+            "range": "± 3.2083",
             "unit": "× calibration",
-            "extra": "6892.29ns  calibration: 69.91ns"
+            "extra": "6892.29ns  calibration: 69.91ns  [rescaled ×0.43 for the lib/ harness (#117); original 98.5826]"
           },
           {
-            "name": "construction — legacy named escape fallback (double walk()) — native new RegExp()",
+            "name": "construction — legacy named escape (\\k<name> naming no group) — native new RegExp()",
             "value": 1.6693,
             "range": "± 0.0166",
             "unit": "× calibration",
             "extra": "116.71ns  calibration: 69.91ns"
           },
           {
-            "name": "construction — legacy named escape fallback (double walk()) — compilePartial()",
-            "value": 164.2447,
-            "range": "± 0.9533",
+            "name": "construction — legacy named escape (\\k<name> naming no group) — compilePartial()",
+            "value": 84.1703,
+            "range": "± 0.4885",
             "unit": "× calibration",
-            "extra": "11482.98ns  calibration: 69.91ns"
+            "extra": "11482.98ns  calibration: 69.91ns  [rescaled ×0.51 for the lib/ harness (#117); original 164.2447]"
           },
           {
-            "name": "construction — legacy named escape fallback (double walk()) — new PartialMatchRegExp()",
-            "value": 176.4011,
-            "range": "± 1.0244",
+            "name": "construction — legacy named escape (\\k<name> naming no group) — new PartialMatchRegExp()",
+            "value": 92.0276,
+            "range": "± 0.5344",
             "unit": "× calibration",
-            "extra": "12332.88ns  calibration: 69.91ns"
+            "extra": "12332.88ns  calibration: 69.91ns  [rescaled ×0.52 for the lib/ harness (#117); original 176.4011]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec (baseline, never asks)",
-            "value": 66.6154,
-            "range": "± 1.9122",
+            "value": 34.0194,
+            "range": "± 0.9765",
             "unit": "× calibration",
-            "extra": "4657.34ns  calibration: 69.91ns"
+            "extra": "4657.34ns  calibration: 69.91ns  [rescaled ×0.51 for the lib/ harness (#117); original 66.6154]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (includes probe build)",
-            "value": 139.2996,
-            "range": "± 2.2957",
+            "value": 79.0183,
+            "range": "± 1.3022",
             "unit": "× calibration",
-            "extra": "9738.97ns  calibration: 69.91ns"
+            "extra": "9738.97ns  calibration: 69.91ns  [rescaled ×0.57 for the lib/ harness (#117); original 139.2996]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (complete, includes probe build)",
-            "value": 135.2054,
-            "range": "± 0.9516",
+            "value": 77.7775,
+            "range": "± 0.5474",
             "unit": "× calibration",
-            "extra": "9452.73ns  calibration: 69.91ns"
+            "extra": "9452.73ns  calibration: 69.91ns  [rescaled ×0.58 for the lib/ harness (#117); original 135.2054]"
           },
           {
             "name": "hitEnd — static path (ISO date) — hitEnd — incomplete match, warm probe",
@@ -9761,17 +9761,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — backreference path (repeated word) — construct + exec (baseline, never asks)",
-            "value": 145.9315,
-            "range": "± 7.9938",
+            "value": 63.1273,
+            "range": "± 3.4580",
             "unit": "× calibration",
-            "extra": "10202.63ns  calibration: 69.91ns"
+            "extra": "10202.63ns  calibration: 69.91ns  [rescaled ×0.43 for the lib/ harness (#117); original 145.9315]"
           },
           {
             "name": "hitEnd — backreference path (repeated word) — construct + exec + hitEnd (includes probe build)",
-            "value": 224.7133,
-            "range": "± 4.0049",
+            "value": 119.153,
+            "range": "± 2.1236",
             "unit": "× calibration",
-            "extra": "15710.57ns  calibration: 69.91ns"
+            "extra": "15710.57ns  calibration: 69.91ns  [rescaled ×0.53 for the lib/ harness (#117); original 224.7133]"
           },
           {
             "name": "hitEnd — backreference path (repeated word) — hitEnd — same match, expansion probe cached",
@@ -9782,24 +9782,24 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — backreference path (repeated word) — exec + hitEnd — fresh match, alternating capture, probe rebuilt per match",
-            "value": 94.7795,
-            "range": "± 0.5424",
+            "value": 76.0492,
+            "range": "± 0.4352",
             "unit": "× calibration",
-            "extra": "6626.40ns  calibration: 69.91ns"
+            "extra": "6626.40ns  calibration: 69.91ns  [rescaled ×0.80 for the lib/ harness (#117); original 94.7795]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — construct + exec (baseline, never asks)",
-            "value": 158.452,
-            "range": "± 1.9398",
+            "value": 53.492,
+            "range": "± 0.6549",
             "unit": "× calibration",
-            "extra": "11077.99ns  calibration: 69.91ns"
+            "extra": "11077.99ns  calibration: 69.91ns  [rescaled ×0.34 for the lib/ harness (#117); original 158.452]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — construct + exec + hitEnd (includes probe build)",
-            "value": 227.1813,
-            "range": "± 1.3750",
+            "value": 91.506,
+            "range": "± 0.5538",
             "unit": "× calibration",
-            "extra": "15883.12ns  calibration: 69.91ns"
+            "extra": "15883.12ns  calibration: 69.91ns  [rescaled ×0.40 for the lib/ harness (#117); original 227.1813]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — hitEnd — warm instance",
@@ -9810,143 +9810,143 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "feature cost — construction, one construct per bench — literal characters (baseline)",
-            "value": 75.8076,
-            "range": "± 2.3592",
+            "value": 50.9682,
+            "range": "± 1.5862",
             "unit": "× calibration",
-            "extra": "5300.00ns  calibration: 69.91ns"
+            "extra": "5300.00ns  calibration: 69.91ns  [rescaled ×0.67 for the lib/ harness (#117); original 75.8076]"
           },
           {
             "name": "feature cost — construction, one construct per bench — character class",
-            "value": 76.5291,
-            "range": "± 1.8979",
+            "value": 49.5973,
+            "range": "± 1.2300",
             "unit": "× calibration",
-            "extra": "5350.44ns  calibration: 69.91ns"
+            "extra": "5350.44ns  calibration: 69.91ns  [rescaled ×0.65 for the lib/ harness (#117); original 76.5291]"
           },
           {
             "name": "feature cost — construction, one construct per bench — quantifier",
-            "value": 75.8731,
-            "range": "± 2.7345",
+            "value": 48.1028,
+            "range": "± 1.7336",
             "unit": "× calibration",
-            "extra": "5304.58ns  calibration: 69.91ns"
+            "extra": "5304.58ns  calibration: 69.91ns  [rescaled ×0.63 for the lib/ harness (#117); original 75.8731]"
           },
           {
             "name": "feature cost — construction, one construct per bench — disjunction",
-            "value": 97.5956,
-            "range": "± 1.0822",
+            "value": 50.0735,
+            "range": "± 0.5552",
             "unit": "× calibration",
-            "extra": "6823.28ns  calibration: 69.91ns"
+            "extra": "6823.28ns  calibration: 69.91ns  [rescaled ×0.51 for the lib/ harness (#117); original 97.5956]"
           },
           {
             "name": "feature cost — construction, one construct per bench — non-capturing group",
-            "value": 98.8008,
-            "range": "± 1.0901",
+            "value": 50.6353,
+            "range": "± 0.5587",
             "unit": "× calibration",
-            "extra": "6907.54ns  calibration: 69.91ns"
+            "extra": "6907.54ns  calibration: 69.91ns  [rescaled ×0.51 for the lib/ harness (#117); original 98.8008]"
           },
           {
             "name": "feature cost — construction, one construct per bench — capturing group",
-            "value": 99.2798,
-            "range": "± 1.0104",
+            "value": 51.0986,
+            "range": "± 0.5200",
             "unit": "× calibration",
-            "extra": "6941.03ns  calibration: 69.91ns"
+            "extra": "6941.03ns  calibration: 69.91ns  [rescaled ×0.51 for the lib/ harness (#117); original 99.2798]"
           },
           {
             "name": "feature cost — construction, one construct per bench — named group",
-            "value": 104.4343,
-            "range": "± 0.8367",
+            "value": 55.7273,
+            "range": "± 0.4465",
             "unit": "× calibration",
-            "extra": "7301.40ns  calibration: 69.91ns"
+            "extra": "7301.40ns  calibration: 69.91ns  [rescaled ×0.53 for the lib/ harness (#117); original 104.4343]"
           },
           {
             "name": "feature cost — construction, one construct per bench — lookahead",
-            "value": 97.9341,
-            "range": "± 1.0387",
+            "value": 50.6344,
+            "range": "± 0.5370",
             "unit": "× calibration",
-            "extra": "6846.95ns  calibration: 69.91ns"
+            "extra": "6846.95ns  calibration: 69.91ns  [rescaled ×0.52 for the lib/ harness (#117); original 97.9341]"
           },
           {
             "name": "feature cost — construction, one construct per bench — negative lookahead (raw)",
-            "value": 107.5695,
-            "range": "± 3.6216",
+            "value": 63.527,
+            "range": "± 2.1388",
             "unit": "× calibration",
-            "extra": "7520.60ns  calibration: 69.91ns"
+            "extra": "7520.60ns  calibration: 69.91ns  [rescaled ×0.59 for the lib/ harness (#117); original 107.5695]"
           },
           {
             "name": "feature cost — construction, one construct per bench — lookbehind (raw)",
-            "value": 104.0592,
-            "range": "± 1.7187",
+            "value": 55.7921,
+            "range": "± 0.9215",
             "unit": "× calibration",
-            "extra": "7275.18ns  calibration: 69.91ns"
+            "extra": "7275.18ns  calibration: 69.91ns  [rescaled ×0.54 for the lib/ harness (#117); original 104.0592]"
           },
           {
             "name": "feature cost — construction, one construct per bench — control escapes",
-            "value": 78.4473,
-            "range": "± 1.9165",
+            "value": 51.1333,
+            "range": "± 1.2492",
             "unit": "× calibration",
-            "extra": "5484.55ns  calibration: 69.91ns"
+            "extra": "5484.55ns  calibration: 69.91ns  [rescaled ×0.65 for the lib/ harness (#117); original 78.4473]"
           },
           {
             "name": "feature cost — construction, one construct per bench — control-letter escape",
-            "value": 77.7843,
-            "range": "± 2.4878",
+            "value": 51.1165,
+            "range": "± 1.6349",
             "unit": "× calibration",
-            "extra": "5438.20ns  calibration: 69.91ns"
+            "extra": "5438.20ns  calibration: 69.91ns  [rescaled ×0.66 for the lib/ harness (#117); original 77.7843]"
           },
           {
             "name": "feature cost — construction, one construct per bench — hex and unicode escapes",
-            "value": 78.9286,
-            "range": "± 2.0471",
+            "value": 53.1927,
+            "range": "± 1.3796",
             "unit": "× calibration",
-            "extra": "5518.20ns  calibration: 69.91ns"
+            "extra": "5518.20ns  calibration: 69.91ns  [rescaled ×0.67 for the lib/ harness (#117); original 78.9286]"
           },
           {
             "name": "feature cost — construction, one construct per bench — unicode property escape (u)",
-            "value": 78.6256,
-            "range": "± 2.1188",
+            "value": 53.1516,
+            "range": "± 1.4323",
             "unit": "× calibration",
-            "extra": "5497.02ns  calibration: 69.91ns"
+            "extra": "5497.02ns  calibration: 69.91ns  [rescaled ×0.68 for the lib/ harness (#117); original 78.6256]"
           },
           {
             "name": "feature cost — construction, one construct per bench — nested character class (v)",
-            "value": 80.0183,
-            "range": "± 2.0424",
+            "value": 53.9352,
+            "range": "± 1.3767",
             "unit": "× calibration",
-            "extra": "5594.39ns  calibration: 69.91ns"
+            "extra": "5594.39ns  calibration: 69.91ns  [rescaled ×0.67 for the lib/ harness (#117); original 80.0183]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — capturing group, no reference (static path)",
-            "value": 97.4608,
-            "range": "± 1.9667",
+            "value": 45.7365,
+            "range": "± 0.9229",
             "unit": "× calibration",
-            "extra": "6813.86ns  calibration: 69.91ns"
+            "extra": "6813.86ns  calibration: 69.91ns  [rescaled ×0.47 for the lib/ harness (#117); original 97.4608]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — numeric backreference (dynamic path)",
-            "value": 135.6218,
-            "range": "± 13.5308",
+            "value": 58.7735,
+            "range": "± 5.8638",
             "unit": "× calibration",
-            "extra": "9481.84ns  calibration: 69.91ns"
+            "extra": "9481.84ns  calibration: 69.91ns  [rescaled ×0.43 for the lib/ harness (#117); original 135.6218]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — named backreference (dynamic path)",
-            "value": 147.9179,
-            "range": "± 15.9674",
+            "value": 63.8504,
+            "range": "± 6.8925",
             "unit": "× calibration",
-            "extra": "10341.51ns  calibration: 69.91ns"
+            "extra": "10341.51ns  calibration: 69.91ns  [rescaled ×0.43 for the lib/ harness (#117); original 147.9179]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — reclassified octal escape (static)",
-            "value": 111.6297,
-            "range": "± 8.5068",
+            "value": 58.2861,
+            "range": "± 4.4417",
             "unit": "× calibration",
-            "extra": "7804.46ns  calibration: 69.91ns"
+            "extra": "7804.46ns  calibration: 69.91ns  [rescaled ×0.52 for the lib/ harness (#117); original 111.6297]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — reclassified \\k literal (static)",
-            "value": 190.5257,
-            "range": "± 2.1371",
+            "value": 111.0238,
+            "range": "± 1.2453",
             "unit": "× calibration",
-            "extra": "13320.38ns  calibration: 69.91ns"
+            "extra": "13320.38ns  calibration: 69.91ns  [rescaled ×0.58 for the lib/ harness (#117); original 190.5257]"
           },
           {
             "name": "feature cost — exec, legacy escape vs genuine backreference — legacy \\k literal — partial input",
@@ -10170,10 +10170,10 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "backref — leftmost bound check (native match at a later index) — bound doesn't reject — full pipeline still runs",
-            "value": 30.1213,
-            "range": "± 0.2634",
+            "value": 24.1869,
+            "range": "± 0.2115",
             "unit": "× calibration",
-            "extra": "2014.03ns  calibration: 66.86ns"
+            "extra": "2014.03ns  calibration: 66.86ns  [rescaled ×0.80 for the lib/ harness (#117); original 30.1213]"
           },
           {
             "name": "backref — keystroke simulation (accumulated exec cost) — repeated word: 7 keystrokes",
@@ -10198,17 +10198,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — simple pattern (no groups, no backreferences) — compilePartial()",
-            "value": 53.3379,
-            "range": "± 0.3293",
+            "value": 20.5592,
+            "range": "± 0.1269",
             "unit": "× calibration",
-            "extra": "3566.38ns  calibration: 66.86ns"
+            "extra": "3566.38ns  calibration: 66.86ns  [rescaled ×0.39 for the lib/ harness (#117); original 53.3379]"
           },
           {
             "name": "construction — simple pattern (no groups, no backreferences) — new PartialMatchRegExp()",
-            "value": 62.3683,
-            "range": "± 2.4508",
+            "value": 26.4632,
+            "range": "± 1.0399",
             "unit": "× calibration",
-            "extra": "4170.19ns  calibration: 66.86ns"
+            "extra": "4170.19ns  calibration: 66.86ns  [rescaled ×0.42 for the lib/ harness (#117); original 62.3683]"
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — native new RegExp()",
@@ -10219,17 +10219,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — compilePartial()",
-            "value": 76.3463,
-            "range": "± 0.3229",
+            "value": 47.324,
+            "range": "± 0.2002",
             "unit": "× calibration",
-            "extra": "5104.81ns  calibration: 66.86ns"
+            "extra": "5104.81ns  calibration: 66.86ns  [rescaled ×0.62 for the lib/ harness (#117); original 76.3463]"
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — new PartialMatchRegExp()",
-            "value": 86.9101,
-            "range": "± 2.3181",
+            "value": 54.3123,
+            "range": "± 1.4486",
             "unit": "× calibration",
-            "extra": "5811.15ns  calibration: 66.86ns"
+            "extra": "5811.15ns  calibration: 66.86ns  [rescaled ×0.62 for the lib/ harness (#117); original 86.9101]"
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — native new RegExp()",
@@ -10240,80 +10240,80 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — compilePartial()",
-            "value": 177.5129,
-            "range": "± 2.1010",
+            "value": 71.9775,
+            "range": "± 0.8519",
             "unit": "× calibration",
-            "extra": "11869.21ns  calibration: 66.86ns"
+            "extra": "11869.21ns  calibration: 66.86ns  [rescaled ×0.41 for the lib/ harness (#117); original 177.5129]"
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — new PartialMatchRegExp()",
-            "value": 188.649,
-            "range": "± 1.5336",
+            "value": 79.8865,
+            "range": "± 0.6494",
             "unit": "× calibration",
-            "extra": "12613.81ns  calibration: 66.86ns"
+            "extra": "12613.81ns  calibration: 66.86ns  [rescaled ×0.42 for the lib/ harness (#117); original 188.649]"
           },
           {
-            "name": "construction — legacy numeric escape reclassification — native new RegExp()",
+            "name": "construction — legacy numeric escape (\\N past the group count) — native new RegExp()",
             "value": 1.5864,
             "range": "± 0.0199",
             "unit": "× calibration",
             "extra": "106.07ns  calibration: 66.86ns"
           },
           {
-            "name": "construction — legacy numeric escape reclassification — compilePartial()",
-            "value": 95.4899,
-            "range": "± 7.8073",
+            "name": "construction — legacy numeric escape (\\N past the group count) — compilePartial()",
+            "value": 37.999,
+            "range": "± 3.1068",
             "unit": "× calibration",
-            "extra": "6384.83ns  calibration: 66.86ns"
+            "extra": "6384.83ns  calibration: 66.86ns  [rescaled ×0.40 for the lib/ harness (#117); original 95.4899]"
           },
           {
-            "name": "construction — legacy numeric escape reclassification — new PartialMatchRegExp()",
-            "value": 106.589,
-            "range": "± 6.8198",
+            "name": "construction — legacy numeric escape (\\N past the group count) — new PartialMatchRegExp()",
+            "value": 46.2556,
+            "range": "± 2.9595",
             "unit": "× calibration",
-            "extra": "7126.96ns  calibration: 66.86ns"
+            "extra": "7126.96ns  calibration: 66.86ns  [rescaled ×0.43 for the lib/ harness (#117); original 106.589]"
           },
           {
-            "name": "construction — legacy named escape fallback (double walk()) — native new RegExp()",
+            "name": "construction — legacy named escape (\\k<name> naming no group) — native new RegExp()",
             "value": 1.7661,
             "range": "± 0.0190",
             "unit": "× calibration",
             "extra": "118.09ns  calibration: 66.86ns"
           },
           {
-            "name": "construction — legacy named escape fallback (double walk()) — compilePartial()",
-            "value": 179.1756,
-            "range": "± 0.4155",
+            "name": "construction — legacy named escape (\\k<name> naming no group) — compilePartial()",
+            "value": 91.8219,
+            "range": "± 0.2129",
             "unit": "× calibration",
-            "extra": "11980.38ns  calibration: 66.86ns"
+            "extra": "11980.38ns  calibration: 66.86ns  [rescaled ×0.51 for the lib/ harness (#117); original 179.1756]"
           },
           {
-            "name": "construction — legacy named escape fallback (double walk()) — new PartialMatchRegExp()",
-            "value": 189.9358,
-            "range": "± 0.6978",
+            "name": "construction — legacy named escape (\\k<name> naming no group) — new PartialMatchRegExp()",
+            "value": 99.0886,
+            "range": "± 0.3640",
             "unit": "× calibration",
-            "extra": "12699.85ns  calibration: 66.86ns"
+            "extra": "12699.85ns  calibration: 66.86ns  [rescaled ×0.52 for the lib/ harness (#117); original 189.9358]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec (baseline, never asks)",
-            "value": 70.1522,
-            "range": "± 2.3940",
+            "value": 35.8256,
+            "range": "± 1.2226",
             "unit": "× calibration",
-            "extra": "4690.65ns  calibration: 66.86ns"
+            "extra": "4690.65ns  calibration: 66.86ns  [rescaled ×0.51 for the lib/ harness (#117); original 70.1522]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (includes probe build)",
-            "value": 156.6184,
-            "range": "± 2.2434",
+            "value": 88.8424,
+            "range": "± 1.2726",
             "unit": "× calibration",
-            "extra": "10472.12ns  calibration: 66.86ns"
+            "extra": "10472.12ns  calibration: 66.86ns  [rescaled ×0.57 for the lib/ harness (#117); original 156.6184]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (complete, includes probe build)",
-            "value": 144.1152,
-            "range": "± 0.9673",
+            "value": 82.9029,
+            "range": "± 0.5564",
             "unit": "× calibration",
-            "extra": "9636.11ns  calibration: 66.86ns"
+            "extra": "9636.11ns  calibration: 66.86ns  [rescaled ×0.58 for the lib/ harness (#117); original 144.1152]"
           },
           {
             "name": "hitEnd — static path (ISO date) — hitEnd — incomplete match, warm probe",
@@ -10331,17 +10331,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — backreference path (repeated word) — construct + exec (baseline, never asks)",
-            "value": 158.6332,
-            "range": "± 10.7527",
+            "value": 68.6218,
+            "range": "± 4.6514",
             "unit": "× calibration",
-            "extra": "10606.84ns  calibration: 66.86ns"
+            "extra": "10606.84ns  calibration: 66.86ns  [rescaled ×0.43 for the lib/ harness (#117); original 158.6332]"
           },
           {
             "name": "hitEnd — backreference path (repeated word) — construct + exec + hitEnd (includes probe build)",
-            "value": 254.9019,
-            "range": "± 3.2155",
+            "value": 135.1604,
+            "range": "± 1.7050",
             "unit": "× calibration",
-            "extra": "17043.74ns  calibration: 66.86ns"
+            "extra": "17043.74ns  calibration: 66.86ns  [rescaled ×0.53 for the lib/ harness (#117); original 254.9019]"
           },
           {
             "name": "hitEnd — backreference path (repeated word) — hitEnd — same match, expansion probe cached",
@@ -10352,24 +10352,24 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — backreference path (repeated word) — exec + hitEnd — fresh match, alternating capture, probe rebuilt per match",
-            "value": 105.5782,
-            "range": "± 6.9638",
+            "value": 84.7139,
+            "range": "± 5.5876",
             "unit": "× calibration",
-            "extra": "7059.37ns  calibration: 66.86ns"
+            "extra": "7059.37ns  calibration: 66.86ns  [rescaled ×0.80 for the lib/ harness (#117); original 105.5782]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — construct + exec (baseline, never asks)",
-            "value": 165.0241,
-            "range": "± 1.1214",
+            "value": 55.7106,
+            "range": "± 0.3786",
             "unit": "× calibration",
-            "extra": "11034.16ns  calibration: 66.86ns"
+            "extra": "11034.16ns  calibration: 66.86ns  [rescaled ×0.34 for the lib/ harness (#117); original 165.0241]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — construct + exec + hitEnd (includes probe build)",
-            "value": 252.3745,
-            "range": "± 2.7743",
+            "value": 101.6535,
+            "range": "± 1.1175",
             "unit": "× calibration",
-            "extra": "16874.75ns  calibration: 66.86ns"
+            "extra": "16874.75ns  calibration: 66.86ns  [rescaled ×0.40 for the lib/ harness (#117); original 252.3745]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — hitEnd — warm instance",
@@ -10380,143 +10380,143 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "feature cost — construction, one construct per bench — literal characters (baseline)",
-            "value": 78.3659,
-            "range": "± 1.6857",
+            "value": 52.6882,
+            "range": "± 1.1334",
             "unit": "× calibration",
-            "extra": "5239.85ns  calibration: 66.86ns"
+            "extra": "5239.85ns  calibration: 66.86ns  [rescaled ×0.67 for the lib/ harness (#117); original 78.3659]"
           },
           {
             "name": "feature cost — construction, one construct per bench — character class",
-            "value": 79.8644,
-            "range": "± 1.7634",
+            "value": 51.7588,
+            "range": "± 1.1428",
             "unit": "× calibration",
-            "extra": "5340.05ns  calibration: 66.86ns"
+            "extra": "5340.05ns  calibration: 66.86ns  [rescaled ×0.65 for the lib/ harness (#117); original 79.8644]"
           },
           {
             "name": "feature cost — construction, one construct per bench — quantifier",
-            "value": 78.6325,
-            "range": "± 2.1224",
+            "value": 49.8523,
+            "range": "± 1.3456",
             "unit": "× calibration",
-            "extra": "5257.68ns  calibration: 66.86ns"
+            "extra": "5257.68ns  calibration: 66.86ns  [rescaled ×0.63 for the lib/ harness (#117); original 78.6325]"
           },
           {
             "name": "feature cost — construction, one construct per bench — disjunction",
-            "value": 103.8303,
-            "range": "± 1.9867",
+            "value": 53.2723,
+            "range": "± 1.0193",
             "unit": "× calibration",
-            "extra": "6942.50ns  calibration: 66.86ns"
+            "extra": "6942.50ns  calibration: 66.86ns  [rescaled ×0.51 for the lib/ harness (#117); original 103.8303]"
           },
           {
             "name": "feature cost — construction, one construct per bench — non-capturing group",
-            "value": 104.7469,
-            "range": "± 1.4885",
+            "value": 53.6827,
+            "range": "± 0.7629",
             "unit": "× calibration",
-            "extra": "7003.79ns  calibration: 66.86ns"
+            "extra": "7003.79ns  calibration: 66.86ns  [rescaled ×0.51 for the lib/ harness (#117); original 104.7469]"
           },
           {
             "name": "feature cost — construction, one construct per bench — capturing group",
-            "value": 104.8751,
-            "range": "± 1.5675",
+            "value": 53.9785,
+            "range": "± 0.8068",
             "unit": "× calibration",
-            "extra": "7012.36ns  calibration: 66.86ns"
+            "extra": "7012.36ns  calibration: 66.86ns  [rescaled ×0.51 for the lib/ harness (#117); original 104.8751]"
           },
           {
             "name": "feature cost — construction, one construct per bench — named group",
-            "value": 113.1175,
-            "range": "± 1.7060",
+            "value": 60.3607,
+            "range": "± 0.9103",
             "unit": "× calibration",
-            "extra": "7563.48ns  calibration: 66.86ns"
+            "extra": "7563.48ns  calibration: 66.86ns  [rescaled ×0.53 for the lib/ harness (#117); original 113.1175]"
           },
           {
             "name": "feature cost — construction, one construct per bench — lookahead",
-            "value": 105.0836,
-            "range": "± 1.6478",
+            "value": 54.3309,
+            "range": "± 0.8520",
             "unit": "× calibration",
-            "extra": "7026.30ns  calibration: 66.86ns"
+            "extra": "7026.30ns  calibration: 66.86ns  [rescaled ×0.52 for the lib/ harness (#117); original 105.0836]"
           },
           {
             "name": "feature cost — construction, one construct per bench — negative lookahead (raw)",
-            "value": 111.5403,
-            "range": "± 2.0727",
+            "value": 65.8721,
+            "range": "± 1.2241",
             "unit": "× calibration",
-            "extra": "7458.02ns  calibration: 66.86ns"
+            "extra": "7458.02ns  calibration: 66.86ns  [rescaled ×0.59 for the lib/ harness (#117); original 111.5403]"
           },
           {
             "name": "feature cost — construction, one construct per bench — lookbehind (raw)",
-            "value": 109.443,
-            "range": "± 2.0889",
+            "value": 58.6786,
+            "range": "± 1.1200",
             "unit": "× calibration",
-            "extra": "7317.79ns  calibration: 66.86ns"
+            "extra": "7317.79ns  calibration: 66.86ns  [rescaled ×0.54 for the lib/ harness (#117); original 109.443]"
           },
           {
             "name": "feature cost — construction, one construct per bench — control escapes",
-            "value": 80.2611,
-            "range": "± 1.8433",
+            "value": 52.3155,
+            "range": "± 1.2015",
             "unit": "× calibration",
-            "extra": "5366.57ns  calibration: 66.86ns"
+            "extra": "5366.57ns  calibration: 66.86ns  [rescaled ×0.65 for the lib/ harness (#117); original 80.2611]"
           },
           {
             "name": "feature cost — construction, one construct per bench — control-letter escape",
-            "value": 80.6667,
-            "range": "± 2.5712",
+            "value": 53.0107,
+            "range": "± 1.6897",
             "unit": "× calibration",
-            "extra": "5393.69ns  calibration: 66.86ns"
+            "extra": "5393.69ns  calibration: 66.86ns  [rescaled ×0.66 for the lib/ harness (#117); original 80.6667]"
           },
           {
             "name": "feature cost — construction, one construct per bench — hex and unicode escapes",
-            "value": 80.4338,
-            "range": "± 1.5796",
+            "value": 54.2071,
+            "range": "± 1.0645",
             "unit": "× calibration",
-            "extra": "5378.12ns  calibration: 66.86ns"
+            "extra": "5378.12ns  calibration: 66.86ns  [rescaled ×0.67 for the lib/ harness (#117); original 80.4338]"
           },
           {
             "name": "feature cost — construction, one construct per bench — unicode property escape (u)",
-            "value": 81.4052,
-            "range": "± 2.5389",
+            "value": 55.0306,
+            "range": "± 1.7163",
             "unit": "× calibration",
-            "extra": "5443.07ns  calibration: 66.86ns"
+            "extra": "5443.07ns  calibration: 66.86ns  [rescaled ×0.68 for the lib/ harness (#117); original 81.4052]"
           },
           {
             "name": "feature cost — construction, one construct per bench — nested character class (v)",
-            "value": 81.863,
-            "range": "± 2.3201",
+            "value": 55.1786,
+            "range": "± 1.5638",
             "unit": "× calibration",
-            "extra": "5473.68ns  calibration: 66.86ns"
+            "extra": "5473.68ns  calibration: 66.86ns  [rescaled ×0.67 for the lib/ harness (#117); original 81.863]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — capturing group, no reference (static path)",
-            "value": 99.0187,
-            "range": "± 1.5579",
+            "value": 46.4676,
+            "range": "± 0.7311",
             "unit": "× calibration",
-            "extra": "6620.78ns  calibration: 66.86ns"
+            "extra": "6620.78ns  calibration: 66.86ns  [rescaled ×0.47 for the lib/ harness (#117); original 99.0187]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — numeric backreference (dynamic path)",
-            "value": 141.1956,
-            "range": "± 12.5319",
+            "value": 61.189,
+            "range": "± 5.4309",
             "unit": "× calibration",
-            "extra": "9440.89ns  calibration: 66.86ns"
+            "extra": "9440.89ns  calibration: 66.86ns  [rescaled ×0.43 for the lib/ harness (#117); original 141.1956]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — named backreference (dynamic path)",
-            "value": 155.3672,
-            "range": "± 14.9827",
+            "value": 67.0659,
+            "range": "± 6.4674",
             "unit": "× calibration",
-            "extra": "10388.46ns  calibration: 66.86ns"
+            "extra": "10388.46ns  calibration: 66.86ns  [rescaled ×0.43 for the lib/ harness (#117); original 155.3672]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — reclassified octal escape (static)",
-            "value": 118.0608,
-            "range": "± 9.5950",
+            "value": 61.6441,
+            "range": "± 5.0099",
             "unit": "× calibration",
-            "extra": "7894.01ns  calibration: 66.86ns"
+            "extra": "7894.01ns  calibration: 66.86ns  [rescaled ×0.52 for the lib/ harness (#117); original 118.0608]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — reclassified \\k literal (static)",
-            "value": 203.1103,
-            "range": "± 0.9624",
+            "value": 118.3572,
+            "range": "± 0.5608",
             "unit": "× calibration",
-            "extra": "13580.75ns  calibration: 66.86ns"
+            "extra": "13580.75ns  calibration: 66.86ns  [rescaled ×0.58 for the lib/ harness (#117); original 203.1103]"
           },
           {
             "name": "feature cost — exec, legacy escape vs genuine backreference — legacy \\k literal — partial input",
@@ -10740,10 +10740,10 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "backref — leftmost bound check (native match at a later index) — bound doesn't reject — full pipeline still runs",
-            "value": 28.6793,
-            "range": "± 0.1212",
+            "value": 23.029,
+            "range": "± 0.0973",
             "unit": "× calibration",
-            "extra": "1791.06ns  calibration: 62.45ns"
+            "extra": "1791.06ns  calibration: 62.45ns  [rescaled ×0.80 for the lib/ harness (#117); original 28.6793]"
           },
           {
             "name": "backref — keystroke simulation (accumulated exec cost) — repeated word: 7 keystrokes",
@@ -10768,17 +10768,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — simple pattern (no groups, no backreferences) — compilePartial()",
-            "value": 54.7839,
-            "range": "± 0.3556",
+            "value": 21.1166,
+            "range": "± 0.1371",
             "unit": "× calibration",
-            "extra": "3421.32ns  calibration: 62.45ns"
+            "extra": "3421.32ns  calibration: 62.45ns  [rescaled ×0.39 for the lib/ harness (#117); original 54.7839]"
           },
           {
             "name": "construction — simple pattern (no groups, no backreferences) — new PartialMatchRegExp()",
-            "value": 66.3577,
-            "range": "± 3.1016",
+            "value": 28.1559,
+            "range": "± 1.3160",
             "unit": "× calibration",
-            "extra": "4144.12ns  calibration: 62.45ns"
+            "extra": "4144.12ns  calibration: 62.45ns  [rescaled ×0.42 for the lib/ harness (#117); original 66.3577]"
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — native new RegExp()",
@@ -10789,17 +10789,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — compilePartial()",
-            "value": 81.5999,
-            "range": "± 0.4158",
+            "value": 50.5805,
+            "range": "± 0.2577",
             "unit": "× calibration",
-            "extra": "5096.01ns  calibration: 62.45ns"
+            "extra": "5096.01ns  calibration: 62.45ns  [rescaled ×0.62 for the lib/ harness (#117); original 81.5999]"
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — new PartialMatchRegExp()",
-            "value": 93.0832,
-            "range": "± 2.5526",
+            "value": 58.1701,
+            "range": "± 1.5952",
             "unit": "× calibration",
-            "extra": "5813.16ns  calibration: 62.45ns"
+            "extra": "5813.16ns  calibration: 62.45ns  [rescaled ×0.62 for the lib/ harness (#117); original 93.0832]"
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — native new RegExp()",
@@ -10810,80 +10810,80 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — compilePartial()",
-            "value": 193.6376,
-            "range": "± 6.5728",
+            "value": 78.5157,
+            "range": "± 2.6651",
             "unit": "× calibration",
-            "extra": "12092.90ns  calibration: 62.45ns"
+            "extra": "12092.90ns  calibration: 62.45ns  [rescaled ×0.41 for the lib/ harness (#117); original 193.6376]"
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — new PartialMatchRegExp()",
-            "value": 199.4322,
-            "range": "± 2.3915",
+            "value": 84.4529,
+            "range": "± 1.0127",
             "unit": "× calibration",
-            "extra": "12454.78ns  calibration: 62.45ns"
+            "extra": "12454.78ns  calibration: 62.45ns  [rescaled ×0.42 for the lib/ harness (#117); original 199.4322]"
           },
           {
-            "name": "construction — legacy numeric escape reclassification — native new RegExp()",
+            "name": "construction — legacy numeric escape (\\N past the group count) — native new RegExp()",
             "value": 1.4682,
             "range": "± 0.0203",
             "unit": "× calibration",
             "extra": "91.69ns  calibration: 62.45ns"
           },
           {
-            "name": "construction — legacy numeric escape reclassification — compilePartial()",
-            "value": 98.7926,
-            "range": "± 8.8732",
+            "name": "construction — legacy numeric escape (\\N past the group count) — compilePartial()",
+            "value": 39.3132,
+            "range": "± 3.5310",
             "unit": "× calibration",
-            "extra": "6169.72ns  calibration: 62.45ns"
+            "extra": "6169.72ns  calibration: 62.45ns  [rescaled ×0.40 for the lib/ harness (#117); original 98.7926]"
           },
           {
-            "name": "construction — legacy numeric escape reclassification — new PartialMatchRegExp()",
-            "value": 110.1138,
-            "range": "± 8.9050",
+            "name": "construction — legacy numeric escape (\\N past the group count) — new PartialMatchRegExp()",
+            "value": 47.7853,
+            "range": "± 3.8644",
             "unit": "× calibration",
-            "extra": "6876.74ns  calibration: 62.45ns"
+            "extra": "6876.74ns  calibration: 62.45ns  [rescaled ×0.43 for the lib/ harness (#117); original 110.1138]"
           },
           {
-            "name": "construction — legacy named escape fallback (double walk()) — native new RegExp()",
+            "name": "construction — legacy named escape (\\k<name> naming no group) — native new RegExp()",
             "value": 1.5639,
             "range": "± 0.0191",
             "unit": "× calibration",
             "extra": "97.67ns  calibration: 62.45ns"
           },
           {
-            "name": "construction — legacy named escape fallback (double walk()) — compilePartial()",
-            "value": 182.4205,
-            "range": "± 0.2685",
+            "name": "construction — legacy named escape (\\k<name> naming no group) — compilePartial()",
+            "value": 93.4848,
+            "range": "± 0.1376",
             "unit": "× calibration",
-            "extra": "11392.38ns  calibration: 62.45ns"
+            "extra": "11392.38ns  calibration: 62.45ns  [rescaled ×0.51 for the lib/ harness (#117); original 182.4205]"
           },
           {
-            "name": "construction — legacy named escape fallback (double walk()) — new PartialMatchRegExp()",
-            "value": 196.2082,
-            "range": "± 1.1026",
+            "name": "construction — legacy named escape (\\k<name> naming no group) — new PartialMatchRegExp()",
+            "value": 102.3609,
+            "range": "± 0.5752",
             "unit": "× calibration",
-            "extra": "12253.44ns  calibration: 62.45ns"
+            "extra": "12253.44ns  calibration: 62.45ns  [rescaled ×0.52 for the lib/ harness (#117); original 196.2082]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec (baseline, never asks)",
-            "value": 75.4562,
-            "range": "± 2.2815",
+            "value": 38.5343,
+            "range": "± 1.1651",
             "unit": "× calibration",
-            "extra": "4712.33ns  calibration: 62.45ns"
+            "extra": "4712.33ns  calibration: 62.45ns  [rescaled ×0.51 for the lib/ harness (#117); original 75.4562]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (includes probe build)",
-            "value": 154.2233,
-            "range": "± 2.3298",
+            "value": 87.4838,
+            "range": "± 1.3216",
             "unit": "× calibration",
-            "extra": "9631.43ns  calibration: 62.45ns"
+            "extra": "9631.43ns  calibration: 62.45ns  [rescaled ×0.57 for the lib/ harness (#117); original 154.2233]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (complete, includes probe build)",
-            "value": 147.7337,
-            "range": "± 1.4360",
+            "value": 84.9844,
+            "range": "± 0.8261",
             "unit": "× calibration",
-            "extra": "9226.15ns  calibration: 62.45ns"
+            "extra": "9226.15ns  calibration: 62.45ns  [rescaled ×0.58 for the lib/ harness (#117); original 147.7337]"
           },
           {
             "name": "hitEnd — static path (ISO date) — hitEnd — incomplete match, warm probe",
@@ -10901,17 +10901,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — backreference path (repeated word) — construct + exec (baseline, never asks)",
-            "value": 160.2983,
-            "range": "± 7.6111",
+            "value": 69.3421,
+            "range": "± 3.2924",
             "unit": "× calibration",
-            "extra": "10010.82ns  calibration: 62.45ns"
+            "extra": "10010.82ns  calibration: 62.45ns  [rescaled ×0.43 for the lib/ harness (#117); original 160.2983]"
           },
           {
             "name": "hitEnd — backreference path (repeated word) — construct + exec + hitEnd (includes probe build)",
-            "value": 252.8249,
-            "range": "± 4.0111",
+            "value": 134.059,
+            "range": "± 2.1269",
             "unit": "× calibration",
-            "extra": "15789.22ns  calibration: 62.45ns"
+            "extra": "15789.22ns  calibration: 62.45ns  [rescaled ×0.53 for the lib/ harness (#117); original 252.8249]"
           },
           {
             "name": "hitEnd — backreference path (repeated word) — hitEnd — same match, expansion probe cached",
@@ -10922,24 +10922,24 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — backreference path (repeated word) — exec + hitEnd — fresh match, alternating capture, probe rebuilt per match",
-            "value": 107.653,
-            "range": "± 0.7348",
+            "value": 86.3787,
+            "range": "± 0.5896",
             "unit": "× calibration",
-            "extra": "6723.06ns  calibration: 62.45ns"
+            "extra": "6723.06ns  calibration: 62.45ns  [rescaled ×0.80 for the lib/ harness (#117); original 107.653]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — construct + exec (baseline, never asks)",
-            "value": 173.0745,
-            "range": "± 3.4132",
+            "value": 58.4284,
+            "range": "± 1.1523",
             "unit": "× calibration",
-            "extra": "10808.71ns  calibration: 62.45ns"
+            "extra": "10808.71ns  calibration: 62.45ns  [rescaled ×0.34 for the lib/ harness (#117); original 173.0745]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — construct + exec + hitEnd (includes probe build)",
-            "value": 253.4076,
-            "range": "± 3.7629",
+            "value": 102.0696,
+            "range": "± 1.5157",
             "unit": "× calibration",
-            "extra": "15825.61ns  calibration: 62.45ns"
+            "extra": "15825.61ns  calibration: 62.45ns  [rescaled ×0.40 for the lib/ harness (#117); original 253.4076]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — hitEnd — warm instance",
@@ -10950,143 +10950,143 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "feature cost — construction, one construct per bench — literal characters (baseline)",
-            "value": 85.0847,
-            "range": "± 2.5610",
+            "value": 57.2055,
+            "range": "± 1.7219",
             "unit": "× calibration",
-            "extra": "5313.64ns  calibration: 62.45ns"
+            "extra": "5313.64ns  calibration: 62.45ns  [rescaled ×0.67 for the lib/ harness (#117); original 85.0847]"
           },
           {
             "name": "feature cost — construction, one construct per bench — character class",
-            "value": 87.1405,
-            "range": "± 3.2283",
+            "value": 56.4743,
+            "range": "± 2.0922",
             "unit": "× calibration",
-            "extra": "5442.03ns  calibration: 62.45ns"
+            "extra": "5442.03ns  calibration: 62.45ns  [rescaled ×0.65 for the lib/ harness (#117); original 87.1405]"
           },
           {
             "name": "feature cost — construction, one construct per bench — quantifier",
-            "value": 84.1945,
-            "range": "± 2.7244",
+            "value": 53.3785,
+            "range": "± 1.7272",
             "unit": "× calibration",
-            "extra": "5258.05ns  calibration: 62.45ns"
+            "extra": "5258.05ns  calibration: 62.45ns  [rescaled ×0.63 for the lib/ harness (#117); original 84.1945]"
           },
           {
             "name": "feature cost — construction, one construct per bench — disjunction",
-            "value": 108.8962,
-            "range": "± 1.1868",
+            "value": 55.8715,
+            "range": "± 0.6089",
             "unit": "× calibration",
-            "extra": "6800.70ns  calibration: 62.45ns"
+            "extra": "6800.70ns  calibration: 62.45ns  [rescaled ×0.51 for the lib/ harness (#117); original 108.8962]"
           },
           {
             "name": "feature cost — construction, one construct per bench — non-capturing group",
-            "value": 110.8385,
-            "range": "± 1.4203",
+            "value": 56.8046,
+            "range": "± 0.7279",
             "unit": "× calibration",
-            "extra": "6922.00ns  calibration: 62.45ns"
+            "extra": "6922.00ns  calibration: 62.45ns  [rescaled ×0.51 for the lib/ harness (#117); original 110.8385]"
           },
           {
             "name": "feature cost — construction, one construct per bench — capturing group",
-            "value": 110.4653,
-            "range": "± 1.2885",
+            "value": 56.8557,
+            "range": "± 0.6632",
             "unit": "× calibration",
-            "extra": "6898.69ns  calibration: 62.45ns"
+            "extra": "6898.69ns  calibration: 62.45ns  [rescaled ×0.51 for the lib/ harness (#117); original 110.4653]"
           },
           {
             "name": "feature cost — construction, one construct per bench — named group",
-            "value": 117.6121,
-            "range": "± 1.3956",
+            "value": 62.7591,
+            "range": "± 0.7447",
             "unit": "× calibration",
-            "extra": "7345.02ns  calibration: 62.45ns"
+            "extra": "7345.02ns  calibration: 62.45ns  [rescaled ×0.53 for the lib/ harness (#117); original 117.6121]"
           },
           {
             "name": "feature cost — construction, one construct per bench — lookahead",
-            "value": 110.7128,
-            "range": "± 1.7260",
+            "value": 57.2413,
+            "range": "± 0.8924",
             "unit": "× calibration",
-            "extra": "6914.15ns  calibration: 62.45ns"
+            "extra": "6914.15ns  calibration: 62.45ns  [rescaled ×0.52 for the lib/ harness (#117); original 110.7128]"
           },
           {
             "name": "feature cost — construction, one construct per bench — negative lookahead (raw)",
-            "value": 118.7258,
-            "range": "± 2.2675",
+            "value": 70.1156,
+            "range": "± 1.3391",
             "unit": "× calibration",
-            "extra": "7414.57ns  calibration: 62.45ns"
+            "extra": "7414.57ns  calibration: 62.45ns  [rescaled ×0.59 for the lib/ harness (#117); original 118.7258]"
           },
           {
             "name": "feature cost — construction, one construct per bench — lookbehind (raw)",
-            "value": 114.8266,
-            "range": "± 1.6602",
+            "value": 61.5651,
+            "range": "± 0.8901",
             "unit": "× calibration",
-            "extra": "7171.06ns  calibration: 62.45ns"
+            "extra": "7171.06ns  calibration: 62.45ns  [rescaled ×0.54 for the lib/ harness (#117); original 114.8266]"
           },
           {
             "name": "feature cost — construction, one construct per bench — control escapes",
-            "value": 88.3557,
-            "range": "± 2.8112",
+            "value": 57.5917,
+            "range": "± 1.8324",
             "unit": "× calibration",
-            "extra": "5517.92ns  calibration: 62.45ns"
+            "extra": "5517.92ns  calibration: 62.45ns  [rescaled ×0.65 for the lib/ harness (#117); original 88.3557]"
           },
           {
             "name": "feature cost — construction, one construct per bench — control-letter escape",
-            "value": 87.9128,
-            "range": "± 3.0536",
+            "value": 57.7725,
+            "range": "± 2.0067",
             "unit": "× calibration",
-            "extra": "5490.26ns  calibration: 62.45ns"
+            "extra": "5490.26ns  calibration: 62.45ns  [rescaled ×0.66 for the lib/ harness (#117); original 87.9128]"
           },
           {
             "name": "feature cost — construction, one construct per bench — hex and unicode escapes",
-            "value": 88.1458,
-            "range": "± 1.9005",
+            "value": 59.4045,
+            "range": "± 1.2808",
             "unit": "× calibration",
-            "extra": "5504.81ns  calibration: 62.45ns"
+            "extra": "5504.81ns  calibration: 62.45ns  [rescaled ×0.67 for the lib/ harness (#117); original 88.1458]"
           },
           {
             "name": "feature cost — construction, one construct per bench — unicode property escape (u)",
-            "value": 88.331,
-            "range": "± 2.2289",
+            "value": 59.7125,
+            "range": "± 1.5068",
             "unit": "× calibration",
-            "extra": "5516.38ns  calibration: 62.45ns"
+            "extra": "5516.38ns  calibration: 62.45ns  [rescaled ×0.68 for the lib/ harness (#117); original 88.331]"
           },
           {
             "name": "feature cost — construction, one construct per bench — nested character class (v)",
-            "value": 89.1904,
-            "range": "± 2.1960",
+            "value": 60.1175,
+            "range": "± 1.4802",
             "unit": "× calibration",
-            "extra": "5570.05ns  calibration: 62.45ns"
+            "extra": "5570.05ns  calibration: 62.45ns  [rescaled ×0.67 for the lib/ harness (#117); original 89.1904]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — capturing group, no reference (static path)",
-            "value": 104.7788,
-            "range": "± 2.5918",
+            "value": 49.1707,
+            "range": "± 1.2163",
             "unit": "× calibration",
-            "extra": "6543.56ns  calibration: 62.45ns"
+            "extra": "6543.56ns  calibration: 62.45ns  [rescaled ×0.47 for the lib/ harness (#117); original 104.7788]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — numeric backreference (dynamic path)",
-            "value": 152.6393,
-            "range": "± 11.7368",
+            "value": 66.1483,
+            "range": "± 5.0863",
             "unit": "× calibration",
-            "extra": "9532.51ns  calibration: 62.45ns"
+            "extra": "9532.51ns  calibration: 62.45ns  [rescaled ×0.43 for the lib/ harness (#117); original 152.6393]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — named backreference (dynamic path)",
-            "value": 164.9275,
-            "range": "± 14.7787",
+            "value": 71.1927,
+            "range": "± 6.3794",
             "unit": "× calibration",
-            "extra": "10299.92ns  calibration: 62.45ns"
+            "extra": "10299.92ns  calibration: 62.45ns  [rescaled ×0.43 for the lib/ harness (#117); original 164.9275]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — reclassified octal escape (static)",
-            "value": 122.744,
-            "range": "± 7.9172",
+            "value": 64.0893,
+            "range": "± 4.1339",
             "unit": "× calibration",
-            "extra": "7665.51ns  calibration: 62.45ns"
+            "extra": "7665.51ns  calibration: 62.45ns  [rescaled ×0.52 for the lib/ harness (#117); original 122.744]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — reclassified \\k literal (static)",
-            "value": 211.1062,
-            "range": "± 0.8144",
+            "value": 123.0166,
+            "range": "± 0.4746",
             "unit": "× calibration",
-            "extra": "13183.84ns  calibration: 62.45ns"
+            "extra": "13183.84ns  calibration: 62.45ns  [rescaled ×0.58 for the lib/ harness (#117); original 211.1062]"
           },
           {
             "name": "feature cost — exec, legacy escape vs genuine backreference — legacy \\k literal — partial input",
@@ -11310,10 +11310,10 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "backref — leftmost bound check (native match at a later index) — bound doesn't reject — full pipeline still runs",
-            "value": 45.7047,
-            "range": "± 0.2447",
+            "value": 36.7001,
+            "range": "± 0.1965",
             "unit": "× calibration",
-            "extra": "3016.76ns  calibration: 66.01ns"
+            "extra": "3016.76ns  calibration: 66.01ns  [rescaled ×0.80 for the lib/ harness (#117); original 45.7047]"
           },
           {
             "name": "backref — keystroke simulation (accumulated exec cost) — repeated word: 7 keystrokes",
@@ -11338,17 +11338,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — simple pattern (no groups, no backreferences) — compilePartial()",
-            "value": 53.3132,
-            "range": "± 0.2682",
+            "value": 20.5497,
+            "range": "± 0.1034",
             "unit": "× calibration",
-            "extra": "3518.96ns  calibration: 66.01ns"
+            "extra": "3518.96ns  calibration: 66.01ns  [rescaled ×0.39 for the lib/ harness (#117); original 53.3132]"
           },
           {
             "name": "construction — simple pattern (no groups, no backreferences) — new PartialMatchRegExp()",
-            "value": 67.2259,
-            "range": "± 2.4250",
+            "value": 28.5243,
+            "range": "± 1.0289",
             "unit": "× calibration",
-            "extra": "4437.27ns  calibration: 66.01ns"
+            "extra": "4437.27ns  calibration: 66.01ns  [rescaled ×0.42 for the lib/ harness (#117); original 67.2259]"
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — native new RegExp()",
@@ -11359,17 +11359,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — compilePartial()",
-            "value": 76.3701,
-            "range": "± 0.3824",
+            "value": 47.3387,
+            "range": "± 0.2370",
             "unit": "× calibration",
-            "extra": "5040.84ns  calibration: 66.01ns"
+            "extra": "5040.84ns  calibration: 66.01ns  [rescaled ×0.62 for the lib/ harness (#117); original 76.3701]"
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — new PartialMatchRegExp()",
-            "value": 93.2322,
-            "range": "± 2.7690",
+            "value": 58.2632,
+            "range": "± 1.7304",
             "unit": "× calibration",
-            "extra": "6153.83ns  calibration: 66.01ns"
+            "extra": "6153.83ns  calibration: 66.01ns  [rescaled ×0.62 for the lib/ harness (#117); original 93.2322]"
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — native new RegExp()",
@@ -11380,80 +11380,80 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — compilePartial()",
-            "value": 190.7386,
-            "range": "± 5.3141",
+            "value": 77.3402,
+            "range": "± 2.1547",
             "unit": "× calibration",
-            "extra": "12589.78ns  calibration: 66.01ns"
+            "extra": "12589.78ns  calibration: 66.01ns  [rescaled ×0.41 for the lib/ harness (#117); original 190.7386]"
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — new PartialMatchRegExp()",
-            "value": 206.4313,
-            "range": "± 3.5555",
+            "value": 87.4167,
+            "range": "± 1.5056",
             "unit": "× calibration",
-            "extra": "13625.58ns  calibration: 66.01ns"
+            "extra": "13625.58ns  calibration: 66.01ns  [rescaled ×0.42 for the lib/ harness (#117); original 206.4313]"
           },
           {
-            "name": "construction — legacy numeric escape reclassification — native new RegExp()",
+            "name": "construction — legacy numeric escape (\\N past the group count) — native new RegExp()",
             "value": 1.5502,
             "range": "± 0.0200",
             "unit": "× calibration",
             "extra": "102.32ns  calibration: 66.01ns"
           },
           {
-            "name": "construction — legacy numeric escape reclassification — compilePartial()",
-            "value": 94.1518,
-            "range": "± 6.7169",
+            "name": "construction — legacy numeric escape (\\N past the group count) — compilePartial()",
+            "value": 37.4665,
+            "range": "± 2.6729",
             "unit": "× calibration",
-            "extra": "6214.53ns  calibration: 66.01ns"
+            "extra": "6214.53ns  calibration: 66.01ns  [rescaled ×0.40 for the lib/ harness (#117); original 94.1518]"
           },
           {
-            "name": "construction — legacy numeric escape reclassification — new PartialMatchRegExp()",
-            "value": 110.3517,
-            "range": "± 7.3727",
+            "name": "construction — legacy numeric escape (\\N past the group count) — new PartialMatchRegExp()",
+            "value": 47.8885,
+            "range": "± 3.1995",
             "unit": "× calibration",
-            "extra": "7283.81ns  calibration: 66.01ns"
+            "extra": "7283.81ns  calibration: 66.01ns  [rescaled ×0.43 for the lib/ harness (#117); original 110.3517]"
           },
           {
-            "name": "construction — legacy named escape fallback (double walk()) — native new RegExp()",
+            "name": "construction — legacy named escape (\\k<name> naming no group) — native new RegExp()",
             "value": 1.7205,
             "range": "± 0.0197",
             "unit": "× calibration",
             "extra": "113.56ns  calibration: 66.01ns"
           },
           {
-            "name": "construction — legacy named escape fallback (double walk()) — compilePartial()",
-            "value": 178.7557,
-            "range": "± 0.3709",
+            "name": "construction — legacy named escape (\\k<name> naming no group) — compilePartial()",
+            "value": 91.6067,
+            "range": "± 0.1901",
             "unit": "× calibration",
-            "extra": "11798.84ns  calibration: 66.01ns"
+            "extra": "11798.84ns  calibration: 66.01ns  [rescaled ×0.51 for the lib/ harness (#117); original 178.7557]"
           },
           {
-            "name": "construction — legacy named escape fallback (double walk()) — new PartialMatchRegExp()",
-            "value": 200.1233,
-            "range": "± 2.1415",
+            "name": "construction — legacy named escape (\\k<name> naming no group) — new PartialMatchRegExp()",
+            "value": 104.4034,
+            "range": "± 1.1172",
             "unit": "× calibration",
-            "extra": "13209.22ns  calibration: 66.01ns"
+            "extra": "13209.22ns  calibration: 66.01ns  [rescaled ×0.52 for the lib/ harness (#117); original 200.1233]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec (baseline, never asks)",
-            "value": 75.4843,
-            "range": "± 2.2939",
+            "value": 38.5487,
+            "range": "± 1.1715",
             "unit": "× calibration",
-            "extra": "4982.37ns  calibration: 66.01ns"
+            "extra": "4982.37ns  calibration: 66.01ns  [rescaled ×0.51 for the lib/ harness (#117); original 75.4843]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (includes probe build)",
-            "value": 162.3582,
-            "range": "± 1.8256",
+            "value": 92.0984,
+            "range": "± 1.0356",
             "unit": "× calibration",
-            "extra": "10716.52ns  calibration: 66.01ns"
+            "extra": "10716.52ns  calibration: 66.01ns  [rescaled ×0.57 for the lib/ harness (#117); original 162.3582]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (complete, includes probe build)",
-            "value": 150.4372,
-            "range": "± 1.4622",
+            "value": 86.5396,
+            "range": "± 0.8411",
             "unit": "× calibration",
-            "extra": "9929.67ns  calibration: 66.01ns"
+            "extra": "9929.67ns  calibration: 66.01ns  [rescaled ×0.58 for the lib/ harness (#117); original 150.4372]"
           },
           {
             "name": "hitEnd — static path (ISO date) — hitEnd — incomplete match, warm probe",
@@ -11471,17 +11471,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — backreference path (repeated word) — construct + exec (baseline, never asks)",
-            "value": 193.213,
-            "range": "± 1.3590",
+            "value": 83.5804,
+            "range": "± 0.5879",
             "unit": "× calibration",
-            "extra": "12753.10ns  calibration: 66.01ns"
+            "extra": "12753.10ns  calibration: 66.01ns  [rescaled ×0.43 for the lib/ harness (#117); original 193.213]"
           },
           {
             "name": "hitEnd — backreference path (repeated word) — construct + exec + hitEnd (includes probe build)",
-            "value": 318.9521,
-            "range": "± 3.1134",
+            "value": 169.1226,
+            "range": "± 1.6509",
             "unit": "× calibration",
-            "extra": "21052.56ns  calibration: 66.01ns"
+            "extra": "21052.56ns  calibration: 66.01ns  [rescaled ×0.53 for the lib/ harness (#117); original 318.9521]"
           },
           {
             "name": "hitEnd — backreference path (repeated word) — hitEnd — same match, expansion probe cached",
@@ -11492,24 +11492,24 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — backreference path (repeated word) — exec + hitEnd — fresh match, alternating capture, probe rebuilt per match",
-            "value": 137.8595,
-            "range": "± 0.2557",
+            "value": 110.6158,
+            "range": "± 0.2052",
             "unit": "× calibration",
-            "extra": "9099.47ns  calibration: 66.01ns"
+            "extra": "9099.47ns  calibration: 66.01ns  [rescaled ×0.80 for the lib/ harness (#117); original 137.8595]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — construct + exec (baseline, never asks)",
-            "value": 171.7538,
-            "range": "± 1.9953",
+            "value": 57.9825,
+            "range": "± 0.6736",
             "unit": "× calibration",
-            "extra": "11336.68ns  calibration: 66.01ns"
+            "extra": "11336.68ns  calibration: 66.01ns  [rescaled ×0.34 for the lib/ harness (#117); original 171.7538]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — construct + exec + hitEnd (includes probe build)",
-            "value": 260.213,
-            "range": "± 6.7157",
+            "value": 104.8108,
+            "range": "± 2.7050",
             "unit": "× calibration",
-            "extra": "17175.46ns  calibration: 66.01ns"
+            "extra": "17175.46ns  calibration: 66.01ns  [rescaled ×0.40 for the lib/ harness (#117); original 260.213]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — hitEnd — warm instance",
@@ -11520,143 +11520,143 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "feature cost — construction, one construct per bench — literal characters (baseline)",
-            "value": 83.901,
-            "range": "± 2.1113",
+            "value": 56.4097,
+            "range": "± 1.4195",
             "unit": "× calibration",
-            "extra": "5537.92ns  calibration: 66.01ns"
+            "extra": "5537.92ns  calibration: 66.01ns  [rescaled ×0.67 for the lib/ harness (#117); original 83.901]"
           },
           {
             "name": "feature cost — construction, one construct per bench — character class",
-            "value": 85.1518,
-            "range": "± 2.3672",
+            "value": 55.1855,
+            "range": "± 1.5341",
             "unit": "× calibration",
-            "extra": "5620.48ns  calibration: 66.01ns"
+            "extra": "5620.48ns  calibration: 66.01ns  [rescaled ×0.65 for the lib/ harness (#117); original 85.1518]"
           },
           {
             "name": "feature cost — construction, one construct per bench — quantifier",
-            "value": 83.7971,
-            "range": "± 2.4425",
+            "value": 53.1266,
+            "range": "± 1.5485",
             "unit": "× calibration",
-            "extra": "5531.06ns  calibration: 66.01ns"
+            "extra": "5531.06ns  calibration: 66.01ns  [rescaled ×0.63 for the lib/ harness (#117); original 83.7971]"
           },
           {
             "name": "feature cost — construction, one construct per bench — disjunction",
-            "value": 108.3514,
-            "range": "± 1.4141",
+            "value": 55.592,
+            "range": "± 0.7255",
             "unit": "× calibration",
-            "extra": "7151.78ns  calibration: 66.01ns"
+            "extra": "7151.78ns  calibration: 66.01ns  [rescaled ×0.51 for the lib/ harness (#117); original 108.3514]"
           },
           {
             "name": "feature cost — construction, one construct per bench — non-capturing group",
-            "value": 110.7965,
-            "range": "± 1.5917",
+            "value": 56.7831,
+            "range": "± 0.8157",
             "unit": "× calibration",
-            "extra": "7313.17ns  calibration: 66.01ns"
+            "extra": "7313.17ns  calibration: 66.01ns  [rescaled ×0.51 for the lib/ harness (#117); original 110.7965]"
           },
           {
             "name": "feature cost — construction, one construct per bench — capturing group",
-            "value": 110.9009,
-            "range": "± 1.6480",
+            "value": 57.0799,
+            "range": "± 0.8482",
             "unit": "× calibration",
-            "extra": "7320.06ns  calibration: 66.01ns"
+            "extra": "7320.06ns  calibration: 66.01ns  [rescaled ×0.51 for the lib/ harness (#117); original 110.9009]"
           },
           {
             "name": "feature cost — construction, one construct per bench — named group",
-            "value": 117.8193,
-            "range": "± 0.6053",
+            "value": 62.8697,
+            "range": "± 0.3230",
             "unit": "× calibration",
-            "extra": "7776.71ns  calibration: 66.01ns"
+            "extra": "7776.71ns  calibration: 66.01ns  [rescaled ×0.53 for the lib/ harness (#117); original 117.8193]"
           },
           {
             "name": "feature cost — construction, one construct per bench — lookahead",
-            "value": 109.9245,
-            "range": "± 1.6929",
+            "value": 56.8337,
+            "range": "± 0.8753",
             "unit": "× calibration",
-            "extra": "7255.61ns  calibration: 66.01ns"
+            "extra": "7255.61ns  calibration: 66.01ns  [rescaled ×0.52 for the lib/ harness (#117); original 109.9245]"
           },
           {
             "name": "feature cost — construction, one construct per bench — negative lookahead (raw)",
-            "value": 116.6761,
-            "range": "± 2.2853",
+            "value": 68.9051,
+            "range": "± 1.3496",
             "unit": "× calibration",
-            "extra": "7701.25ns  calibration: 66.01ns"
+            "extra": "7701.25ns  calibration: 66.01ns  [rescaled ×0.59 for the lib/ harness (#117); original 116.6761]"
           },
           {
             "name": "feature cost — construction, one construct per bench — lookbehind (raw)",
-            "value": 114.246,
-            "range": "± 2.2883",
+            "value": 61.2538,
+            "range": "± 1.2269",
             "unit": "× calibration",
-            "extra": "7540.85ns  calibration: 66.01ns"
+            "extra": "7540.85ns  calibration: 66.01ns  [rescaled ×0.54 for the lib/ harness (#117); original 114.246]"
           },
           {
             "name": "feature cost — construction, one construct per bench — control escapes",
-            "value": 86.471,
-            "range": "± 2.4996",
+            "value": 56.3633,
+            "range": "± 1.6293",
             "unit": "× calibration",
-            "extra": "5707.55ns  calibration: 66.01ns"
+            "extra": "5707.55ns  calibration: 66.01ns  [rescaled ×0.65 for the lib/ harness (#117); original 86.471]"
           },
           {
             "name": "feature cost — construction, one construct per bench — control-letter escape",
-            "value": 84.4411,
-            "range": "± 1.9206",
+            "value": 55.491,
+            "range": "± 1.2621",
             "unit": "× calibration",
-            "extra": "5573.57ns  calibration: 66.01ns"
+            "extra": "5573.57ns  calibration: 66.01ns  [rescaled ×0.66 for the lib/ harness (#117); original 84.4411]"
           },
           {
             "name": "feature cost — construction, one construct per bench — hex and unicode escapes",
-            "value": 86.592,
-            "range": "± 2.7171",
+            "value": 58.3573,
+            "range": "± 1.8311",
             "unit": "× calibration",
-            "extra": "5715.54ns  calibration: 66.01ns"
+            "extra": "5715.54ns  calibration: 66.01ns  [rescaled ×0.67 for the lib/ harness (#117); original 86.592]"
           },
           {
             "name": "feature cost — construction, one construct per bench — unicode property escape (u)",
-            "value": 86.0821,
-            "range": "± 1.9686",
+            "value": 58.1922,
+            "range": "± 1.3308",
             "unit": "× calibration",
-            "extra": "5681.88ns  calibration: 66.01ns"
+            "extra": "5681.88ns  calibration: 66.01ns  [rescaled ×0.68 for the lib/ harness (#117); original 86.0821]"
           },
           {
             "name": "feature cost — construction, one construct per bench — nested character class (v)",
-            "value": 87.3403,
-            "range": "± 1.8352",
+            "value": 58.8705,
+            "range": "± 1.2370",
             "unit": "× calibration",
-            "extra": "5764.93ns  calibration: 66.01ns"
+            "extra": "5764.93ns  calibration: 66.01ns  [rescaled ×0.67 for the lib/ harness (#117); original 87.3403]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — capturing group, no reference (static path)",
-            "value": 104.8136,
-            "range": "± 0.6546",
+            "value": 49.187,
+            "range": "± 0.3072",
             "unit": "× calibration",
-            "extra": "6918.26ns  calibration: 66.01ns"
+            "extra": "6918.26ns  calibration: 66.01ns  [rescaled ×0.47 for the lib/ harness (#117); original 104.8136]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — numeric backreference (dynamic path)",
-            "value": 160.1013,
-            "range": "± 11.5442",
+            "value": 69.382,
+            "range": "± 5.0028",
             "unit": "× calibration",
-            "extra": "10567.55ns  calibration: 66.01ns"
+            "extra": "10567.55ns  calibration: 66.01ns  [rescaled ×0.43 for the lib/ harness (#117); original 160.1013]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — named backreference (dynamic path)",
-            "value": 169.5639,
-            "range": "± 15.1932",
+            "value": 73.1941,
+            "range": "± 6.5583",
             "unit": "× calibration",
-            "extra": "11192.13ns  calibration: 66.01ns"
+            "extra": "11192.13ns  calibration: 66.01ns  [rescaled ×0.43 for the lib/ harness (#117); original 169.5639]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — reclassified octal escape (static)",
-            "value": 121.0281,
-            "range": "± 6.9799",
+            "value": 63.1934,
+            "range": "± 3.6445",
             "unit": "× calibration",
-            "extra": "7988.51ns  calibration: 66.01ns"
+            "extra": "7988.51ns  calibration: 66.01ns  [rescaled ×0.52 for the lib/ harness (#117); original 121.0281]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — reclassified \\k literal (static)",
-            "value": 211.1085,
-            "range": "± 1.1664",
+            "value": 123.0179,
+            "range": "± 0.6797",
             "unit": "× calibration",
-            "extra": "13934.30ns  calibration: 66.01ns"
+            "extra": "13934.30ns  calibration: 66.01ns  [rescaled ×0.58 for the lib/ harness (#117); original 211.1085]"
           },
           {
             "name": "feature cost — exec, legacy escape vs genuine backreference — legacy \\k literal — partial input",
@@ -11880,10 +11880,10 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "backref — leftmost bound check (native match at a later index) — bound doesn't reject — full pipeline still runs",
-            "value": 47.6958,
-            "range": "± 0.2670",
+            "value": 38.2989,
+            "range": "± 0.2144",
             "unit": "× calibration",
-            "extra": "2433.16ns  calibration: 51.01ns"
+            "extra": "2433.16ns  calibration: 51.01ns  [rescaled ×0.80 for the lib/ harness (#117); original 47.6958]"
           },
           {
             "name": "backref — keystroke simulation (accumulated exec cost) — repeated word: 7 keystrokes",
@@ -11908,17 +11908,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — simple pattern (no groups, no backreferences) — compilePartial()",
-            "value": 52.8603,
-            "range": "± 0.3246",
+            "value": 20.3751,
+            "range": "± 0.1251",
             "unit": "× calibration",
-            "extra": "2696.62ns  calibration: 51.01ns"
+            "extra": "2696.62ns  calibration: 51.01ns  [rescaled ×0.39 for the lib/ harness (#117); original 52.8603]"
           },
           {
             "name": "construction — simple pattern (no groups, no backreferences) — new PartialMatchRegExp()",
-            "value": 66.1833,
-            "range": "± 1.3784",
+            "value": 28.0819,
+            "range": "± 0.5849",
             "unit": "× calibration",
-            "extra": "3376.28ns  calibration: 51.01ns"
+            "extra": "3376.28ns  calibration: 51.01ns  [rescaled ×0.42 for the lib/ harness (#117); original 66.1833]"
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — native new RegExp()",
@@ -11929,17 +11929,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — compilePartial()",
-            "value": 77.2046,
-            "range": "± 0.4820",
+            "value": 47.856,
+            "range": "± 0.2988",
             "unit": "× calibration",
-            "extra": "3938.52ns  calibration: 51.01ns"
+            "extra": "3938.52ns  calibration: 51.01ns  [rescaled ×0.62 for the lib/ harness (#117); original 77.2046]"
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — new PartialMatchRegExp()",
-            "value": 92.0783,
-            "range": "± 2.2531",
+            "value": 57.5421,
+            "range": "± 1.4080",
             "unit": "× calibration",
-            "extra": "4697.29ns  calibration: 51.01ns"
+            "extra": "4697.29ns  calibration: 51.01ns  [rescaled ×0.62 for the lib/ harness (#117); original 92.0783]"
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — native new RegExp()",
@@ -11950,80 +11950,80 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — compilePartial()",
-            "value": 201.2634,
-            "range": "± 7.4291",
+            "value": 81.6078,
+            "range": "± 3.0123",
             "unit": "× calibration",
-            "extra": "10267.27ns  calibration: 51.01ns"
+            "extra": "10267.27ns  calibration: 51.01ns  [rescaled ×0.41 for the lib/ harness (#117); original 201.2634]"
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — new PartialMatchRegExp()",
-            "value": 213.8692,
-            "range": "± 6.8414",
+            "value": 90.5664,
+            "range": "± 2.8971",
             "unit": "× calibration",
-            "extra": "10910.34ns  calibration: 51.01ns"
+            "extra": "10910.34ns  calibration: 51.01ns  [rescaled ×0.42 for the lib/ harness (#117); original 213.8692]"
           },
           {
-            "name": "construction — legacy numeric escape reclassification — native new RegExp()",
+            "name": "construction — legacy numeric escape (\\N past the group count) — native new RegExp()",
             "value": 1.3567,
             "range": "± 0.0178",
             "unit": "× calibration",
             "extra": "69.21ns  calibration: 51.01ns"
           },
           {
-            "name": "construction — legacy numeric escape reclassification — compilePartial()",
-            "value": 95.1649,
-            "range": "± 9.5768",
+            "name": "construction — legacy numeric escape (\\N past the group count) — compilePartial()",
+            "value": 37.8696,
+            "range": "± 3.8110",
             "unit": "× calibration",
-            "extra": "4854.75ns  calibration: 51.01ns"
+            "extra": "4854.75ns  calibration: 51.01ns  [rescaled ×0.40 for the lib/ harness (#117); original 95.1649]"
           },
           {
-            "name": "construction — legacy numeric escape reclassification — new PartialMatchRegExp()",
-            "value": 112.1729,
-            "range": "± 8.2938",
+            "name": "construction — legacy numeric escape (\\N past the group count) — new PartialMatchRegExp()",
+            "value": 48.6788,
+            "range": "± 3.5992",
             "unit": "× calibration",
-            "extra": "5722.40ns  calibration: 51.01ns"
+            "extra": "5722.40ns  calibration: 51.01ns  [rescaled ×0.43 for the lib/ harness (#117); original 112.1729]"
           },
           {
-            "name": "construction — legacy named escape fallback (double walk()) — native new RegExp()",
+            "name": "construction — legacy named escape (\\k<name> naming no group) — native new RegExp()",
             "value": 1.5849,
             "range": "± 0.0182",
             "unit": "× calibration",
             "extra": "80.85ns  calibration: 51.01ns"
           },
           {
-            "name": "construction — legacy named escape fallback (double walk()) — compilePartial()",
-            "value": 178.8437,
-            "range": "± 2.0953",
+            "name": "construction — legacy named escape (\\k<name> naming no group) — compilePartial()",
+            "value": 91.6518,
+            "range": "± 1.0738",
             "unit": "× calibration",
-            "extra": "9123.55ns  calibration: 51.01ns"
+            "extra": "9123.55ns  calibration: 51.01ns  [rescaled ×0.51 for the lib/ harness (#117); original 178.8437]"
           },
           {
-            "name": "construction — legacy named escape fallback (double walk()) — new PartialMatchRegExp()",
-            "value": 199.6968,
-            "range": "± 1.3761",
+            "name": "construction — legacy named escape (\\k<name> naming no group) — new PartialMatchRegExp()",
+            "value": 104.1809,
+            "range": "± 0.7179",
             "unit": "× calibration",
-            "extra": "10187.35ns  calibration: 51.01ns"
+            "extra": "10187.35ns  calibration: 51.01ns  [rescaled ×0.52 for the lib/ harness (#117); original 199.6968]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec (baseline, never asks)",
-            "value": 74.3955,
-            "range": "± 2.2927",
+            "value": 37.9926,
+            "range": "± 1.1708",
             "unit": "× calibration",
-            "extra": "3795.22ns  calibration: 51.01ns"
+            "extra": "3795.22ns  calibration: 51.01ns  [rescaled ×0.51 for the lib/ harness (#117); original 74.3955]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (includes probe build)",
-            "value": 144.2353,
-            "range": "± 2.2543",
+            "value": 81.8181,
+            "range": "± 1.2788",
             "unit": "× calibration",
-            "extra": "7358.03ns  calibration: 51.01ns"
+            "extra": "7358.03ns  calibration: 51.01ns  [rescaled ×0.57 for the lib/ harness (#117); original 144.2353]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (complete, includes probe build)",
-            "value": 143.9091,
-            "range": "± 1.7013",
+            "value": 82.7843,
+            "range": "± 0.9787",
             "unit": "× calibration",
-            "extra": "7341.39ns  calibration: 51.01ns"
+            "extra": "7341.39ns  calibration: 51.01ns  [rescaled ×0.58 for the lib/ harness (#117); original 143.9091]"
           },
           {
             "name": "hitEnd — static path (ISO date) — hitEnd — incomplete match, warm probe",
@@ -12041,17 +12041,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — backreference path (repeated word) — construct + exec (baseline, never asks)",
-            "value": 189.7801,
-            "range": "± 12.4107",
+            "value": 82.0954,
+            "range": "± 5.3686",
             "unit": "× calibration",
-            "extra": "9681.46ns  calibration: 51.01ns"
+            "extra": "9681.46ns  calibration: 51.01ns  [rescaled ×0.43 for the lib/ harness (#117); original 189.7801]"
           },
           {
             "name": "hitEnd — backreference path (repeated word) — construct + exec + hitEnd (includes probe build)",
-            "value": 287.3101,
-            "range": "± 4.1263",
+            "value": 152.3446,
+            "range": "± 2.1879",
             "unit": "× calibration",
-            "extra": "14656.86ns  calibration: 51.01ns"
+            "extra": "14656.86ns  calibration: 51.01ns  [rescaled ×0.53 for the lib/ harness (#117); original 287.3101]"
           },
           {
             "name": "hitEnd — backreference path (repeated word) — hitEnd — same match, expansion probe cached",
@@ -12062,24 +12062,24 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — backreference path (repeated word) — exec + hitEnd — fresh match, alternating capture, probe rebuilt per match",
-            "value": 133.8922,
-            "range": "± 0.4338",
+            "value": 107.4325,
+            "range": "± 0.3481",
             "unit": "× calibration",
-            "extra": "6830.39ns  calibration: 51.01ns"
+            "extra": "6830.39ns  calibration: 51.01ns  [rescaled ×0.80 for the lib/ harness (#117); original 133.8922]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — construct + exec (baseline, never asks)",
-            "value": 168.5689,
-            "range": "± 8.2887",
+            "value": 56.9073,
+            "range": "± 2.7982",
             "unit": "× calibration",
-            "extra": "8599.39ns  calibration: 51.01ns"
+            "extra": "8599.39ns  calibration: 51.01ns  [rescaled ×0.34 for the lib/ harness (#117); original 168.5689]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — construct + exec + hitEnd (includes probe build)",
-            "value": 238.2475,
-            "range": "± 0.5006",
+            "value": 95.9633,
+            "range": "± 0.2016",
             "unit": "× calibration",
-            "extra": "12153.98ns  calibration: 51.01ns"
+            "extra": "12153.98ns  calibration: 51.01ns  [rescaled ×0.40 for the lib/ harness (#117); original 238.2475]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — hitEnd — warm instance",
@@ -12090,143 +12090,143 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "feature cost — construction, one construct per bench — literal characters (baseline)",
-            "value": 84.7805,
-            "range": "± 2.8026",
+            "value": 57.001,
+            "range": "± 1.8843",
             "unit": "× calibration",
-            "extra": "4325.00ns  calibration: 51.01ns"
+            "extra": "4325.00ns  calibration: 51.01ns  [rescaled ×0.67 for the lib/ harness (#117); original 84.7805]"
           },
           {
             "name": "feature cost — construction, one construct per bench — character class",
-            "value": 85.83,
-            "range": "± 2.2302",
+            "value": 55.625,
+            "range": "± 1.4454",
             "unit": "× calibration",
-            "extra": "4378.54ns  calibration: 51.01ns"
+            "extra": "4378.54ns  calibration: 51.01ns  [rescaled ×0.65 for the lib/ harness (#117); original 85.83]"
           },
           {
             "name": "feature cost — construction, one construct per bench — quantifier",
-            "value": 83.7294,
-            "range": "± 2.5883",
+            "value": 53.0837,
+            "range": "± 1.6410",
             "unit": "× calibration",
-            "extra": "4271.38ns  calibration: 51.01ns"
+            "extra": "4271.38ns  calibration: 51.01ns  [rescaled ×0.63 for the lib/ harness (#117); original 83.7294]"
           },
           {
             "name": "feature cost — construction, one construct per bench — disjunction",
-            "value": 106.9309,
-            "range": "± 2.1543",
+            "value": 54.8632,
+            "range": "± 1.1053",
             "unit": "× calibration",
-            "extra": "5454.98ns  calibration: 51.01ns"
+            "extra": "5454.98ns  calibration: 51.01ns  [rescaled ×0.51 for the lib/ harness (#117); original 106.9309]"
           },
           {
             "name": "feature cost — construction, one construct per bench — non-capturing group",
-            "value": 108.4238,
-            "range": "± 2.3544",
+            "value": 55.5671,
+            "range": "± 1.2066",
             "unit": "× calibration",
-            "extra": "5531.14ns  calibration: 51.01ns"
+            "extra": "5531.14ns  calibration: 51.01ns  [rescaled ×0.51 for the lib/ harness (#117); original 108.4238]"
           },
           {
             "name": "feature cost — construction, one construct per bench — capturing group",
-            "value": 109.637,
-            "range": "± 2.8912",
+            "value": 56.4294,
+            "range": "± 1.4881",
             "unit": "× calibration",
-            "extra": "5593.03ns  calibration: 51.01ns"
+            "extra": "5593.03ns  calibration: 51.01ns  [rescaled ×0.51 for the lib/ harness (#117); original 109.637]"
           },
           {
             "name": "feature cost — construction, one construct per bench — named group",
-            "value": 115.386,
-            "range": "± 2.8241",
+            "value": 61.5712,
+            "range": "± 1.5070",
             "unit": "× calibration",
-            "extra": "5886.31ns  calibration: 51.01ns"
+            "extra": "5886.31ns  calibration: 51.01ns  [rescaled ×0.53 for the lib/ harness (#117); original 115.386]"
           },
           {
             "name": "feature cost — construction, one construct per bench — lookahead",
-            "value": 107.8737,
-            "range": "± 2.4585",
+            "value": 55.7734,
+            "range": "± 1.2711",
             "unit": "× calibration",
-            "extra": "5503.08ns  calibration: 51.01ns"
+            "extra": "5503.08ns  calibration: 51.01ns  [rescaled ×0.52 for the lib/ harness (#117); original 107.8737]"
           },
           {
             "name": "feature cost — construction, one construct per bench — negative lookahead (raw)",
-            "value": 116.2898,
-            "range": "± 1.7613",
+            "value": 68.677,
+            "range": "± 1.0402",
             "unit": "× calibration",
-            "extra": "5932.42ns  calibration: 51.01ns"
+            "extra": "5932.42ns  calibration: 51.01ns  [rescaled ×0.59 for the lib/ harness (#117); original 116.2898]"
           },
           {
             "name": "feature cost — construction, one construct per bench — lookbehind (raw)",
-            "value": 113.0221,
-            "range": "± 1.2399",
+            "value": 60.5976,
+            "range": "± 0.6648",
             "unit": "× calibration",
-            "extra": "5765.72ns  calibration: 51.01ns"
+            "extra": "5765.72ns  calibration: 51.01ns  [rescaled ×0.54 for the lib/ harness (#117); original 113.0221]"
           },
           {
             "name": "feature cost — construction, one construct per bench — control escapes",
-            "value": 87.7281,
-            "range": "± 2.7294",
+            "value": 57.1827,
+            "range": "± 1.7791",
             "unit": "× calibration",
-            "extra": "4475.37ns  calibration: 51.01ns"
+            "extra": "4475.37ns  calibration: 51.01ns  [rescaled ×0.65 for the lib/ harness (#117); original 87.7281]"
           },
           {
             "name": "feature cost — construction, one construct per bench — control-letter escape",
-            "value": 86.5978,
-            "range": "± 2.4485",
+            "value": 56.9083,
+            "range": "± 1.6090",
             "unit": "× calibration",
-            "extra": "4417.71ns  calibration: 51.01ns"
+            "extra": "4417.71ns  calibration: 51.01ns  [rescaled ×0.66 for the lib/ harness (#117); original 86.5978]"
           },
           {
             "name": "feature cost — construction, one construct per bench — hex and unicode escapes",
-            "value": 87.31,
-            "range": "± 2.0565",
+            "value": 58.8412,
+            "range": "± 1.3859",
             "unit": "× calibration",
-            "extra": "4454.04ns  calibration: 51.01ns"
+            "extra": "4454.04ns  calibration: 51.01ns  [rescaled ×0.67 for the lib/ harness (#117); original 87.31]"
           },
           {
             "name": "feature cost — construction, one construct per bench — unicode property escape (u)",
-            "value": 88.137,
-            "range": "± 2.3558",
+            "value": 59.5813,
+            "range": "± 1.5925",
             "unit": "× calibration",
-            "extra": "4496.23ns  calibration: 51.01ns"
+            "extra": "4496.23ns  calibration: 51.01ns  [rescaled ×0.68 for the lib/ harness (#117); original 88.137]"
           },
           {
             "name": "feature cost — construction, one construct per bench — nested character class (v)",
-            "value": 88.3581,
-            "range": "± 2.4758",
+            "value": 59.5565,
+            "range": "± 1.6688",
             "unit": "× calibration",
-            "extra": "4507.51ns  calibration: 51.01ns"
+            "extra": "4507.51ns  calibration: 51.01ns  [rescaled ×0.67 for the lib/ harness (#117); original 88.3581]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — capturing group, no reference (static path)",
-            "value": 102.5468,
-            "range": "± 1.9712",
+            "value": 48.1233,
+            "range": "± 0.9250",
             "unit": "× calibration",
-            "extra": "5231.33ns  calibration: 51.01ns"
+            "extra": "5231.33ns  calibration: 51.01ns  [rescaled ×0.47 for the lib/ harness (#117); original 102.5468]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — numeric backreference (dynamic path)",
-            "value": 158.5717,
-            "range": "± 18.4727",
+            "value": 68.7192,
+            "range": "± 8.0054",
             "unit": "× calibration",
-            "extra": "8089.39ns  calibration: 51.01ns"
+            "extra": "8089.39ns  calibration: 51.01ns  [rescaled ×0.43 for the lib/ harness (#117); original 158.5717]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — named backreference (dynamic path)",
-            "value": 174.6355,
-            "range": "± 19.6655",
+            "value": 75.3833,
+            "range": "± 8.4888",
             "unit": "× calibration",
-            "extra": "8908.87ns  calibration: 51.01ns"
+            "extra": "8908.87ns  calibration: 51.01ns  [rescaled ×0.43 for the lib/ harness (#117); original 174.6355]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — reclassified octal escape (static)",
-            "value": 122.1518,
-            "range": "± 9.3023",
+            "value": 63.7801,
+            "range": "± 4.8571",
             "unit": "× calibration",
-            "extra": "6231.46ns  calibration: 51.01ns"
+            "extra": "6231.46ns  calibration: 51.01ns  [rescaled ×0.52 for the lib/ harness (#117); original 122.1518]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — reclassified \\k literal (static)",
-            "value": 212.9186,
-            "range": "± 1.2655",
+            "value": 124.0727,
+            "range": "± 0.7374",
             "unit": "× calibration",
-            "extra": "10861.85ns  calibration: 51.01ns"
+            "extra": "10861.85ns  calibration: 51.01ns  [rescaled ×0.58 for the lib/ harness (#117); original 212.9186]"
           },
           {
             "name": "feature cost — exec, legacy escape vs genuine backreference — legacy \\k literal — partial input",
@@ -12450,10 +12450,10 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "backref — leftmost bound check (native match at a later index) — bound doesn't reject — full pipeline still runs",
-            "value": 45.9971,
-            "range": "± 0.2985",
+            "value": 36.9348,
+            "range": "± 0.2397",
             "unit": "× calibration",
-            "extra": "3030.65ns  calibration: 65.89ns"
+            "extra": "3030.65ns  calibration: 65.89ns  [rescaled ×0.80 for the lib/ harness (#117); original 45.9971]"
           },
           {
             "name": "backref — keystroke simulation (accumulated exec cost) — repeated word: 7 keystrokes",
@@ -12478,17 +12478,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — simple pattern (no groups, no backreferences) — compilePartial()",
-            "value": 54.1244,
-            "range": "± 0.3542",
+            "value": 20.8624,
+            "range": "± 0.1365",
             "unit": "× calibration",
-            "extra": "3566.14ns  calibration: 65.89ns"
+            "extra": "3566.14ns  calibration: 65.89ns  [rescaled ×0.39 for the lib/ harness (#117); original 54.1244]"
           },
           {
             "name": "construction — simple pattern (no groups, no backreferences) — new PartialMatchRegExp()",
-            "value": 67.8747,
-            "range": "± 2.4782",
+            "value": 28.7996,
+            "range": "± 1.0515",
             "unit": "× calibration",
-            "extra": "4472.12ns  calibration: 65.89ns"
+            "extra": "4472.12ns  calibration: 65.89ns  [rescaled ×0.42 for the lib/ harness (#117); original 67.8747]"
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — native new RegExp()",
@@ -12499,17 +12499,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — compilePartial()",
-            "value": 76.7425,
-            "range": "± 0.3623",
+            "value": 47.5696,
+            "range": "± 0.2246",
             "unit": "× calibration",
-            "extra": "5056.40ns  calibration: 65.89ns"
+            "extra": "5056.40ns  calibration: 65.89ns  [rescaled ×0.62 for the lib/ harness (#117); original 76.7425]"
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — new PartialMatchRegExp()",
-            "value": 92.8821,
-            "range": "± 2.9625",
+            "value": 58.0444,
+            "range": "± 1.8513",
             "unit": "× calibration",
-            "extra": "6119.80ns  calibration: 65.89ns"
+            "extra": "6119.80ns  calibration: 65.89ns  [rescaled ×0.62 for the lib/ harness (#117); original 92.8821]"
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — native new RegExp()",
@@ -12520,80 +12520,80 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — compilePartial()",
-            "value": 194.9873,
-            "range": "± 5.6751",
+            "value": 79.063,
+            "range": "± 2.3011",
             "unit": "× calibration",
-            "extra": "12847.29ns  calibration: 65.89ns"
+            "extra": "12847.29ns  calibration: 65.89ns  [rescaled ×0.41 for the lib/ harness (#117); original 194.9873]"
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — new PartialMatchRegExp()",
-            "value": 209.4926,
-            "range": "± 3.9437",
+            "value": 88.7131,
+            "range": "± 1.6700",
             "unit": "× calibration",
-            "extra": "13803.01ns  calibration: 65.89ns"
+            "extra": "13803.01ns  calibration: 65.89ns  [rescaled ×0.42 for the lib/ harness (#117); original 209.4926]"
           },
           {
-            "name": "construction — legacy numeric escape reclassification — native new RegExp()",
+            "name": "construction — legacy numeric escape (\\N past the group count) — native new RegExp()",
             "value": 1.5532,
             "range": "± 0.0199",
             "unit": "× calibration",
             "extra": "102.34ns  calibration: 65.89ns"
           },
           {
-            "name": "construction — legacy numeric escape reclassification — compilePartial()",
-            "value": 94.9664,
-            "range": "± 7.6324",
+            "name": "construction — legacy numeric escape (\\N past the group count) — compilePartial()",
+            "value": 37.7906,
+            "range": "± 3.0372",
             "unit": "× calibration",
-            "extra": "6257.13ns  calibration: 65.89ns"
+            "extra": "6257.13ns  calibration: 65.89ns  [rescaled ×0.40 for the lib/ harness (#117); original 94.9664]"
           },
           {
-            "name": "construction — legacy numeric escape reclassification — new PartialMatchRegExp()",
-            "value": 112.1936,
-            "range": "± 7.1986",
+            "name": "construction — legacy numeric escape (\\N past the group count) — new PartialMatchRegExp()",
+            "value": 48.6878,
+            "range": "± 3.1239",
             "unit": "× calibration",
-            "extra": "7392.19ns  calibration: 65.89ns"
+            "extra": "7392.19ns  calibration: 65.89ns  [rescaled ×0.43 for the lib/ harness (#117); original 112.1936]"
           },
           {
-            "name": "construction — legacy named escape fallback (double walk()) — native new RegExp()",
+            "name": "construction — legacy named escape (\\k<name> naming no group) — native new RegExp()",
             "value": 1.7328,
             "range": "± 0.0191",
             "unit": "× calibration",
             "extra": "114.17ns  calibration: 65.89ns"
           },
           {
-            "name": "construction — legacy named escape fallback (double walk()) — compilePartial()",
-            "value": 181.3632,
-            "range": "± 0.5159",
+            "name": "construction — legacy named escape (\\k<name> naming no group) — compilePartial()",
+            "value": 92.943,
+            "range": "± 0.2644",
             "unit": "× calibration",
-            "extra": "11949.63ns  calibration: 65.89ns"
+            "extra": "11949.63ns  calibration: 65.89ns  [rescaled ×0.51 for the lib/ harness (#117); original 181.3632]"
           },
           {
-            "name": "construction — legacy named escape fallback (double walk()) — new PartialMatchRegExp()",
-            "value": 202.3157,
-            "range": "± 1.2339",
+            "name": "construction — legacy named escape (\\k<name> naming no group) — new PartialMatchRegExp()",
+            "value": 105.5471,
+            "range": "± 0.6437",
             "unit": "× calibration",
-            "extra": "13330.14ns  calibration: 65.89ns"
+            "extra": "13330.14ns  calibration: 65.89ns  [rescaled ×0.52 for the lib/ harness (#117); original 202.3157]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec (baseline, never asks)",
-            "value": 76.1544,
-            "range": "± 2.8377",
+            "value": 38.8909,
+            "range": "± 1.4492",
             "unit": "× calibration",
-            "extra": "5017.65ns  calibration: 65.89ns"
+            "extra": "5017.65ns  calibration: 65.89ns  [rescaled ×0.51 for the lib/ harness (#117); original 76.1544]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (includes probe build)",
-            "value": 150.9666,
-            "range": "± 1.6695",
+            "value": 85.6364,
+            "range": "± 0.9470",
             "unit": "× calibration",
-            "extra": "9946.86ns  calibration: 65.89ns"
+            "extra": "9946.86ns  calibration: 65.89ns  [rescaled ×0.57 for the lib/ harness (#117); original 150.9666]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (complete, includes probe build)",
-            "value": 142.446,
-            "range": "± 1.0837",
+            "value": 81.9426,
+            "range": "± 0.6234",
             "unit": "× calibration",
-            "extra": "9385.46ns  calibration: 65.89ns"
+            "extra": "9385.46ns  calibration: 65.89ns  [rescaled ×0.58 for the lib/ harness (#117); original 142.446]"
           },
           {
             "name": "hitEnd — static path (ISO date) — hitEnd — incomplete match, warm probe",
@@ -12611,17 +12611,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — backreference path (repeated word) — construct + exec (baseline, never asks)",
-            "value": 196.2769,
-            "range": "± 0.8939",
+            "value": 84.9058,
+            "range": "± 0.3867",
             "unit": "× calibration",
-            "extra": "12932.26ns  calibration: 65.89ns"
+            "extra": "12932.26ns  calibration: 65.89ns  [rescaled ×0.43 for the lib/ harness (#117); original 196.2769]"
           },
           {
             "name": "hitEnd — backreference path (repeated word) — construct + exec + hitEnd (includes probe build)",
-            "value": 308.4404,
-            "range": "± 5.0920",
+            "value": 163.5489,
+            "range": "± 2.7000",
             "unit": "× calibration",
-            "extra": "20322.47ns  calibration: 65.89ns"
+            "extra": "20322.47ns  calibration: 65.89ns  [rescaled ×0.53 for the lib/ harness (#117); original 308.4404]"
           },
           {
             "name": "hitEnd — backreference path (repeated word) — hitEnd — same match, expansion probe cached",
@@ -12632,24 +12632,24 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — backreference path (repeated word) — exec + hitEnd — fresh match, alternating capture, probe rebuilt per match",
-            "value": 127.6098,
-            "range": "± 0.4058",
+            "value": 102.3916,
+            "range": "± 0.3256",
             "unit": "× calibration",
-            "extra": "8407.93ns  calibration: 65.89ns"
+            "extra": "8407.93ns  calibration: 65.89ns  [rescaled ×0.80 for the lib/ harness (#117); original 127.6098]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — construct + exec (baseline, never asks)",
-            "value": 173.7586,
-            "range": "± 4.3562",
+            "value": 58.6593,
+            "range": "± 1.4706",
             "unit": "× calibration",
-            "extra": "11448.58ns  calibration: 65.89ns"
+            "extra": "11448.58ns  calibration: 65.89ns  [rescaled ×0.34 for the lib/ harness (#117); original 173.7586]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — construct + exec + hitEnd (includes probe build)",
-            "value": 245.1111,
-            "range": "± 1.9026",
+            "value": 98.7279,
+            "range": "± 0.7663",
             "unit": "× calibration",
-            "extra": "16149.84ns  calibration: 65.89ns"
+            "extra": "16149.84ns  calibration: 65.89ns  [rescaled ×0.40 for the lib/ harness (#117); original 245.1111]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — hitEnd — warm instance",
@@ -12660,143 +12660,143 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "feature cost — construction, one construct per bench — literal characters (baseline)",
-            "value": 85.2358,
-            "range": "± 2.6571",
+            "value": 57.3071,
+            "range": "± 1.7865",
             "unit": "× calibration",
-            "extra": "5616.00ns  calibration: 65.89ns"
+            "extra": "5616.00ns  calibration: 65.89ns  [rescaled ×0.67 for the lib/ harness (#117); original 85.2358]"
           },
           {
             "name": "feature cost — construction, one construct per bench — character class",
-            "value": 86.4887,
-            "range": "± 2.4804",
+            "value": 56.0519,
+            "range": "± 1.6075",
             "unit": "× calibration",
-            "extra": "5698.55ns  calibration: 65.89ns"
+            "extra": "5698.55ns  calibration: 65.89ns  [rescaled ×0.65 for the lib/ harness (#117); original 86.4887]"
           },
           {
             "name": "feature cost — construction, one construct per bench — quantifier",
-            "value": 84.6903,
-            "range": "± 2.6006",
+            "value": 53.6929,
+            "range": "± 1.6488",
             "unit": "× calibration",
-            "extra": "5580.06ns  calibration: 65.89ns"
+            "extra": "5580.06ns  calibration: 65.89ns  [rescaled ×0.63 for the lib/ harness (#117); original 84.6903]"
           },
           {
             "name": "feature cost — construction, one construct per bench — disjunction",
-            "value": 109.7594,
-            "range": "± 1.4089",
+            "value": 56.3144,
+            "range": "± 0.7229",
             "unit": "× calibration",
-            "extra": "7231.81ns  calibration: 65.89ns"
+            "extra": "7231.81ns  calibration: 65.89ns  [rescaled ×0.51 for the lib/ harness (#117); original 109.7594]"
           },
           {
             "name": "feature cost — construction, one construct per bench — non-capturing group",
-            "value": 112.2644,
-            "range": "± 0.8662",
+            "value": 57.5354,
+            "range": "± 0.4439",
             "unit": "× calibration",
-            "extra": "7396.86ns  calibration: 65.89ns"
+            "extra": "7396.86ns  calibration: 65.89ns  [rescaled ×0.51 for the lib/ harness (#117); original 112.2644]"
           },
           {
             "name": "feature cost — construction, one construct per bench — capturing group",
-            "value": 111.938,
-            "range": "± 1.2511",
+            "value": 57.6137,
+            "range": "± 0.6439",
             "unit": "× calibration",
-            "extra": "7375.35ns  calibration: 65.89ns"
+            "extra": "7375.35ns  calibration: 65.89ns  [rescaled ×0.51 for the lib/ harness (#117); original 111.938]"
           },
           {
             "name": "feature cost — construction, one construct per bench — named group",
-            "value": 119.8419,
-            "range": "± 1.6396",
+            "value": 63.949,
+            "range": "± 0.8749",
             "unit": "× calibration",
-            "extra": "7896.12ns  calibration: 65.89ns"
+            "extra": "7896.12ns  calibration: 65.89ns  [rescaled ×0.53 for the lib/ harness (#117); original 119.8419]"
           },
           {
             "name": "feature cost — construction, one construct per bench — lookahead",
-            "value": 110.8576,
-            "range": "± 1.8143",
+            "value": 57.3162,
+            "range": "± 0.9380",
             "unit": "× calibration",
-            "extra": "7304.17ns  calibration: 65.89ns"
+            "extra": "7304.17ns  calibration: 65.89ns  [rescaled ×0.52 for the lib/ harness (#117); original 110.8576]"
           },
           {
             "name": "feature cost — construction, one construct per bench — negative lookahead (raw)",
-            "value": 119.2117,
-            "range": "± 2.0726",
+            "value": 70.4025,
+            "range": "± 1.2240",
             "unit": "× calibration",
-            "extra": "7854.60ns  calibration: 65.89ns"
+            "extra": "7854.60ns  calibration: 65.89ns  [rescaled ×0.59 for the lib/ harness (#117); original 119.2117]"
           },
           {
             "name": "feature cost — construction, one construct per bench — lookbehind (raw)",
-            "value": 116.1721,
-            "range": "± 2.5084",
+            "value": 62.2865,
+            "range": "± 1.3449",
             "unit": "× calibration",
-            "extra": "7654.33ns  calibration: 65.89ns"
+            "extra": "7654.33ns  calibration: 65.89ns  [rescaled ×0.54 for the lib/ harness (#117); original 116.1721]"
           },
           {
             "name": "feature cost — construction, one construct per bench — control escapes",
-            "value": 86.5859,
-            "range": "± 2.3828",
+            "value": 56.4382,
+            "range": "± 1.5531",
             "unit": "× calibration",
-            "extra": "5704.96ns  calibration: 65.89ns"
+            "extra": "5704.96ns  calibration: 65.89ns  [rescaled ×0.65 for the lib/ harness (#117); original 86.5859]"
           },
           {
             "name": "feature cost — construction, one construct per bench — control-letter escape",
-            "value": 86.4204,
-            "range": "± 2.8981",
+            "value": 56.7918,
+            "range": "± 1.9045",
             "unit": "× calibration",
-            "extra": "5694.05ns  calibration: 65.89ns"
+            "extra": "5694.05ns  calibration: 65.89ns  [rescaled ×0.66 for the lib/ harness (#117); original 86.4204]"
           },
           {
             "name": "feature cost — construction, one construct per bench — hex and unicode escapes",
-            "value": 86.4923,
-            "range": "± 2.4023",
+            "value": 58.2901,
+            "range": "± 1.6190",
             "unit": "× calibration",
-            "extra": "5698.79ns  calibration: 65.89ns"
+            "extra": "5698.79ns  calibration: 65.89ns  [rescaled ×0.67 for the lib/ harness (#117); original 86.4923]"
           },
           {
             "name": "feature cost — construction, one construct per bench — unicode property escape (u)",
-            "value": 86.6284,
-            "range": "± 2.5052",
+            "value": 58.5615,
+            "range": "± 1.6935",
             "unit": "× calibration",
-            "extra": "5707.76ns  calibration: 65.89ns"
+            "extra": "5707.76ns  calibration: 65.89ns  [rescaled ×0.68 for the lib/ harness (#117); original 86.6284]"
           },
           {
             "name": "feature cost — construction, one construct per bench — nested character class (v)",
-            "value": 88.6897,
-            "range": "± 2.5471",
+            "value": 59.78,
+            "range": "± 1.7168",
             "unit": "× calibration",
-            "extra": "5843.57ns  calibration: 65.89ns"
+            "extra": "5843.57ns  calibration: 65.89ns  [rescaled ×0.67 for the lib/ harness (#117); original 88.6897]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — capturing group, no reference (static path)",
-            "value": 105.4668,
-            "range": "± 1.5177",
+            "value": 49.4936,
+            "range": "± 0.7122",
             "unit": "× calibration",
-            "extra": "6948.98ns  calibration: 65.89ns"
+            "extra": "6948.98ns  calibration: 65.89ns  [rescaled ×0.47 for the lib/ harness (#117); original 105.4668]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — numeric backreference (dynamic path)",
-            "value": 160.3276,
-            "range": "± 12.8600",
+            "value": 69.4801,
+            "range": "± 5.5731",
             "unit": "× calibration",
-            "extra": "10563.64ns  calibration: 65.89ns"
+            "extra": "10563.64ns  calibration: 65.89ns  [rescaled ×0.43 for the lib/ harness (#117); original 160.3276]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — named backreference (dynamic path)",
-            "value": 177.7928,
-            "range": "± 11.8602",
+            "value": 76.7462,
+            "range": "± 5.1196",
             "unit": "× calibration",
-            "extra": "11714.38ns  calibration: 65.89ns"
+            "extra": "11714.38ns  calibration: 65.89ns  [rescaled ×0.43 for the lib/ harness (#117); original 177.7928]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — reclassified octal escape (static)",
-            "value": 122.3531,
-            "range": "± 7.6756",
+            "value": 63.8852,
+            "range": "± 4.0077",
             "unit": "× calibration",
-            "extra": "8061.58ns  calibration: 65.89ns"
+            "extra": "8061.58ns  calibration: 65.89ns  [rescaled ×0.52 for the lib/ harness (#117); original 122.3531]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — reclassified \\k literal (static)",
-            "value": 215.14,
-            "range": "± 0.5719",
+            "value": 125.3672,
+            "range": "± 0.3333",
             "unit": "× calibration",
-            "extra": "14175.11ns  calibration: 65.89ns"
+            "extra": "14175.11ns  calibration: 65.89ns  [rescaled ×0.58 for the lib/ harness (#117); original 215.14]"
           },
           {
             "name": "feature cost — exec, legacy escape vs genuine backreference — legacy \\k literal — partial input",
@@ -13020,10 +13020,10 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "backref — leftmost bound check (native match at a later index) — bound doesn't reject — full pipeline still runs",
-            "value": 49.2464,
-            "range": "± 0.2919",
+            "value": 39.544,
+            "range": "± 0.2344",
             "unit": "× calibration",
-            "extra": "3082.83ns  calibration: 62.60ns"
+            "extra": "3082.83ns  calibration: 62.60ns  [rescaled ×0.80 for the lib/ harness (#117); original 49.2464]"
           },
           {
             "name": "backref — keystroke simulation (accumulated exec cost) — repeated word: 7 keystrokes",
@@ -13048,17 +13048,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — simple pattern (no groups, no backreferences) — compilePartial()",
-            "value": 55.6378,
-            "range": "± 0.3081",
+            "value": 21.4457,
+            "range": "± 0.1188",
             "unit": "× calibration",
-            "extra": "3482.93ns  calibration: 62.60ns"
+            "extra": "3482.93ns  calibration: 62.60ns  [rescaled ×0.39 for the lib/ harness (#117); original 55.6378]"
           },
           {
             "name": "construction — simple pattern (no groups, no backreferences) — new PartialMatchRegExp()",
-            "value": 70.5288,
-            "range": "± 2.5711",
+            "value": 29.9257,
+            "range": "± 1.0909",
             "unit": "× calibration",
-            "extra": "4415.11ns  calibration: 62.60ns"
+            "extra": "4415.11ns  calibration: 62.60ns  [rescaled ×0.42 for the lib/ harness (#117); original 70.5288]"
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — native new RegExp()",
@@ -13069,17 +13069,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — compilePartial()",
-            "value": 80.6535,
-            "range": "± 0.5032",
+            "value": 49.9938,
+            "range": "± 0.3119",
             "unit": "× calibration",
-            "extra": "5048.92ns  calibration: 62.60ns"
+            "extra": "5048.92ns  calibration: 62.60ns  [rescaled ×0.62 for the lib/ harness (#117); original 80.6535]"
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — new PartialMatchRegExp()",
-            "value": 96.5832,
-            "range": "± 2.6612",
+            "value": 60.3573,
+            "range": "± 1.6631",
             "unit": "× calibration",
-            "extra": "6046.12ns  calibration: 62.60ns"
+            "extra": "6046.12ns  calibration: 62.60ns  [rescaled ×0.62 for the lib/ harness (#117); original 96.5832]"
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — native new RegExp()",
@@ -13090,80 +13090,80 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — compilePartial()",
-            "value": 204.8549,
-            "range": "± 9.6519",
+            "value": 83.0641,
+            "range": "± 3.9136",
             "unit": "× calibration",
-            "extra": "12823.94ns  calibration: 62.60ns"
+            "extra": "12823.94ns  calibration: 62.60ns  [rescaled ×0.41 for the lib/ harness (#117); original 204.8549]"
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — new PartialMatchRegExp()",
-            "value": 214.7082,
-            "range": "± 4.2305",
+            "value": 90.9217,
+            "range": "± 1.7915",
             "unit": "× calibration",
-            "extra": "13440.76ns  calibration: 62.60ns"
+            "extra": "13440.76ns  calibration: 62.60ns  [rescaled ×0.42 for the lib/ harness (#117); original 214.7082]"
           },
           {
-            "name": "construction — legacy numeric escape reclassification — native new RegExp()",
+            "name": "construction — legacy numeric escape (\\N past the group count) — native new RegExp()",
             "value": 1.4359,
             "range": "± 0.0188",
             "unit": "× calibration",
             "extra": "89.89ns  calibration: 62.60ns"
           },
           {
-            "name": "construction — legacy numeric escape reclassification — compilePartial()",
-            "value": 99.095,
-            "range": "± 8.0637",
+            "name": "construction — legacy numeric escape (\\N past the group count) — compilePartial()",
+            "value": 39.4336,
+            "range": "± 3.2088",
             "unit": "× calibration",
-            "extra": "6203.36ns  calibration: 62.60ns"
+            "extra": "6203.36ns  calibration: 62.60ns  [rescaled ×0.40 for the lib/ harness (#117); original 99.095]"
           },
           {
-            "name": "construction — legacy numeric escape reclassification — new PartialMatchRegExp()",
-            "value": 116.398,
-            "range": "± 7.4401",
+            "name": "construction — legacy numeric escape (\\N past the group count) — new PartialMatchRegExp()",
+            "value": 50.5124,
+            "range": "± 3.2287",
             "unit": "× calibration",
-            "extra": "7286.53ns  calibration: 62.60ns"
+            "extra": "7286.53ns  calibration: 62.60ns  [rescaled ×0.43 for the lib/ harness (#117); original 116.398]"
           },
           {
-            "name": "construction — legacy named escape fallback (double walk()) — native new RegExp()",
+            "name": "construction — legacy named escape (\\k<name> naming no group) — native new RegExp()",
             "value": 1.58,
             "range": "± 0.0195",
             "unit": "× calibration",
             "extra": "98.91ns  calibration: 62.60ns"
           },
           {
-            "name": "construction — legacy named escape fallback (double walk()) — compilePartial()",
-            "value": 186.0747,
-            "range": "± 0.6521",
+            "name": "construction — legacy named escape (\\k<name> naming no group) — compilePartial()",
+            "value": 95.3575,
+            "range": "± 0.3342",
             "unit": "× calibration",
-            "extra": "11648.30ns  calibration: 62.60ns"
+            "extra": "11648.30ns  calibration: 62.60ns  [rescaled ×0.51 for the lib/ harness (#117); original 186.0747]"
           },
           {
-            "name": "construction — legacy named escape fallback (double walk()) — new PartialMatchRegExp()",
-            "value": 207.5621,
-            "range": "± 0.2827",
+            "name": "construction — legacy named escape (\\k<name> naming no group) — new PartialMatchRegExp()",
+            "value": 108.2842,
+            "range": "± 0.1475",
             "unit": "× calibration",
-            "extra": "12993.41ns  calibration: 62.60ns"
+            "extra": "12993.41ns  calibration: 62.60ns  [rescaled ×0.52 for the lib/ harness (#117); original 207.5621]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec (baseline, never asks)",
-            "value": 78.8562,
-            "range": "± 1.8633",
+            "value": 40.2706,
+            "range": "± 0.9516",
             "unit": "× calibration",
-            "extra": "4936.41ns  calibration: 62.60ns"
+            "extra": "4936.41ns  calibration: 62.60ns  [rescaled ×0.51 for the lib/ harness (#117); original 78.8562]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (includes probe build)",
-            "value": 146.6564,
-            "range": "± 2.1645",
+            "value": 83.1915,
+            "range": "± 1.2278",
             "unit": "× calibration",
-            "extra": "9180.71ns  calibration: 62.60ns"
+            "extra": "9180.71ns  calibration: 62.60ns  [rescaled ×0.57 for the lib/ harness (#117); original 146.6564]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (complete, includes probe build)",
-            "value": 144.8545,
-            "range": "± 1.9866",
+            "value": 83.3281,
+            "range": "± 1.1428",
             "unit": "× calibration",
-            "extra": "9067.91ns  calibration: 62.60ns"
+            "extra": "9067.91ns  calibration: 62.60ns  [rescaled ×0.58 for the lib/ harness (#117); original 144.8545]"
           },
           {
             "name": "hitEnd — static path (ISO date) — hitEnd — incomplete match, warm probe",
@@ -13181,17 +13181,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — backreference path (repeated word) — construct + exec (baseline, never asks)",
-            "value": 196.5071,
-            "range": "± 1.0208",
+            "value": 85.0054,
+            "range": "± 0.4416",
             "unit": "× calibration",
-            "extra": "12301.37ns  calibration: 62.60ns"
+            "extra": "12301.37ns  calibration: 62.60ns  [rescaled ×0.43 for the lib/ harness (#117); original 196.5071]"
           },
           {
             "name": "hitEnd — backreference path (repeated word) — construct + exec + hitEnd (includes probe build)",
-            "value": 286.8619,
-            "range": "± 4.6326",
+            "value": 152.107,
+            "range": "± 2.4564",
             "unit": "× calibration",
-            "extra": "17957.59ns  calibration: 62.60ns"
+            "extra": "17957.59ns  calibration: 62.60ns  [rescaled ×0.53 for the lib/ harness (#117); original 286.8619]"
           },
           {
             "name": "hitEnd — backreference path (repeated word) — hitEnd — same match, expansion probe cached",
@@ -13202,24 +13202,24 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — backreference path (repeated word) — exec + hitEnd — fresh match, alternating capture, probe rebuilt per match",
-            "value": 132.6461,
-            "range": "± 0.3233",
+            "value": 106.4326,
+            "range": "± 0.2594",
             "unit": "× calibration",
-            "extra": "8303.66ns  calibration: 62.60ns"
+            "extra": "8303.66ns  calibration: 62.60ns  [rescaled ×0.80 for the lib/ harness (#117); original 132.6461]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — construct + exec (baseline, never asks)",
-            "value": 175.7652,
-            "range": "± 4.9805",
+            "value": 59.3367,
+            "range": "± 1.6814",
             "unit": "× calibration",
-            "extra": "11002.92ns  calibration: 62.60ns"
+            "extra": "11002.92ns  calibration: 62.60ns  [rescaled ×0.34 for the lib/ harness (#117); original 175.7652]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — construct + exec + hitEnd (includes probe build)",
-            "value": 253.0912,
-            "range": "± 4.4010",
+            "value": 101.9422,
+            "range": "± 1.7727",
             "unit": "× calibration",
-            "extra": "15843.54ns  calibration: 62.60ns"
+            "extra": "15843.54ns  calibration: 62.60ns  [rescaled ×0.40 for the lib/ harness (#117); original 253.0912]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — hitEnd — warm instance",
@@ -13230,143 +13230,143 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "feature cost — construction, one construct per bench — literal characters (baseline)",
-            "value": 89.2703,
-            "range": "± 2.6136",
+            "value": 60.0196,
+            "range": "± 1.7572",
             "unit": "× calibration",
-            "extra": "5588.33ns  calibration: 62.60ns"
+            "extra": "5588.33ns  calibration: 62.60ns  [rescaled ×0.67 for the lib/ harness (#117); original 89.2703]"
           },
           {
             "name": "feature cost — construction, one construct per bench — character class",
-            "value": 91.0933,
-            "range": "± 2.3594",
+            "value": 59.0361,
+            "range": "± 1.5291",
             "unit": "× calibration",
-            "extra": "5702.45ns  calibration: 62.60ns"
+            "extra": "5702.45ns  calibration: 62.60ns  [rescaled ×0.65 for the lib/ harness (#117); original 91.0933]"
           },
           {
             "name": "feature cost — construction, one construct per bench — quantifier",
-            "value": 88.2615,
-            "range": "± 2.2367",
+            "value": 55.957,
+            "range": "± 1.4180",
             "unit": "× calibration",
-            "extra": "5525.18ns  calibration: 62.60ns"
+            "extra": "5525.18ns  calibration: 62.60ns  [rescaled ×0.63 for the lib/ harness (#117); original 88.2615]"
           },
           {
             "name": "feature cost — construction, one construct per bench — disjunction",
-            "value": 113.9047,
-            "range": "± 1.7046",
+            "value": 58.4412,
+            "range": "± 0.8746",
             "unit": "× calibration",
-            "extra": "7130.45ns  calibration: 62.60ns"
+            "extra": "7130.45ns  calibration: 62.60ns  [rescaled ×0.51 for the lib/ harness (#117); original 113.9047]"
           },
           {
             "name": "feature cost — construction, one construct per bench — non-capturing group",
-            "value": 115.8076,
-            "range": "± 0.9770",
+            "value": 59.3513,
+            "range": "± 0.5007",
             "unit": "× calibration",
-            "extra": "7249.57ns  calibration: 62.60ns"
+            "extra": "7249.57ns  calibration: 62.60ns  [rescaled ×0.51 for the lib/ harness (#117); original 115.8076]"
           },
           {
             "name": "feature cost — construction, one construct per bench — capturing group",
-            "value": 115.0996,
-            "range": "± 2.2131",
+            "value": 59.241,
+            "range": "± 1.1391",
             "unit": "× calibration",
-            "extra": "7205.25ns  calibration: 62.60ns"
+            "extra": "7205.25ns  calibration: 62.60ns  [rescaled ×0.51 for the lib/ harness (#117); original 115.0996]"
           },
           {
             "name": "feature cost — construction, one construct per bench — named group",
-            "value": 122.4549,
-            "range": "± 1.0046",
+            "value": 65.3433,
+            "range": "± 0.5361",
             "unit": "× calibration",
-            "extra": "7665.69ns  calibration: 62.60ns"
+            "extra": "7665.69ns  calibration: 62.60ns  [rescaled ×0.53 for the lib/ harness (#117); original 122.4549]"
           },
           {
             "name": "feature cost — construction, one construct per bench — lookahead",
-            "value": 113.853,
-            "range": "± 1.2049",
+            "value": 58.8649,
+            "range": "± 0.6230",
             "unit": "× calibration",
-            "extra": "7127.21ns  calibration: 62.60ns"
+            "extra": "7127.21ns  calibration: 62.60ns  [rescaled ×0.52 for the lib/ harness (#117); original 113.853]"
           },
           {
             "name": "feature cost — construction, one construct per bench — negative lookahead (raw)",
-            "value": 122.9026,
-            "range": "± 2.1326",
+            "value": 72.5823,
+            "range": "± 1.2594",
             "unit": "× calibration",
-            "extra": "7693.72ns  calibration: 62.60ns"
+            "extra": "7693.72ns  calibration: 62.60ns  [rescaled ×0.59 for the lib/ harness (#117); original 122.9026]"
           },
           {
             "name": "feature cost — construction, one construct per bench — lookbehind (raw)",
-            "value": 120.1702,
-            "range": "± 1.9248",
+            "value": 64.4301,
+            "range": "± 1.0320",
             "unit": "× calibration",
-            "extra": "7522.67ns  calibration: 62.60ns"
+            "extra": "7522.67ns  calibration: 62.60ns  [rescaled ×0.54 for the lib/ harness (#117); original 120.1702]"
           },
           {
             "name": "feature cost — construction, one construct per bench — control escapes",
-            "value": 92.4877,
-            "range": "± 2.1481",
+            "value": 60.285,
+            "range": "± 1.4002",
             "unit": "× calibration",
-            "extra": "5789.74ns  calibration: 62.60ns"
+            "extra": "5789.74ns  calibration: 62.60ns  [rescaled ×0.65 for the lib/ harness (#117); original 92.4877]"
           },
           {
             "name": "feature cost — construction, one construct per bench — control-letter escape",
-            "value": 91.1431,
-            "range": "± 2.4626",
+            "value": 59.8953,
+            "range": "± 1.6183",
             "unit": "× calibration",
-            "extra": "5705.57ns  calibration: 62.60ns"
+            "extra": "5705.57ns  calibration: 62.60ns  [rescaled ×0.66 for the lib/ harness (#117); original 91.1431]"
           },
           {
             "name": "feature cost — construction, one construct per bench — hex and unicode escapes",
-            "value": 92.3439,
-            "range": "± 1.6553",
+            "value": 62.2337,
+            "range": "± 1.1156",
             "unit": "× calibration",
-            "extra": "5780.74ns  calibration: 62.60ns"
+            "extra": "5780.74ns  calibration: 62.60ns  [rescaled ×0.67 for the lib/ harness (#117); original 92.3439]"
           },
           {
             "name": "feature cost — construction, one construct per bench — unicode property escape (u)",
-            "value": 93.2572,
-            "range": "± 2.4538",
+            "value": 63.0426,
+            "range": "± 1.6588",
             "unit": "× calibration",
-            "extra": "5837.91ns  calibration: 62.60ns"
+            "extra": "5837.91ns  calibration: 62.60ns  [rescaled ×0.68 for the lib/ harness (#117); original 93.2572]"
           },
           {
             "name": "feature cost — construction, one construct per bench — nested character class (v)",
-            "value": 93.5132,
-            "range": "± 2.5233",
+            "value": 63.0312,
+            "range": "± 1.7008",
             "unit": "× calibration",
-            "extra": "5853.94ns  calibration: 62.60ns"
+            "extra": "5853.94ns  calibration: 62.60ns  [rescaled ×0.67 for the lib/ harness (#117); original 93.5132]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — capturing group, no reference (static path)",
-            "value": 108.2832,
-            "range": "± 1.9303",
+            "value": 50.8153,
+            "range": "± 0.9059",
             "unit": "× calibration",
-            "extra": "6778.54ns  calibration: 62.60ns"
+            "extra": "6778.54ns  calibration: 62.60ns  [rescaled ×0.47 for the lib/ harness (#117); original 108.2832]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — numeric backreference (dynamic path)",
-            "value": 164.0863,
-            "range": "± 16.9143",
+            "value": 71.109,
+            "range": "± 7.3300",
             "unit": "× calibration",
-            "extra": "10271.82ns  calibration: 62.60ns"
+            "extra": "10271.82ns  calibration: 62.60ns  [rescaled ×0.43 for the lib/ harness (#117); original 164.0863]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — named backreference (dynamic path)",
-            "value": 177.7716,
-            "range": "± 17.5463",
+            "value": 76.737,
+            "range": "± 7.5740",
             "unit": "× calibration",
-            "extra": "11128.52ns  calibration: 62.60ns"
+            "extra": "11128.52ns  calibration: 62.60ns  [rescaled ×0.43 for the lib/ harness (#117); original 177.7716]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — reclassified octal escape (static)",
-            "value": 128.7557,
-            "range": "± 7.7952",
+            "value": 67.2283,
+            "range": "± 4.0702",
             "unit": "× calibration",
-            "extra": "8060.12ns  calibration: 62.60ns"
+            "extra": "8060.12ns  calibration: 62.60ns  [rescaled ×0.52 for the lib/ harness (#117); original 128.7557]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — reclassified \\k literal (static)",
-            "value": 222.1071,
-            "range": "± 1.2636",
+            "value": 129.4271,
+            "range": "± 0.7363",
             "unit": "× calibration",
-            "extra": "13903.93ns  calibration: 62.60ns"
+            "extra": "13903.93ns  calibration: 62.60ns  [rescaled ×0.58 for the lib/ harness (#117); original 222.1071]"
           },
           {
             "name": "feature cost — exec, legacy escape vs genuine backreference — legacy \\k literal — partial input",
@@ -13590,10 +13590,10 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "backref — leftmost bound check (native match at a later index) — bound doesn't reject — full pipeline still runs",
-            "value": 50.6204,
-            "range": "± 0.3454",
+            "value": 40.6473,
+            "range": "± 0.2773",
             "unit": "× calibration",
-            "extra": "2453.14ns  calibration: 48.46ns"
+            "extra": "2453.14ns  calibration: 48.46ns  [rescaled ×0.80 for the lib/ harness (#117); original 50.6204]"
           },
           {
             "name": "backref — keystroke simulation (accumulated exec cost) — repeated word: 7 keystrokes",
@@ -13618,17 +13618,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — simple pattern (no groups, no backreferences) — compilePartial()",
-            "value": 55.9655,
-            "range": "± 0.2959",
+            "value": 21.572,
+            "range": "± 0.1141",
             "unit": "× calibration",
-            "extra": "2712.17ns  calibration: 48.46ns"
+            "extra": "2712.17ns  calibration: 48.46ns  [rescaled ×0.39 for the lib/ harness (#117); original 55.9655]"
           },
           {
             "name": "construction — simple pattern (no groups, no backreferences) — new PartialMatchRegExp()",
-            "value": 70.1974,
-            "range": "± 2.2011",
+            "value": 29.7851,
+            "range": "± 0.9339",
             "unit": "× calibration",
-            "extra": "3401.87ns  calibration: 48.46ns"
+            "extra": "3401.87ns  calibration: 48.46ns  [rescaled ×0.42 for the lib/ harness (#117); original 70.1974]"
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — native new RegExp()",
@@ -13639,17 +13639,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — compilePartial()",
-            "value": 81.0689,
-            "range": "± 0.4476",
+            "value": 50.2513,
+            "range": "± 0.2774",
             "unit": "× calibration",
-            "extra": "3928.72ns  calibration: 48.46ns"
+            "extra": "3928.72ns  calibration: 48.46ns  [rescaled ×0.62 for the lib/ harness (#117); original 81.0689]"
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — new PartialMatchRegExp()",
-            "value": 97.7684,
-            "range": "± 2.8255",
+            "value": 61.098,
+            "range": "± 1.7657",
             "unit": "× calibration",
-            "extra": "4738.00ns  calibration: 48.46ns"
+            "extra": "4738.00ns  calibration: 48.46ns  [rescaled ×0.62 for the lib/ harness (#117); original 97.7684]"
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — native new RegExp()",
@@ -13660,80 +13660,80 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — compilePartial()",
-            "value": 204.1271,
-            "range": "± 6.8046",
+            "value": 82.769,
+            "range": "± 2.7591",
             "unit": "× calibration",
-            "extra": "9892.30ns  calibration: 48.46ns"
+            "extra": "9892.30ns  calibration: 48.46ns  [rescaled ×0.41 for the lib/ harness (#117); original 204.1271]"
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — new PartialMatchRegExp()",
-            "value": 219.4579,
-            "range": "± 5.1096",
+            "value": 92.9331,
+            "range": "± 2.1637",
             "unit": "× calibration",
-            "extra": "10635.25ns  calibration: 48.46ns"
+            "extra": "10635.25ns  calibration: 48.46ns  [rescaled ×0.42 for the lib/ harness (#117); original 219.4579]"
           },
           {
-            "name": "construction — legacy numeric escape reclassification — native new RegExp()",
+            "name": "construction — legacy numeric escape (\\N past the group count) — native new RegExp()",
             "value": 1.4354,
             "range": "± 0.0196",
             "unit": "× calibration",
             "extra": "69.56ns  calibration: 48.46ns"
           },
           {
-            "name": "construction — legacy numeric escape reclassification — compilePartial()",
-            "value": 98.912,
-            "range": "± 8.6848",
+            "name": "construction — legacy numeric escape (\\N past the group count) — compilePartial()",
+            "value": 39.3607,
+            "range": "± 3.4560",
             "unit": "× calibration",
-            "extra": "4793.42ns  calibration: 48.46ns"
+            "extra": "4793.42ns  calibration: 48.46ns  [rescaled ×0.40 for the lib/ harness (#117); original 98.912]"
           },
           {
-            "name": "construction — legacy numeric escape reclassification — new PartialMatchRegExp()",
-            "value": 115.2361,
-            "range": "± 7.2080",
+            "name": "construction — legacy numeric escape (\\N past the group count) — new PartialMatchRegExp()",
+            "value": 50.0081,
+            "range": "± 3.1280",
             "unit": "× calibration",
-            "extra": "5584.51ns  calibration: 48.46ns"
+            "extra": "5584.51ns  calibration: 48.46ns  [rescaled ×0.43 for the lib/ harness (#117); original 115.2361]"
           },
           {
-            "name": "construction — legacy named escape fallback (double walk()) — native new RegExp()",
+            "name": "construction — legacy named escape (\\k<name> naming no group) — native new RegExp()",
             "value": 1.5897,
             "range": "± 0.0186",
             "unit": "× calibration",
             "extra": "77.04ns  calibration: 48.46ns"
           },
           {
-            "name": "construction — legacy named escape fallback (double walk()) — compilePartial()",
-            "value": 183.6125,
-            "range": "± 0.4003",
+            "name": "construction — legacy named escape (\\k<name> naming no group) — compilePartial()",
+            "value": 94.0957,
+            "range": "± 0.2051",
             "unit": "× calibration",
-            "extra": "8898.13ns  calibration: 48.46ns"
+            "extra": "8898.13ns  calibration: 48.46ns  [rescaled ×0.51 for the lib/ harness (#117); original 183.6125]"
           },
           {
-            "name": "construction — legacy named escape fallback (double walk()) — new PartialMatchRegExp()",
-            "value": 208.5077,
-            "range": "± 1.6456",
+            "name": "construction — legacy named escape (\\k<name> naming no group) — new PartialMatchRegExp()",
+            "value": 108.7775,
+            "range": "± 0.8585",
             "unit": "× calibration",
-            "extra": "10104.59ns  calibration: 48.46ns"
+            "extra": "10104.59ns  calibration: 48.46ns  [rescaled ×0.52 for the lib/ harness (#117); original 208.5077]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec (baseline, never asks)",
-            "value": 78.3658,
-            "range": "± 2.1324",
+            "value": 40.0202,
+            "range": "± 1.0890",
             "unit": "× calibration",
-            "extra": "3797.72ns  calibration: 48.46ns"
+            "extra": "3797.72ns  calibration: 48.46ns  [rescaled ×0.51 for the lib/ harness (#117); original 78.3658]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (includes probe build)",
-            "value": 150.9725,
-            "range": "± 2.3730",
+            "value": 85.6398,
+            "range": "± 1.3461",
             "unit": "× calibration",
-            "extra": "7316.35ns  calibration: 48.46ns"
+            "extra": "7316.35ns  calibration: 48.46ns  [rescaled ×0.57 for the lib/ harness (#117); original 150.9725]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (complete, includes probe build)",
-            "value": 144.7969,
-            "range": "± 1.8801",
+            "value": 83.295,
+            "range": "± 1.0815",
             "unit": "× calibration",
-            "extra": "7017.07ns  calibration: 48.46ns"
+            "extra": "7017.07ns  calibration: 48.46ns  [rescaled ×0.58 for the lib/ harness (#117); original 144.7969]"
           },
           {
             "name": "hitEnd — static path (ISO date) — hitEnd — incomplete match, warm probe",
@@ -13751,17 +13751,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — backreference path (repeated word) — construct + exec (baseline, never asks)",
-            "value": 197.1645,
-            "range": "± 5.9394",
+            "value": 85.2897,
+            "range": "± 2.5693",
             "unit": "× calibration",
-            "extra": "9554.88ns  calibration: 48.46ns"
+            "extra": "9554.88ns  calibration: 48.46ns  [rescaled ×0.43 for the lib/ harness (#117); original 197.1645]"
           },
           {
             "name": "hitEnd — backreference path (repeated word) — construct + exec + hitEnd (includes probe build)",
-            "value": 289.5321,
-            "range": "± 4.2405",
+            "value": 153.5228,
+            "range": "± 2.2485",
             "unit": "× calibration",
-            "extra": "14031.15ns  calibration: 48.46ns"
+            "extra": "14031.15ns  calibration: 48.46ns  [rescaled ×0.53 for the lib/ harness (#117); original 289.5321]"
           },
           {
             "name": "hitEnd — backreference path (repeated word) — hitEnd — same match, expansion probe cached",
@@ -13772,24 +13772,24 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — backreference path (repeated word) — exec + hitEnd — fresh match, alternating capture, probe rebuilt per match",
-            "value": 131.6605,
-            "range": "± 0.8718",
+            "value": 105.6418,
+            "range": "± 0.6995",
             "unit": "× calibration",
-            "extra": "6380.46ns  calibration: 48.46ns"
+            "extra": "6380.46ns  calibration: 48.46ns  [rescaled ×0.80 for the lib/ harness (#117); original 131.6605]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — construct + exec (baseline, never asks)",
-            "value": 177.7261,
-            "range": "± 7.3266",
+            "value": 59.9987,
+            "range": "± 2.4734",
             "unit": "× calibration",
-            "extra": "8612.87ns  calibration: 48.46ns"
+            "extra": "8612.87ns  calibration: 48.46ns  [rescaled ×0.34 for the lib/ harness (#117); original 177.7261]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — construct + exec + hitEnd (includes probe build)",
-            "value": 247.1881,
-            "range": "± 0.8165",
+            "value": 99.5645,
+            "range": "± 0.3289",
             "unit": "× calibration",
-            "extra": "11979.10ns  calibration: 48.46ns"
+            "extra": "11979.10ns  calibration: 48.46ns  [rescaled ×0.40 for the lib/ harness (#117); original 247.1881]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — hitEnd — warm instance",
@@ -13800,143 +13800,143 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "feature cost — construction, one construct per bench — literal characters (baseline)",
-            "value": 88.7575,
-            "range": "± 2.3055",
+            "value": 59.6749,
+            "range": "± 1.5501",
             "unit": "× calibration",
-            "extra": "4301.32ns  calibration: 48.46ns"
+            "extra": "4301.32ns  calibration: 48.46ns  [rescaled ×0.67 for the lib/ harness (#117); original 88.7575]"
           },
           {
             "name": "feature cost — construction, one construct per bench — character class",
-            "value": 90.2705,
-            "range": "± 2.0784",
+            "value": 58.5029,
+            "range": "± 1.3470",
             "unit": "× calibration",
-            "extra": "4374.64ns  calibration: 48.46ns"
+            "extra": "4374.64ns  calibration: 48.46ns  [rescaled ×0.65 for the lib/ harness (#117); original 90.2705]"
           },
           {
             "name": "feature cost — construction, one construct per bench — quantifier",
-            "value": 88.1793,
-            "range": "± 2.7009",
+            "value": 55.9048,
+            "range": "± 1.7123",
             "unit": "× calibration",
-            "extra": "4273.30ns  calibration: 48.46ns"
+            "extra": "4273.30ns  calibration: 48.46ns  [rescaled ×0.63 for the lib/ harness (#117); original 88.1793]"
           },
           {
             "name": "feature cost — construction, one construct per bench — disjunction",
-            "value": 112.516,
-            "range": "± 1.8334",
+            "value": 57.7287,
+            "range": "± 0.9407",
             "unit": "× calibration",
-            "extra": "5452.69ns  calibration: 48.46ns"
+            "extra": "5452.69ns  calibration: 48.46ns  [rescaled ×0.51 for the lib/ harness (#117); original 112.516]"
           },
           {
             "name": "feature cost — construction, one construct per bench — non-capturing group",
-            "value": 114.1821,
-            "range": "± 2.4273",
+            "value": 58.5182,
+            "range": "± 1.2440",
             "unit": "× calibration",
-            "extra": "5533.43ns  calibration: 48.46ns"
+            "extra": "5533.43ns  calibration: 48.46ns  [rescaled ×0.51 for the lib/ harness (#117); original 114.1821]"
           },
           {
             "name": "feature cost — construction, one construct per bench — capturing group",
-            "value": 114.8519,
-            "range": "± 2.1312",
+            "value": 59.1135,
+            "range": "± 1.0969",
             "unit": "× calibration",
-            "extra": "5565.89ns  calibration: 48.46ns"
+            "extra": "5565.89ns  calibration: 48.46ns  [rescaled ×0.51 for the lib/ harness (#117); original 114.8519]"
           },
           {
             "name": "feature cost — construction, one construct per bench — named group",
-            "value": 120.8564,
-            "range": "± 2.0881",
+            "value": 64.4903,
+            "range": "± 1.1142",
             "unit": "× calibration",
-            "extra": "5856.88ns  calibration: 48.46ns"
+            "extra": "5856.88ns  calibration: 48.46ns  [rescaled ×0.53 for the lib/ harness (#117); original 120.8564]"
           },
           {
             "name": "feature cost — construction, one construct per bench — lookahead",
-            "value": 114.0993,
-            "range": "± 3.0234",
+            "value": 58.9922,
+            "range": "± 1.5632",
             "unit": "× calibration",
-            "extra": "5529.42ns  calibration: 48.46ns"
+            "extra": "5529.42ns  calibration: 48.46ns  [rescaled ×0.52 for the lib/ harness (#117); original 114.0993]"
           },
           {
             "name": "feature cost — construction, one construct per bench — negative lookahead (raw)",
-            "value": 123.4983,
-            "range": "± 2.8456",
+            "value": 72.9341,
+            "range": "± 1.6805",
             "unit": "× calibration",
-            "extra": "5984.91ns  calibration: 48.46ns"
+            "extra": "5984.91ns  calibration: 48.46ns  [rescaled ×0.59 for the lib/ harness (#117); original 123.4983]"
           },
           {
             "name": "feature cost — construction, one construct per bench — lookbehind (raw)",
-            "value": 119.732,
-            "range": "± 1.5418",
+            "value": 64.1952,
+            "range": "± 0.8266",
             "unit": "× calibration",
-            "extra": "5802.39ns  calibration: 48.46ns"
+            "extra": "5802.39ns  calibration: 48.46ns  [rescaled ×0.54 for the lib/ harness (#117); original 119.732]"
           },
           {
             "name": "feature cost — construction, one construct per bench — control escapes",
-            "value": 92.374,
-            "range": "± 2.2216",
+            "value": 60.2109,
+            "range": "± 1.4481",
             "unit": "× calibration",
-            "extra": "4476.58ns  calibration: 48.46ns"
+            "extra": "4476.58ns  calibration: 48.46ns  [rescaled ×0.65 for the lib/ harness (#117); original 92.374]"
           },
           {
             "name": "feature cost — construction, one construct per bench — control-letter escape",
-            "value": 90.8456,
-            "range": "± 2.3268",
+            "value": 59.6998,
+            "range": "± 1.5291",
             "unit": "× calibration",
-            "extra": "4402.51ns  calibration: 48.46ns"
+            "extra": "4402.51ns  calibration: 48.46ns  [rescaled ×0.66 for the lib/ harness (#117); original 90.8456]"
           },
           {
             "name": "feature cost — construction, one construct per bench — hex and unicode escapes",
-            "value": 92.4823,
-            "range": "± 2.1594",
+            "value": 62.327,
+            "range": "± 1.4553",
             "unit": "× calibration",
-            "extra": "4481.83ns  calibration: 48.46ns"
+            "extra": "4481.83ns  calibration: 48.46ns  [rescaled ×0.67 for the lib/ harness (#117); original 92.4823]"
           },
           {
             "name": "feature cost — construction, one construct per bench — unicode property escape (u)",
-            "value": 92.4371,
-            "range": "± 1.8701",
+            "value": 62.4883,
+            "range": "± 1.2642",
             "unit": "× calibration",
-            "extra": "4479.64ns  calibration: 48.46ns"
+            "extra": "4479.64ns  calibration: 48.46ns  [rescaled ×0.68 for the lib/ harness (#117); original 92.4371]"
           },
           {
             "name": "feature cost — construction, one construct per bench — nested character class (v)",
-            "value": 97.3615,
-            "range": "± 2.9518",
+            "value": 65.6251,
+            "range": "± 1.9896",
             "unit": "× calibration",
-            "extra": "4718.28ns  calibration: 48.46ns"
+            "extra": "4718.28ns  calibration: 48.46ns  [rescaled ×0.67 for the lib/ harness (#117); original 97.3615]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — capturing group, no reference (static path)",
-            "value": 108.1366,
-            "range": "± 2.3984",
+            "value": 50.7465,
+            "range": "± 1.1255",
             "unit": "× calibration",
-            "extra": "5240.46ns  calibration: 48.46ns"
+            "extra": "5240.46ns  calibration: 48.46ns  [rescaled ×0.47 for the lib/ harness (#117); original 108.1366]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — numeric backreference (dynamic path)",
-            "value": 166.1528,
-            "range": "± 17.2285",
+            "value": 72.0045,
+            "range": "± 7.4662",
             "unit": "× calibration",
-            "extra": "8052.01ns  calibration: 48.46ns"
+            "extra": "8052.01ns  calibration: 48.46ns  [rescaled ×0.43 for the lib/ harness (#117); original 166.1528]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — named backreference (dynamic path)",
-            "value": 182.3125,
-            "range": "± 19.1014",
+            "value": 78.6972,
+            "range": "± 8.2453",
             "unit": "× calibration",
-            "extra": "8835.13ns  calibration: 48.46ns"
+            "extra": "8835.13ns  calibration: 48.46ns  [rescaled ×0.43 for the lib/ harness (#117); original 182.3125]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — reclassified octal escape (static)",
-            "value": 129.2714,
-            "range": "± 9.6922",
+            "value": 67.4976,
+            "range": "± 5.0607",
             "unit": "× calibration",
-            "extra": "6264.68ns  calibration: 48.46ns"
+            "extra": "6264.68ns  calibration: 48.46ns  [rescaled ×0.52 for the lib/ harness (#117); original 129.2714]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — reclassified \\k literal (static)",
-            "value": 222.7275,
-            "range": "± 1.0557",
+            "value": 129.7886,
+            "range": "± 0.6152",
             "unit": "× calibration",
-            "extra": "10793.70ns  calibration: 48.46ns"
+            "extra": "10793.70ns  calibration: 48.46ns  [rescaled ×0.58 for the lib/ harness (#117); original 222.7275]"
           },
           {
             "name": "feature cost — exec, legacy escape vs genuine backreference — legacy \\k literal — partial input",
@@ -14160,10 +14160,10 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "backref — leftmost bound check (native match at a later index) — bound doesn't reject — full pipeline still runs",
-            "value": 59.4887,
-            "range": "± 0.9922",
+            "value": 47.7684,
+            "range": "± 0.7967",
             "unit": "× calibration",
-            "extra": "1946.83ns  calibration: 32.73ns"
+            "extra": "1946.83ns  calibration: 32.73ns  [rescaled ×0.80 for the lib/ harness (#117); original 59.4887]"
           },
           {
             "name": "backref — keystroke simulation (accumulated exec cost) — repeated word: 7 keystrokes",
@@ -14188,17 +14188,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — simple pattern (no groups, no backreferences) — compilePartial()",
-            "value": 64.566,
-            "range": "± 0.7242",
+            "value": 24.8871,
+            "range": "± 0.2791",
             "unit": "× calibration",
-            "extra": "2112.99ns  calibration: 32.73ns"
+            "extra": "2112.99ns  calibration: 32.73ns  [rescaled ×0.39 for the lib/ harness (#117); original 64.566]"
           },
           {
             "name": "construction — simple pattern (no groups, no backreferences) — new PartialMatchRegExp()",
-            "value": 72.8792,
-            "range": "± 1.2012",
+            "value": 30.923,
+            "range": "± 0.5097",
             "unit": "× calibration",
-            "extra": "2385.05ns  calibration: 32.73ns"
+            "extra": "2385.05ns  calibration: 32.73ns  [rescaled ×0.42 for the lib/ harness (#117); original 72.8792]"
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — native new RegExp()",
@@ -14209,17 +14209,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — compilePartial()",
-            "value": 88.905,
-            "range": "± 0.7373",
+            "value": 55.1086,
+            "range": "± 0.4570",
             "unit": "× calibration",
-            "extra": "2909.51ns  calibration: 32.73ns"
+            "extra": "2909.51ns  calibration: 32.73ns  [rescaled ×0.62 for the lib/ harness (#117); original 88.905]"
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — new PartialMatchRegExp()",
-            "value": 98.2978,
-            "range": "± 2.8519",
+            "value": 61.4288,
+            "range": "± 1.7822",
             "unit": "× calibration",
-            "extra": "3216.90ns  calibration: 32.73ns"
+            "extra": "3216.90ns  calibration: 32.73ns  [rescaled ×0.62 for the lib/ harness (#117); original 98.2978]"
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — native new RegExp()",
@@ -14230,17 +14230,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — compilePartial()",
-            "value": 231.2524,
-            "range": "± 2.6034",
+            "value": 93.7677,
+            "range": "± 1.0556",
             "unit": "× calibration",
-            "extra": "7567.98ns  calibration: 32.73ns"
+            "extra": "7567.98ns  calibration: 32.73ns  [rescaled ×0.41 for the lib/ harness (#117); original 231.2524]"
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — new PartialMatchRegExp()",
-            "value": 251.3905,
-            "range": "± 2.3076",
+            "value": 106.4555,
+            "range": "± 0.9772",
             "unit": "× calibration",
-            "extra": "8227.02ns  calibration: 32.73ns"
+            "extra": "8227.02ns  calibration: 32.73ns  [rescaled ×0.42 for the lib/ harness (#117); original 251.3905]"
           },
           {
             "name": "construction — legacy numeric escape (\\N past the group count) — native new RegExp()",
@@ -14251,17 +14251,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — legacy numeric escape (\\N past the group count) — compilePartial()",
-            "value": 109.7694,
-            "range": "± 1.6085",
+            "value": 43.6813,
+            "range": "± 0.6401",
             "unit": "× calibration",
-            "extra": "3592.32ns  calibration: 32.73ns"
+            "extra": "3592.32ns  calibration: 32.73ns  [rescaled ×0.40 for the lib/ harness (#117); original 109.7694]"
           },
           {
             "name": "construction — legacy numeric escape (\\N past the group count) — new PartialMatchRegExp()",
-            "value": 123.8695,
-            "range": "± 3.2784",
+            "value": 53.7547,
+            "range": "± 1.4227",
             "unit": "× calibration",
-            "extra": "4053.76ns  calibration: 32.73ns"
+            "extra": "4053.76ns  calibration: 32.73ns  [rescaled ×0.43 for the lib/ harness (#117); original 123.8695]"
           },
           {
             "name": "construction — legacy named escape (\\k<name> naming no group) — native new RegExp()",
@@ -14272,38 +14272,38 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — legacy named escape (\\k<name> naming no group) — compilePartial()",
-            "value": 117.7862,
-            "range": "± 0.9561",
+            "value": 60.3617,
+            "range": "± 0.4900",
             "unit": "× calibration",
-            "extra": "3854.68ns  calibration: 32.73ns"
+            "extra": "3854.68ns  calibration: 32.73ns  [rescaled ×0.51 for the lib/ harness (#117); original 117.7862]"
           },
           {
             "name": "construction — legacy named escape (\\k<name> naming no group) — new PartialMatchRegExp()",
-            "value": 128.5318,
-            "range": "± 5.9020",
+            "value": 67.0544,
+            "range": "± 3.0790",
             "unit": "× calibration",
-            "extra": "4206.34ns  calibration: 32.73ns"
+            "extra": "4206.34ns  calibration: 32.73ns  [rescaled ×0.52 for the lib/ harness (#117); original 128.5318]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec (baseline, never asks)",
-            "value": 77.5593,
-            "range": "± 0.8730",
+            "value": 39.6083,
+            "range": "± 0.4458",
             "unit": "× calibration",
-            "extra": "2538.21ns  calibration: 32.73ns"
+            "extra": "2538.21ns  calibration: 32.73ns  [rescaled ×0.51 for the lib/ harness (#117); original 77.5593]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (includes probe build)",
-            "value": 211.8027,
-            "range": "± 5.3474",
+            "value": 120.146,
+            "range": "± 3.0333",
             "unit": "× calibration",
-            "extra": "6931.47ns  calibration: 32.73ns"
+            "extra": "6931.47ns  calibration: 32.73ns  [rescaled ×0.57 for the lib/ harness (#117); original 211.8027]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (complete, includes probe build)",
-            "value": 204.691,
-            "range": "± 4.5520",
+            "value": 117.7493,
+            "range": "± 2.6186",
             "unit": "× calibration",
-            "extra": "6698.73ns  calibration: 32.73ns"
+            "extra": "6698.73ns  calibration: 32.73ns  [rescaled ×0.58 for the lib/ harness (#117); original 204.691]"
           },
           {
             "name": "hitEnd — static path (ISO date) — hitEnd — incomplete match, warm probe",
@@ -14321,24 +14321,24 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — word boundary at truncation end — construct + exec (baseline, never asks)",
-            "value": 69.5776,
-            "range": "± 1.5972",
+            "value": 25.1437,
+            "range": "± 0.5772",
             "unit": "× calibration",
-            "extra": "2277.00ns  calibration: 32.73ns"
+            "extra": "2277.00ns  calibration: 32.73ns  [rescaled ×0.36 for the lib/ harness (#117); original 69.5776]"
           },
           {
             "name": "hitEnd — word boundary at truncation end — construct + exec + hitEnd (includes probe build)",
-            "value": 152.2744,
-            "range": "± 3.4819",
+            "value": 69.5215,
+            "range": "± 1.5897",
             "unit": "× calibration",
-            "extra": "4983.34ns  calibration: 32.73ns"
+            "extra": "4983.34ns  calibration: 32.73ns  [rescaled ×0.46 for the lib/ harness (#117); original 152.2744]"
           },
           {
             "name": "hitEnd — word boundary at truncation end — construct + exec + hitEnd (complete, includes probe build)",
-            "value": 155.3322,
-            "range": "± 3.2460",
+            "value": 72.0552,
+            "range": "± 1.5057",
             "unit": "× calibration",
-            "extra": "5083.41ns  calibration: 32.73ns"
+            "extra": "5083.41ns  calibration: 32.73ns  [rescaled ×0.46 for the lib/ harness (#117); original 155.3322]"
           },
           {
             "name": "hitEnd — word boundary at truncation end — hitEnd — incomplete match, warm probe",
@@ -14356,24 +14356,24 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — open-ended quantifiers and end anchor (email-like pattern) — construct + exec (baseline, never asks)",
-            "value": 81.8788,
-            "range": "± 1.1480",
+            "value": 40.7463,
+            "range": "± 0.5713",
             "unit": "× calibration",
-            "extra": "2679.57ns  calibration: 32.73ns"
+            "extra": "2679.57ns  calibration: 32.73ns  [rescaled ×0.50 for the lib/ harness (#117); original 81.8788]"
           },
           {
             "name": "hitEnd — open-ended quantifiers and end anchor (email-like pattern) — construct + exec + hitEnd (includes probe build)",
-            "value": 214.3778,
-            "range": "± 2.4341",
+            "value": 129.6678,
+            "range": "± 1.4723",
             "unit": "× calibration",
-            "extra": "7015.74ns  calibration: 32.73ns"
+            "extra": "7015.74ns  calibration: 32.73ns  [rescaled ×0.60 for the lib/ harness (#117); original 214.3778]"
           },
           {
             "name": "hitEnd — open-ended quantifiers and end anchor (email-like pattern) — construct + exec + hitEnd (complete, includes probe build)",
-            "value": 220.325,
-            "range": "± 2.1940",
+            "value": 134.8192,
+            "range": "± 1.3425",
             "unit": "× calibration",
-            "extra": "7210.37ns  calibration: 32.73ns"
+            "extra": "7210.37ns  calibration: 32.73ns  [rescaled ×0.61 for the lib/ harness (#117); original 220.325]"
           },
           {
             "name": "hitEnd — open-ended quantifiers and end anchor (email-like pattern) — hitEnd — incomplete match, warm probe",
@@ -14391,24 +14391,24 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — optional atom at truncation end — construct + exec (baseline, never asks)",
-            "value": 69.2858,
-            "range": "± 0.7077",
+            "value": 26.4807,
+            "range": "± 0.2705",
             "unit": "× calibration",
-            "extra": "2267.45ns  calibration: 32.73ns"
+            "extra": "2267.45ns  calibration: 32.73ns  [rescaled ×0.38 for the lib/ harness (#117); original 69.2858]"
           },
           {
             "name": "hitEnd — optional atom at truncation end — construct + exec + hitEnd (includes probe build)",
-            "value": 152.0815,
-            "range": "± 3.3411",
+            "value": 75.8771,
+            "range": "± 1.6670",
             "unit": "× calibration",
-            "extra": "4977.03ns  calibration: 32.73ns"
+            "extra": "4977.03ns  calibration: 32.73ns  [rescaled ×0.50 for the lib/ harness (#117); original 152.0815]"
           },
           {
             "name": "hitEnd — optional atom at truncation end — construct + exec + hitEnd (taken, includes probe build)",
-            "value": 155.37,
-            "range": "± 4.3904",
+            "value": 77.3365,
+            "range": "± 2.1854",
             "unit": "× calibration",
-            "extra": "5084.65ns  calibration: 32.73ns"
+            "extra": "5084.65ns  calibration: 32.73ns  [rescaled ×0.50 for the lib/ harness (#117); original 155.37]"
           },
           {
             "name": "hitEnd — optional atom at truncation end — hitEnd — untaken atom, warm probe",
@@ -14426,17 +14426,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — backreference path (repeated word) — construct + exec (baseline, never asks)",
-            "value": 241.2319,
-            "range": "± 6.4215",
+            "value": 104.3525,
+            "range": "± 2.7778",
             "unit": "× calibration",
-            "extra": "7894.57ns  calibration: 32.73ns"
+            "extra": "7894.57ns  calibration: 32.73ns  [rescaled ×0.43 for the lib/ harness (#117); original 241.2319]"
           },
           {
             "name": "hitEnd — backreference path (repeated word) — construct + exec + hitEnd (includes probe build)",
-            "value": 373.9218,
-            "range": "± 6.7377",
+            "value": 198.27,
+            "range": "± 3.5726",
             "unit": "× calibration",
-            "extra": "12236.99ns  calibration: 32.73ns"
+            "extra": "12236.99ns  calibration: 32.73ns  [rescaled ×0.53 for the lib/ harness (#117); original 373.9218]"
           },
           {
             "name": "hitEnd — backreference path (repeated word) — hitEnd — same match, expansion probe cached",
@@ -14454,24 +14454,24 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — backreference path (repeated word) — exec + hitEnd — fresh match, alternating capture, probe rebuilt per match",
-            "value": 201.7252,
-            "range": "± 5.9482",
+            "value": 161.8603,
+            "range": "± 4.7727",
             "unit": "× calibration",
-            "extra": "6601.67ns  calibration: 32.73ns"
+            "extra": "6601.67ns  calibration: 32.73ns  [rescaled ×0.80 for the lib/ harness (#117); original 201.7252]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — construct + exec (baseline, never asks)",
-            "value": 184.8774,
-            "range": "± 7.2120",
+            "value": 62.4129,
+            "range": "± 2.4347",
             "unit": "× calibration",
-            "extra": "6050.31ns  calibration: 32.73ns"
+            "extra": "6050.31ns  calibration: 32.73ns  [rescaled ×0.34 for the lib/ harness (#117); original 184.8774]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — construct + exec + hitEnd (includes probe build)",
-            "value": 299.2477,
-            "range": "± 4.6605",
+            "value": 120.5335,
+            "range": "± 1.8772",
             "unit": "× calibration",
-            "extra": "9793.20ns  calibration: 32.73ns"
+            "extra": "9793.20ns  calibration: 32.73ns  [rescaled ×0.40 for the lib/ harness (#117); original 299.2477]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — hitEnd — warm instance",
@@ -14482,143 +14482,143 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "feature cost — construction, one construct per bench — literal characters (baseline)",
-            "value": 93.3186,
-            "range": "± 3.3218",
+            "value": 62.7415,
+            "range": "± 2.2334",
             "unit": "× calibration",
-            "extra": "3053.95ns  calibration: 32.73ns"
+            "extra": "3053.95ns  calibration: 32.73ns  [rescaled ×0.67 for the lib/ harness (#117); original 93.3186]"
           },
           {
             "name": "feature cost — construction, one construct per bench — character class",
-            "value": 95.7298,
-            "range": "± 2.2606",
+            "value": 62.0409,
+            "range": "± 1.4651",
             "unit": "× calibration",
-            "extra": "3132.86ns  calibration: 32.73ns"
+            "extra": "3132.86ns  calibration: 32.73ns  [rescaled ×0.65 for the lib/ harness (#117); original 95.7298]"
           },
           {
             "name": "feature cost — construction, one construct per bench — quantifier",
-            "value": 90.8227,
-            "range": "± 1.6910",
+            "value": 57.5807,
+            "range": "± 1.0721",
             "unit": "× calibration",
-            "extra": "2972.27ns  calibration: 32.73ns"
+            "extra": "2972.27ns  calibration: 32.73ns  [rescaled ×0.63 for the lib/ harness (#117); original 90.8227]"
           },
           {
             "name": "feature cost — construction, one construct per bench — disjunction",
-            "value": 114.5818,
-            "range": "± 2.9942",
+            "value": 58.7886,
+            "range": "± 1.5362",
             "unit": "× calibration",
-            "extra": "3749.81ns  calibration: 32.73ns"
+            "extra": "3749.81ns  calibration: 32.73ns  [rescaled ×0.51 for the lib/ harness (#117); original 114.5818]"
           },
           {
             "name": "feature cost — construction, one construct per bench — non-capturing group",
-            "value": 115.9415,
-            "range": "± 1.9578",
+            "value": 59.4199,
+            "range": "± 1.0034",
             "unit": "× calibration",
-            "extra": "3794.31ns  calibration: 32.73ns"
+            "extra": "3794.31ns  calibration: 32.73ns  [rescaled ×0.51 for the lib/ harness (#117); original 115.9415]"
           },
           {
             "name": "feature cost — construction, one construct per bench — capturing group",
-            "value": 115.6021,
-            "range": "± 2.8143",
+            "value": 59.4996,
+            "range": "± 1.4485",
             "unit": "× calibration",
-            "extra": "3783.20ns  calibration: 32.73ns"
+            "extra": "3783.20ns  calibration: 32.73ns  [rescaled ×0.51 for the lib/ harness (#117); original 115.6021]"
           },
           {
             "name": "feature cost — construction, one construct per bench — named group",
-            "value": 122.7053,
-            "range": "± 2.1359",
+            "value": 65.4769,
+            "range": "± 1.1397",
             "unit": "× calibration",
-            "extra": "4015.66ns  calibration: 32.73ns"
+            "extra": "4015.66ns  calibration: 32.73ns  [rescaled ×0.53 for the lib/ harness (#117); original 122.7053]"
           },
           {
             "name": "feature cost — construction, one construct per bench — lookahead",
-            "value": 117.6399,
-            "range": "± 2.1292",
+            "value": 60.8228,
+            "range": "± 1.1009",
             "unit": "× calibration",
-            "extra": "3849.89ns  calibration: 32.73ns"
+            "extra": "3849.89ns  calibration: 32.73ns  [rescaled ×0.52 for the lib/ harness (#117); original 117.6399]"
           },
           {
             "name": "feature cost — construction, one construct per bench — negative lookahead (raw)",
-            "value": 129.9114,
-            "range": "± 5.8140",
+            "value": 76.7214,
+            "range": "± 3.4336",
             "unit": "× calibration",
-            "extra": "4251.49ns  calibration: 32.73ns"
+            "extra": "4251.49ns  calibration: 32.73ns  [rescaled ×0.59 for the lib/ harness (#117); original 129.9114]"
           },
           {
             "name": "feature cost — construction, one construct per bench — lookbehind (raw)",
-            "value": 125.5091,
-            "range": "± 4.3210",
+            "value": 67.2926,
+            "range": "± 2.3167",
             "unit": "× calibration",
-            "extra": "4107.42ns  calibration: 32.73ns"
+            "extra": "4107.42ns  calibration: 32.73ns  [rescaled ×0.54 for the lib/ harness (#117); original 125.5091]"
           },
           {
             "name": "feature cost — construction, one construct per bench — control escapes",
-            "value": 94.1488,
-            "range": "± 1.7634",
+            "value": 61.3678,
+            "range": "± 1.1494",
             "unit": "× calibration",
-            "extra": "3081.12ns  calibration: 32.73ns"
+            "extra": "3081.12ns  calibration: 32.73ns  [rescaled ×0.65 for the lib/ harness (#117); original 94.1488]"
           },
           {
             "name": "feature cost — construction, one construct per bench — control-letter escape",
-            "value": 94.0128,
-            "range": "± 2.7941",
+            "value": 61.7812,
+            "range": "± 1.8362",
             "unit": "× calibration",
-            "extra": "3076.67ns  calibration: 32.73ns"
+            "extra": "3076.67ns  calibration: 32.73ns  [rescaled ×0.66 for the lib/ harness (#117); original 94.0128]"
           },
           {
             "name": "feature cost — construction, one construct per bench — hex and unicode escapes",
-            "value": 97.2188,
-            "range": "± 1.3949",
+            "value": 65.5191,
+            "range": "± 0.9401",
             "unit": "× calibration",
-            "extra": "3181.59ns  calibration: 32.73ns"
+            "extra": "3181.59ns  calibration: 32.73ns  [rescaled ×0.67 for the lib/ harness (#117); original 97.2188]"
           },
           {
             "name": "feature cost — construction, one construct per bench — unicode property escape (u)",
-            "value": 95.9394,
-            "range": "± 2.6551",
+            "value": 64.8558,
+            "range": "± 1.7949",
             "unit": "× calibration",
-            "extra": "3139.72ns  calibration: 32.73ns"
+            "extra": "3139.72ns  calibration: 32.73ns  [rescaled ×0.68 for the lib/ harness (#117); original 95.9394]"
           },
           {
             "name": "feature cost — construction, one construct per bench — nested character class (v)",
-            "value": 98.3247,
-            "range": "± 1.5709",
+            "value": 66.2744,
+            "range": "± 1.0588",
             "unit": "× calibration",
-            "extra": "3217.78ns  calibration: 32.73ns"
+            "extra": "3217.78ns  calibration: 32.73ns  [rescaled ×0.67 for the lib/ harness (#117); original 98.3247]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — capturing group, no reference (static path)",
-            "value": 114.0806,
-            "range": "± 1.7353",
+            "value": 53.5359,
+            "range": "± 0.8143",
             "unit": "× calibration",
-            "extra": "3733.41ns  calibration: 32.73ns"
+            "extra": "3733.41ns  calibration: 32.73ns  [rescaled ×0.47 for the lib/ harness (#117); original 114.0806]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — numeric backreference (dynamic path)",
-            "value": 184.7005,
-            "range": "± 23.5937",
+            "value": 80.0424,
+            "range": "± 10.2246",
             "unit": "× calibration",
-            "extra": "6044.52ns  calibration: 32.73ns"
+            "extra": "6044.52ns  calibration: 32.73ns  [rescaled ×0.43 for the lib/ harness (#117); original 184.7005]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — named backreference (dynamic path)",
-            "value": 211.2298,
-            "range": "± 18.8425",
+            "value": 91.1796,
+            "range": "± 8.1336",
             "unit": "× calibration",
-            "extra": "6912.72ns  calibration: 32.73ns"
+            "extra": "6912.72ns  calibration: 32.73ns  [rescaled ×0.43 for the lib/ harness (#117); original 211.2298]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — reclassified octal escape (static)",
-            "value": 126.7788,
-            "range": "± 4.4704",
+            "value": 66.1961,
+            "range": "± 2.3342",
             "unit": "× calibration",
-            "extra": "4148.97ns  calibration: 32.73ns"
+            "extra": "4148.97ns  calibration: 32.73ns  [rescaled ×0.52 for the lib/ harness (#117); original 126.7788]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — reclassified \\k literal (static)",
-            "value": 135.4119,
-            "range": "± 2.8152",
+            "value": 78.9077,
+            "range": "± 1.6405",
             "unit": "× calibration",
-            "extra": "4431.50ns  calibration: 32.73ns"
+            "extra": "4431.50ns  calibration: 32.73ns  [rescaled ×0.58 for the lib/ harness (#117); original 135.4119]"
           },
           {
             "name": "feature cost — exec, legacy escape vs genuine backreference — legacy \\k literal — partial input",
@@ -14842,10 +14842,10 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "backref — leftmost bound check (native match at a later index) — bound doesn't reject — full pipeline still runs",
-            "value": 48.1772,
-            "range": "± 0.8137",
+            "value": 38.6854,
+            "range": "± 0.6534",
             "unit": "× calibration",
-            "extra": "2372.77ns  (min: 2323.05ns  p75: 2410.08ns  p99: 2535.09ns)  calibration: 49.25ns"
+            "extra": "2372.77ns  (min: 2323.05ns  p75: 2410.08ns  p99: 2535.09ns)  calibration: 49.25ns  [rescaled ×0.80 for the lib/ harness (#117); original 48.1772]"
           },
           {
             "name": "backref — keystroke simulation (accumulated exec cost) — repeated word: 7 keystrokes",
@@ -14870,17 +14870,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — simple pattern (no groups, no backreferences) — compilePartial()",
-            "value": 55.4304,
-            "range": "± 0.5462",
+            "value": 21.3658,
+            "range": "± 0.2105",
             "unit": "× calibration",
-            "extra": "2730.00ns  (min: 2674.93ns  p75: 2735.36ns  p99: 3041.20ns)  calibration: 49.25ns"
+            "extra": "2730.00ns  (min: 2674.93ns  p75: 2735.36ns  p99: 3041.20ns)  calibration: 49.25ns  [rescaled ×0.39 for the lib/ harness (#117); original 55.4304]"
           },
           {
             "name": "construction — simple pattern (no groups, no backreferences) — new PartialMatchRegExp()",
-            "value": 65.0815,
-            "range": "± 2.1987",
+            "value": 27.6144,
+            "range": "± 0.9329",
             "unit": "× calibration",
-            "extra": "3205.33ns  (min: 3076.26ns  p75: 3301.53ns  p99: 3652.14ns)  calibration: 49.25ns"
+            "extra": "3205.33ns  (min: 3076.26ns  p75: 3301.53ns  p99: 3652.14ns)  calibration: 49.25ns  [rescaled ×0.42 for the lib/ harness (#117); original 65.0815]"
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — native new RegExp()",
@@ -14891,17 +14891,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — compilePartial()",
-            "value": 80.2934,
-            "range": "± 0.4903",
+            "value": 49.7706,
+            "range": "± 0.3039",
             "unit": "× calibration",
-            "extra": "3954.53ns  (min: 3906.05ns  p75: 3965.32ns  p99: 4111.19ns)  calibration: 49.25ns"
+            "extra": "3954.53ns  (min: 3906.05ns  p75: 3965.32ns  p99: 4111.19ns)  calibration: 49.25ns  [rescaled ×0.62 for the lib/ harness (#117); original 80.2934]"
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — new PartialMatchRegExp()",
-            "value": 91.2013,
-            "range": "± 2.2671",
+            "value": 56.994,
+            "range": "± 1.4168",
             "unit": "× calibration",
-            "extra": "4491.75ns  (min: 4346.49ns  p75: 4598.76ns  p99: 4730.90ns)  calibration: 49.25ns"
+            "extra": "4491.75ns  (min: 4346.49ns  p75: 4598.76ns  p99: 4730.90ns)  calibration: 49.25ns  [rescaled ×0.62 for the lib/ harness (#117); original 91.2013]"
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — native new RegExp()",
@@ -14912,17 +14912,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — compilePartial()",
-            "value": 199.6332,
-            "range": "± 5.437",
+            "value": 80.9468,
+            "range": "± 2.2046",
             "unit": "× calibration",
-            "extra": "9832.12ns  (min: 8181.60ns  p75: 10157.93ns  p99: 11090.87ns)  calibration: 49.25ns"
+            "extra": "9832.12ns  (min: 8181.60ns  p75: 10157.93ns  p99: 11090.87ns)  calibration: 49.25ns  [rescaled ×0.41 for the lib/ harness (#117); original 199.6332]"
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — new PartialMatchRegExp()",
-            "value": 214.1739,
-            "range": "± 4.0226",
+            "value": 90.6955,
+            "range": "± 1.7034",
             "unit": "× calibration",
-            "extra": "10548.27ns  (min: 8942.07ns  p75: 10985.95ns  p99: 11066.18ns)  calibration: 49.25ns"
+            "extra": "10548.27ns  (min: 8942.07ns  p75: 10985.95ns  p99: 11066.18ns)  calibration: 49.25ns  [rescaled ×0.42 for the lib/ harness (#117); original 214.1739]"
           },
           {
             "name": "construction — legacy numeric escape (\\N past the group count) — native new RegExp()",
@@ -14933,17 +14933,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — legacy numeric escape (\\N past the group count) — compilePartial()",
-            "value": 94.3834,
-            "range": "± 0.4786",
+            "value": 37.5586,
+            "range": "± 0.1905",
             "unit": "× calibration",
-            "extra": "4648.47ns  (min: 4593.37ns  p75: 4649.21ns  p99: 4928.32ns)  calibration: 49.25ns"
+            "extra": "4648.47ns  (min: 4593.37ns  p75: 4649.21ns  p99: 4928.32ns)  calibration: 49.25ns  [rescaled ×0.40 for the lib/ harness (#117); original 94.3834]"
           },
           {
             "name": "construction — legacy numeric escape (\\N past the group count) — new PartialMatchRegExp()",
-            "value": 108.7426,
-            "range": "± 3.1489",
+            "value": 47.1902,
+            "range": "± 1.3665",
             "unit": "× calibration",
-            "extra": "5355.68ns  (min: 5138.43ns  p75: 5471.36ns  p99: 5617.89ns)  calibration: 49.25ns"
+            "extra": "5355.68ns  (min: 5138.43ns  p75: 5471.36ns  p99: 5617.89ns)  calibration: 49.25ns  [rescaled ×0.43 for the lib/ harness (#117); original 108.7426]"
           },
           {
             "name": "construction — legacy named escape (\\k<name> naming no group) — native new RegExp()",
@@ -14954,38 +14954,38 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — legacy named escape (\\k<name> naming no group) — compilePartial()",
-            "value": 104.4613,
-            "range": "± 0.464",
+            "value": 53.5331,
+            "range": "± 0.2378",
             "unit": "× calibration",
-            "extra": "5144.82ns  (min: 5101.03ns  p75: 5156.98ns  p99: 5264.90ns)  calibration: 49.25ns"
+            "extra": "5144.82ns  (min: 5101.03ns  p75: 5156.98ns  p99: 5264.90ns)  calibration: 49.25ns  [rescaled ×0.51 for the lib/ harness (#117); original 104.4613]"
           },
           {
             "name": "construction — legacy named escape (\\k<name> naming no group) — new PartialMatchRegExp()",
-            "value": 118.9628,
-            "range": "± 2.4441",
+            "value": 62.0623,
+            "range": "± 1.2751",
             "unit": "× calibration",
-            "extra": "5859.03ns  (min: 5688.35ns  p75: 5964.91ns  p99: 6037.32ns)  calibration: 49.25ns"
+            "extra": "5859.03ns  (min: 5688.35ns  p75: 5964.91ns  p99: 6037.32ns)  calibration: 49.25ns  [rescaled ×0.52 for the lib/ harness (#117); original 118.9628]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec (baseline, never asks)",
-            "value": 74.2853,
-            "range": "± 2.1472",
+            "value": 37.9363,
+            "range": "± 1.0965",
             "unit": "× calibration",
-            "extra": "3658.62ns  (min: 3535.28ns  p75: 3757.14ns  p99: 4134.67ns)  calibration: 49.25ns"
+            "extra": "3658.62ns  (min: 3535.28ns  p75: 3757.14ns  p99: 4134.67ns)  calibration: 49.25ns  [rescaled ×0.51 for the lib/ harness (#117); original 74.2853]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (includes probe build)",
-            "value": 180.7215,
-            "range": "± 3.3603",
+            "value": 102.515,
+            "range": "± 1.9061",
             "unit": "× calibration",
-            "extra": "8900.71ns  (min: 7862.00ns  p75: 8443.00ns  p99: 17246.00ns)  calibration: 49.25ns"
+            "extra": "8900.71ns  (min: 7862.00ns  p75: 8443.00ns  p99: 17246.00ns)  calibration: 49.25ns  [rescaled ×0.57 for the lib/ harness (#117); original 180.7215]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (complete, includes probe build)",
-            "value": 166.723,
-            "range": "± 1.5032",
+            "value": 95.9081,
+            "range": "± 0.8647",
             "unit": "× calibration",
-            "extra": "8211.27ns  (min: 8066.97ns  p75: 8271.27ns  p99: 8319.36ns)  calibration: 49.25ns"
+            "extra": "8211.27ns  (min: 8066.97ns  p75: 8271.27ns  p99: 8319.36ns)  calibration: 49.25ns  [rescaled ×0.58 for the lib/ harness (#117); original 166.723]"
           },
           {
             "name": "hitEnd — static path (ISO date) — hitEnd — incomplete match, warm probe",
@@ -15003,24 +15003,24 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — word boundary at truncation end — construct + exec (baseline, never asks)",
-            "value": 61.9045,
-            "range": "± 2.2305",
+            "value": 22.3708,
+            "range": "± 0.8061",
             "unit": "× calibration",
-            "extra": "3048.86ns  (min: 2916.86ns  p75: 3146.41ns  p99: 3420.63ns)  calibration: 49.25ns"
+            "extra": "3048.86ns  (min: 2916.86ns  p75: 3146.41ns  p99: 3420.63ns)  calibration: 49.25ns  [rescaled ×0.36 for the lib/ harness (#117); original 61.9045]"
           },
           {
             "name": "hitEnd — word boundary at truncation end — construct + exec + hitEnd (includes probe build)",
-            "value": 136.1307,
-            "range": "± 1.9833",
+            "value": 62.1511,
+            "range": "± 0.9055",
             "unit": "× calibration",
-            "extra": "6704.57ns  (min: 6441.65ns  p75: 6796.87ns  p99: 7031.87ns)  calibration: 49.25ns"
+            "extra": "6704.57ns  (min: 6441.65ns  p75: 6796.87ns  p99: 7031.87ns)  calibration: 49.25ns  [rescaled ×0.46 for the lib/ harness (#117); original 136.1307]"
           },
           {
             "name": "hitEnd — word boundary at truncation end — construct + exec + hitEnd (complete, includes probe build)",
-            "value": 138.5682,
-            "range": "± 2.255",
+            "value": 64.2787,
+            "range": "± 1.0460",
             "unit": "× calibration",
-            "extra": "6824.61ns  (min: 6535.90ns  p75: 6925.38ns  p99: 7159.81ns)  calibration: 49.25ns"
+            "extra": "6824.61ns  (min: 6535.90ns  p75: 6925.38ns  p99: 7159.81ns)  calibration: 49.25ns  [rescaled ×0.46 for the lib/ harness (#117); original 138.5682]"
           },
           {
             "name": "hitEnd — word boundary at truncation end — hitEnd — incomplete match, warm probe",
@@ -15038,24 +15038,24 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — open-ended quantifiers and end anchor (email-like pattern) — construct + exec (baseline, never asks)",
-            "value": 76.0344,
-            "range": "± 2.6531",
+            "value": 37.8379,
+            "range": "± 1.3203",
             "unit": "× calibration",
-            "extra": "3744.77ns  (min: 3589.69ns  p75: 3866.76ns  p99: 4051.87ns)  calibration: 49.25ns"
+            "extra": "3744.77ns  (min: 3589.69ns  p75: 3866.76ns  p99: 4051.87ns)  calibration: 49.25ns  [rescaled ×0.50 for the lib/ harness (#117); original 76.0344]"
           },
           {
             "name": "hitEnd — open-ended quantifiers and end anchor (email-like pattern) — construct + exec + hitEnd (includes probe build)",
-            "value": 206.5868,
-            "range": "± 3.5634",
+            "value": 124.9553,
+            "range": "± 2.1553",
             "unit": "× calibration",
-            "extra": "10174.59ns  (min: 8883.00ns  p75: 9464.00ns  p99: 24616.00ns)  calibration: 49.25ns"
+            "extra": "10174.59ns  (min: 8883.00ns  p75: 9464.00ns  p99: 24616.00ns)  calibration: 49.25ns  [rescaled ×0.60 for the lib/ harness (#117); original 206.5868]"
           },
           {
             "name": "hitEnd — open-ended quantifiers and end anchor (email-like pattern) — construct + exec + hitEnd (complete, includes probe build)",
-            "value": 191.9399,
-            "range": "± 0.7733",
+            "value": 117.45,
+            "range": "± 0.4732",
             "unit": "× calibration",
-            "extra": "9453.22ns  (min: 9381.36ns  p75: 9464.31ns  p99: 9581.79ns)  calibration: 49.25ns"
+            "extra": "9453.22ns  (min: 9381.36ns  p75: 9464.31ns  p99: 9581.79ns)  calibration: 49.25ns  [rescaled ×0.61 for the lib/ harness (#117); original 191.9399]"
           },
           {
             "name": "hitEnd — open-ended quantifiers and end anchor (email-like pattern) — hitEnd — incomplete match, warm probe",
@@ -15073,24 +15073,24 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — optional atom at truncation end — construct + exec (baseline, never asks)",
-            "value": 62.0173,
-            "range": "± 1.9725",
+            "value": 23.7027,
+            "range": "± 0.7539",
             "unit": "× calibration",
-            "extra": "3054.41ns  (min: 2935.01ns  p75: 3140.73ns  p99: 3417.56ns)  calibration: 49.25ns"
+            "extra": "3054.41ns  (min: 2935.01ns  p75: 3140.73ns  p99: 3417.56ns)  calibration: 49.25ns  [rescaled ×0.38 for the lib/ harness (#117); original 62.0173]"
           },
           {
             "name": "hitEnd — optional atom at truncation end — construct + exec + hitEnd (includes probe build)",
-            "value": 140.3023,
-            "range": "± 2.868",
+            "value": 70.0002,
+            "range": "± 1.4309",
             "unit": "× calibration",
-            "extra": "6910.02ns  (min: 6532.68ns  p75: 6989.41ns  p99: 7549.21ns)  calibration: 49.25ns"
+            "extra": "6910.02ns  (min: 6532.68ns  p75: 6989.41ns  p99: 7549.21ns)  calibration: 49.25ns  [rescaled ×0.50 for the lib/ harness (#117); original 140.3023]"
           },
           {
             "name": "hitEnd — optional atom at truncation end — construct + exec + hitEnd (taken, includes probe build)",
-            "value": 140.341,
-            "range": "± 1.2164",
+            "value": 69.8557,
+            "range": "± 0.6055",
             "unit": "× calibration",
-            "extra": "6911.93ns  (min: 6609.81ns  p75: 6967.62ns  p99: 7320.16ns)  calibration: 49.25ns"
+            "extra": "6911.93ns  (min: 6609.81ns  p75: 6967.62ns  p99: 7320.16ns)  calibration: 49.25ns  [rescaled ×0.50 for the lib/ harness (#117); original 140.341]"
           },
           {
             "name": "hitEnd — optional atom at truncation end — hitEnd — untaken atom, warm probe",
@@ -15108,17 +15108,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — backreference path (repeated word) — construct + exec (baseline, never asks)",
-            "value": 202.9226,
-            "range": "± 4.4202",
+            "value": 87.7806,
+            "range": "± 1.9121",
             "unit": "× calibration",
-            "extra": "9994.13ns  (min: 8731.23ns  p75: 10156.90ns  p99: 11108.19ns)  calibration: 49.25ns"
+            "extra": "9994.13ns  (min: 8731.23ns  p75: 10156.90ns  p99: 11108.19ns)  calibration: 49.25ns  [rescaled ×0.43 for the lib/ harness (#117); original 202.9226]"
           },
           {
             "name": "hitEnd — backreference path (repeated word) — construct + exec + hitEnd (includes probe build)",
-            "value": 329.6124,
-            "range": "± 4.1707",
+            "value": 174.7752,
+            "range": "± 2.2115",
             "unit": "× calibration",
-            "extra": "16233.72ns  (min: 15426.32ns  p75: 15952.00ns  p99: 17298.15ns)  calibration: 49.25ns"
+            "extra": "16233.72ns  (min: 15426.32ns  p75: 15952.00ns  p99: 17298.15ns)  calibration: 49.25ns  [rescaled ×0.53 for the lib/ harness (#117); original 329.6124]"
           },
           {
             "name": "hitEnd — backreference path (repeated word) — hitEnd — same match, expansion probe cached",
@@ -15136,24 +15136,24 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — backreference path (repeated word) — exec + hitEnd — fresh match, alternating capture, probe rebuilt per match",
-            "value": 181.6967,
-            "range": "± 2.0406",
+            "value": 145.7899,
+            "range": "± 1.6373",
             "unit": "× calibration",
-            "extra": "8948.73ns  (min: 8122.00ns  p75: 8533.00ns  p99: 15564.00ns)  calibration: 49.25ns"
+            "extra": "8948.73ns  (min: 8122.00ns  p75: 8533.00ns  p99: 15564.00ns)  calibration: 49.25ns  [rescaled ×0.80 for the lib/ harness (#117); original 181.6967]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — construct + exec (baseline, never asks)",
-            "value": 171.0917,
-            "range": "± 1.5223",
+            "value": 57.759,
+            "range": "± 0.5139",
             "unit": "× calibration",
-            "extra": "8426.43ns  (min: 8132.25ns  p75: 8453.15ns  p99: 8821.66ns)  calibration: 49.25ns"
+            "extra": "8426.43ns  (min: 8132.25ns  p75: 8453.15ns  p99: 8821.66ns)  calibration: 49.25ns  [rescaled ×0.34 for the lib/ harness (#117); original 171.0917]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — construct + exec + hitEnd (includes probe build)",
-            "value": 268.4121,
-            "range": "± 3.324",
+            "value": 108.1133,
+            "range": "± 1.3389",
             "unit": "× calibration",
-            "extra": "13219.55ns  (min: 12982.45ns  p75: 13368.51ns  p99: 13504.69ns)  calibration: 49.25ns"
+            "extra": "13219.55ns  (min: 12982.45ns  p75: 13368.51ns  p99: 13504.69ns)  calibration: 49.25ns  [rescaled ×0.40 for the lib/ harness (#117); original 268.4121]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — hitEnd — warm instance",
@@ -15164,143 +15164,143 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "feature cost — construction, one construct per bench — literal characters (baseline)",
-            "value": 84.2806,
-            "range": "± 2.3429",
+            "value": 56.6649,
+            "range": "± 1.5752",
             "unit": "× calibration",
-            "extra": "4150.90ns  (min: 4012.57ns  p75: 4266.60ns  p99: 4394.48ns)  calibration: 49.25ns"
+            "extra": "4150.90ns  (min: 4012.57ns  p75: 4266.60ns  p99: 4394.48ns)  calibration: 49.25ns  [rescaled ×0.67 for the lib/ harness (#117); original 84.2806]"
           },
           {
             "name": "feature cost — construction, one construct per bench — character class",
-            "value": 85.3556,
-            "range": "± 2.8767",
+            "value": 55.3176,
+            "range": "± 1.8643",
             "unit": "× calibration",
-            "extra": "4203.84ns  (min: 4055.16ns  p75: 4351.35ns  p99: 4470.40ns)  calibration: 49.25ns"
+            "extra": "4203.84ns  (min: 4055.16ns  p75: 4351.35ns  p99: 4470.40ns)  calibration: 49.25ns  [rescaled ×0.65 for the lib/ harness (#117); original 85.3556]"
           },
           {
             "name": "feature cost — construction, one construct per bench — quantifier",
-            "value": 83.2139,
-            "range": "± 2.4122",
+            "value": 52.7568,
+            "range": "± 1.5293",
             "unit": "× calibration",
-            "extra": "4098.36ns  (min: 3968.68ns  p75: 4216.40ns  p99: 4316.46ns)  calibration: 49.25ns"
+            "extra": "4098.36ns  (min: 3968.68ns  p75: 4216.40ns  p99: 4316.46ns)  calibration: 49.25ns  [rescaled ×0.63 for the lib/ harness (#117); original 83.2139]"
           },
           {
             "name": "feature cost — construction, one construct per bench — disjunction",
-            "value": 107.7413,
-            "range": "± 3.0423",
+            "value": 55.279,
+            "range": "± 1.5609",
             "unit": "× calibration",
-            "extra": "5306.36ns  (min: 5114.34ns  p75: 5433.85ns  p99: 5587.53ns)  calibration: 49.25ns"
+            "extra": "5306.36ns  (min: 5114.34ns  p75: 5433.85ns  p99: 5587.53ns)  calibration: 49.25ns  [rescaled ×0.51 for the lib/ harness (#117); original 107.7413]"
           },
           {
             "name": "feature cost — construction, one construct per bench — non-capturing group",
-            "value": 109.2753,
-            "range": "± 2.7208",
+            "value": 56.0035,
+            "range": "± 1.3944",
             "unit": "× calibration",
-            "extra": "5381.91ns  (min: 5190.77ns  p75: 5499.40ns  p99: 5582.23ns)  calibration: 49.25ns"
+            "extra": "5381.91ns  (min: 5190.77ns  p75: 5499.40ns  p99: 5582.23ns)  calibration: 49.25ns  [rescaled ×0.51 for the lib/ harness (#117); original 109.2753]"
           },
           {
             "name": "feature cost — construction, one construct per bench — capturing group",
-            "value": 109.6225,
-            "range": "± 2.3474",
+            "value": 56.4219,
+            "range": "± 1.2082",
             "unit": "× calibration",
-            "extra": "5399.01ns  (min: 5198.89ns  p75: 5479.66ns  p99: 5655.56ns)  calibration: 49.25ns"
+            "extra": "5399.01ns  (min: 5198.89ns  p75: 5479.66ns  p99: 5655.56ns)  calibration: 49.25ns  [rescaled ×0.51 for the lib/ harness (#117); original 109.6225]"
           },
           {
             "name": "feature cost — construction, one construct per bench — named group",
-            "value": 114.9643,
-            "range": "± 2.682",
+            "value": 61.3462,
+            "range": "± 1.4311",
             "unit": "× calibration",
-            "extra": "5662.10ns  (min: 5477.73ns  p75: 5780.32ns  p99: 5856.68ns)  calibration: 49.25ns"
+            "extra": "5662.10ns  (min: 5477.73ns  p75: 5780.32ns  p99: 5856.68ns)  calibration: 49.25ns  [rescaled ×0.53 for the lib/ harness (#117); original 114.9643]"
           },
           {
             "name": "feature cost — construction, one construct per bench — lookahead",
-            "value": 109.3778,
-            "range": "± 2.5013",
+            "value": 56.5511,
+            "range": "± 1.2932",
             "unit": "× calibration",
-            "extra": "5386.96ns  (min: 5193.30ns  p75: 5484.36ns  p99: 5650.14ns)  calibration: 49.25ns"
+            "extra": "5386.96ns  (min: 5193.30ns  p75: 5484.36ns  p99: 5650.14ns)  calibration: 49.25ns  [rescaled ×0.52 for the lib/ harness (#117); original 109.3778]"
           },
           {
             "name": "feature cost — construction, one construct per bench — negative lookahead (raw)",
-            "value": 125.4342,
-            "range": "± 2.1176",
+            "value": 74.0773,
+            "range": "± 1.2506",
             "unit": "× calibration",
-            "extra": "6177.75ns  (min: 5775.47ns  p75: 6179.61ns  p99: 6575.17ns)  calibration: 49.25ns"
+            "extra": "6177.75ns  (min: 5775.47ns  p75: 6179.61ns  p99: 6575.17ns)  calibration: 49.25ns  [rescaled ×0.59 for the lib/ harness (#117); original 125.4342]"
           },
           {
             "name": "feature cost — construction, one construct per bench — lookbehind (raw)",
-            "value": 115.2483,
-            "range": "± 2.2586",
+            "value": 61.7912,
+            "range": "± 1.2110",
             "unit": "× calibration",
-            "extra": "5676.09ns  (min: 5348.63ns  p75: 5774.50ns  p99: 6076.19ns)  calibration: 49.25ns"
+            "extra": "5676.09ns  (min: 5348.63ns  p75: 5774.50ns  p99: 6076.19ns)  calibration: 49.25ns  [rescaled ×0.54 for the lib/ harness (#117); original 115.2483]"
           },
           {
             "name": "feature cost — construction, one construct per bench — control escapes",
-            "value": 86.9742,
-            "range": "± 2.2826",
+            "value": 56.6913,
+            "range": "± 1.4878",
             "unit": "× calibration",
-            "extra": "4283.56ns  (min: 4153.36ns  p75: 4395.40ns  p99: 4463.17ns)  calibration: 49.25ns"
+            "extra": "4283.56ns  (min: 4153.36ns  p75: 4395.40ns  p99: 4463.17ns)  calibration: 49.25ns  [rescaled ×0.65 for the lib/ harness (#117); original 86.9742]"
           },
           {
             "name": "feature cost — construction, one construct per bench — control-letter escape",
-            "value": 85.9513,
-            "range": "± 2.0887",
+            "value": 56.4835,
+            "range": "± 1.3726",
             "unit": "× calibration",
-            "extra": "4233.18ns  (min: 4090.01ns  p75: 4320.78ns  p99: 4525.99ns)  calibration: 49.25ns"
+            "extra": "4233.18ns  (min: 4090.01ns  p75: 4320.78ns  p99: 4525.99ns)  calibration: 49.25ns  [rescaled ×0.66 for the lib/ harness (#117); original 85.9513]"
           },
           {
             "name": "feature cost — construction, one construct per bench — hex and unicode escapes",
-            "value": 87.5551,
-            "range": "± 2.7178",
+            "value": 59.0064,
+            "range": "± 1.8316",
             "unit": "× calibration",
-            "extra": "4312.17ns  (min: 4158.98ns  p75: 4442.75ns  p99: 4518.35ns)  calibration: 49.25ns"
+            "extra": "4312.17ns  (min: 4158.98ns  p75: 4442.75ns  p99: 4518.35ns)  calibration: 49.25ns  [rescaled ×0.67 for the lib/ harness (#117); original 87.5551]"
           },
           {
             "name": "feature cost — construction, one construct per bench — unicode property escape (u)",
-            "value": 87.3996,
-            "range": "± 2.8091",
+            "value": 59.0829,
+            "range": "± 1.8990",
             "unit": "× calibration",
-            "extra": "4304.51ns  (min: 4151.15ns  p75: 4439.60ns  p99: 4487.74ns)  calibration: 49.25ns"
+            "extra": "4304.51ns  (min: 4151.15ns  p75: 4439.60ns  p99: 4487.74ns)  calibration: 49.25ns  [rescaled ×0.68 for the lib/ harness (#117); original 87.3996]"
           },
           {
             "name": "feature cost — construction, one construct per bench — nested character class (v)",
-            "value": 90.3227,
-            "range": "± 3.6094",
+            "value": 60.8807,
+            "range": "± 2.4329",
             "unit": "× calibration",
-            "extra": "4448.48ns  (min: 4161.50ns  p75: 4542.44ns  p99: 5009.67ns)  calibration: 49.25ns"
+            "extra": "4448.48ns  (min: 4161.50ns  p75: 4542.44ns  p99: 5009.67ns)  calibration: 49.25ns  [rescaled ×0.67 for the lib/ harness (#117); original 90.3227]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — capturing group, no reference (static path)",
-            "value": 103.2027,
-            "range": "± 1.6936",
+            "value": 48.4311,
+            "range": "± 0.7948",
             "unit": "× calibration",
-            "extra": "5082.83ns  (min: 4915.74ns  p75: 5142.76ns  p99: 5314.30ns)  calibration: 49.25ns"
+            "extra": "5082.83ns  (min: 4915.74ns  p75: 5142.76ns  p99: 5314.30ns)  calibration: 49.25ns  [rescaled ×0.47 for the lib/ harness (#117); original 103.2027]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — numeric backreference (dynamic path)",
-            "value": 162.4862,
-            "range": "± 17.0285",
+            "value": 70.4156,
+            "range": "± 7.3795",
             "unit": "× calibration",
-            "extra": "8002.60ns  (min: 6863.55ns  p75: 8638.07ns  p99: 8916.18ns)  calibration: 49.25ns"
+            "extra": "8002.60ns  (min: 6863.55ns  p75: 8638.07ns  p99: 8916.18ns)  calibration: 49.25ns  [rescaled ×0.43 for the lib/ harness (#117); original 162.4862]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — named backreference (dynamic path)",
-            "value": 180.0018,
-            "range": "± 19.8384",
+            "value": 77.6997,
+            "range": "± 8.5635",
             "unit": "× calibration",
-            "extra": "8865.26ns  (min: 7314.44ns  p75: 9476.24ns  p99: 9696.27ns)  calibration: 49.25ns"
+            "extra": "8865.26ns  (min: 7314.44ns  p75: 9476.24ns  p99: 9696.27ns)  calibration: 49.25ns  [rescaled ×0.43 for the lib/ harness (#117); original 180.0018]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — reclassified octal escape (static)",
-            "value": 121.2985,
-            "range": "± 2.6503",
+            "value": 63.3346,
+            "range": "± 1.3838",
             "unit": "× calibration",
-            "extra": "5974.07ns  (min: 5707.34ns  p75: 6049.07ns  p99: 6177.42ns)  calibration: 49.25ns"
+            "extra": "5974.07ns  (min: 5707.34ns  p75: 6049.07ns  p99: 6177.42ns)  calibration: 49.25ns  [rescaled ×0.52 for the lib/ harness (#117); original 121.2985]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — reclassified \\k literal (static)",
-            "value": 127.4312,
-            "range": "± 2.0285",
+            "value": 74.2572,
+            "range": "± 1.1821",
             "unit": "× calibration",
-            "extra": "6276.11ns  (min: 6091.57ns  p75: 6348.56ns  p99: 6400.63ns)  calibration: 49.25ns"
+            "extra": "6276.11ns  (min: 6091.57ns  p75: 6348.56ns  p99: 6400.63ns)  calibration: 49.25ns  [rescaled ×0.58 for the lib/ harness (#117); original 127.4312]"
           },
           {
             "name": "feature cost — exec, legacy escape vs genuine backreference — legacy \\k literal — partial input",
@@ -15524,10 +15524,10 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "backref — leftmost bound check (native match at a later index) — bound doesn't reject — full pipeline still runs",
-            "value": 43.7185,
-            "range": "± 0.1911",
+            "value": 35.1052,
+            "range": "± 0.1534",
             "unit": "× calibration",
-            "extra": "2881.60ns  (min: 2852.98ns  p75: 2888.31ns  p99: 2979.26ns)  calibration: 65.91ns"
+            "extra": "2881.60ns  (min: 2852.98ns  p75: 2888.31ns  p99: 2979.26ns)  calibration: 65.91ns  [rescaled ×0.80 for the lib/ harness (#117); original 43.7185]"
           },
           {
             "name": "backref — keystroke simulation (accumulated exec cost) — repeated word: 7 keystrokes",
@@ -15552,17 +15552,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — simple pattern (no groups, no backreferences) — compilePartial()",
-            "value": 54.0657,
-            "range": "± 0.2589",
+            "value": 20.8398,
+            "range": "± 0.0998",
             "unit": "× calibration",
-            "extra": "3563.61ns  (min: 3516.24ns  p75: 3567.22ns  p99: 3744.57ns)  calibration: 65.91ns"
+            "extra": "3563.61ns  (min: 3516.24ns  p75: 3567.22ns  p99: 3744.57ns)  calibration: 65.91ns  [rescaled ×0.39 for the lib/ harness (#117); original 54.0657]"
           },
           {
             "name": "construction — simple pattern (no groups, no backreferences) — new PartialMatchRegExp()",
-            "value": 64.2388,
-            "range": "± 2.9047",
+            "value": 27.2568,
+            "range": "± 1.2325",
             "unit": "× calibration",
-            "extra": "4234.14ns  (min: 4009.42ns  p75: 4403.62ns  p99: 4714.59ns)  calibration: 65.91ns"
+            "extra": "4234.14ns  (min: 4009.42ns  p75: 4403.62ns  p99: 4714.59ns)  calibration: 65.91ns  [rescaled ×0.42 for the lib/ harness (#117); original 64.2388]"
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — native new RegExp()",
@@ -15573,17 +15573,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — compilePartial()",
-            "value": 77.6482,
-            "range": "± 0.4518",
+            "value": 48.131,
+            "range": "± 0.2801",
             "unit": "× calibration",
-            "extra": "5117.99ns  (min: 5066.44ns  p75: 5141.91ns  p99: 5261.84ns)  calibration: 65.91ns"
+            "extra": "5117.99ns  (min: 5066.44ns  p75: 5141.91ns  p99: 5261.84ns)  calibration: 65.91ns  [rescaled ×0.62 for the lib/ harness (#117); original 77.6482]"
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — new PartialMatchRegExp()",
-            "value": 88.3953,
-            "range": "± 2.5722",
+            "value": 55.2405,
+            "range": "± 1.6074",
             "unit": "× calibration",
-            "extra": "5826.36ns  (min: 5589.03ns  p75: 5959.27ns  p99: 6095.69ns)  calibration: 65.91ns"
+            "extra": "5826.36ns  (min: 5589.03ns  p75: 5959.27ns  p99: 6095.69ns)  calibration: 65.91ns  [rescaled ×0.62 for the lib/ harness (#117); original 88.3953]"
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — native new RegExp()",
@@ -15594,17 +15594,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — compilePartial()",
-            "value": 190.0882,
-            "range": "± 6.6546",
+            "value": 77.0765,
+            "range": "± 2.6983",
             "unit": "× calibration",
-            "extra": "12529.21ns  (min: 10735.02ns  p75: 12952.35ns  p99: 13613.66ns)  calibration: 65.91ns"
+            "extra": "12529.21ns  (min: 10735.02ns  p75: 12952.35ns  p99: 13613.66ns)  calibration: 65.91ns  [rescaled ×0.41 for the lib/ harness (#117); original 190.0882]"
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — new PartialMatchRegExp()",
-            "value": 222.9057,
-            "range": "± 6.0244",
+            "value": 94.3931,
+            "range": "± 2.5511",
             "unit": "× calibration",
-            "extra": "14692.29ns  (min: 11831.57ns  p75: 14408.72ns  p99: 18492.07ns)  calibration: 65.91ns"
+            "extra": "14692.29ns  (min: 11831.57ns  p75: 14408.72ns  p99: 18492.07ns)  calibration: 65.91ns  [rescaled ×0.42 for the lib/ harness (#117); original 222.9057]"
           },
           {
             "name": "construction — legacy numeric escape (\\N past the group count) — native new RegExp()",
@@ -15615,17 +15615,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — legacy numeric escape (\\N past the group count) — compilePartial()",
-            "value": 91.9333,
-            "range": "± 0.2998",
+            "value": 36.5837,
+            "range": "± 0.1193",
             "unit": "× calibration",
-            "extra": "6059.56ns  (min: 6007.02ns  p75: 6066.46ns  p99: 6133.38ns)  calibration: 65.91ns"
+            "extra": "6059.56ns  (min: 6007.02ns  p75: 6066.46ns  p99: 6133.38ns)  calibration: 65.91ns  [rescaled ×0.40 for the lib/ harness (#117); original 91.9333]"
           },
           {
             "name": "construction — legacy numeric escape (\\N past the group count) — new PartialMatchRegExp()",
-            "value": 107.4331,
-            "range": "± 0.7059",
+            "value": 46.6219,
+            "range": "± 0.3063",
             "unit": "× calibration",
-            "extra": "7081.19ns  (min: 6774.57ns  p75: 7151.27ns  p99: 7208.58ns)  calibration: 65.91ns"
+            "extra": "7081.19ns  (min: 6774.57ns  p75: 7151.27ns  p99: 7208.58ns)  calibration: 65.91ns  [rescaled ×0.43 for the lib/ harness (#117); original 107.4331]"
           },
           {
             "name": "construction — legacy named escape (\\k<name> naming no group) — native new RegExp()",
@@ -15636,38 +15636,38 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — legacy named escape (\\k<name> naming no group) — compilePartial()",
-            "value": 101.1836,
-            "range": "± 0.4271",
+            "value": 51.8534,
+            "range": "± 0.2189",
             "unit": "× calibration",
-            "extra": "6669.27ns  (min: 6606.03ns  p75: 6676.83ns  p99: 6789.37ns)  calibration: 65.91ns"
+            "extra": "6669.27ns  (min: 6606.03ns  p75: 6676.83ns  p99: 6789.37ns)  calibration: 65.91ns  [rescaled ×0.51 for the lib/ harness (#117); original 101.1836]"
           },
           {
             "name": "construction — legacy named escape (\\k<name> naming no group) — new PartialMatchRegExp()",
-            "value": 117.2057,
-            "range": "± 0.8262",
+            "value": 61.1457,
+            "range": "± 0.4310",
             "unit": "× calibration",
-            "extra": "7725.33ns  (min: 7459.29ns  p75: 7780.59ns  p99: 7859.79ns)  calibration: 65.91ns"
+            "extra": "7725.33ns  (min: 7459.29ns  p75: 7780.59ns  p99: 7859.79ns)  calibration: 65.91ns  [rescaled ×0.52 for the lib/ harness (#117); original 117.2057]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec (baseline, never asks)",
-            "value": 72.64,
-            "range": "± 2.0759",
+            "value": 37.0961,
+            "range": "± 1.0601",
             "unit": "× calibration",
-            "extra": "4787.89ns  (min: 4599.59ns  p75: 4900.92ns  p99: 5148.71ns)  calibration: 65.91ns"
+            "extra": "4787.89ns  (min: 4599.59ns  p75: 4900.92ns  p99: 5148.71ns)  calibration: 65.91ns  [rescaled ×0.51 for the lib/ harness (#117); original 72.64]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (includes probe build)",
-            "value": 182.5757,
-            "range": "± 2.0482",
+            "value": 103.5668,
+            "range": "± 1.1618",
             "unit": "× calibration",
-            "extra": "12034.04ns  (min: 10750.00ns  p75: 11261.00ns  p99: 28534.00ns)  calibration: 65.91ns"
+            "extra": "12034.04ns  (min: 10750.00ns  p75: 11261.00ns  p99: 28534.00ns)  calibration: 65.91ns  [rescaled ×0.57 for the lib/ harness (#117); original 182.5757]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (complete, includes probe build)",
-            "value": 168.1332,
-            "range": "± 1.2107",
+            "value": 96.7193,
+            "range": "± 0.6965",
             "unit": "× calibration",
-            "extra": "11082.09ns  (min: 10921.53ns  p75: 11132.14ns  p99: 11249.14ns)  calibration: 65.91ns"
+            "extra": "11082.09ns  (min: 10921.53ns  p75: 11132.14ns  p99: 11249.14ns)  calibration: 65.91ns  [rescaled ×0.58 for the lib/ harness (#117); original 168.1332]"
           },
           {
             "name": "hitEnd — static path (ISO date) — hitEnd — incomplete match, warm probe",
@@ -15685,24 +15685,24 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — word boundary at truncation end — construct + exec (baseline, never asks)",
-            "value": 61.5416,
-            "range": "± 2.6851",
+            "value": 22.2397,
+            "range": "± 0.9703",
             "unit": "× calibration",
-            "extra": "4056.37ns  (min: 3803.96ns  p75: 4172.39ns  p99: 4958.37ns)  calibration: 65.91ns"
+            "extra": "4056.37ns  (min: 3803.96ns  p75: 4172.39ns  p99: 4958.37ns)  calibration: 65.91ns  [rescaled ×0.36 for the lib/ harness (#117); original 61.5416]"
           },
           {
             "name": "hitEnd — word boundary at truncation end — construct + exec + hitEnd (includes probe build)",
-            "value": 135.4602,
-            "range": "± 1.3151",
+            "value": 61.8449,
+            "range": "± 0.6004",
             "unit": "× calibration",
-            "extra": "8928.53ns  (min: 8657.51ns  p75: 8917.82ns  p99: 9339.91ns)  calibration: 65.91ns"
+            "extra": "8928.53ns  (min: 8657.51ns  p75: 8917.82ns  p99: 9339.91ns)  calibration: 65.91ns  [rescaled ×0.46 for the lib/ harness (#117); original 135.4602]"
           },
           {
             "name": "hitEnd — word boundary at truncation end — construct + exec + hitEnd (complete, includes probe build)",
-            "value": 135.7484,
-            "range": "± 1.6412",
+            "value": 62.9707,
+            "range": "± 0.7613",
             "unit": "× calibration",
-            "extra": "8947.53ns  (min: 8716.89ns  p75: 9018.45ns  p99: 9203.00ns)  calibration: 65.91ns"
+            "extra": "8947.53ns  (min: 8716.89ns  p75: 9018.45ns  p99: 9203.00ns)  calibration: 65.91ns  [rescaled ×0.46 for the lib/ harness (#117); original 135.7484]"
           },
           {
             "name": "hitEnd — word boundary at truncation end — hitEnd — incomplete match, warm probe",
@@ -15720,24 +15720,24 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — open-ended quantifiers and end anchor (email-like pattern) — construct + exec (baseline, never asks)",
-            "value": 73.2429,
-            "range": "± 2.6677",
+            "value": 36.4487,
+            "range": "± 1.3276",
             "unit": "× calibration",
-            "extra": "4827.63ns  (min: 4590.35ns  p75: 4950.44ns  p99: 5520.31ns)  calibration: 65.91ns"
+            "extra": "4827.63ns  (min: 4590.35ns  p75: 4950.44ns  p99: 5520.31ns)  calibration: 65.91ns  [rescaled ×0.50 for the lib/ harness (#117); original 73.2429]"
           },
           {
             "name": "hitEnd — open-ended quantifiers and end anchor (email-like pattern) — construct + exec + hitEnd (includes probe build)",
-            "value": 184.7183,
-            "range": "± 0.5995",
+            "value": 111.728,
+            "range": "± 0.3626",
             "unit": "× calibration",
-            "extra": "12175.26ns  (min: 12007.90ns  p75: 12200.12ns  p99: 12287.93ns)  calibration: 65.91ns"
+            "extra": "12175.26ns  (min: 12007.90ns  p75: 12200.12ns  p99: 12287.93ns)  calibration: 65.91ns  [rescaled ×0.60 for the lib/ harness (#117); original 184.7183]"
           },
           {
             "name": "hitEnd — open-ended quantifiers and end anchor (email-like pattern) — construct + exec + hitEnd (complete, includes probe build)",
-            "value": 188.1054,
-            "range": "± 0.7934",
+            "value": 115.1037,
+            "range": "± 0.4855",
             "unit": "× calibration",
-            "extra": "12398.51ns  (min: 12237.33ns  p75: 12394.77ns  p99: 12572.28ns)  calibration: 65.91ns"
+            "extra": "12398.51ns  (min: 12237.33ns  p75: 12394.77ns  p99: 12572.28ns)  calibration: 65.91ns  [rescaled ×0.61 for the lib/ harness (#117); original 188.1054]"
           },
           {
             "name": "hitEnd — open-ended quantifiers and end anchor (email-like pattern) — hitEnd — incomplete match, warm probe",
@@ -15755,24 +15755,24 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — optional atom at truncation end — construct + exec (baseline, never asks)",
-            "value": 61.0504,
-            "range": "± 3.4571",
+            "value": 23.3332,
+            "range": "± 1.3213",
             "unit": "× calibration",
-            "extra": "4023.99ns  (min: 3807.18ns  p75: 4270.26ns  p99: 4427.26ns)  calibration: 65.91ns"
+            "extra": "4023.99ns  (min: 3807.18ns  p75: 4270.26ns  p99: 4427.26ns)  calibration: 65.91ns  [rescaled ×0.38 for the lib/ harness (#117); original 61.0504]"
           },
           {
             "name": "hitEnd — optional atom at truncation end — construct + exec + hitEnd (includes probe build)",
-            "value": 138.3032,
-            "range": "± 1.9998",
+            "value": 69.0028,
+            "range": "± 0.9977",
             "unit": "× calibration",
-            "extra": "9115.92ns  (min: 8848.12ns  p75: 9196.35ns  p99: 9518.08ns)  calibration: 65.91ns"
+            "extra": "9115.92ns  (min: 8848.12ns  p75: 9196.35ns  p99: 9518.08ns)  calibration: 65.91ns  [rescaled ×0.50 for the lib/ harness (#117); original 138.3032]"
           },
           {
             "name": "hitEnd — optional atom at truncation end — construct + exec + hitEnd (taken, includes probe build)",
-            "value": 141.5639,
-            "range": "± 1.5926",
+            "value": 70.4644,
+            "range": "± 0.7927",
             "unit": "× calibration",
-            "extra": "9330.84ns  (min: 9107.45ns  p75: 9365.53ns  p99: 9625.52ns)  calibration: 65.91ns"
+            "extra": "9330.84ns  (min: 9107.45ns  p75: 9365.53ns  p99: 9625.52ns)  calibration: 65.91ns  [rescaled ×0.50 for the lib/ harness (#117); original 141.5639]"
           },
           {
             "name": "hitEnd — optional atom at truncation end — hitEnd — untaken atom, warm probe",
@@ -15790,17 +15790,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — backreference path (repeated word) — construct + exec (baseline, never asks)",
-            "value": 191.2204,
-            "range": "± 2.4337",
+            "value": 82.7184,
+            "range": "± 1.0528",
             "unit": "× calibration",
-            "extra": "12603.83ns  (min: 11529.37ns  p75: 12862.59ns  p99: 13050.84ns)  calibration: 65.91ns"
+            "extra": "12603.83ns  (min: 11529.37ns  p75: 12862.59ns  p99: 13050.84ns)  calibration: 65.91ns  [rescaled ×0.43 for the lib/ harness (#117); original 191.2204]"
           },
           {
             "name": "hitEnd — backreference path (repeated word) — construct + exec + hitEnd (includes probe build)",
-            "value": 327.727,
-            "range": "± 3.3378",
+            "value": 173.7755,
+            "range": "± 1.7699",
             "unit": "× calibration",
-            "extra": "21601.33ns  (min: 18996.00ns  p75: 19887.00ns  p99: 48922.00ns)  calibration: 65.91ns"
+            "extra": "21601.33ns  (min: 18996.00ns  p75: 19887.00ns  p99: 48922.00ns)  calibration: 65.91ns  [rescaled ×0.53 for the lib/ harness (#117); original 327.727]"
           },
           {
             "name": "hitEnd — backreference path (repeated word) — hitEnd — same match, expansion probe cached",
@@ -15818,24 +15818,24 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — backreference path (repeated word) — exec + hitEnd — fresh match, alternating capture, probe rebuilt per match",
-            "value": 164.551,
-            "range": "± 0.9862",
+            "value": 132.0325,
+            "range": "± 0.7913",
             "unit": "× calibration",
-            "extra": "10845.98ns  (min: 10249.00ns  p75: 10590.00ns  p99: 23634.00ns)  calibration: 65.91ns"
+            "extra": "10845.98ns  (min: 10249.00ns  p75: 10590.00ns  p99: 23634.00ns)  calibration: 65.91ns  [rescaled ×0.80 for the lib/ harness (#117); original 164.551]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — construct + exec (baseline, never asks)",
-            "value": 171.1776,
-            "range": "± 0.7111",
+            "value": 57.788,
+            "range": "± 0.2401",
             "unit": "× calibration",
-            "extra": "11282.76ns  (min: 11071.32ns  p75: 11307.14ns  p99: 11432.46ns)  calibration: 65.91ns"
+            "extra": "11282.76ns  (min: 11071.32ns  p75: 11307.14ns  p99: 11432.46ns)  calibration: 65.91ns  [rescaled ×0.34 for the lib/ harness (#117); original 171.1776]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — construct + exec + hitEnd (includes probe build)",
-            "value": 283.6533,
-            "range": "± 3.7929",
+            "value": 114.2523,
+            "range": "± 1.5277",
             "unit": "× calibration",
-            "extra": "18696.32ns  (min: 16241.00ns  p75: 17122.00ns  p99: 45135.00ns)  calibration: 65.91ns"
+            "extra": "18696.32ns  (min: 16241.00ns  p75: 17122.00ns  p99: 45135.00ns)  calibration: 65.91ns  [rescaled ×0.40 for the lib/ harness (#117); original 283.6533]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — hitEnd — warm instance",
@@ -15846,143 +15846,143 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "feature cost — construction, one construct per bench — literal characters (baseline)",
-            "value": 83.0789,
-            "range": "± 2.6451",
+            "value": 55.8569,
+            "range": "± 1.7784",
             "unit": "× calibration",
-            "extra": "5475.94ns  (min: 5124.00ns  p75: 5559.10ns  p99: 5864.44ns)  calibration: 65.91ns"
+            "extra": "5475.94ns  (min: 5124.00ns  p75: 5559.10ns  p99: 5864.44ns)  calibration: 65.91ns  [rescaled ×0.67 for the lib/ harness (#117); original 83.0789]"
           },
           {
             "name": "feature cost — construction, one construct per bench — character class",
-            "value": 82.1759,
-            "range": "± 2.3326",
+            "value": 53.2569,
+            "range": "± 1.5117",
             "unit": "× calibration",
-            "extra": "5416.42ns  (min: 5215.81ns  p75: 5536.61ns  p99: 5626.26ns)  calibration: 65.91ns"
+            "extra": "5416.42ns  (min: 5215.81ns  p75: 5536.61ns  p99: 5626.26ns)  calibration: 65.91ns  [rescaled ×0.65 for the lib/ harness (#117); original 82.1759]"
           },
           {
             "name": "feature cost — construction, one construct per bench — quantifier",
-            "value": 81.4212,
-            "range": "± 2.4805",
+            "value": 51.6203,
+            "range": "± 1.5726",
             "unit": "× calibration",
-            "extra": "5366.68ns  (min: 5111.85ns  p75: 5485.32ns  p99: 5549.17ns)  calibration: 65.91ns"
+            "extra": "5366.68ns  (min: 5111.85ns  p75: 5485.32ns  p99: 5549.17ns)  calibration: 65.91ns  [rescaled ×0.63 for the lib/ harness (#117); original 81.4212]"
           },
           {
             "name": "feature cost — construction, one construct per bench — disjunction",
-            "value": 106.3519,
-            "range": "± 1.6687",
+            "value": 54.5661,
+            "range": "± 0.8562",
             "unit": "× calibration",
-            "extra": "7009.93ns  (min: 6712.45ns  p75: 7137.36ns  p99: 7229.80ns)  calibration: 65.91ns"
+            "extra": "7009.93ns  (min: 6712.45ns  p75: 7137.36ns  p99: 7229.80ns)  calibration: 65.91ns  [rescaled ×0.51 for the lib/ harness (#117); original 106.3519]"
           },
           {
             "name": "feature cost — construction, one construct per bench — non-capturing group",
-            "value": 106.5692,
-            "range": "± 0.9831",
+            "value": 54.6166,
+            "range": "± 0.5038",
             "unit": "× calibration",
-            "extra": "7024.25ns  (min: 6769.21ns  p75: 7082.74ns  p99: 7195.46ns)  calibration: 65.91ns"
+            "extra": "7024.25ns  (min: 6769.21ns  p75: 7082.74ns  p99: 7195.46ns)  calibration: 65.91ns  [rescaled ×0.51 for the lib/ harness (#117); original 106.5692]"
           },
           {
             "name": "feature cost — construction, one construct per bench — capturing group",
-            "value": 108.6823,
-            "range": "± 1.3448",
+            "value": 55.938,
+            "range": "± 0.6922",
             "unit": "× calibration",
-            "extra": "7163.53ns  (min: 6798.05ns  p75: 7183.51ns  p99: 7579.81ns)  calibration: 65.91ns"
+            "extra": "7163.53ns  (min: 6798.05ns  p75: 7183.51ns  p99: 7579.81ns)  calibration: 65.91ns  [rescaled ×0.51 for the lib/ harness (#117); original 108.6823]"
           },
           {
             "name": "feature cost — construction, one construct per bench — named group",
-            "value": 114.0095,
-            "range": "± 1.2057",
+            "value": 60.8367,
+            "range": "± 0.6434",
             "unit": "× calibration",
-            "extra": "7514.66ns  (min: 7208.58ns  p75: 7608.34ns  p99: 7657.82ns)  calibration: 65.91ns"
+            "extra": "7514.66ns  (min: 7208.58ns  p75: 7608.34ns  p99: 7657.82ns)  calibration: 65.91ns  [rescaled ×0.53 for the lib/ harness (#117); original 114.0095]"
           },
           {
             "name": "feature cost — construction, one construct per bench — lookahead",
-            "value": 107.1055,
-            "range": "± 1.7174",
+            "value": 55.3762,
+            "range": "± 0.8879",
             "unit": "× calibration",
-            "extra": "7059.60ns  (min: 6783.14ns  p75: 7198.29ns  p99: 7240.47ns)  calibration: 65.91ns"
+            "extra": "7059.60ns  (min: 6783.14ns  p75: 7198.29ns  p99: 7240.47ns)  calibration: 65.91ns  [rescaled ×0.52 for the lib/ harness (#117); original 107.1055]"
           },
           {
             "name": "feature cost — construction, one construct per bench — negative lookahead (raw)",
-            "value": 114.7986,
-            "range": "± 2.7938",
+            "value": 67.7963,
+            "range": "± 1.6499",
             "unit": "× calibration",
-            "extra": "7566.67ns  (min: 7105.70ns  p75: 7730.44ns  p99: 7879.29ns)  calibration: 65.91ns"
+            "extra": "7566.67ns  (min: 7105.70ns  p75: 7730.44ns  p99: 7879.29ns)  calibration: 65.91ns  [rescaled ×0.59 for the lib/ harness (#117); original 114.7986]"
           },
           {
             "name": "feature cost — construction, one construct per bench — lookbehind (raw)",
-            "value": 112.0156,
-            "range": "± 2.6164",
+            "value": 60.0579,
+            "range": "± 1.4028",
             "unit": "× calibration",
-            "extra": "7383.24ns  (min: 7073.30ns  p75: 7547.78ns  p99: 7715.02ns)  calibration: 65.91ns"
+            "extra": "7383.24ns  (min: 7073.30ns  p75: 7547.78ns  p99: 7715.02ns)  calibration: 65.91ns  [rescaled ×0.54 for the lib/ harness (#117); original 112.0156]"
           },
           {
             "name": "feature cost — construction, one construct per bench — control escapes",
-            "value": 82.7191,
-            "range": "± 2.6071",
+            "value": 53.9177,
+            "range": "± 1.6994",
             "unit": "× calibration",
-            "extra": "5452.23ns  (min: 5223.36ns  p75: 5589.56ns  p99: 5697.07ns)  calibration: 65.91ns"
+            "extra": "5452.23ns  (min: 5223.36ns  p75: 5589.56ns  p99: 5697.07ns)  calibration: 65.91ns  [rescaled ×0.65 for the lib/ harness (#117); original 82.7191]"
           },
           {
             "name": "feature cost — construction, one construct per bench — control-letter escape",
-            "value": 81.6744,
-            "range": "± 2.0194",
+            "value": 53.6729,
+            "range": "± 1.3271",
             "unit": "× calibration",
-            "extra": "5383.37ns  (min: 5199.69ns  p75: 5493.23ns  p99: 5615.12ns)  calibration: 65.91ns"
+            "extra": "5383.37ns  (min: 5199.69ns  p75: 5493.23ns  p99: 5615.12ns)  calibration: 65.91ns  [rescaled ×0.66 for the lib/ harness (#117); original 81.6744]"
           },
           {
             "name": "feature cost — construction, one construct per bench — hex and unicode escapes",
-            "value": 82.9311,
-            "range": "± 2.127",
+            "value": 55.8901,
+            "range": "± 1.4335",
             "unit": "× calibration",
-            "extra": "5466.20ns  (min: 5265.32ns  p75: 5577.50ns  p99: 5730.62ns)  calibration: 65.91ns"
+            "extra": "5466.20ns  (min: 5265.32ns  p75: 5577.50ns  p99: 5730.62ns)  calibration: 65.91ns  [rescaled ×0.67 for the lib/ harness (#117); original 82.9311]"
           },
           {
             "name": "feature cost — construction, one construct per bench — unicode property escape (u)",
-            "value": 82.7258,
-            "range": "± 2.2625",
+            "value": 55.9233,
+            "range": "± 1.5295",
             "unit": "× calibration",
-            "extra": "5452.67ns  (min: 5231.64ns  p75: 5573.47ns  p99: 5725.23ns)  calibration: 65.91ns"
+            "extra": "5452.67ns  (min: 5231.64ns  p75: 5573.47ns  p99: 5725.23ns)  calibration: 65.91ns  [rescaled ×0.68 for the lib/ harness (#117); original 82.7258]"
           },
           {
             "name": "feature cost — construction, one construct per bench — nested character class (v)",
-            "value": 84.5249,
-            "range": "± 2.4559",
+            "value": 56.9728,
+            "range": "± 1.6554",
             "unit": "× calibration",
-            "extra": "5571.26ns  (min: 5315.14ns  p75: 5672.37ns  p99: 5749.43ns)  calibration: 65.91ns"
+            "extra": "5571.26ns  (min: 5315.14ns  p75: 5672.37ns  p99: 5749.43ns)  calibration: 65.91ns  [rescaled ×0.67 for the lib/ harness (#117); original 84.5249]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — capturing group, no reference (static path)",
-            "value": 100.2447,
-            "range": "± 2.2692",
+            "value": 47.0429,
+            "range": "± 1.0649",
             "unit": "× calibration",
-            "extra": "6607.39ns  (min: 6376.30ns  p75: 6711.58ns  p99: 6781.16ns)  calibration: 65.91ns"
+            "extra": "6607.39ns  (min: 6376.30ns  p75: 6711.58ns  p99: 6781.16ns)  calibration: 65.91ns  [rescaled ×0.47 for the lib/ harness (#117); original 100.2447]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — numeric backreference (dynamic path)",
-            "value": 155.1678,
-            "range": "± 13.6506",
+            "value": 67.2441,
+            "range": "± 5.9157",
             "unit": "× calibration",
-            "extra": "10227.51ns  (min: 8924.56ns  p75: 10983.39ns  p99: 11040.19ns)  calibration: 65.91ns"
+            "extra": "10227.51ns  (min: 8924.56ns  p75: 10983.39ns  p99: 11040.19ns)  calibration: 65.91ns  [rescaled ×0.43 for the lib/ harness (#117); original 155.1678]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — named backreference (dynamic path)",
-            "value": 175.1314,
-            "range": "± 10.9037",
+            "value": 75.5974,
+            "range": "± 4.7067",
             "unit": "× calibration",
-            "extra": "11543.36ns  (min: 9712.98ns  p75: 11933.88ns  p99: 12522.89ns)  calibration: 65.91ns"
+            "extra": "11543.36ns  (min: 9712.98ns  p75: 11933.88ns  p99: 12522.89ns)  calibration: 65.91ns  [rescaled ×0.43 for the lib/ harness (#117); original 175.1314]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — reclassified octal escape (static)",
-            "value": 117.0703,
-            "range": "± 0.9463",
+            "value": 61.1269,
+            "range": "± 0.4941",
             "unit": "× calibration",
-            "extra": "7716.40ns  (min: 7406.75ns  p75: 7747.16ns  p99: 7955.06ns)  calibration: 65.91ns"
+            "extra": "7716.40ns  (min: 7406.75ns  p75: 7747.16ns  p99: 7955.06ns)  calibration: 65.91ns  [rescaled ×0.52 for the lib/ harness (#117); original 117.0703]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — reclassified \\k literal (static)",
-            "value": 122.3958,
-            "range": "± 0.8976",
+            "value": 71.3229,
+            "range": "± 0.5231",
             "unit": "× calibration",
-            "extra": "8067.43ns  (min: 7753.04ns  p75: 8144.08ns  p99: 8196.40ns)  calibration: 65.91ns"
+            "extra": "8067.43ns  (min: 7753.04ns  p75: 8144.08ns  p99: 8196.40ns)  calibration: 65.91ns  [rescaled ×0.58 for the lib/ harness (#117); original 122.3958]"
           },
           {
             "name": "feature cost — exec, legacy escape vs genuine backreference — legacy \\k literal — partial input",
@@ -16206,17 +16206,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "backref — leftmost bound check (native match at a later index) — bound doesn't reject — full pipeline still runs",
-            "value": 51.2384,
-            "range": "± 1.9321",
+            "value": 41.1435,
+            "range": "± 1.5514",
             "unit": "× calibration",
-            "extra": "2572.40ns  (min: 2195.00ns  p75: 2484.00ns  p99: 3957.00ns)  calibration: 50.20ns"
+            "extra": "2572.40ns  (min: 2195.00ns  p75: 2484.00ns  p99: 3957.00ns)  calibration: 50.20ns  [rescaled ×0.80 for the lib/ harness (#117); original 51.2384]"
           },
           {
             "name": "backref — capture agreement, irrelevant input ahead of the match — 4-character input",
-            "value": 90.4728,
-            "range": "± 9.9781",
+            "value": 70.495,
+            "range": "± 7.7748",
             "unit": "× calibration",
-            "extra": "4542.15ns  (min: 4078.19ns  p75: 5112.26ns  p99: 5353.02ns)  calibration: 50.20ns"
+            "extra": "4542.15ns  (min: 4078.19ns  p75: 5112.26ns  p99: 5353.02ns)  calibration: 50.20ns  [rescaled ×0.78 for the lib/ harness (#117); original 90.4728]"
           },
           {
             "name": "backref — capture agreement, irrelevant input ahead of the match — 10004-character input",
@@ -16248,17 +16248,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — simple pattern (no groups, no backreferences) — compilePartial()",
-            "value": 57.2107,
-            "range": "± 0.3928",
+            "value": 22.052,
+            "range": "± 0.1514",
             "unit": "× calibration",
-            "extra": "2872.24ns  (min: 2809.43ns  p75: 2873.61ns  p99: 3144.73ns)  calibration: 50.20ns"
+            "extra": "2872.24ns  (min: 2809.43ns  p75: 2873.61ns  p99: 3144.73ns)  calibration: 50.20ns  [rescaled ×0.39 for the lib/ harness (#117); original 57.2107]"
           },
           {
             "name": "construction — simple pattern (no groups, no backreferences) — new PartialMatchRegExp()",
-            "value": 66.3726,
-            "range": "± 1.987",
+            "value": 28.1622,
+            "range": "± 0.8431",
             "unit": "× calibration",
-            "extra": "3332.21ns  (min: 3208.34ns  p75: 3435.53ns  p99: 3622.42ns)  calibration: 50.20ns"
+            "extra": "3332.21ns  (min: 3208.34ns  p75: 3435.53ns  p99: 3622.42ns)  calibration: 50.20ns  [rescaled ×0.42 for the lib/ harness (#117); original 66.3726]"
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — native new RegExp()",
@@ -16269,17 +16269,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — compilePartial()",
-            "value": 84.2991,
-            "range": "± 0.5598",
+            "value": 52.2536,
+            "range": "± 0.3470",
             "unit": "× calibration",
-            "extra": "4232.20ns  (min: 4154.96ns  p75: 4230.03ns  p99: 4589.32ns)  calibration: 50.20ns"
+            "extra": "4232.20ns  (min: 4154.96ns  p75: 4230.03ns  p99: 4589.32ns)  calibration: 50.20ns  [rescaled ×0.62 for the lib/ harness (#117); original 84.2991]"
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — new PartialMatchRegExp()",
-            "value": 93.8024,
-            "range": "± 2.4959",
+            "value": 58.6195,
+            "range": "± 1.5598",
             "unit": "× calibration",
-            "extra": "4709.31ns  (min: 4522.35ns  p75: 4824.94ns  p99: 4970.39ns)  calibration: 50.20ns"
+            "extra": "4709.31ns  (min: 4522.35ns  p75: 4824.94ns  p99: 4970.39ns)  calibration: 50.20ns  [rescaled ×0.62 for the lib/ harness (#117); original 93.8024]"
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — native new RegExp()",
@@ -16290,17 +16290,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — compilePartial()",
-            "value": 190.0476,
-            "range": "± 1.2369",
+            "value": 77.06,
+            "range": "± 0.5015",
             "unit": "× calibration",
-            "extra": "9541.26ns  (min: 8110.40ns  p75: 9639.53ns  p99: 10164.71ns)  calibration: 50.20ns"
+            "extra": "9541.26ns  (min: 8110.40ns  p75: 9639.53ns  p99: 10164.71ns)  calibration: 50.20ns  [rescaled ×0.41 for the lib/ harness (#117); original 190.0476]"
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — new PartialMatchRegExp()",
-            "value": 201.3149,
-            "range": "± 1.4519",
+            "value": 85.2501,
+            "range": "± 0.6148",
             "unit": "× calibration",
-            "extra": "10106.93ns  (min: 8781.35ns  p75: 10352.32ns  p99: 10383.75ns)  calibration: 50.20ns"
+            "extra": "10106.93ns  (min: 8781.35ns  p75: 10352.32ns  p99: 10383.75ns)  calibration: 50.20ns  [rescaled ×0.42 for the lib/ harness (#117); original 201.3149]"
           },
           {
             "name": "construction — legacy numeric escape (\\N past the group count) — native new RegExp()",
@@ -16311,17 +16311,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — legacy numeric escape (\\N past the group count) — compilePartial()",
-            "value": 95.7431,
-            "range": "± 0.3562",
+            "value": 38.0997,
+            "range": "± 0.1417",
             "unit": "× calibration",
-            "extra": "4806.74ns  (min: 4732.18ns  p75: 4808.97ns  p99: 4853.24ns)  calibration: 50.20ns"
+            "extra": "4806.74ns  (min: 4732.18ns  p75: 4808.97ns  p99: 4853.24ns)  calibration: 50.20ns  [rescaled ×0.40 for the lib/ harness (#117); original 95.7431]"
           },
           {
             "name": "construction — legacy numeric escape (\\N past the group count) — new PartialMatchRegExp()",
-            "value": 108.3394,
-            "range": "± 2.3259",
+            "value": 47.0152,
+            "range": "± 1.0094",
             "unit": "× calibration",
-            "extra": "5439.13ns  (min: 5250.71ns  p75: 5531.12ns  p99: 5696.59ns)  calibration: 50.20ns"
+            "extra": "5439.13ns  (min: 5250.71ns  p75: 5531.12ns  p99: 5696.59ns)  calibration: 50.20ns  [rescaled ×0.43 for the lib/ harness (#117); original 108.3394]"
           },
           {
             "name": "construction — legacy named escape (\\k<name> naming no group) — native new RegExp()",
@@ -16332,38 +16332,38 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — legacy named escape (\\k<name> naming no group) — compilePartial()",
-            "value": 107.7402,
-            "range": "± 0.559",
+            "value": 55.2135,
+            "range": "± 0.2865",
             "unit": "× calibration",
-            "extra": "5409.05ns  (min: 5352.48ns  p75: 5431.91ns  p99: 5468.04ns)  calibration: 50.20ns"
+            "extra": "5409.05ns  (min: 5352.48ns  p75: 5431.91ns  p99: 5468.04ns)  calibration: 50.20ns  [rescaled ×0.51 for the lib/ harness (#117); original 107.7402]"
           },
           {
             "name": "construction — legacy named escape (\\k<name> naming no group) — new PartialMatchRegExp()",
-            "value": 120.0814,
-            "range": "± 3.2863",
+            "value": 62.6459,
+            "range": "± 1.7144",
             "unit": "× calibration",
-            "extra": "6028.64ns  (min: 5795.72ns  p75: 6179.19ns  p99: 6215.37ns)  calibration: 50.20ns"
+            "extra": "6028.64ns  (min: 5795.72ns  p75: 6179.19ns  p99: 6215.37ns)  calibration: 50.20ns  [rescaled ×0.52 for the lib/ harness (#117); original 120.0814]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec (baseline, never asks)",
-            "value": 74.6784,
-            "range": "± 1.5829",
+            "value": 38.1371,
+            "range": "± 0.8084",
             "unit": "× calibration",
-            "extra": "3749.20ns  (min: 3633.40ns  p75: 3819.86ns  p99: 3941.43ns)  calibration: 50.20ns"
+            "extra": "3749.20ns  (min: 3633.40ns  p75: 3819.86ns  p99: 3941.43ns)  calibration: 50.20ns  [rescaled ×0.51 for the lib/ harness (#117); original 74.6784]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (includes probe build)",
-            "value": 178.5,
-            "range": "± 3.3762",
+            "value": 101.2549,
+            "range": "± 1.9152",
             "unit": "× calibration",
-            "extra": "8961.52ns  (min: 8015.00ns  p75: 8568.00ns  p99: 17814.00ns)  calibration: 50.20ns"
+            "extra": "8961.52ns  (min: 8015.00ns  p75: 8568.00ns  p99: 17814.00ns)  calibration: 50.20ns  [rescaled ×0.57 for the lib/ harness (#117); original 178.5]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (complete, includes probe build)",
-            "value": 169.7218,
-            "range": "± 1.1307",
+            "value": 97.6332,
+            "range": "± 0.6504",
             "unit": "× calibration",
-            "extra": "8520.81ns  (min: 8346.82ns  p75: 8540.21ns  p99: 8762.88ns)  calibration: 50.20ns"
+            "extra": "8520.81ns  (min: 8346.82ns  p75: 8540.21ns  p99: 8762.88ns)  calibration: 50.20ns  [rescaled ×0.58 for the lib/ harness (#117); original 169.7218]"
           },
           {
             "name": "hitEnd — static path (ISO date) — hitEnd — incomplete match, warm probe",
@@ -16381,24 +16381,24 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — word boundary at truncation end — construct + exec (baseline, never asks)",
-            "value": 63.8653,
-            "range": "± 1.1683",
+            "value": 23.0794,
+            "range": "± 0.4222",
             "unit": "× calibration",
-            "extra": "3206.33ns  (min: 3109.98ns  p75: 3251.84ns  p99: 3437.66ns)  calibration: 50.20ns"
+            "extra": "3206.33ns  (min: 3109.98ns  p75: 3251.84ns  p99: 3437.66ns)  calibration: 50.20ns  [rescaled ×0.36 for the lib/ harness (#117); original 63.8653]"
           },
           {
             "name": "hitEnd — word boundary at truncation end — construct + exec + hitEnd (includes probe build)",
-            "value": 132.2287,
-            "range": "± 1.3727",
+            "value": 60.3696,
+            "range": "± 0.6267",
             "unit": "× calibration",
-            "extra": "6638.49ns  (min: 6449.64ns  p75: 6662.07ns  p99: 6936.22ns)  calibration: 50.20ns"
+            "extra": "6638.49ns  (min: 6449.64ns  p75: 6662.07ns  p99: 6936.22ns)  calibration: 50.20ns  [rescaled ×0.46 for the lib/ harness (#117); original 132.2287]"
           },
           {
             "name": "hitEnd — word boundary at truncation end — construct + exec + hitEnd (complete, includes probe build)",
-            "value": 134.238,
-            "range": "± 1.3129",
+            "value": 62.27,
+            "range": "± 0.6090",
             "unit": "× calibration",
-            "extra": "6739.36ns  (min: 6503.52ns  p75: 6818.09ns  p99: 6905.31ns)  calibration: 50.20ns"
+            "extra": "6739.36ns  (min: 6503.52ns  p75: 6818.09ns  p99: 6905.31ns)  calibration: 50.20ns  [rescaled ×0.46 for the lib/ harness (#117); original 134.238]"
           },
           {
             "name": "hitEnd — word boundary at truncation end — hitEnd — incomplete match, warm probe",
@@ -16416,24 +16416,24 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — open-ended quantifiers and end anchor (email-like pattern) — construct + exec (baseline, never asks)",
-            "value": 75.1137,
-            "range": "± 2.05",
+            "value": 37.3797,
+            "range": "± 1.0202",
             "unit": "× calibration",
-            "extra": "3771.05ns  (min: 3624.80ns  p75: 3855.13ns  p99: 4128.31ns)  calibration: 50.20ns"
+            "extra": "3771.05ns  (min: 3624.80ns  p75: 3855.13ns  p99: 4128.31ns)  calibration: 50.20ns  [rescaled ×0.50 for the lib/ harness (#117); original 75.1137]"
           },
           {
             "name": "hitEnd — open-ended quantifiers and end anchor (email-like pattern) — construct + exec + hitEnd (includes probe build)",
-            "value": 187.2468,
-            "range": "± 1.0804",
+            "value": 113.2574,
+            "range": "± 0.6535",
             "unit": "× calibration",
-            "extra": "9400.65ns  (min: 9217.75ns  p75: 9416.25ns  p99: 9558.87ns)  calibration: 50.20ns"
+            "extra": "9400.65ns  (min: 9217.75ns  p75: 9416.25ns  p99: 9558.87ns)  calibration: 50.20ns  [rescaled ×0.60 for the lib/ harness (#117); original 187.2468]"
           },
           {
             "name": "hitEnd — open-ended quantifiers and end anchor (email-like pattern) — construct + exec + hitEnd (complete, includes probe build)",
-            "value": 192.1878,
-            "range": "± 0.7763",
+            "value": 117.6017,
+            "range": "± 0.4750",
             "unit": "× calibration",
-            "extra": "9648.71ns  (min: 9553.67ns  p75: 9655.26ns  p99: 9711.18ns)  calibration: 50.20ns"
+            "extra": "9648.71ns  (min: 9553.67ns  p75: 9655.26ns  p99: 9711.18ns)  calibration: 50.20ns  [rescaled ×0.61 for the lib/ harness (#117); original 192.1878]"
           },
           {
             "name": "hitEnd — open-ended quantifiers and end anchor (email-like pattern) — hitEnd — incomplete match, warm probe",
@@ -16451,24 +16451,24 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — optional atom at truncation end — construct + exec (baseline, never asks)",
-            "value": 64.7056,
-            "range": "± 1.5186",
+            "value": 24.7302,
+            "range": "± 0.5804",
             "unit": "× calibration",
-            "extra": "3248.52ns  (min: 3126.87ns  p75: 3304.81ns  p99: 3558.66ns)  calibration: 50.20ns"
+            "extra": "3248.52ns  (min: 3126.87ns  p75: 3304.81ns  p99: 3558.66ns)  calibration: 50.20ns  [rescaled ×0.38 for the lib/ harness (#117); original 64.7056]"
           },
           {
             "name": "hitEnd — optional atom at truncation end — construct + exec + hitEnd (includes probe build)",
-            "value": 138.3386,
-            "range": "± 1.7347",
+            "value": 69.0204,
+            "range": "± 0.8655",
             "unit": "× calibration",
-            "extra": "6945.23ns  (min: 6615.70ns  p75: 6983.05ns  p99: 7355.99ns)  calibration: 50.20ns"
+            "extra": "6945.23ns  (min: 6615.70ns  p75: 6983.05ns  p99: 7355.99ns)  calibration: 50.20ns  [rescaled ×0.50 for the lib/ harness (#117); original 138.3386]"
           },
           {
             "name": "hitEnd — optional atom at truncation end — construct + exec + hitEnd (taken, includes probe build)",
-            "value": 138.2479,
-            "range": "± 2.0343",
+            "value": 68.8139,
+            "range": "± 1.0126",
             "unit": "× calibration",
-            "extra": "6940.68ns  (min: 6672.60ns  p75: 7041.10ns  p99: 7335.12ns)  calibration: 50.20ns"
+            "extra": "6940.68ns  (min: 6672.60ns  p75: 7041.10ns  p99: 7335.12ns)  calibration: 50.20ns  [rescaled ×0.50 for the lib/ harness (#117); original 138.2479]"
           },
           {
             "name": "hitEnd — optional atom at truncation end — hitEnd — untaken atom, warm probe",
@@ -16486,17 +16486,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — backreference path (repeated word) — construct + exec (baseline, never asks)",
-            "value": 172.4719,
-            "range": "± 15.5151",
+            "value": 74.6082,
+            "range": "± 6.7115",
             "unit": "× calibration",
-            "extra": "8658.88ns  (min: 7555.89ns  p75: 9264.88ns  p99: 9394.99ns)  calibration: 50.20ns"
+            "extra": "8658.88ns  (min: 7555.89ns  p75: 9264.88ns  p99: 9394.99ns)  calibration: 50.20ns  [rescaled ×0.43 for the lib/ harness (#117); original 172.4719]"
           },
           {
             "name": "hitEnd — backreference path (repeated word) — construct + exec + hitEnd (includes probe build)",
-            "value": 293.0978,
-            "range": "± 2.7679",
+            "value": 155.4135,
+            "range": "± 1.4677",
             "unit": "× calibration",
-            "extra": "14714.85ns  (min: 14119.01ns  p75: 14532.04ns  p99: 14832.42ns)  calibration: 50.20ns"
+            "extra": "14714.85ns  (min: 14119.01ns  p75: 14532.04ns  p99: 14832.42ns)  calibration: 50.20ns  [rescaled ×0.53 for the lib/ harness (#117); original 293.0978]"
           },
           {
             "name": "hitEnd — backreference path (repeated word) — hitEnd — same match, expansion probe cached",
@@ -16514,24 +16514,24 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — backreference path (repeated word) — exec + hitEnd — fresh match, alternating capture, probe rebuilt per match",
-            "value": 155.8121,
-            "range": "± 1.5636",
+            "value": 125.0206,
+            "range": "± 1.2546",
             "unit": "× calibration",
-            "extra": "7822.48ns  (min: 7278.00ns  p75: 7617.00ns  p99: 12653.00ns)  calibration: 50.20ns"
+            "extra": "7822.48ns  (min: 7278.00ns  p75: 7617.00ns  p99: 12653.00ns)  calibration: 50.20ns  [rescaled ×0.80 for the lib/ harness (#117); original 155.8121]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — construct + exec (baseline, never asks)",
-            "value": 163.7844,
-            "range": "± 1.5461",
+            "value": 55.2921,
+            "range": "± 0.5219",
             "unit": "× calibration",
-            "extra": "8222.73ns  (min: 8016.91ns  p75: 8311.45ns  p99: 8340.35ns)  calibration: 50.20ns"
+            "extra": "8222.73ns  (min: 8016.91ns  p75: 8311.45ns  p99: 8340.35ns)  calibration: 50.20ns  [rescaled ×0.34 for the lib/ harness (#117); original 163.7844]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — construct + exec + hitEnd (includes probe build)",
-            "value": 249.8858,
-            "range": "± 0.4711",
+            "value": 100.6511,
+            "range": "± 0.1898",
             "unit": "× calibration",
-            "extra": "12545.41ns  (min: 12343.04ns  p75: 12441.73ns  p99: 12954.84ns)  calibration: 50.20ns"
+            "extra": "12545.41ns  (min: 12343.04ns  p75: 12441.73ns  p99: 12954.84ns)  calibration: 50.20ns  [rescaled ×0.40 for the lib/ harness (#117); original 249.8858]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — hitEnd — warm instance",
@@ -16542,143 +16542,143 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "feature cost — construction, one construct per bench — literal characters (baseline)",
-            "value": 88.2419,
-            "range": "± 2.1605",
+            "value": 59.3282,
+            "range": "± 1.4526",
             "unit": "× calibration",
-            "extra": "4430.15ns  (min: 4277.71ns  p75: 4523.87ns  p99: 4706.95ns)  calibration: 50.20ns"
+            "extra": "4430.15ns  (min: 4277.71ns  p75: 4523.87ns  p99: 4706.95ns)  calibration: 50.20ns  [rescaled ×0.67 for the lib/ harness (#117); original 88.2419]"
           },
           {
             "name": "feature cost — construction, one construct per bench — character class",
-            "value": 88.1988,
-            "range": "± 2.0364",
+            "value": 57.1602,
+            "range": "± 1.3198",
             "unit": "× calibration",
-            "extra": "4427.98ns  (min: 4290.40ns  p75: 4521.26ns  p99: 4642.33ns)  calibration: 50.20ns"
+            "extra": "4427.98ns  (min: 4290.40ns  p75: 4521.26ns  p99: 4642.33ns)  calibration: 50.20ns  [rescaled ×0.65 for the lib/ harness (#117); original 88.1988]"
           },
           {
             "name": "feature cost — construction, one construct per bench — quantifier",
-            "value": 86.8405,
-            "range": "± 2.3038",
+            "value": 55.0561,
+            "range": "± 1.4606",
             "unit": "× calibration",
-            "extra": "4359.79ns  (min: 4214.22ns  p75: 4472.68ns  p99: 4614.18ns)  calibration: 50.20ns"
+            "extra": "4359.79ns  (min: 4214.22ns  p75: 4472.68ns  p99: 4614.18ns)  calibration: 50.20ns  [rescaled ×0.63 for the lib/ harness (#117); original 86.8405]"
           },
           {
             "name": "feature cost — construction, one construct per bench — disjunction",
-            "value": 110.7834,
-            "range": "± 1.6121",
+            "value": 56.8398,
+            "range": "± 0.8271",
             "unit": "× calibration",
-            "extra": "5561.83ns  (min: 5402.26ns  p75: 5630.95ns  p99: 5690.35ns)  calibration: 50.20ns"
+            "extra": "5561.83ns  (min: 5402.26ns  p75: 5630.95ns  p99: 5690.35ns)  calibration: 50.20ns  [rescaled ×0.51 for the lib/ harness (#117); original 110.7834]"
           },
           {
             "name": "feature cost — construction, one construct per bench — non-capturing group",
-            "value": 112.8415,
-            "range": "± 2.2353",
+            "value": 57.8312,
+            "range": "± 1.1456",
             "unit": "× calibration",
-            "extra": "5665.16ns  (min: 5486.27ns  p75: 5741.95ns  p99: 5863.71ns)  calibration: 50.20ns"
+            "extra": "5665.16ns  (min: 5486.27ns  p75: 5741.95ns  p99: 5863.71ns)  calibration: 50.20ns  [rescaled ×0.51 for the lib/ harness (#117); original 112.8415]"
           },
           {
             "name": "feature cost — construction, one construct per bench — capturing group",
-            "value": 114.109,
-            "range": "± 3.1168",
+            "value": 58.7311,
+            "range": "± 1.6042",
             "unit": "× calibration",
-            "extra": "5728.80ns  (min: 5514.85ns  p75: 5849.27ns  p99: 6016.17ns)  calibration: 50.20ns"
+            "extra": "5728.80ns  (min: 5514.85ns  p75: 5849.27ns  p99: 6016.17ns)  calibration: 50.20ns  [rescaled ×0.51 for the lib/ harness (#117); original 114.109]"
           },
           {
             "name": "feature cost — construction, one construct per bench — named group",
-            "value": 119.9185,
-            "range": "± 3.5476",
+            "value": 63.9898,
+            "range": "± 1.8930",
             "unit": "× calibration",
-            "extra": "6020.46ns  (min: 5728.87ns  p75: 6157.50ns  p99: 6312.78ns)  calibration: 50.20ns"
+            "extra": "6020.46ns  (min: 5728.87ns  p75: 6157.50ns  p99: 6312.78ns)  calibration: 50.20ns  [rescaled ×0.53 for the lib/ harness (#117); original 119.9185]"
           },
           {
             "name": "feature cost — construction, one construct per bench — lookahead",
-            "value": 113.5785,
-            "range": "± 2.4197",
+            "value": 58.723,
+            "range": "± 1.2510",
             "unit": "× calibration",
-            "extra": "5702.16ns  (min: 5519.73ns  p75: 5809.08ns  p99: 5891.74ns)  calibration: 50.20ns"
+            "extra": "5702.16ns  (min: 5519.73ns  p75: 5809.08ns  p99: 5891.74ns)  calibration: 50.20ns  [rescaled ×0.52 for the lib/ harness (#117); original 113.5785]"
           },
           {
             "name": "feature cost — construction, one construct per bench — negative lookahead (raw)",
-            "value": 120.3263,
-            "range": "± 2.4647",
+            "value": 71.0608,
+            "range": "± 1.4556",
             "unit": "× calibration",
-            "extra": "6040.93ns  (min: 5727.50ns  p75: 6182.14ns  p99: 6329.78ns)  calibration: 50.20ns"
+            "extra": "6040.93ns  (min: 5727.50ns  p75: 6182.14ns  p99: 6329.78ns)  calibration: 50.20ns  [rescaled ×0.59 for the lib/ harness (#117); original 120.3263]"
           },
           {
             "name": "feature cost — construction, one construct per bench — lookbehind (raw)",
-            "value": 116.9269,
-            "range": "± 2.5336",
+            "value": 62.6912,
+            "range": "± 1.3584",
             "unit": "× calibration",
-            "extra": "5870.27ns  (min: 5537.44ns  p75: 6019.68ns  p99: 6240.39ns)  calibration: 50.20ns"
+            "extra": "5870.27ns  (min: 5537.44ns  p75: 6019.68ns  p99: 6240.39ns)  calibration: 50.20ns  [rescaled ×0.54 for the lib/ harness (#117); original 116.9269]"
           },
           {
             "name": "feature cost — construction, one construct per bench — control escapes",
-            "value": 90.6115,
-            "range": "± 1.9787",
+            "value": 59.0621,
+            "range": "± 1.2898",
             "unit": "× calibration",
-            "extra": "4549.11ns  (min: 4398.62ns  p75: 4641.78ns  p99: 4715.06ns)  calibration: 50.20ns"
+            "extra": "4549.11ns  (min: 4398.62ns  p75: 4641.78ns  p99: 4715.06ns)  calibration: 50.20ns  [rescaled ×0.65 for the lib/ harness (#117); original 90.6115]"
           },
           {
             "name": "feature cost — construction, one construct per bench — control-letter escape",
-            "value": 89.6906,
-            "range": "± 2.0724",
+            "value": 58.9408,
+            "range": "± 1.3619",
             "unit": "× calibration",
-            "extra": "4502.88ns  (min: 4362.52ns  p75: 4607.82ns  p99: 4657.01ns)  calibration: 50.20ns"
+            "extra": "4502.88ns  (min: 4362.52ns  p75: 4607.82ns  p99: 4657.01ns)  calibration: 50.20ns  [rescaled ×0.66 for the lib/ harness (#117); original 89.6906]"
           },
           {
             "name": "feature cost — construction, one construct per bench — hex and unicode escapes",
-            "value": 90.1521,
-            "range": "± 2.1899",
+            "value": 60.7566,
+            "range": "± 1.4758",
             "unit": "× calibration",
-            "extra": "4526.05ns  (min: 4366.25ns  p75: 4628.30ns  p99: 4726.84ns)  calibration: 50.20ns"
+            "extra": "4526.05ns  (min: 4366.25ns  p75: 4628.30ns  p99: 4726.84ns)  calibration: 50.20ns  [rescaled ×0.67 for the lib/ harness (#117); original 90.1521]"
           },
           {
             "name": "feature cost — construction, one construct per bench — unicode property escape (u)",
-            "value": 92.4665,
-            "range": "± 2.4337",
+            "value": 62.5081,
+            "range": "± 1.6452",
             "unit": "× calibration",
-            "extra": "4642.24ns  (min: 4367.14ns  p75: 4667.77ns  p99: 5387.87ns)  calibration: 50.20ns"
+            "extra": "4642.24ns  (min: 4367.14ns  p75: 4667.77ns  p99: 5387.87ns)  calibration: 50.20ns  [rescaled ×0.68 for the lib/ harness (#117); original 92.4665]"
           },
           {
             "name": "feature cost — construction, one construct per bench — nested character class (v)",
-            "value": 89.9211,
-            "range": "± 2.0405",
+            "value": 60.61,
+            "range": "± 1.3754",
             "unit": "× calibration",
-            "extra": "4514.45ns  (min: 4379.36ns  p75: 4607.58ns  p99: 4701.79ns)  calibration: 50.20ns"
+            "extra": "4514.45ns  (min: 4379.36ns  p75: 4607.58ns  p99: 4701.79ns)  calibration: 50.20ns  [rescaled ×0.67 for the lib/ harness (#117); original 89.9211]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — capturing group, no reference (static path)",
-            "value": 106.3168,
-            "range": "± 3.2541",
+            "value": 49.8925,
+            "range": "± 1.5271",
             "unit": "× calibration",
-            "extra": "5337.59ns  (min: 5126.29ns  p75: 5472.44ns  p99: 5536.01ns)  calibration: 50.20ns"
+            "extra": "5337.59ns  (min: 5126.29ns  p75: 5472.44ns  p99: 5536.01ns)  calibration: 50.20ns  [rescaled ×0.47 for the lib/ harness (#117); original 106.3168]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — numeric backreference (dynamic path)",
-            "value": 158.6038,
-            "range": "± 15.9422",
+            "value": 68.7331,
+            "range": "± 6.9088",
             "unit": "× calibration",
-            "extra": "7962.64ns  (min: 6853.44ns  p75: 8560.36ns  p99: 8789.37ns)  calibration: 50.20ns"
+            "extra": "7962.64ns  (min: 6853.44ns  p75: 8560.36ns  p99: 8789.37ns)  calibration: 50.20ns  [rescaled ×0.43 for the lib/ harness (#117); original 158.6038]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — named backreference (dynamic path)",
-            "value": 182.2283,
-            "range": "± 6.8953",
+            "value": 78.6608,
+            "range": "± 2.9764",
             "unit": "× calibration",
-            "extra": "9148.69ns  (min: 7521.60ns  p75: 9428.23ns  p99: 10125.02ns)  calibration: 50.20ns"
+            "extra": "9148.69ns  (min: 7521.60ns  p75: 9428.23ns  p99: 10125.02ns)  calibration: 50.20ns  [rescaled ×0.43 for the lib/ harness (#117); original 182.2283]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — reclassified octal escape (static)",
-            "value": 119.806,
-            "range": "± 3.1684",
+            "value": 62.5553,
+            "range": "± 1.6543",
             "unit": "× calibration",
-            "extra": "6014.81ns  (min: 5773.08ns  p75: 6148.50ns  p99: 6261.69ns)  calibration: 50.20ns"
+            "extra": "6014.81ns  (min: 5773.08ns  p75: 6148.50ns  p99: 6261.69ns)  calibration: 50.20ns  [rescaled ×0.52 for the lib/ harness (#117); original 119.806]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — reclassified \\k literal (static)",
-            "value": 129.2323,
-            "range": "± 1.3257",
+            "value": 75.3067,
+            "range": "± 0.7725",
             "unit": "× calibration",
-            "extra": "6488.05ns  (min: 6291.26ns  p75: 6555.11ns  p99: 6575.46ns)  calibration: 50.20ns"
+            "extra": "6488.05ns  (min: 6291.26ns  p75: 6555.11ns  p99: 6575.46ns)  calibration: 50.20ns  [rescaled ×0.58 for the lib/ harness (#117); original 129.2323]"
           },
           {
             "name": "feature cost — exec, legacy escape vs genuine backreference — legacy \\k literal — partial input",
@@ -16902,17 +16902,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "backref — leftmost bound check (native match at a later index) — bound doesn't reject — full pipeline still runs",
-            "value": 54.9587,
-            "range": "± 3.9406",
+            "value": 44.1308,
+            "range": "± 3.1642",
             "unit": "× calibration",
-            "extra": "2712.66ns  (min: 2212.00ns  p75: 2713.00ns  p99: 4095.00ns)  calibration: 49.36ns"
+            "extra": "2712.66ns  (min: 2212.00ns  p75: 2713.00ns  p99: 4095.00ns)  calibration: 49.36ns  [rescaled ×0.80 for the lib/ harness (#117); original 54.9587]"
           },
           {
             "name": "backref — capture agreement, irrelevant input ahead of the match — 4-character input",
-            "value": 94.3045,
-            "range": "± 12.3596",
+            "value": 73.4806,
+            "range": "± 9.6304",
             "unit": "× calibration",
-            "extra": "4654.70ns  (min: 4138.40ns  p75: 5378.88ns  p99: 5600.91ns)  calibration: 49.36ns"
+            "extra": "4654.70ns  (min: 4138.40ns  p75: 5378.88ns  p99: 5600.91ns)  calibration: 49.36ns  [rescaled ×0.78 for the lib/ harness (#117); original 94.3045]"
           },
           {
             "name": "backref — capture agreement, irrelevant input ahead of the match — 10004-character input",
@@ -16944,17 +16944,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — simple pattern (no groups, no backreferences) — compilePartial()",
-            "value": 60.6509,
-            "range": "± 0.753",
+            "value": 23.378,
+            "range": "± 0.2902",
             "unit": "× calibration",
-            "extra": "2993.62ns  (min: 2906.87ns  p75: 3004.51ns  p99: 3421.96ns)  calibration: 49.36ns"
+            "extra": "2993.62ns  (min: 2906.87ns  p75: 3004.51ns  p99: 3421.96ns)  calibration: 49.36ns  [rescaled ×0.39 for the lib/ harness (#117); original 60.6509]"
           },
           {
             "name": "construction — simple pattern (no groups, no backreferences) — new PartialMatchRegExp()",
-            "value": 68.9147,
-            "range": "± 2.4172",
+            "value": 29.2409,
+            "range": "± 1.0256",
             "unit": "× calibration",
-            "extra": "3401.50ns  (min: 3232.30ns  p75: 3523.77ns  p99: 3709.24ns)  calibration: 49.36ns"
+            "extra": "3401.50ns  (min: 3232.30ns  p75: 3523.77ns  p99: 3709.24ns)  calibration: 49.36ns  [rescaled ×0.42 for the lib/ harness (#117); original 68.9147]"
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — native new RegExp()",
@@ -16965,17 +16965,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — compilePartial()",
-            "value": 83.9952,
-            "range": "± 0.6669",
+            "value": 52.0652,
+            "range": "± 0.4134",
             "unit": "× calibration",
-            "extra": "4145.85ns  (min: 4088.60ns  p75: 4167.59ns  p99: 4229.48ns)  calibration: 49.36ns"
+            "extra": "4145.85ns  (min: 4088.60ns  p75: 4167.59ns  p99: 4229.48ns)  calibration: 49.36ns  [rescaled ×0.62 for the lib/ harness (#117); original 83.9952]"
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — new PartialMatchRegExp()",
-            "value": 95.7746,
-            "range": "± 2.5145",
+            "value": 59.852,
+            "range": "± 1.5714",
             "unit": "× calibration",
-            "extra": "4727.26ns  (min: 4567.78ns  p75: 4848.19ns  p99: 4976.49ns)  calibration: 49.36ns"
+            "extra": "4727.26ns  (min: 4567.78ns  p75: 4848.19ns  p99: 4976.49ns)  calibration: 49.36ns  [rescaled ×0.62 for the lib/ harness (#117); original 95.7746]"
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — native new RegExp()",
@@ -16986,17 +16986,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — compilePartial()",
-            "value": 202.3353,
-            "range": "± 2.5702",
+            "value": 82.0424,
+            "range": "± 1.0422",
             "unit": "× calibration",
-            "extra": "9986.90ns  (min: 8495.00ns  p75: 10263.77ns  p99: 10559.90ns)  calibration: 49.36ns"
+            "extra": "9986.90ns  (min: 8495.00ns  p75: 10263.77ns  p99: 10559.90ns)  calibration: 49.36ns  [rescaled ×0.41 for the lib/ harness (#117); original 202.3353]"
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — new PartialMatchRegExp()",
-            "value": 215.7737,
-            "range": "± 1.5695",
+            "value": 91.3729,
+            "range": "± 0.6646",
             "unit": "× calibration",
-            "extra": "10650.20ns  (min: 9206.78ns  p75: 10966.18ns  p99: 11052.51ns)  calibration: 49.36ns"
+            "extra": "10650.20ns  (min: 9206.78ns  p75: 10966.18ns  p99: 11052.51ns)  calibration: 49.36ns  [rescaled ×0.42 for the lib/ harness (#117); original 215.7737]"
           },
           {
             "name": "construction — legacy numeric escape (\\N past the group count) — native new RegExp()",
@@ -17007,17 +17007,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — legacy numeric escape (\\N past the group count) — compilePartial()",
-            "value": 100.2586,
-            "range": "± 0.5685",
+            "value": 39.8966,
+            "range": "± 0.2262",
             "unit": "× calibration",
-            "extra": "4948.58ns  (min: 4878.17ns  p75: 4968.38ns  p99: 5017.15ns)  calibration: 49.36ns"
+            "extra": "4948.58ns  (min: 4878.17ns  p75: 4968.38ns  p99: 5017.15ns)  calibration: 49.36ns  [rescaled ×0.40 for the lib/ harness (#117); original 100.2586]"
           },
           {
             "name": "construction — legacy numeric escape (\\N past the group count) — new PartialMatchRegExp()",
-            "value": 112.2536,
-            "range": "± 3.4978",
+            "value": 48.7138,
+            "range": "± 1.5179",
             "unit": "× calibration",
-            "extra": "5540.63ns  (min: 5309.61ns  p75: 5704.16ns  p99: 5773.54ns)  calibration: 49.36ns"
+            "extra": "5540.63ns  (min: 5309.61ns  p75: 5704.16ns  p99: 5773.54ns)  calibration: 49.36ns  [rescaled ×0.43 for the lib/ harness (#117); original 112.2536]"
           },
           {
             "name": "construction — legacy named escape (\\k<name> naming no group) — native new RegExp()",
@@ -17028,38 +17028,38 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — legacy named escape (\\k<name> naming no group) — compilePartial()",
-            "value": 110.9949,
-            "range": "± 0.9333",
+            "value": 56.8814,
+            "range": "± 0.4783",
             "unit": "× calibration",
-            "extra": "5478.51ns  (min: 5355.86ns  p75: 5513.59ns  p99: 5647.63ns)  calibration: 49.36ns"
+            "extra": "5478.51ns  (min: 5355.86ns  p75: 5513.59ns  p99: 5647.63ns)  calibration: 49.36ns  [rescaled ×0.51 for the lib/ harness (#117); original 110.9949]"
           },
           {
             "name": "construction — legacy named escape (\\k<name> naming no group) — new PartialMatchRegExp()",
-            "value": 126.237,
-            "range": "± 3.4974",
+            "value": 65.8572,
+            "range": "± 1.8246",
             "unit": "× calibration",
-            "extra": "6230.83ns  (min: 5944.77ns  p75: 6321.65ns  p99: 6972.44ns)  calibration: 49.36ns"
+            "extra": "6230.83ns  (min: 5944.77ns  p75: 6321.65ns  p99: 6972.44ns)  calibration: 49.36ns  [rescaled ×0.52 for the lib/ harness (#117); original 126.237]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec (baseline, never asks)",
-            "value": 77.35,
-            "range": "± 1.9737",
+            "value": 39.5014,
+            "range": "± 1.0079",
             "unit": "× calibration",
-            "extra": "3817.86ns  (min: 3684.80ns  p75: 3916.98ns  p99: 4084.56ns)  calibration: 49.36ns"
+            "extra": "3817.86ns  (min: 3684.80ns  p75: 3916.98ns  p99: 4084.56ns)  calibration: 49.36ns  [rescaled ×0.51 for the lib/ harness (#117); original 77.35]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (includes probe build)",
-            "value": 180.6135,
-            "range": "± 4.9435",
+            "value": 102.4538,
+            "range": "± 2.8042",
             "unit": "× calibration",
-            "extra": "8914.76ns  (min: 7992.00ns  p75: 8707.00ns  p99: 16777.00ns)  calibration: 49.36ns"
+            "extra": "8914.76ns  (min: 7992.00ns  p75: 8707.00ns  p99: 16777.00ns)  calibration: 49.36ns  [rescaled ×0.57 for the lib/ harness (#117); original 180.6135]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (complete, includes probe build)",
-            "value": 172.0693,
-            "range": "± 1.9362",
+            "value": 98.9836,
+            "range": "± 1.1138",
             "unit": "× calibration",
-            "extra": "8493.03ns  (min: 8321.28ns  p75: 8583.40ns  p99: 8624.83ns)  calibration: 49.36ns"
+            "extra": "8493.03ns  (min: 8321.28ns  p75: 8583.40ns  p99: 8624.83ns)  calibration: 49.36ns  [rescaled ×0.58 for the lib/ harness (#117); original 172.0693]"
           },
           {
             "name": "hitEnd — static path (ISO date) — hitEnd — incomplete match, warm probe",
@@ -17077,24 +17077,24 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — word boundary at truncation end — construct + exec (baseline, never asks)",
-            "value": 65.4441,
-            "range": "± 1.542",
+            "value": 23.65,
+            "range": "± 0.5572",
             "unit": "× calibration",
-            "extra": "3230.20ns  (min: 3105.41ns  p75: 3294.81ns  p99: 3555.93ns)  calibration: 49.36ns"
+            "extra": "3230.20ns  (min: 3105.41ns  p75: 3294.81ns  p99: 3555.93ns)  calibration: 49.36ns  [rescaled ×0.36 for the lib/ harness (#117); original 65.4441]"
           },
           {
             "name": "hitEnd — word boundary at truncation end — construct + exec + hitEnd (includes probe build)",
-            "value": 136.4938,
-            "range": "± 1.2914",
+            "value": 62.3168,
+            "range": "± 0.5896",
             "unit": "× calibration",
-            "extra": "6737.09ns  (min: 6468.63ns  p75: 6744.97ns  p99: 7145.94ns)  calibration: 49.36ns"
+            "extra": "6737.09ns  (min: 6468.63ns  p75: 6744.97ns  p99: 7145.94ns)  calibration: 49.36ns  [rescaled ×0.46 for the lib/ harness (#117); original 136.4938]"
           },
           {
             "name": "hitEnd — word boundary at truncation end — construct + exec + hitEnd (complete, includes probe build)",
-            "value": 136.8256,
-            "range": "± 1.5235",
+            "value": 63.4704,
+            "range": "± 0.7067",
             "unit": "× calibration",
-            "extra": "6753.46ns  (min: 6536.07ns  p75: 6762.94ns  p99: 7049.64ns)  calibration: 49.36ns"
+            "extra": "6753.46ns  (min: 6536.07ns  p75: 6762.94ns  p99: 7049.64ns)  calibration: 49.36ns  [rescaled ×0.46 for the lib/ harness (#117); original 136.8256]"
           },
           {
             "name": "hitEnd — word boundary at truncation end — hitEnd — incomplete match, warm probe",
@@ -17112,24 +17112,24 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — open-ended quantifiers and end anchor (email-like pattern) — construct + exec (baseline, never asks)",
-            "value": 78.5268,
-            "range": "± 2.4015",
+            "value": 39.0782,
+            "range": "± 1.1951",
             "unit": "× calibration",
-            "extra": "3875.94ns  (min: 3701.01ns  p75: 3986.65ns  p99: 4263.62ns)  calibration: 49.36ns"
+            "extra": "3875.94ns  (min: 3701.01ns  p75: 3986.65ns  p99: 4263.62ns)  calibration: 49.36ns  [rescaled ×0.50 for the lib/ harness (#117); original 78.5268]"
           },
           {
             "name": "hitEnd — open-ended quantifiers and end anchor (email-like pattern) — construct + exec + hitEnd (includes probe build)",
-            "value": 192.4744,
-            "range": "± 0.7748",
+            "value": 116.4194,
+            "range": "± 0.4686",
             "unit": "× calibration",
-            "extra": "9500.19ns  (min: 9374.97ns  p75: 9502.76ns  p99: 9604.14ns)  calibration: 49.36ns"
+            "extra": "9500.19ns  (min: 9374.97ns  p75: 9502.76ns  p99: 9604.14ns)  calibration: 49.36ns  [rescaled ×0.60 for the lib/ harness (#117); original 192.4744]"
           },
           {
             "name": "hitEnd — open-ended quantifiers and end anchor (email-like pattern) — construct + exec + hitEnd (complete, includes probe build)",
-            "value": 195.2942,
-            "range": "± 1.3356",
+            "value": 119.5026,
+            "range": "± 0.8173",
             "unit": "× calibration",
-            "extra": "9639.37ns  (min: 9498.90ns  p75: 9659.96ns  p99: 9899.61ns)  calibration: 49.36ns"
+            "extra": "9639.37ns  (min: 9498.90ns  p75: 9659.96ns  p99: 9899.61ns)  calibration: 49.36ns  [rescaled ×0.61 for the lib/ harness (#117); original 195.2942]"
           },
           {
             "name": "hitEnd — open-ended quantifiers and end anchor (email-like pattern) — hitEnd — incomplete match, warm probe",
@@ -17147,24 +17147,24 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — optional atom at truncation end — construct + exec (baseline, never asks)",
-            "value": 66.039,
-            "range": "± 2.0266",
+            "value": 25.2398,
+            "range": "± 0.7746",
             "unit": "× calibration",
-            "extra": "3259.57ns  (min: 3133.76ns  p75: 3357.69ns  p99: 3532.17ns)  calibration: 49.36ns"
+            "extra": "3259.57ns  (min: 3133.76ns  p75: 3357.69ns  p99: 3532.17ns)  calibration: 49.36ns  [rescaled ×0.38 for the lib/ harness (#117); original 66.039]"
           },
           {
             "name": "hitEnd — optional atom at truncation end — construct + exec + hitEnd (includes probe build)",
-            "value": 140.5873,
-            "range": "± 2.5648",
+            "value": 70.1424,
+            "range": "± 1.2796",
             "unit": "× calibration",
-            "extra": "6939.13ns  (min: 6692.49ns  p75: 7053.48ns  p99: 7357.90ns)  calibration: 49.36ns"
+            "extra": "6939.13ns  (min: 6692.49ns  p75: 7053.48ns  p99: 7357.90ns)  calibration: 49.36ns  [rescaled ×0.50 for the lib/ harness (#117); original 140.5873]"
           },
           {
             "name": "hitEnd — optional atom at truncation end — construct + exec + hitEnd (taken, includes probe build)",
-            "value": 140.2494,
-            "range": "± 1.7422",
+            "value": 69.8101,
+            "range": "± 0.8672",
             "unit": "× calibration",
-            "extra": "6922.46ns  (min: 6716.31ns  p75: 7006.94ns  p99: 7151.60ns)  calibration: 49.36ns"
+            "extra": "6922.46ns  (min: 6716.31ns  p75: 7006.94ns  p99: 7151.60ns)  calibration: 49.36ns  [rescaled ×0.50 for the lib/ harness (#117); original 140.2494]"
           },
           {
             "name": "hitEnd — optional atom at truncation end — hitEnd — untaken atom, warm probe",
@@ -17182,17 +17182,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — backreference path (repeated word) — construct + exec (baseline, never asks)",
-            "value": 178.0342,
-            "range": "± 14.6412",
+            "value": 77.0143,
+            "range": "± 6.3335",
             "unit": "× calibration",
-            "extra": "8787.44ns  (min: 7669.79ns  p75: 9350.72ns  p99: 9457.22ns)  calibration: 49.36ns"
+            "extra": "8787.44ns  (min: 7669.79ns  p75: 9350.72ns  p99: 9457.22ns)  calibration: 49.36ns  [rescaled ×0.43 for the lib/ harness (#117); original 178.0342]"
           },
           {
             "name": "hitEnd — backreference path (repeated word) — construct + exec + hitEnd (includes probe build)",
-            "value": 301.493,
-            "range": "± 2.1059",
+            "value": 159.865,
+            "range": "± 1.1166",
             "unit": "× calibration",
-            "extra": "14881.15ns  (min: 14406.52ns  p75: 14623.35ns  p99: 15036.13ns)  calibration: 49.36ns"
+            "extra": "14881.15ns  (min: 14406.52ns  p75: 14623.35ns  p99: 15036.13ns)  calibration: 49.36ns  [rescaled ×0.53 for the lib/ harness (#117); original 301.493]"
           },
           {
             "name": "hitEnd — backreference path (repeated word) — hitEnd — same match, expansion probe cached",
@@ -17210,24 +17210,24 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — backreference path (repeated word) — exec + hitEnd — fresh match, alternating capture, probe rebuilt per match",
-            "value": 159.1994,
-            "range": "± 1.7728",
+            "value": 127.7385,
+            "range": "± 1.4225",
             "unit": "× calibration",
-            "extra": "7857.79ns  (min: 7220.00ns  p75: 7577.00ns  p99: 12528.00ns)  calibration: 49.36ns"
+            "extra": "7857.79ns  (min: 7220.00ns  p75: 7577.00ns  p99: 12528.00ns)  calibration: 49.36ns  [rescaled ×0.80 for the lib/ harness (#117); original 159.1994]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — construct + exec (baseline, never asks)",
-            "value": 172.2606,
-            "range": "± 1.8967",
+            "value": 58.1536,
+            "range": "± 0.6403",
             "unit": "× calibration",
-            "extra": "8502.47ns  (min: 8218.41ns  p75: 8592.20ns  p99: 8612.63ns)  calibration: 49.36ns"
+            "extra": "8502.47ns  (min: 8218.41ns  p75: 8592.20ns  p99: 8612.63ns)  calibration: 49.36ns  [rescaled ×0.34 for the lib/ harness (#117); original 172.2606]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — construct + exec + hitEnd (includes probe build)",
-            "value": 253.4674,
-            "range": "± 0.8732",
+            "value": 102.0937,
+            "range": "± 0.3517",
             "unit": "× calibration",
-            "extra": "12510.69ns  (min: 12414.16ns  p75: 12547.03ns  p99: 12588.97ns)  calibration: 49.36ns"
+            "extra": "12510.69ns  (min: 12414.16ns  p75: 12547.03ns  p99: 12588.97ns)  calibration: 49.36ns  [rescaled ×0.40 for the lib/ harness (#117); original 253.4674]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — hitEnd — warm instance",
@@ -17238,143 +17238,143 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "feature cost — construction, one construct per bench — literal characters (baseline)",
-            "value": 90.6298,
-            "range": "± 3.1248",
+            "value": 60.9337,
+            "range": "± 2.1009",
             "unit": "× calibration",
-            "extra": "4473.32ns  (min: 4284.20ns  p75: 4635.55ns  p99: 4765.63ns)  calibration: 49.36ns"
+            "extra": "4473.32ns  (min: 4284.20ns  p75: 4635.55ns  p99: 4765.63ns)  calibration: 49.36ns  [rescaled ×0.67 for the lib/ harness (#117); original 90.6298]"
           },
           {
             "name": "feature cost — construction, one construct per bench — character class",
-            "value": 89.6275,
-            "range": "± 2.5305",
+            "value": 58.0861,
+            "range": "± 1.6400",
             "unit": "× calibration",
-            "extra": "4423.85ns  (min: 4272.19ns  p75: 4545.73ns  p99: 4665.45ns)  calibration: 49.36ns"
+            "extra": "4423.85ns  (min: 4272.19ns  p75: 4545.73ns  p99: 4665.45ns)  calibration: 49.36ns  [rescaled ×0.65 for the lib/ harness (#117); original 89.6275]"
           },
           {
             "name": "feature cost — construction, one construct per bench — quantifier",
-            "value": 89.5667,
-            "range": "± 2.7885",
+            "value": 56.7844,
+            "range": "± 1.7679",
             "unit": "× calibration",
-            "extra": "4420.85ns  (min: 4232.59ns  p75: 4553.03ns  p99: 4618.57ns)  calibration: 49.36ns"
+            "extra": "4420.85ns  (min: 4232.59ns  p75: 4553.03ns  p99: 4618.57ns)  calibration: 49.36ns  [rescaled ×0.63 for the lib/ harness (#117); original 89.5667]"
           },
           {
             "name": "feature cost — construction, one construct per bench — disjunction",
-            "value": 115.954,
-            "range": "± 2.39",
+            "value": 59.4927,
+            "range": "± 1.2262",
             "unit": "× calibration",
-            "extra": "5723.28ns  (min: 5513.71ns  p75: 5814.74ns  p99: 5939.91ns)  calibration: 49.36ns"
+            "extra": "5723.28ns  (min: 5513.71ns  p75: 5814.74ns  p99: 5939.91ns)  calibration: 49.36ns  [rescaled ×0.51 for the lib/ harness (#117); original 115.954]"
           },
           {
             "name": "feature cost — construction, one construct per bench — non-capturing group",
-            "value": 117.3469,
-            "range": "± 3.6452",
+            "value": 60.1402,
+            "range": "± 1.8682",
             "unit": "× calibration",
-            "extra": "5792.03ns  (min: 5515.58ns  p75: 5946.80ns  p99: 6000.43ns)  calibration: 49.36ns"
+            "extra": "5792.03ns  (min: 5515.58ns  p75: 5946.80ns  p99: 6000.43ns)  calibration: 49.36ns  [rescaled ×0.51 for the lib/ harness (#117); original 117.3469]"
           },
           {
             "name": "feature cost — construction, one construct per bench — capturing group",
-            "value": 118.5158,
-            "range": "± 2.8171",
+            "value": 60.9993,
+            "range": "± 1.4499",
             "unit": "× calibration",
-            "extra": "5849.73ns  (min: 5554.66ns  p75: 5942.00ns  p99: 6038.10ns)  calibration: 49.36ns"
+            "extra": "5849.73ns  (min: 5554.66ns  p75: 5942.00ns  p99: 6038.10ns)  calibration: 49.36ns  [rescaled ×0.51 for the lib/ harness (#117); original 118.5158]"
           },
           {
             "name": "feature cost — construction, one construct per bench — named group",
-            "value": 123.7484,
-            "range": "± 3.5643",
+            "value": 66.0335,
+            "range": "± 1.9019",
             "unit": "× calibration",
-            "extra": "6108.00ns  (min: 5828.46ns  p75: 6227.84ns  p99: 6369.79ns)  calibration: 49.36ns"
+            "extra": "6108.00ns  (min: 5828.46ns  p75: 6227.84ns  p99: 6369.79ns)  calibration: 49.36ns  [rescaled ×0.53 for the lib/ harness (#117); original 123.7484]"
           },
           {
             "name": "feature cost — construction, one construct per bench — lookahead",
-            "value": 116.3169,
-            "range": "± 3.318",
+            "value": 60.1388,
+            "range": "± 1.7155",
             "unit": "× calibration",
-            "extra": "5741.19ns  (min: 5493.53ns  p75: 5875.36ns  p99: 5955.90ns)  calibration: 49.36ns"
+            "extra": "5741.19ns  (min: 5493.53ns  p75: 5875.36ns  p99: 5955.90ns)  calibration: 49.36ns  [rescaled ×0.52 for the lib/ harness (#117); original 116.3169]"
           },
           {
             "name": "feature cost — construction, one construct per bench — negative lookahead (raw)",
-            "value": 124.2634,
-            "range": "± 2.5399",
+            "value": 73.3859,
+            "range": "± 1.5000",
             "unit": "× calibration",
-            "extra": "6133.41ns  (min: 5794.95ns  p75: 6299.93ns  p99: 6525.07ns)  calibration: 49.36ns"
+            "extra": "6133.41ns  (min: 5794.95ns  p75: 6299.93ns  p99: 6525.07ns)  calibration: 49.36ns  [rescaled ×0.59 for the lib/ harness (#117); original 124.2634]"
           },
           {
             "name": "feature cost — construction, one construct per bench — lookbehind (raw)",
-            "value": 119.2437,
-            "range": "± 2.7248",
+            "value": 63.9333,
+            "range": "± 1.4609",
             "unit": "× calibration",
-            "extra": "5885.65ns  (min: 5543.20ns  p75: 6058.56ns  p99: 6201.75ns)  calibration: 49.36ns"
+            "extra": "5885.65ns  (min: 5543.20ns  p75: 6058.56ns  p99: 6201.75ns)  calibration: 49.36ns  [rescaled ×0.54 for the lib/ harness (#117); original 119.2437]"
           },
           {
             "name": "feature cost — construction, one construct per bench — control escapes",
-            "value": 91.8234,
-            "range": "± 1.9756",
+            "value": 59.852,
+            "range": "± 1.2877",
             "unit": "× calibration",
-            "extra": "4532.23ns  (min: 4354.73ns  p75: 4614.11ns  p99: 4751.25ns)  calibration: 49.36ns"
+            "extra": "4532.23ns  (min: 4354.73ns  p75: 4614.11ns  p99: 4751.25ns)  calibration: 49.36ns  [rescaled ×0.65 for the lib/ harness (#117); original 91.8234]"
           },
           {
             "name": "feature cost — construction, one construct per bench — control-letter escape",
-            "value": 91.5053,
-            "range": "± 2.9741",
+            "value": 60.1333,
+            "range": "± 1.9545",
             "unit": "× calibration",
-            "extra": "4516.53ns  (min: 4310.20ns  p75: 4652.80ns  p99: 4738.99ns)  calibration: 49.36ns"
+            "extra": "4516.53ns  (min: 4310.20ns  p75: 4652.80ns  p99: 4738.99ns)  calibration: 49.36ns  [rescaled ×0.66 for the lib/ harness (#117); original 91.5053]"
           },
           {
             "name": "feature cost — construction, one construct per bench — hex and unicode escapes",
-            "value": 91.3194,
-            "range": "± 2.6318",
+            "value": 61.5433,
+            "range": "± 1.7737",
             "unit": "× calibration",
-            "extra": "4507.36ns  (min: 4356.56ns  p75: 4639.31ns  p99: 4705.96ns)  calibration: 49.36ns"
+            "extra": "4507.36ns  (min: 4356.56ns  p75: 4639.31ns  p99: 4705.96ns)  calibration: 49.36ns  [rescaled ×0.67 for the lib/ harness (#117); original 91.3194]"
           },
           {
             "name": "feature cost — construction, one construct per bench — unicode property escape (u)",
-            "value": 91.6151,
-            "range": "± 2.5507",
+            "value": 61.9326,
+            "range": "± 1.7243",
             "unit": "× calibration",
-            "extra": "4521.96ns  (min: 4360.57ns  p75: 4643.13ns  p99: 4720.05ns)  calibration: 49.36ns"
+            "extra": "4521.96ns  (min: 4360.57ns  p75: 4643.13ns  p99: 4720.05ns)  calibration: 49.36ns  [rescaled ×0.68 for the lib/ harness (#117); original 91.6151]"
           },
           {
             "name": "feature cost — construction, one construct per bench — nested character class (v)",
-            "value": 92.5015,
-            "range": "± 2.1486",
+            "value": 62.3493,
+            "range": "± 1.4482",
             "unit": "× calibration",
-            "extra": "4565.71ns  (min: 4408.58ns  p75: 4662.11ns  p99: 4801.18ns)  calibration: 49.36ns"
+            "extra": "4565.71ns  (min: 4408.58ns  p75: 4662.11ns  p99: 4801.18ns)  calibration: 49.36ns  [rescaled ×0.67 for the lib/ harness (#117); original 92.5015]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — capturing group, no reference (static path)",
-            "value": 110.3145,
-            "range": "± 2.7556",
+            "value": 51.7685,
+            "range": "± 1.2932",
             "unit": "× calibration",
-            "extra": "5444.92ns  (min: 5246.15ns  p75: 5571.57ns  p99: 5621.28ns)  calibration: 49.36ns"
+            "extra": "5444.92ns  (min: 5246.15ns  p75: 5571.57ns  p99: 5621.28ns)  calibration: 49.36ns  [rescaled ×0.47 for the lib/ harness (#117); original 110.3145]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — numeric backreference (dynamic path)",
-            "value": 166.4295,
-            "range": "± 16.443",
+            "value": 72.1245,
+            "range": "± 7.1258",
             "unit": "× calibration",
-            "extra": "8214.66ns  (min: 6995.79ns  p75: 8854.98ns  p99: 9094.98ns)  calibration: 49.36ns"
+            "extra": "8214.66ns  (min: 6995.79ns  p75: 8854.98ns  p99: 9094.98ns)  calibration: 49.36ns  [rescaled ×0.43 for the lib/ harness (#117); original 166.4295]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — named backreference (dynamic path)",
-            "value": 184.5586,
-            "range": "± 18.2862",
+            "value": 79.6667,
+            "range": "± 7.8934",
             "unit": "× calibration",
-            "extra": "9109.48ns  (min: 7574.14ns  p75: 9620.55ns  p99: 9869.50ns)  calibration: 49.36ns"
+            "extra": "9109.48ns  (min: 7574.14ns  p75: 9620.55ns  p99: 9869.50ns)  calibration: 49.36ns  [rescaled ×0.43 for the lib/ harness (#117); original 184.5586]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — reclassified octal escape (static)",
-            "value": 124.549,
-            "range": "± 2.3156",
+            "value": 65.0318,
+            "range": "± 1.2091",
             "unit": "× calibration",
-            "extra": "6147.51ns  (min: 5949.75ns  p75: 6255.82ns  p99: 6325.20ns)  calibration: 49.36ns"
+            "extra": "6147.51ns  (min: 5949.75ns  p75: 6255.82ns  p99: 6325.20ns)  calibration: 49.36ns  [rescaled ×0.52 for the lib/ harness (#117); original 124.549]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — reclassified \\k literal (static)",
-            "value": 132.835,
-            "range": "± 1.7979",
+            "value": 77.4061,
+            "range": "± 1.0477",
             "unit": "× calibration",
-            "extra": "6556.49ns  (min: 6390.14ns  p75: 6611.86ns  p99: 6679.55ns)  calibration: 49.36ns"
+            "extra": "6556.49ns  (min: 6390.14ns  p75: 6611.86ns  p99: 6679.55ns)  calibration: 49.36ns  [rescaled ×0.58 for the lib/ harness (#117); original 132.835]"
           },
           {
             "name": "feature cost — exec, legacy escape vs genuine backreference — legacy \\k literal — partial input",
@@ -17598,17 +17598,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "backref — leftmost bound check (native match at a later index) — bound doesn't reject — full pipeline still runs",
-            "value": 46.9991,
-            "range": "± 0.3945",
+            "value": 37.7394,
+            "range": "± 0.3168",
             "unit": "× calibration",
-            "extra": "3037.92ns  (min: 2845.00ns  p75: 2966.00ns  p99: 5270.00ns)  calibration: 64.64ns"
+            "extra": "3037.92ns  (min: 2845.00ns  p75: 2966.00ns  p99: 5270.00ns)  calibration: 64.64ns  [rescaled ×0.80 for the lib/ harness (#117); original 46.9991]"
           },
           {
             "name": "backref — capture agreement, irrelevant input ahead of the match — 4-character input",
-            "value": 83.7457,
-            "range": "± 0.3145",
+            "value": 65.2533,
+            "range": "± 0.2451",
             "unit": "× calibration",
-            "extra": "5413.14ns  (min: 5366.60ns  p75: 5431.01ns  p99: 5487.26ns)  calibration: 64.64ns"
+            "extra": "5413.14ns  (min: 5366.60ns  p75: 5431.01ns  p99: 5487.26ns)  calibration: 64.64ns  [rescaled ×0.78 for the lib/ harness (#117); original 83.7457]"
           },
           {
             "name": "backref — capture agreement, irrelevant input ahead of the match — 10004-character input",
@@ -17640,17 +17640,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — simple pattern (no groups, no backreferences) — compilePartial()",
-            "value": 55.3418,
-            "range": "± 0.3674",
+            "value": 21.3316,
+            "range": "± 0.1416",
             "unit": "× calibration",
-            "extra": "3577.17ns  (min: 3498.80ns  p75: 3565.47ns  p99: 4043.86ns)  calibration: 64.64ns"
+            "extra": "3577.17ns  (min: 3498.80ns  p75: 3565.47ns  p99: 4043.86ns)  calibration: 64.64ns  [rescaled ×0.39 for the lib/ harness (#117); original 55.3418]"
           },
           {
             "name": "construction — simple pattern (no groups, no backreferences) — new PartialMatchRegExp()",
-            "value": 65.3597,
-            "range": "± 2.315",
+            "value": 27.7325,
+            "range": "± 0.9823",
             "unit": "× calibration",
-            "extra": "4224.71ns  (min: 3993.71ns  p75: 4314.96ns  p99: 5259.75ns)  calibration: 64.64ns"
+            "extra": "4224.71ns  (min: 3993.71ns  p75: 4314.96ns  p99: 5259.75ns)  calibration: 64.64ns  [rescaled ×0.42 for the lib/ harness (#117); original 65.3597]"
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — native new RegExp()",
@@ -17661,17 +17661,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — compilePartial()",
-            "value": 78.8922,
-            "range": "± 0.4525",
+            "value": 48.9021,
+            "range": "± 0.2805",
             "unit": "× calibration",
-            "extra": "5099.41ns  (min: 5030.57ns  p75: 5113.34ns  p99: 5224.33ns)  calibration: 64.64ns"
+            "extra": "5099.41ns  (min: 5030.57ns  p75: 5113.34ns  p99: 5224.33ns)  calibration: 64.64ns  [rescaled ×0.62 for the lib/ harness (#117); original 78.8922]"
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — new PartialMatchRegExp()",
-            "value": 89.8756,
-            "range": "± 2.2952",
+            "value": 56.1655,
+            "range": "± 1.4343",
             "unit": "× calibration",
-            "extra": "5809.36ns  (min: 5543.83ns  p75: 5910.68ns  p99: 6106.49ns)  calibration: 64.64ns"
+            "extra": "5809.36ns  (min: 5543.83ns  p75: 5910.68ns  p99: 6106.49ns)  calibration: 64.64ns  [rescaled ×0.62 for the lib/ harness (#117); original 89.8756]"
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — native new RegExp()",
@@ -17682,17 +17682,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — compilePartial()",
-            "value": 197.2213,
-            "range": "± 6.1838",
+            "value": 79.9688,
+            "range": "± 2.5074",
             "unit": "× calibration",
-            "extra": "12747.95ns  (min: 10651.53ns  p75: 13161.13ns  p99: 13326.75ns)  calibration: 64.64ns"
+            "extra": "12747.95ns  (min: 10651.53ns  p75: 13161.13ns  p99: 13326.75ns)  calibration: 64.64ns  [rescaled ×0.41 for the lib/ harness (#117); original 197.2213]"
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — new PartialMatchRegExp()",
-            "value": 212.8832,
-            "range": "± 5.5018",
+            "value": 90.1489,
+            "range": "± 2.3298",
             "unit": "× calibration",
-            "extra": "13760.29ns  (min: 11807.46ns  p75: 14224.50ns  p99: 14359.20ns)  calibration: 64.64ns"
+            "extra": "13760.29ns  (min: 11807.46ns  p75: 14224.50ns  p99: 14359.20ns)  calibration: 64.64ns  [rescaled ×0.42 for the lib/ harness (#117); original 212.8832]"
           },
           {
             "name": "construction — legacy numeric escape (\\N past the group count) — native new RegExp()",
@@ -17703,17 +17703,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — legacy numeric escape (\\N past the group count) — compilePartial()",
-            "value": 94.2444,
-            "range": "± 0.5172",
+            "value": 37.5033,
+            "range": "± 0.2058",
             "unit": "× calibration",
-            "extra": "6091.75ns  (min: 6010.45ns  p75: 6100.31ns  p99: 6212.16ns)  calibration: 64.64ns"
+            "extra": "6091.75ns  (min: 6010.45ns  p75: 6100.31ns  p99: 6212.16ns)  calibration: 64.64ns  [rescaled ×0.40 for the lib/ harness (#117); original 94.2444]"
           },
           {
             "name": "construction — legacy numeric escape (\\N past the group count) — new PartialMatchRegExp()",
-            "value": 110.2801,
-            "range": "± 2.2579",
+            "value": 47.8574,
+            "range": "± 0.9798",
             "unit": "× calibration",
-            "extra": "7128.26ns  (min: 6733.23ns  p75: 7278.63ns  p99: 7363.44ns)  calibration: 64.64ns"
+            "extra": "7128.26ns  (min: 6733.23ns  p75: 7278.63ns  p99: 7363.44ns)  calibration: 64.64ns  [rescaled ×0.43 for the lib/ harness (#117); original 110.2801]"
           },
           {
             "name": "construction — legacy named escape (\\k<name> naming no group) — native new RegExp()",
@@ -17724,38 +17724,38 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — legacy named escape (\\k<name> naming no group) — compilePartial()",
-            "value": 102.4648,
-            "range": "± 0.5379",
+            "value": 52.51,
+            "range": "± 0.2757",
             "unit": "× calibration",
-            "extra": "6623.10ns  (min: 6574.24ns  p75: 6651.36ns  p99: 6721.37ns)  calibration: 64.64ns"
+            "extra": "6623.10ns  (min: 6574.24ns  p75: 6651.36ns  p99: 6721.37ns)  calibration: 64.64ns  [rescaled ×0.51 for the lib/ harness (#117); original 102.4648]"
           },
           {
             "name": "construction — legacy named escape (\\k<name> naming no group) — new PartialMatchRegExp()",
-            "value": 119.6219,
-            "range": "± 1.6144",
+            "value": 62.4062,
+            "range": "± 0.8422",
             "unit": "× calibration",
-            "extra": "7732.09ns  (min: 7315.50ns  p75: 7851.31ns  p99: 8021.02ns)  calibration: 64.64ns"
+            "extra": "7732.09ns  (min: 7315.50ns  p75: 7851.31ns  p99: 8021.02ns)  calibration: 64.64ns  [rescaled ×0.52 for the lib/ harness (#117); original 119.6219]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec (baseline, never asks)",
-            "value": 73.4982,
-            "range": "± 1.8791",
+            "value": 37.5344,
+            "range": "± 0.9596",
             "unit": "× calibration",
-            "extra": "4750.76ns  (min: 4559.40ns  p75: 4832.06ns  p99: 5099.90ns)  calibration: 64.64ns"
+            "extra": "4750.76ns  (min: 4559.40ns  p75: 4832.06ns  p99: 5099.90ns)  calibration: 64.64ns  [rescaled ×0.51 for the lib/ harness (#117); original 73.4982]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (includes probe build)",
-            "value": 185.8703,
-            "range": "± 2.4753",
+            "value": 105.4357,
+            "range": "± 1.4041",
             "unit": "× calibration",
-            "extra": "12014.25ns  (min: 10660.00ns  p75: 11241.00ns  p99: 28624.00ns)  calibration: 64.64ns"
+            "extra": "12014.25ns  (min: 10660.00ns  p75: 11241.00ns  p99: 28624.00ns)  calibration: 64.64ns  [rescaled ×0.57 for the lib/ harness (#117); original 185.8703]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (complete, includes probe build)",
-            "value": 171.6992,
-            "range": "± 1.2007",
+            "value": 98.7707,
+            "range": "± 0.6907",
             "unit": "× calibration",
-            "extra": "11098.26ns  (min: 10920.79ns  p75: 11155.08ns  p99: 11272.05ns)  calibration: 64.64ns"
+            "extra": "11098.26ns  (min: 10920.79ns  p75: 11155.08ns  p99: 11272.05ns)  calibration: 64.64ns  [rescaled ×0.58 for the lib/ harness (#117); original 171.6992]"
           },
           {
             "name": "hitEnd — static path (ISO date) — hitEnd — incomplete match, warm probe",
@@ -17773,24 +17773,24 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — word boundary at truncation end — construct + exec (baseline, never asks)",
-            "value": 62.9963,
-            "range": "± 2.7644",
+            "value": 22.7654,
+            "range": "± 0.9990",
             "unit": "× calibration",
-            "extra": "4071.94ns  (min: 3858.00ns  p75: 4247.03ns  p99: 4485.89ns)  calibration: 64.64ns"
+            "extra": "4071.94ns  (min: 3858.00ns  p75: 4247.03ns  p99: 4485.89ns)  calibration: 64.64ns  [rescaled ×0.36 for the lib/ harness (#117); original 62.9963]"
           },
           {
             "name": "hitEnd — word boundary at truncation end — construct + exec + hitEnd (includes probe build)",
-            "value": 136.6987,
-            "range": "± 1.3427",
+            "value": 62.4104,
+            "range": "± 0.6130",
             "unit": "× calibration",
-            "extra": "8835.90ns  (min: 8611.82ns  p75: 8885.29ns  p99: 9013.38ns)  calibration: 64.64ns"
+            "extra": "8835.90ns  (min: 8611.82ns  p75: 8885.29ns  p99: 9013.38ns)  calibration: 64.64ns  [rescaled ×0.46 for the lib/ harness (#117); original 136.6987]"
           },
           {
             "name": "hitEnd — word boundary at truncation end — construct + exec + hitEnd (complete, includes probe build)",
-            "value": 139.0421,
-            "range": "± 1.3306",
+            "value": 64.4985,
+            "range": "± 0.6172",
             "unit": "× calibration",
-            "extra": "8987.37ns  (min: 8727.10ns  p75: 9027.58ns  p99: 9307.45ns)  calibration: 64.64ns"
+            "extra": "8987.37ns  (min: 8727.10ns  p75: 9027.58ns  p99: 9307.45ns)  calibration: 64.64ns  [rescaled ×0.46 for the lib/ harness (#117); original 139.0421]"
           },
           {
             "name": "hitEnd — word boundary at truncation end — hitEnd — incomplete match, warm probe",
@@ -17808,24 +17808,24 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — open-ended quantifiers and end anchor (email-like pattern) — construct + exec (baseline, never asks)",
-            "value": 74.9969,
-            "range": "± 2.203",
+            "value": 37.3216,
+            "range": "± 1.0963",
             "unit": "× calibration",
-            "extra": "4847.63ns  (min: 4642.08ns  p75: 4971.84ns  p99: 5210.31ns)  calibration: 64.64ns"
+            "extra": "4847.63ns  (min: 4642.08ns  p75: 4971.84ns  p99: 5210.31ns)  calibration: 64.64ns  [rescaled ×0.50 for the lib/ harness (#117); original 74.9969]"
           },
           {
             "name": "hitEnd — open-ended quantifiers and end anchor (email-like pattern) — construct + exec + hitEnd (includes probe build)",
-            "value": 189.5256,
-            "range": "± 1.7134",
+            "value": 114.6358,
+            "range": "± 1.0364",
             "unit": "× calibration",
-            "extra": "12250.51ns  (min: 12061.28ns  p75: 12312.95ns  p99: 12422.72ns)  calibration: 64.64ns"
+            "extra": "12250.51ns  (min: 12061.28ns  p75: 12312.95ns  p99: 12422.72ns)  calibration: 64.64ns  [rescaled ×0.60 for the lib/ harness (#117); original 189.5256]"
           },
           {
             "name": "hitEnd — open-ended quantifiers and end anchor (email-like pattern) — construct + exec + hitEnd (complete, includes probe build)",
-            "value": 192.3729,
-            "range": "± 0.2983",
+            "value": 117.715,
+            "range": "± 0.1825",
             "unit": "× calibration",
-            "extra": "12434.55ns  (min: 12320.73ns  p75: 12439.78ns  p99: 12516.42ns)  calibration: 64.64ns"
+            "extra": "12434.55ns  (min: 12320.73ns  p75: 12439.78ns  p99: 12516.42ns)  calibration: 64.64ns  [rescaled ×0.61 for the lib/ harness (#117); original 192.3729]"
           },
           {
             "name": "hitEnd — open-ended quantifiers and end anchor (email-like pattern) — hitEnd — incomplete match, warm probe",
@@ -17843,24 +17843,24 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — optional atom at truncation end — construct + exec (baseline, never asks)",
-            "value": 63.918,
-            "range": "± 2.3816",
+            "value": 24.4292,
+            "range": "± 0.9102",
             "unit": "× calibration",
-            "extra": "4131.52ns  (min: 3891.66ns  p75: 4239.81ns  p99: 4483.13ns)  calibration: 64.64ns"
+            "extra": "4131.52ns  (min: 3891.66ns  p75: 4239.81ns  p99: 4483.13ns)  calibration: 64.64ns  [rescaled ×0.38 for the lib/ harness (#117); original 63.918]"
           },
           {
             "name": "hitEnd — optional atom at truncation end — construct + exec + hitEnd (includes probe build)",
-            "value": 142.5468,
-            "range": "± 0.9366",
+            "value": 71.12,
+            "range": "± 0.4673",
             "unit": "× calibration",
-            "extra": "9213.91ns  (min: 9059.88ns  p75: 9266.07ns  p99: 9361.73ns)  calibration: 64.64ns"
+            "extra": "9213.91ns  (min: 9059.88ns  p75: 9266.07ns  p99: 9361.73ns)  calibration: 64.64ns  [rescaled ×0.50 for the lib/ harness (#117); original 142.5468]"
           },
           {
             "name": "hitEnd — optional atom at truncation end — construct + exec + hitEnd (taken, includes probe build)",
-            "value": 144.8754,
-            "range": "± 2.1744",
+            "value": 72.1128,
+            "range": "± 1.0823",
             "unit": "× calibration",
-            "extra": "9364.42ns  (min: 9097.32ns  p75: 9436.16ns  p99: 9585.49ns)  calibration: 64.64ns"
+            "extra": "9364.42ns  (min: 9097.32ns  p75: 9436.16ns  p99: 9585.49ns)  calibration: 64.64ns  [rescaled ×0.50 for the lib/ harness (#117); original 144.8754]"
           },
           {
             "name": "hitEnd — optional atom at truncation end — hitEnd — untaken atom, warm probe",
@@ -17878,17 +17878,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — backreference path (repeated word) — construct + exec (baseline, never asks)",
-            "value": 178.1019,
-            "range": "± 12.0371",
+            "value": 77.0436,
+            "range": "± 5.2070",
             "unit": "× calibration",
-            "extra": "11512.11ns  (min: 10316.85ns  p75: 12106.00ns  p99: 12274.24ns)  calibration: 64.64ns"
+            "extra": "11512.11ns  (min: 10316.85ns  p75: 12106.00ns  p99: 12274.24ns)  calibration: 64.64ns  [rescaled ×0.43 for the lib/ harness (#117); original 178.1019]"
           },
           {
             "name": "hitEnd — backreference path (repeated word) — construct + exec + hitEnd (includes probe build)",
-            "value": 317.7969,
-            "range": "± 1.595",
+            "value": 168.5101,
+            "range": "± 0.8457",
             "unit": "× calibration",
-            "extra": "20541.68ns  (min: 19667.46ns  p75: 19995.69ns  p99: 20171.26ns)  calibration: 64.64ns"
+            "extra": "20541.68ns  (min: 19667.46ns  p75: 19995.69ns  p99: 20171.26ns)  calibration: 64.64ns  [rescaled ×0.53 for the lib/ harness (#117); original 317.7969]"
           },
           {
             "name": "hitEnd — backreference path (repeated word) — hitEnd — same match, expansion probe cached",
@@ -17906,24 +17906,24 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — backreference path (repeated word) — exec + hitEnd — fresh match, alternating capture, probe rebuilt per match",
-            "value": 154.2942,
-            "range": "± 1.2454",
+            "value": 123.8026,
+            "range": "± 0.9993",
             "unit": "× calibration",
-            "extra": "9973.23ns  (min: 9377.00ns  p75: 9739.00ns  p99: 22082.00ns)  calibration: 64.64ns"
+            "extra": "9973.23ns  (min: 9377.00ns  p75: 9739.00ns  p99: 22082.00ns)  calibration: 64.64ns  [rescaled ×0.80 for the lib/ harness (#117); original 154.2942]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — construct + exec (baseline, never asks)",
-            "value": 171.3389,
-            "range": "± 2.2315",
+            "value": 57.8425,
+            "range": "± 0.7533",
             "unit": "× calibration",
-            "extra": "11074.96ns  (min: 10812.30ns  p75: 11157.39ns  p99: 11316.37ns)  calibration: 64.64ns"
+            "extra": "11074.96ns  (min: 10812.30ns  p75: 11157.39ns  p99: 11316.37ns)  calibration: 64.64ns  [rescaled ×0.34 for the lib/ harness (#117); original 171.3389]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — construct + exec + hitEnd (includes probe build)",
-            "value": 273.899,
-            "range": "± 7.3644",
+            "value": 110.3233,
+            "range": "± 2.9663",
             "unit": "× calibration",
-            "extra": "17704.22ns  (min: 16440.48ns  p75: 17619.36ns  p99: 18210.38ns)  calibration: 64.64ns"
+            "extra": "17704.22ns  (min: 16440.48ns  p75: 17619.36ns  p99: 18210.38ns)  calibration: 64.64ns  [rescaled ×0.40 for the lib/ harness (#117); original 273.899]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — hitEnd — warm instance",
@@ -17934,143 +17934,143 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "feature cost — construction, one construct per bench — literal characters (baseline)",
-            "value": 82.188,
-            "range": "± 2.8948",
+            "value": 55.258,
+            "range": "± 1.9463",
             "unit": "× calibration",
-            "extra": "5312.45ns  (min: 5063.74ns  p75: 5476.17ns  p99: 5750.15ns)  calibration: 64.64ns"
+            "extra": "5312.45ns  (min: 5063.74ns  p75: 5476.17ns  p99: 5750.15ns)  calibration: 64.64ns  [rescaled ×0.67 for the lib/ harness (#117); original 82.188]"
           },
           {
             "name": "feature cost — construction, one construct per bench — character class",
-            "value": 83.0049,
-            "range": "± 2.2786",
+            "value": 53.7941,
+            "range": "± 1.4767",
             "unit": "× calibration",
-            "extra": "5365.25ns  (min: 5142.88ns  p75: 5487.59ns  p99: 5651.92ns)  calibration: 64.64ns"
+            "extra": "5365.25ns  (min: 5142.88ns  p75: 5487.59ns  p99: 5651.92ns)  calibration: 64.64ns  [rescaled ×0.65 for the lib/ harness (#117); original 83.0049]"
           },
           {
             "name": "feature cost — construction, one construct per bench — quantifier",
-            "value": 81.3261,
-            "range": "± 2.4632",
+            "value": 51.56,
+            "range": "± 1.5616",
             "unit": "× calibration",
-            "extra": "5256.74ns  (min: 5040.23ns  p75: 5391.27ns  p99: 5457.50ns)  calibration: 64.64ns"
+            "extra": "5256.74ns  (min: 5040.23ns  p75: 5391.27ns  p99: 5457.50ns)  calibration: 64.64ns  [rescaled ×0.63 for the lib/ harness (#117); original 81.3261]"
           },
           {
             "name": "feature cost — construction, one construct per bench — disjunction",
-            "value": 106.8788,
-            "range": "± 1.1122",
+            "value": 54.8364,
+            "range": "± 0.5706",
             "unit": "× calibration",
-            "extra": "6908.41ns  (min: 6658.63ns  p75: 6989.86ns  p99: 7187.48ns)  calibration: 64.64ns"
+            "extra": "6908.41ns  (min: 6658.63ns  p75: 6989.86ns  p99: 7187.48ns)  calibration: 64.64ns  [rescaled ×0.51 for the lib/ harness (#117); original 106.8788]"
           },
           {
             "name": "feature cost — construction, one construct per bench — non-capturing group",
-            "value": 108.1533,
-            "range": "± 1.8067",
+            "value": 55.4285,
+            "range": "± 0.9259",
             "unit": "× calibration",
-            "extra": "6990.79ns  (min: 6702.62ns  p75: 7149.56ns  p99: 7169.45ns)  calibration: 64.64ns"
+            "extra": "6990.79ns  (min: 6702.62ns  p75: 7149.56ns  p99: 7169.45ns)  calibration: 64.64ns  [rescaled ×0.51 for the lib/ harness (#117); original 108.1533]"
           },
           {
             "name": "feature cost — construction, one construct per bench — capturing group",
-            "value": 108.4862,
-            "range": "± 3.0351",
+            "value": 55.8371,
+            "range": "± 1.5621",
             "unit": "× calibration",
-            "extra": "7012.31ns  (min: 6721.97ns  p75: 7176.74ns  p99: 7223.22ns)  calibration: 64.64ns"
+            "extra": "7012.31ns  (min: 6721.97ns  p75: 7176.74ns  p99: 7223.22ns)  calibration: 64.64ns  [rescaled ×0.51 for the lib/ harness (#117); original 108.4862]"
           },
           {
             "name": "feature cost — construction, one construct per bench — named group",
-            "value": 115.8115,
-            "range": "± 1.7957",
+            "value": 61.7983,
+            "range": "± 0.9582",
             "unit": "× calibration",
-            "extra": "7485.80ns  (min: 7233.80ns  p75: 7575.92ns  p99: 7687.94ns)  calibration: 64.64ns"
+            "extra": "7485.80ns  (min: 7233.80ns  p75: 7575.92ns  p99: 7687.94ns)  calibration: 64.64ns  [rescaled ×0.53 for the lib/ harness (#117); original 115.8115]"
           },
           {
             "name": "feature cost — construction, one construct per bench — lookahead",
-            "value": 108.8265,
-            "range": "± 2.3412",
+            "value": 56.266,
+            "range": "± 1.2105",
             "unit": "× calibration",
-            "extra": "7034.31ns  (min: 6734.11ns  p75: 7164.44ns  p99: 7279.66ns)  calibration: 64.64ns"
+            "extra": "7034.31ns  (min: 6734.11ns  p75: 7164.44ns  p99: 7279.66ns)  calibration: 64.64ns  [rescaled ×0.52 for the lib/ harness (#117); original 108.8265]"
           },
           {
             "name": "feature cost — construction, one construct per bench — negative lookahead (raw)",
-            "value": 116.235,
-            "range": "± 2.2321",
+            "value": 68.6446,
+            "range": "± 1.3182",
             "unit": "× calibration",
-            "extra": "7513.17ns  (min: 7021.84ns  p75: 7652.11ns  p99: 7930.34ns)  calibration: 64.64ns"
+            "extra": "7513.17ns  (min: 7021.84ns  p75: 7652.11ns  p99: 7930.34ns)  calibration: 64.64ns  [rescaled ×0.59 for the lib/ harness (#117); original 116.235]"
           },
           {
             "name": "feature cost — construction, one construct per bench — lookbehind (raw)",
-            "value": 112.6158,
-            "range": "± 3.1229",
+            "value": 60.3798,
+            "range": "± 1.6744",
             "unit": "× calibration",
-            "extra": "7279.23ns  (min: 6819.32ns  p75: 7472.14ns  p99: 7662.60ns)  calibration: 64.64ns"
+            "extra": "7279.23ns  (min: 6819.32ns  p75: 7472.14ns  p99: 7662.60ns)  calibration: 64.64ns  [rescaled ×0.54 for the lib/ harness (#117); original 112.6158]"
           },
           {
             "name": "feature cost — construction, one construct per bench — control escapes",
-            "value": 83.729,
-            "range": "± 2.516",
+            "value": 54.576,
+            "range": "± 1.6400",
             "unit": "× calibration",
-            "extra": "5412.05ns  (min: 5178.27ns  p75: 5560.22ns  p99: 5675.46ns)  calibration: 64.64ns"
+            "extra": "5412.05ns  (min: 5178.27ns  p75: 5560.22ns  p99: 5675.46ns)  calibration: 64.64ns  [rescaled ×0.65 for the lib/ harness (#117); original 83.729]"
           },
           {
             "name": "feature cost — construction, one construct per bench — control-letter escape",
-            "value": 82.9467,
-            "range": "± 2.1894",
+            "value": 54.509,
+            "range": "± 1.4388",
             "unit": "× calibration",
-            "extra": "5361.49ns  (min: 5163.62ns  p75: 5476.59ns  p99: 5619.00ns)  calibration: 64.64ns"
+            "extra": "5361.49ns  (min: 5163.62ns  p75: 5476.59ns  p99: 5619.00ns)  calibration: 64.64ns  [rescaled ×0.66 for the lib/ harness (#117); original 82.9467]"
           },
           {
             "name": "feature cost — construction, one construct per bench — hex and unicode escapes",
-            "value": 87.1284,
-            "range": "± 3.1147",
+            "value": 58.7188,
+            "range": "± 2.0991",
             "unit": "× calibration",
-            "extra": "5631.79ns  (min: 5328.18ns  p75: 5776.10ns  p99: 5929.35ns)  calibration: 64.64ns"
+            "extra": "5631.79ns  (min: 5328.18ns  p75: 5776.10ns  p99: 5929.35ns)  calibration: 64.64ns  [rescaled ×0.67 for the lib/ harness (#117); original 87.1284]"
           },
           {
             "name": "feature cost — construction, one construct per bench — unicode property escape (u)",
-            "value": 82.9494,
-            "range": "± 2.2817",
+            "value": 56.0745,
+            "range": "± 1.5424",
             "unit": "× calibration",
-            "extra": "5361.66ns  (min: 5166.43ns  p75: 5489.10ns  p99: 5591.70ns)  calibration: 64.64ns"
+            "extra": "5361.66ns  (min: 5166.43ns  p75: 5489.10ns  p99: 5591.70ns)  calibration: 64.64ns  [rescaled ×0.68 for the lib/ harness (#117); original 82.9494]"
           },
           {
             "name": "feature cost — construction, one construct per bench — nested character class (v)",
-            "value": 84.1888,
-            "range": "± 2.5231",
+            "value": 56.7463,
+            "range": "± 1.7007",
             "unit": "× calibration",
-            "extra": "5441.78ns  (min: 5224.69ns  p75: 5586.58ns  p99: 5677.27ns)  calibration: 64.64ns"
+            "extra": "5441.78ns  (min: 5224.69ns  p75: 5586.58ns  p99: 5677.27ns)  calibration: 64.64ns  [rescaled ×0.67 for the lib/ harness (#117); original 84.1888]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — capturing group, no reference (static path)",
-            "value": 102.6956,
-            "range": "± 2.8379",
+            "value": 48.1931,
+            "range": "± 1.3318",
             "unit": "× calibration",
-            "extra": "6638.02ns  (min: 6327.38ns  p75: 6787.37ns  p99: 6855.52ns)  calibration: 64.64ns"
+            "extra": "6638.02ns  (min: 6327.38ns  p75: 6787.37ns  p99: 6855.52ns)  calibration: 64.64ns  [rescaled ×0.47 for the lib/ harness (#117); original 102.6956]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — numeric backreference (dynamic path)",
-            "value": 163.5022,
-            "range": "± 11.8255",
+            "value": 70.8559,
+            "range": "± 5.1247",
             "unit": "× calibration",
-            "extra": "10568.42ns  (min: 8949.92ns  p75: 11213.99ns  p99: 11507.16ns)  calibration: 64.64ns"
+            "extra": "10568.42ns  (min: 8949.92ns  p75: 11213.99ns  p99: 11507.16ns)  calibration: 64.64ns  [rescaled ×0.43 for the lib/ harness (#117); original 163.5022]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — named backreference (dynamic path)",
-            "value": 178.6767,
-            "range": "± 13.9822",
+            "value": 77.1277,
+            "range": "± 6.0356",
             "unit": "× calibration",
-            "extra": "11549.26ns  (min: 9648.38ns  p75: 12138.47ns  p99: 12212.24ns)  calibration: 64.64ns"
+            "extra": "11549.26ns  (min: 9648.38ns  p75: 12138.47ns  p99: 12212.24ns)  calibration: 64.64ns  [rescaled ×0.43 for the lib/ harness (#117); original 178.6767]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — reclassified octal escape (static)",
-            "value": 119.0796,
-            "range": "± 0.869",
+            "value": 62.176,
+            "range": "± 0.4537",
             "unit": "× calibration",
-            "extra": "7697.04ns  (min: 7394.52ns  p75: 7777.19ns  p99: 7844.90ns)  calibration: 64.64ns"
+            "extra": "7697.04ns  (min: 7394.52ns  p75: 7777.19ns  p99: 7844.90ns)  calibration: 64.64ns  [rescaled ×0.52 for the lib/ harness (#117); original 119.0796]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — reclassified \\k literal (static)",
-            "value": 124.3089,
-            "range": "± 1.1167",
+            "value": 72.4377,
+            "range": "± 0.6507",
             "unit": "× calibration",
-            "extra": "8035.05ns  (min: 7786.20ns  p75: 8108.76ns  p99: 8203.78ns)  calibration: 64.64ns"
+            "extra": "8035.05ns  (min: 7786.20ns  p75: 8108.76ns  p99: 8203.78ns)  calibration: 64.64ns  [rescaled ×0.58 for the lib/ harness (#117); original 124.3089]"
           },
           {
             "name": "feature cost — exec, legacy escape vs genuine backreference — legacy \\k literal — partial input",
@@ -18294,17 +18294,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "backref — leftmost bound check (native match at a later index) — bound doesn't reject — full pipeline still runs",
-            "value": 53.9575,
-            "range": "± 0.6217",
+            "value": 43.3269,
+            "range": "± 0.4992",
             "unit": "× calibration",
-            "extra": "3471.86ns  (min: 3096.00ns  p75: 3256.00ns  p99: 5390.00ns)  calibration: 64.34ns"
+            "extra": "3471.86ns  (min: 3096.00ns  p75: 3256.00ns  p99: 5390.00ns)  calibration: 64.34ns  [rescaled ×0.80 for the lib/ harness (#117); original 53.9575]"
           },
           {
             "name": "backref — capture agreement, irrelevant input ahead of the match — 4-character input",
-            "value": 94.3068,
-            "range": "± 11.3846",
+            "value": 73.4824,
+            "range": "± 8.8707",
             "unit": "× calibration",
-            "extra": "6068.11ns  (min: 5384.75ns  p75: 6874.09ns  p99: 7006.04ns)  calibration: 64.34ns"
+            "extra": "6068.11ns  (min: 5384.75ns  p75: 6874.09ns  p99: 7006.04ns)  calibration: 64.34ns  [rescaled ×0.78 for the lib/ harness (#117); original 94.3068]"
           },
           {
             "name": "backref — capture agreement, irrelevant input ahead of the match — 10004-character input",
@@ -18336,17 +18336,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — simple pattern (no groups, no backreferences) — compilePartial()",
-            "value": 55.356,
-            "range": "± 0.4064",
+            "value": 21.3371,
+            "range": "± 0.1566",
             "unit": "× calibration",
-            "extra": "3561.85ns  (min: 3492.96ns  p75: 3555.00ns  p99: 3893.48ns)  calibration: 64.34ns"
+            "extra": "3561.85ns  (min: 3492.96ns  p75: 3555.00ns  p99: 3893.48ns)  calibration: 64.34ns  [rescaled ×0.39 for the lib/ harness (#117); original 55.356]"
           },
           {
             "name": "construction — simple pattern (no groups, no backreferences) — new PartialMatchRegExp()",
-            "value": 65.0041,
-            "range": "± 2.6384",
+            "value": 27.5816,
+            "range": "± 1.1195",
             "unit": "× calibration",
-            "extra": "4182.64ns  (min: 3958.55ns  p75: 4316.25ns  p99: 4563.78ns)  calibration: 64.34ns"
+            "extra": "4182.64ns  (min: 3958.55ns  p75: 4316.25ns  p99: 4563.78ns)  calibration: 64.34ns  [rescaled ×0.42 for the lib/ harness (#117); original 65.0041]"
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — native new RegExp()",
@@ -18357,17 +18357,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — compilePartial()",
-            "value": 79.0938,
-            "range": "± 0.5881",
+            "value": 49.0271,
+            "range": "± 0.3645",
             "unit": "× calibration",
-            "extra": "5089.24ns  (min: 5008.04ns  p75: 5111.22ns  p99: 5282.20ns)  calibration: 64.34ns"
+            "extra": "5089.24ns  (min: 5008.04ns  p75: 5111.22ns  p99: 5282.20ns)  calibration: 64.34ns  [rescaled ×0.62 for the lib/ harness (#117); original 79.0938]"
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — new PartialMatchRegExp()",
-            "value": 90.1094,
-            "range": "± 2.8357",
+            "value": 56.3117,
+            "range": "± 1.7721",
             "unit": "× calibration",
-            "extra": "5798.03ns  (min: 5532.02ns  p75: 5962.57ns  p99: 6042.39ns)  calibration: 64.34ns"
+            "extra": "5798.03ns  (min: 5532.02ns  p75: 5962.57ns  p99: 6042.39ns)  calibration: 64.34ns  [rescaled ×0.62 for the lib/ harness (#117); original 90.1094]"
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — native new RegExp()",
@@ -18378,17 +18378,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — compilePartial()",
-            "value": 183.0611,
-            "range": "± 2.6498",
+            "value": 74.2272,
+            "range": "± 1.0744",
             "unit": "× calibration",
-            "extra": "11778.94ns  (min: 10480.00ns  p75: 11101.00ns  p99: 24576.00ns)  calibration: 64.34ns"
+            "extra": "11778.94ns  (min: 10480.00ns  p75: 11101.00ns  p99: 24576.00ns)  calibration: 64.34ns  [rescaled ×0.41 for the lib/ harness (#117); original 183.0611]"
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — new PartialMatchRegExp()",
-            "value": 182.6949,
-            "range": "± 1.9898",
+            "value": 77.3652,
+            "range": "± 0.8426",
             "unit": "× calibration",
-            "extra": "11755.38ns  (min: 11568.96ns  p75: 11864.96ns  p99: 11947.13ns)  calibration: 64.34ns"
+            "extra": "11755.38ns  (min: 11568.96ns  p75: 11864.96ns  p99: 11947.13ns)  calibration: 64.34ns  [rescaled ×0.42 for the lib/ harness (#117); original 182.6949]"
           },
           {
             "name": "construction — legacy numeric escape (\\N past the group count) — native new RegExp()",
@@ -18399,17 +18399,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — legacy numeric escape (\\N past the group count) — compilePartial()",
-            "value": 95.0779,
-            "range": "± 0.6935",
+            "value": 37.835,
+            "range": "± 0.2760",
             "unit": "× calibration",
-            "extra": "6117.72ns  (min: 6011.97ns  p75: 6112.46ns  p99: 6335.82ns)  calibration: 64.34ns"
+            "extra": "6117.72ns  (min: 6011.97ns  p75: 6112.46ns  p99: 6335.82ns)  calibration: 64.34ns  [rescaled ×0.40 for the lib/ harness (#117); original 95.0779]"
           },
           {
             "name": "construction — legacy numeric escape (\\N past the group count) — new PartialMatchRegExp()",
-            "value": 108.7086,
-            "range": "± 1.2765",
+            "value": 47.1755,
+            "range": "± 0.5540",
             "unit": "× calibration",
-            "extra": "6994.78ns  (min: 6741.77ns  p75: 7085.18ns  p99: 7217.63ns)  calibration: 64.34ns"
+            "extra": "6994.78ns  (min: 6741.77ns  p75: 7085.18ns  p99: 7217.63ns)  calibration: 64.34ns  [rescaled ×0.43 for the lib/ harness (#117); original 108.7086]"
           },
           {
             "name": "construction — legacy named escape (\\k<name> naming no group) — native new RegExp()",
@@ -18420,38 +18420,38 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — legacy named escape (\\k<name> naming no group) — compilePartial()",
-            "value": 102.0777,
-            "range": "± 0.6914",
+            "value": 52.3116,
+            "range": "± 0.3543",
             "unit": "× calibration",
-            "extra": "6568.12ns  (min: 6510.60ns  p75: 6607.90ns  p99: 6630.99ns)  calibration: 64.34ns"
+            "extra": "6568.12ns  (min: 6510.60ns  p75: 6607.90ns  p99: 6630.99ns)  calibration: 64.34ns  [rescaled ×0.51 for the lib/ harness (#117); original 102.0777]"
           },
           {
             "name": "construction — legacy named escape (\\k<name> naming no group) — new PartialMatchRegExp()",
-            "value": 118.1075,
-            "range": "± 1.6511",
+            "value": 61.6161,
+            "range": "± 0.8614",
             "unit": "× calibration",
-            "extra": "7599.55ns  (min: 7285.14ns  p75: 7712.61ns  p99: 7763.92ns)  calibration: 64.34ns"
+            "extra": "7599.55ns  (min: 7285.14ns  p75: 7712.61ns  p99: 7763.92ns)  calibration: 64.34ns  [rescaled ×0.52 for the lib/ harness (#117); original 118.1075]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec (baseline, never asks)",
-            "value": 72.9915,
-            "range": "± 1.9958",
+            "value": 37.2756,
+            "range": "± 1.0192",
             "unit": "× calibration",
-            "extra": "4696.59ns  (min: 4540.21ns  p75: 4823.27ns  p99: 4895.64ns)  calibration: 64.34ns"
+            "extra": "4696.59ns  (min: 4540.21ns  p75: 4823.27ns  p99: 4895.64ns)  calibration: 64.34ns  [rescaled ×0.51 for the lib/ harness (#117); original 72.9915]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (includes probe build)",
-            "value": 185.5849,
-            "range": "± 2.3312",
+            "value": 105.2738,
+            "range": "± 1.3224",
             "unit": "× calibration",
-            "extra": "11941.33ns  (min: 10620.00ns  p75: 11191.00ns  p99: 27932.00ns)  calibration: 64.34ns"
+            "extra": "11941.33ns  (min: 10620.00ns  p75: 11191.00ns  p99: 27932.00ns)  calibration: 64.34ns  [rescaled ×0.57 for the lib/ harness (#117); original 185.5849]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (complete, includes probe build)",
-            "value": 170.4383,
-            "range": "± 1.4746",
+            "value": 98.0453,
+            "range": "± 0.8483",
             "unit": "× calibration",
-            "extra": "10966.74ns  (min: 10737.30ns  p75: 10947.39ns  p99: 11520.84ns)  calibration: 64.34ns"
+            "extra": "10966.74ns  (min: 10737.30ns  p75: 10947.39ns  p99: 11520.84ns)  calibration: 64.34ns  [rescaled ×0.58 for the lib/ harness (#117); original 170.4383]"
           },
           {
             "name": "hitEnd — static path (ISO date) — hitEnd — incomplete match, warm probe",
@@ -18469,24 +18469,24 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — word boundary at truncation end — construct + exec (baseline, never asks)",
-            "value": 63.1199,
-            "range": "± 2.5513",
+            "value": 22.8101,
+            "range": "± 0.9220",
             "unit": "× calibration",
-            "extra": "4061.41ns  (min: 3845.72ns  p75: 4199.47ns  p99: 4553.51ns)  calibration: 64.34ns"
+            "extra": "4061.41ns  (min: 3845.72ns  p75: 4199.47ns  p99: 4553.51ns)  calibration: 64.34ns  [rescaled ×0.36 for the lib/ harness (#117); original 63.1199]"
           },
           {
             "name": "hitEnd — word boundary at truncation end — construct + exec + hitEnd (includes probe build)",
-            "value": 147.4797,
-            "range": "± 1.7173",
+            "value": 67.3325,
+            "range": "± 0.7840",
             "unit": "× calibration",
-            "extra": "9489.48ns  (min: 8566.00ns  p75: 9037.00ns  p99: 23374.00ns)  calibration: 64.34ns"
+            "extra": "9489.48ns  (min: 8566.00ns  p75: 9037.00ns  p99: 23374.00ns)  calibration: 64.34ns  [rescaled ×0.46 for the lib/ harness (#117); original 147.4797]"
           },
           {
             "name": "hitEnd — word boundary at truncation end — construct + exec + hitEnd (complete, includes probe build)",
-            "value": 137.3836,
-            "range": "± 1.1308",
+            "value": 63.7292,
+            "range": "± 0.5246",
             "unit": "× calibration",
-            "extra": "8839.85ns  (min: 8608.73ns  p75: 8856.21ns  p99: 9272.67ns)  calibration: 64.34ns"
+            "extra": "8839.85ns  (min: 8608.73ns  p75: 8856.21ns  p99: 9272.67ns)  calibration: 64.34ns  [rescaled ×0.46 for the lib/ harness (#117); original 137.3836]"
           },
           {
             "name": "hitEnd — word boundary at truncation end — hitEnd — incomplete match, warm probe",
@@ -18504,24 +18504,24 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — open-ended quantifiers and end anchor (email-like pattern) — construct + exec (baseline, never asks)",
-            "value": 75.3248,
-            "range": "± 2.1186",
+            "value": 37.4848,
+            "range": "± 1.0543",
             "unit": "× calibration",
-            "extra": "4846.72ns  (min: 4664.41ns  p75: 4971.86ns  p99: 5133.76ns)  calibration: 64.34ns"
+            "extra": "4846.72ns  (min: 4664.41ns  p75: 4971.86ns  p99: 5133.76ns)  calibration: 64.34ns  [rescaled ×0.50 for the lib/ harness (#117); original 75.3248]"
           },
           {
             "name": "hitEnd — open-ended quantifiers and end anchor (email-like pattern) — construct + exec + hitEnd (includes probe build)",
-            "value": 189.8049,
-            "range": "± 1.0995",
+            "value": 114.8047,
+            "range": "± 0.6650",
             "unit": "× calibration",
-            "extra": "12212.87ns  (min: 11973.52ns  p75: 12220.12ns  p99: 12561.04ns)  calibration: 64.34ns"
+            "extra": "12212.87ns  (min: 11973.52ns  p75: 12220.12ns  p99: 12561.04ns)  calibration: 64.34ns  [rescaled ×0.60 for the lib/ harness (#117); original 189.8049]"
           },
           {
             "name": "hitEnd — open-ended quantifiers and end anchor (email-like pattern) — construct + exec + hitEnd (complete, includes probe build)",
-            "value": 192.1734,
-            "range": "± 2.4215",
+            "value": 117.5929,
+            "range": "± 1.4817",
             "unit": "× calibration",
-            "extra": "12365.27ns  (min: 12112.02ns  p75: 12427.60ns  p99: 12585.02ns)  calibration: 64.34ns"
+            "extra": "12365.27ns  (min: 12112.02ns  p75: 12427.60ns  p99: 12585.02ns)  calibration: 64.34ns  [rescaled ×0.61 for the lib/ harness (#117); original 192.1734]"
           },
           {
             "name": "hitEnd — open-ended quantifiers and end anchor (email-like pattern) — hitEnd — incomplete match, warm probe",
@@ -18539,24 +18539,24 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — optional atom at truncation end — construct + exec (baseline, never asks)",
-            "value": 62.8829,
-            "range": "± 1.8475",
+            "value": 24.0336,
+            "range": "± 0.7061",
             "unit": "× calibration",
-            "extra": "4046.16ns  (min: 3868.45ns  p75: 4146.95ns  p99: 4431.17ns)  calibration: 64.34ns"
+            "extra": "4046.16ns  (min: 3868.45ns  p75: 4146.95ns  p99: 4431.17ns)  calibration: 64.34ns  [rescaled ×0.38 for the lib/ harness (#117); original 62.8829]"
           },
           {
             "name": "hitEnd — optional atom at truncation end — construct + exec + hitEnd (includes probe build)",
-            "value": 140.8795,
-            "range": "± 0.6158",
+            "value": 70.2881,
+            "range": "± 0.3072",
             "unit": "× calibration",
-            "extra": "9064.80ns  (min: 8844.79ns  p75: 9059.27ns  p99: 9160.93ns)  calibration: 64.34ns"
+            "extra": "9064.80ns  (min: 8844.79ns  p75: 9059.27ns  p99: 9160.93ns)  calibration: 64.34ns  [rescaled ×0.50 for the lib/ harness (#117); original 140.8795]"
           },
           {
             "name": "hitEnd — optional atom at truncation end — construct + exec + hitEnd (taken, includes probe build)",
-            "value": 142.0961,
-            "range": "± 0.7726",
+            "value": 70.7293,
+            "range": "± 0.3846",
             "unit": "× calibration",
-            "extra": "9143.08ns  (min: 8932.25ns  p75: 9144.21ns  p99: 9307.82ns)  calibration: 64.34ns"
+            "extra": "9143.08ns  (min: 8932.25ns  p75: 9144.21ns  p99: 9307.82ns)  calibration: 64.34ns  [rescaled ×0.50 for the lib/ harness (#117); original 142.0961]"
           },
           {
             "name": "hitEnd — optional atom at truncation end — hitEnd — untaken atom, warm probe",
@@ -18574,17 +18574,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — backreference path (repeated word) — construct + exec (baseline, never asks)",
-            "value": 167.5787,
-            "range": "± 6.8155",
+            "value": 72.4915,
+            "range": "± 2.9483",
             "unit": "× calibration",
-            "extra": "10782.74ns  (min: 10218.20ns  p75: 11114.23ns  p99: 11238.67ns)  calibration: 64.34ns"
+            "extra": "10782.74ns  (min: 10218.20ns  p75: 11114.23ns  p99: 11238.67ns)  calibration: 64.34ns  [rescaled ×0.43 for the lib/ harness (#117); original 167.5787]"
           },
           {
             "name": "hitEnd — backreference path (repeated word) — construct + exec + hitEnd (includes probe build)",
-            "value": 300.9222,
-            "range": "± 3.2817",
+            "value": 159.5624,
+            "range": "± 1.7401",
             "unit": "× calibration",
-            "extra": "19362.64ns  (min: 18569.46ns  p75: 19123.77ns  p99: 19542.33ns)  calibration: 64.34ns"
+            "extra": "19362.64ns  (min: 18569.46ns  p75: 19123.77ns  p99: 19542.33ns)  calibration: 64.34ns  [rescaled ×0.53 for the lib/ harness (#117); original 300.9222]"
           },
           {
             "name": "hitEnd — backreference path (repeated word) — hitEnd — same match, expansion probe cached",
@@ -18602,24 +18602,24 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — backreference path (repeated word) — exec + hitEnd — fresh match, alternating capture, probe rebuilt per match",
-            "value": 162.2875,
-            "range": "± 1.321",
+            "value": 130.2163,
+            "range": "± 1.0599",
             "unit": "× calibration",
-            "extra": "10442.28ns  (min: 9508.00ns  p75: 9868.00ns  p99: 23204.00ns)  calibration: 64.34ns"
+            "extra": "10442.28ns  (min: 9508.00ns  p75: 9868.00ns  p99: 23204.00ns)  calibration: 64.34ns  [rescaled ×0.80 for the lib/ harness (#117); original 162.2875]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — construct + exec (baseline, never asks)",
-            "value": 174.2359,
-            "range": "± 1.7631",
+            "value": 58.8205,
+            "range": "± 0.5952",
             "unit": "× calibration",
-            "extra": "11211.09ns  (min: 11045.29ns  p75: 11286.66ns  p99: 11383.47ns)  calibration: 64.34ns"
+            "extra": "11211.09ns  (min: 11045.29ns  p75: 11286.66ns  p99: 11383.47ns)  calibration: 64.34ns  [rescaled ×0.34 for the lib/ harness (#117); original 174.2359]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — construct + exec + hitEnd (includes probe build)",
-            "value": 280.1158,
-            "range": "± 3.2715",
+            "value": 112.8274,
+            "range": "± 1.3177",
             "unit": "× calibration",
-            "extra": "18023.86ns  (min: 15980.00ns  p75: 16782.00ns  p99: 40817.00ns)  calibration: 64.34ns"
+            "extra": "18023.86ns  (min: 15980.00ns  p75: 16782.00ns  p99: 40817.00ns)  calibration: 64.34ns  [rescaled ×0.40 for the lib/ harness (#117); original 280.1158]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — hitEnd — warm instance",
@@ -18630,143 +18630,143 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "feature cost — construction, one construct per bench — literal characters (baseline)",
-            "value": 81.9619,
-            "range": "± 2.1026",
+            "value": 55.1059,
+            "range": "± 1.4137",
             "unit": "× calibration",
-            "extra": "5273.78ns  (min: 5061.11ns  p75: 5367.73ns  p99: 5719.97ns)  calibration: 64.34ns"
+            "extra": "5273.78ns  (min: 5061.11ns  p75: 5367.73ns  p99: 5719.97ns)  calibration: 64.34ns  [rescaled ×0.67 for the lib/ harness (#117); original 81.9619]"
           },
           {
             "name": "feature cost — construction, one construct per bench — character class",
-            "value": 83.1637,
-            "range": "± 2.5577",
+            "value": 53.897,
+            "range": "± 1.6576",
             "unit": "× calibration",
-            "extra": "5351.11ns  (min: 5151.26ns  p75: 5497.97ns  p99: 5577.43ns)  calibration: 64.34ns"
+            "extra": "5351.11ns  (min: 5151.26ns  p75: 5497.97ns  p99: 5577.43ns)  calibration: 64.34ns  [rescaled ×0.65 for the lib/ harness (#117); original 83.1637]"
           },
           {
             "name": "feature cost — construction, one construct per bench — quantifier",
-            "value": 81.4158,
-            "range": "± 2.4997",
+            "value": 51.6168,
+            "range": "± 1.5848",
             "unit": "× calibration",
-            "extra": "5238.64ns  (min: 5043.62ns  p75: 5391.54ns  p99: 5437.62ns)  calibration: 64.34ns"
+            "extra": "5238.64ns  (min: 5043.62ns  p75: 5391.54ns  p99: 5437.62ns)  calibration: 64.34ns  [rescaled ×0.63 for the lib/ harness (#117); original 81.4158]"
           },
           {
             "name": "feature cost — construction, one construct per bench — disjunction",
-            "value": 108.5349,
-            "range": "± 0.7334",
+            "value": 55.6861,
+            "range": "± 0.3763",
             "unit": "× calibration",
-            "extra": "6983.61ns  (min: 6670.62ns  p75: 7035.58ns  p99: 7206.00ns)  calibration: 64.34ns"
+            "extra": "6983.61ns  (min: 6670.62ns  p75: 7035.58ns  p99: 7206.00ns)  calibration: 64.34ns  [rescaled ×0.51 for the lib/ harness (#117); original 108.5349]"
           },
           {
             "name": "feature cost — construction, one construct per bench — non-capturing group",
-            "value": 109.0968,
-            "range": "± 1.4556",
+            "value": 55.912,
+            "range": "± 0.7460",
             "unit": "× calibration",
-            "extra": "7019.76ns  (min: 6719.18ns  p75: 7098.73ns  p99: 7410.18ns)  calibration: 64.34ns"
+            "extra": "7019.76ns  (min: 6719.18ns  p75: 7098.73ns  p99: 7410.18ns)  calibration: 64.34ns  [rescaled ×0.51 for the lib/ harness (#117); original 109.0968]"
           },
           {
             "name": "feature cost — construction, one construct per bench — capturing group",
-            "value": 115.5603,
-            "range": "± 7.5096",
+            "value": 59.4781,
+            "range": "± 3.8651",
             "unit": "× calibration",
-            "extra": "7435.65ns  (min: 6894.51ns  p75: 7967.00ns  p99: 8384.11ns)  calibration: 64.34ns"
+            "extra": "7435.65ns  (min: 6894.51ns  p75: 7967.00ns  p99: 8384.11ns)  calibration: 64.34ns  [rescaled ×0.51 for the lib/ harness (#117); original 115.5603]"
           },
           {
             "name": "feature cost — construction, one construct per bench — named group",
-            "value": 115.8593,
-            "range": "± 1.3668",
+            "value": 61.8238,
+            "range": "± 0.7293",
             "unit": "× calibration",
-            "extra": "7454.89ns  (min: 7133.17ns  p75: 7534.39ns  p99: 7667.15ns)  calibration: 64.34ns"
+            "extra": "7454.89ns  (min: 7133.17ns  p75: 7534.39ns  p99: 7667.15ns)  calibration: 64.34ns  [rescaled ×0.53 for the lib/ harness (#117); original 115.8593]"
           },
           {
             "name": "feature cost — construction, one construct per bench — lookahead",
-            "value": 108.5494,
-            "range": "± 1.6044",
+            "value": 56.1228,
+            "range": "± 0.8295",
             "unit": "× calibration",
-            "extra": "6984.54ns  (min: 6712.76ns  p75: 7085.66ns  p99: 7241.61ns)  calibration: 64.34ns"
+            "extra": "6984.54ns  (min: 6712.76ns  p75: 7085.66ns  p99: 7241.61ns)  calibration: 64.34ns  [rescaled ×0.52 for the lib/ harness (#117); original 108.5494]"
           },
           {
             "name": "feature cost — construction, one construct per bench — negative lookahead (raw)",
-            "value": 117.0805,
-            "range": "± 2.2212",
+            "value": 69.1439,
+            "range": "± 1.3118",
             "unit": "× calibration",
-            "extra": "7533.47ns  (min: 7019.23ns  p75: 7637.34ns  p99: 7928.69ns)  calibration: 64.34ns"
+            "extra": "7533.47ns  (min: 7019.23ns  p75: 7637.34ns  p99: 7928.69ns)  calibration: 64.34ns  [rescaled ×0.59 for the lib/ harness (#117); original 117.0805]"
           },
           {
             "name": "feature cost — construction, one construct per bench — lookbehind (raw)",
-            "value": 113.4962,
-            "range": "± 2.3179",
+            "value": 60.8518,
+            "range": "± 1.2428",
             "unit": "× calibration",
-            "extra": "7302.84ns  (min: 6814.22ns  p75: 7441.33ns  p99: 7623.74ns)  calibration: 64.34ns"
+            "extra": "7302.84ns  (min: 6814.22ns  p75: 7441.33ns  p99: 7623.74ns)  calibration: 64.34ns  [rescaled ×0.54 for the lib/ harness (#117); original 113.4962]"
           },
           {
             "name": "feature cost — construction, one construct per bench — control escapes",
-            "value": 84.3427,
-            "range": "± 2.2686",
+            "value": 54.976,
+            "range": "± 1.4787",
             "unit": "× calibration",
-            "extra": "5426.98ns  (min: 5180.90ns  p75: 5530.71ns  p99: 5698.60ns)  calibration: 64.34ns"
+            "extra": "5426.98ns  (min: 5180.90ns  p75: 5530.71ns  p99: 5698.60ns)  calibration: 64.34ns  [rescaled ×0.65 for the lib/ harness (#117); original 84.3427]"
           },
           {
             "name": "feature cost — construction, one construct per bench — control-letter escape",
-            "value": 84.5477,
-            "range": "± 2.3109",
+            "value": 55.5611,
+            "range": "± 1.5186",
             "unit": "× calibration",
-            "extra": "5440.16ns  (min: 5173.34ns  p75: 5502.51ns  p99: 6047.96ns)  calibration: 64.34ns"
+            "extra": "5440.16ns  (min: 5173.34ns  p75: 5502.51ns  p99: 6047.96ns)  calibration: 64.34ns  [rescaled ×0.66 for the lib/ harness (#117); original 84.5477]"
           },
           {
             "name": "feature cost — construction, one construct per bench — hex and unicode escapes",
-            "value": 86.149,
-            "range": "± 2.254",
+            "value": 58.0587,
+            "range": "± 1.5190",
             "unit": "× calibration",
-            "extra": "5543.20ns  (min: 5300.55ns  p75: 5652.89ns  p99: 5788.95ns)  calibration: 64.34ns"
+            "extra": "5543.20ns  (min: 5300.55ns  p75: 5652.89ns  p99: 5788.95ns)  calibration: 64.34ns  [rescaled ×0.67 for the lib/ harness (#117); original 86.149]"
           },
           {
             "name": "feature cost — construction, one construct per bench — unicode property escape (u)",
-            "value": 83.5574,
-            "range": "± 2.4729",
+            "value": 56.4855,
+            "range": "± 1.6717",
             "unit": "× calibration",
-            "extra": "5376.44ns  (min: 5152.85ns  p75: 5509.42ns  p99: 5639.51ns)  calibration: 64.34ns"
+            "extra": "5376.44ns  (min: 5152.85ns  p75: 5509.42ns  p99: 5639.51ns)  calibration: 64.34ns  [rescaled ×0.68 for the lib/ harness (#117); original 83.5574]"
           },
           {
             "name": "feature cost — construction, one construct per bench — nested character class (v)",
-            "value": 84.8797,
-            "range": "± 2.5183",
+            "value": 57.212,
+            "range": "± 1.6974",
             "unit": "× calibration",
-            "extra": "5461.53ns  (min: 5240.27ns  p75: 5601.22ns  p99: 5742.49ns)  calibration: 64.34ns"
+            "extra": "5461.53ns  (min: 5240.27ns  p75: 5601.22ns  p99: 5742.49ns)  calibration: 64.34ns  [rescaled ×0.67 for the lib/ harness (#117); original 84.8797]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — capturing group, no reference (static path)",
-            "value": 102.1292,
-            "range": "± 2.5645",
+            "value": 47.9273,
+            "range": "± 1.2035",
             "unit": "× calibration",
-            "extra": "6571.43ns  (min: 6335.86ns  p75: 6697.24ns  p99: 6757.94ns)  calibration: 64.34ns"
+            "extra": "6571.43ns  (min: 6335.86ns  p75: 6697.24ns  p99: 6757.94ns)  calibration: 64.34ns  [rescaled ×0.47 for the lib/ harness (#117); original 102.1292]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — numeric backreference (dynamic path)",
-            "value": 138.2659,
-            "range": "± 0.9482",
+            "value": 59.9194,
+            "range": "± 0.4109",
             "unit": "× calibration",
-            "extra": "8896.62ns  (min: 8581.18ns  p75: 8947.12ns  p99: 9058.11ns)  calibration: 64.34ns"
+            "extra": "8896.62ns  (min: 8581.18ns  p75: 8947.12ns  p99: 9058.11ns)  calibration: 64.34ns  [rescaled ×0.43 for the lib/ harness (#117); original 138.2659]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — named backreference (dynamic path)",
-            "value": 156.0889,
-            "range": "± 2.6917",
+            "value": 67.3775,
+            "range": "± 1.1619",
             "unit": "× calibration",
-            "extra": "10043.43ns  (min: 9687.88ns  p75: 10198.18ns  p99: 10216.70ns)  calibration: 64.34ns"
+            "extra": "10043.43ns  (min: 9687.88ns  p75: 10198.18ns  p99: 10216.70ns)  calibration: 64.34ns  [rescaled ×0.43 for the lib/ harness (#117); original 156.0889]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — reclassified octal escape (static)",
-            "value": 119.2774,
-            "range": "± 1.2279",
+            "value": 62.2793,
+            "range": "± 0.6411",
             "unit": "× calibration",
-            "extra": "7674.83ns  (min: 7329.30ns  p75: 7778.34ns  p99: 7816.66ns)  calibration: 64.34ns"
+            "extra": "7674.83ns  (min: 7329.30ns  p75: 7778.34ns  p99: 7816.66ns)  calibration: 64.34ns  [rescaled ×0.52 for the lib/ harness (#117); original 119.2774]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — reclassified \\k literal (static)",
-            "value": 125.6134,
-            "range": "± 1.211",
+            "value": 73.1979,
+            "range": "± 0.7057",
             "unit": "× calibration",
-            "extra": "8082.51ns  (min: 7781.55ns  p75: 8170.66ns  p99: 8239.30ns)  calibration: 64.34ns"
+            "extra": "8082.51ns  (min: 7781.55ns  p75: 8170.66ns  p99: 8239.30ns)  calibration: 64.34ns  [rescaled ×0.58 for the lib/ harness (#117); original 125.6134]"
           },
           {
             "name": "feature cost — exec, legacy escape vs genuine backreference — legacy \\k literal — partial input",
@@ -18990,17 +18990,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "backref — leftmost bound check (native match at a later index) — bound doesn't reject — full pipeline still runs",
-            "value": 54.2286,
-            "range": "± 0.6288",
+            "value": 43.5446,
+            "range": "± 0.5049",
             "unit": "× calibration",
-            "extra": "3492.64ns  (min: 3126.00ns  p75: 3317.00ns  p99: 6181.00ns)  calibration: 64.41ns"
+            "extra": "3492.64ns  (min: 3126.00ns  p75: 3317.00ns  p99: 6181.00ns)  calibration: 64.41ns  [rescaled ×0.80 for the lib/ harness (#117); original 54.2286]"
           },
           {
             "name": "backref — capture agreement, irrelevant input ahead of the match — 4-character input",
-            "value": 92.9261,
-            "range": "± 10.5589",
+            "value": 72.4066,
+            "range": "± 8.2273",
             "unit": "× calibration",
-            "extra": "5984.99ns  (min: 5377.52ns  p75: 6778.69ns  p99: 6944.19ns)  calibration: 64.41ns"
+            "extra": "5984.99ns  (min: 5377.52ns  p75: 6778.69ns  p99: 6944.19ns)  calibration: 64.41ns  [rescaled ×0.78 for the lib/ harness (#117); original 92.9261]"
           },
           {
             "name": "backref — capture agreement, irrelevant input ahead of the match — 10004-character input",
@@ -19032,17 +19032,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — simple pattern (no groups, no backreferences) — compilePartial()",
-            "value": 55.689,
-            "range": "± 0.3534",
+            "value": 21.4655,
+            "range": "± 0.1362",
             "unit": "× calibration",
-            "extra": "3586.70ns  (min: 3539.69ns  p75: 3594.88ns  p99: 3758.68ns)  calibration: 64.41ns"
+            "extra": "3586.70ns  (min: 3539.69ns  p75: 3594.88ns  p99: 3758.68ns)  calibration: 64.41ns  [rescaled ×0.39 for the lib/ harness (#117); original 55.689]"
           },
           {
             "name": "construction — simple pattern (no groups, no backreferences) — new PartialMatchRegExp()",
-            "value": 66.0127,
-            "range": "± 2.7629",
+            "value": 28.0095,
+            "range": "± 1.1723",
             "unit": "× calibration",
-            "extra": "4251.61ns  (min: 4020.52ns  p75: 4384.71ns  p99: 4935.08ns)  calibration: 64.41ns"
+            "extra": "4251.61ns  (min: 4020.52ns  p75: 4384.71ns  p99: 4935.08ns)  calibration: 64.41ns  [rescaled ×0.42 for the lib/ harness (#117); original 66.0127]"
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — native new RegExp()",
@@ -19053,17 +19053,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — compilePartial()",
-            "value": 79.1522,
-            "range": "± 0.4768",
+            "value": 49.0632,
+            "range": "± 0.2955",
             "unit": "× calibration",
-            "extra": "5097.88ns  (min: 4993.70ns  p75: 5075.05ns  p99: 5307.39ns)  calibration: 64.41ns"
+            "extra": "5097.88ns  (min: 4993.70ns  p75: 5075.05ns  p99: 5307.39ns)  calibration: 64.41ns  [rescaled ×0.62 for the lib/ harness (#117); original 79.1522]"
           },
           {
             "name": "construction — phone pattern (character classes, optional groups) — new PartialMatchRegExp()",
-            "value": 90.1222,
-            "range": "± 2.538",
+            "value": 56.3196,
+            "range": "± 1.5861",
             "unit": "× calibration",
-            "extra": "5804.41ns  (min: 5544.65ns  p75: 5912.08ns  p99: 6068.08ns)  calibration: 64.41ns"
+            "extra": "5804.41ns  (min: 5544.65ns  p75: 5912.08ns  p99: 6068.08ns)  calibration: 64.41ns  [rescaled ×0.62 for the lib/ harness (#117); original 90.1222]"
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — native new RegExp()",
@@ -19074,17 +19074,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — compilePartial()",
-            "value": 188.9087,
-            "range": "± 2.2727",
+            "value": 76.5983,
+            "range": "± 0.9215",
             "unit": "× calibration",
-            "extra": "12166.85ns  (min: 10645.17ns  p75: 12421.61ns  p99: 12864.30ns)  calibration: 64.41ns"
+            "extra": "12166.85ns  (min: 10645.17ns  p75: 12421.61ns  p99: 12864.30ns)  calibration: 64.41ns  [rescaled ×0.41 for the lib/ harness (#117); original 188.9087]"
           },
           {
             "name": "construction — HTML tag pattern (capturing group + backreference) — new PartialMatchRegExp()",
-            "value": 207.9279,
-            "range": "± 1.3411",
+            "value": 88.0505,
+            "range": "± 0.5679",
             "unit": "× calibration",
-            "extra": "13391.80ns  (min: 11941.51ns  p75: 13653.65ns  p99: 13660.87ns)  calibration: 64.41ns"
+            "extra": "13391.80ns  (min: 11941.51ns  p75: 13653.65ns  p99: 13660.87ns)  calibration: 64.41ns  [rescaled ×0.42 for the lib/ harness (#117); original 207.9279]"
           },
           {
             "name": "construction — legacy numeric escape (\\N past the group count) — native new RegExp()",
@@ -19095,17 +19095,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — legacy numeric escape (\\N past the group count) — compilePartial()",
-            "value": 94.9149,
-            "range": "± 0.6068",
+            "value": 37.7702,
+            "range": "± 0.2415",
             "unit": "× calibration",
-            "extra": "6113.09ns  (min: 6039.77ns  p75: 6132.71ns  p99: 6207.89ns)  calibration: 64.41ns"
+            "extra": "6113.09ns  (min: 6039.77ns  p75: 6132.71ns  p99: 6207.89ns)  calibration: 64.41ns  [rescaled ×0.40 for the lib/ harness (#117); original 94.9149]"
           },
           {
             "name": "construction — legacy numeric escape (\\N past the group count) — new PartialMatchRegExp()",
-            "value": 109.5945,
-            "range": "± 1.5714",
+            "value": 47.5599,
+            "range": "± 0.6819",
             "unit": "× calibration",
-            "extra": "7058.54ns  (min: 6849.75ns  p75: 7147.05ns  p99: 7202.99ns)  calibration: 64.41ns"
+            "extra": "7058.54ns  (min: 6849.75ns  p75: 7147.05ns  p99: 7202.99ns)  calibration: 64.41ns  [rescaled ×0.43 for the lib/ harness (#117); original 109.5945]"
           },
           {
             "name": "construction — legacy named escape (\\k<name> naming no group) — native new RegExp()",
@@ -19116,38 +19116,38 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "construction — legacy named escape (\\k<name> naming no group) — compilePartial()",
-            "value": 102.6457,
-            "range": "± 0.4189",
+            "value": 52.6027,
+            "range": "± 0.2147",
             "unit": "× calibration",
-            "extra": "6610.99ns  (min: 6553.46ns  p75: 6629.40ns  p99: 6722.88ns)  calibration: 64.41ns"
+            "extra": "6610.99ns  (min: 6553.46ns  p75: 6629.40ns  p99: 6722.88ns)  calibration: 64.41ns  [rescaled ×0.51 for the lib/ harness (#117); original 102.6457]"
           },
           {
             "name": "construction — legacy named escape (\\k<name> naming no group) — new PartialMatchRegExp()",
-            "value": 119.1024,
-            "range": "± 1.5614",
+            "value": 62.1352,
+            "range": "± 0.8146",
             "unit": "× calibration",
-            "extra": "7670.91ns  (min: 7334.01ns  p75: 7778.48ns  p99: 7890.59ns)  calibration: 64.41ns"
+            "extra": "7670.91ns  (min: 7334.01ns  p75: 7778.48ns  p99: 7890.59ns)  calibration: 64.41ns  [rescaled ×0.52 for the lib/ harness (#117); original 119.1024]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec (baseline, never asks)",
-            "value": 73.2378,
-            "range": "± 1.9458",
+            "value": 37.4014,
+            "range": "± 0.9937",
             "unit": "× calibration",
-            "extra": "4716.95ns  (min: 4548.07ns  p75: 4833.25ns  p99: 4910.06ns)  calibration: 64.41ns"
+            "extra": "4716.95ns  (min: 4548.07ns  p75: 4833.25ns  p99: 4910.06ns)  calibration: 64.41ns  [rescaled ×0.51 for the lib/ harness (#117); original 73.2378]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (includes probe build)",
-            "value": 187.2404,
-            "range": "± 2.2591",
+            "value": 106.2129,
+            "range": "± 1.2815",
             "unit": "× calibration",
-            "extra": "12059.40ns  (min: 10730.00ns  p75: 11312.00ns  p99: 28313.00ns)  calibration: 64.41ns"
+            "extra": "12059.40ns  (min: 10730.00ns  p75: 11312.00ns  p99: 28313.00ns)  calibration: 64.41ns  [rescaled ×0.57 for the lib/ harness (#117); original 187.2404]"
           },
           {
             "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (complete, includes probe build)",
-            "value": 171.2778,
-            "range": "± 0.7027",
+            "value": 98.5282,
+            "range": "± 0.4042",
             "unit": "× calibration",
-            "extra": "11031.31ns  (min: 10855.92ns  p75: 11032.63ns  p99: 11231.82ns)  calibration: 64.41ns"
+            "extra": "11031.31ns  (min: 10855.92ns  p75: 11032.63ns  p99: 11231.82ns)  calibration: 64.41ns  [rescaled ×0.58 for the lib/ harness (#117); original 171.2778]"
           },
           {
             "name": "hitEnd — static path (ISO date) — hitEnd — incomplete match, warm probe",
@@ -19165,24 +19165,24 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — word boundary at truncation end — construct + exec (baseline, never asks)",
-            "value": 62.8776,
-            "range": "± 2.1475",
+            "value": 22.7225,
+            "range": "± 0.7761",
             "unit": "× calibration",
-            "extra": "4049.70ns  (min: 3884.02ns  p75: 4178.84ns  p99: 4446.50ns)  calibration: 64.41ns"
+            "extra": "4049.70ns  (min: 3884.02ns  p75: 4178.84ns  p99: 4446.50ns)  calibration: 64.41ns  [rescaled ×0.36 for the lib/ harness (#117); original 62.8776]"
           },
           {
             "name": "hitEnd — word boundary at truncation end — construct + exec + hitEnd (includes probe build)",
-            "value": 139.2718,
-            "range": "± 2.812",
+            "value": 63.5851,
+            "range": "± 1.2838",
             "unit": "× calibration",
-            "extra": "8969.93ns  (min: 8708.74ns  p75: 9117.75ns  p99: 9484.09ns)  calibration: 64.41ns"
+            "extra": "8969.93ns  (min: 8708.74ns  p75: 9117.75ns  p99: 9484.09ns)  calibration: 64.41ns  [rescaled ×0.46 for the lib/ harness (#117); original 139.2718]"
           },
           {
             "name": "hitEnd — word boundary at truncation end — construct + exec + hitEnd (complete, includes probe build)",
-            "value": 141.7869,
-            "range": "± 1.436",
+            "value": 65.7718,
+            "range": "± 0.6661",
             "unit": "× calibration",
-            "extra": "9131.92ns  (min: 8800.71ns  p75: 9117.66ns  p99: 9642.15ns)  calibration: 64.41ns"
+            "extra": "9131.92ns  (min: 8800.71ns  p75: 9117.66ns  p99: 9642.15ns)  calibration: 64.41ns  [rescaled ×0.46 for the lib/ harness (#117); original 141.7869]"
           },
           {
             "name": "hitEnd — word boundary at truncation end — hitEnd — incomplete match, warm probe",
@@ -19200,24 +19200,24 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — open-ended quantifiers and end anchor (email-like pattern) — construct + exec (baseline, never asks)",
-            "value": 77.1691,
-            "range": "± 2.1406",
+            "value": 38.4026,
+            "range": "± 1.0653",
             "unit": "× calibration",
-            "extra": "4970.15ns  (min: 4762.21ns  p75: 5083.03ns  p99: 5309.79ns)  calibration: 64.41ns"
+            "extra": "4970.15ns  (min: 4762.21ns  p75: 5083.03ns  p99: 5309.79ns)  calibration: 64.41ns  [rescaled ×0.50 for the lib/ harness (#117); original 77.1691]"
           },
           {
             "name": "hitEnd — open-ended quantifiers and end anchor (email-like pattern) — construct + exec + hitEnd (includes probe build)",
-            "value": 194.5758,
-            "range": "± 1.5032",
+            "value": 117.6904,
+            "range": "± 0.9092",
             "unit": "× calibration",
-            "extra": "12531.84ns  (min: 12279.56ns  p75: 12527.01ns  p99: 12823.37ns)  calibration: 64.41ns"
+            "extra": "12531.84ns  (min: 12279.56ns  p75: 12527.01ns  p99: 12823.37ns)  calibration: 64.41ns  [rescaled ×0.60 for the lib/ harness (#117); original 194.5758]"
           },
           {
             "name": "hitEnd — open-ended quantifiers and end anchor (email-like pattern) — construct + exec + hitEnd (complete, includes probe build)",
-            "value": 196.3685,
-            "range": "± 0.4802",
+            "value": 120.1599,
+            "range": "± 0.2938",
             "unit": "× calibration",
-            "extra": "12647.30ns  (min: 12564.38ns  p75: 12628.90ns  p99: 12773.63ns)  calibration: 64.41ns"
+            "extra": "12647.30ns  (min: 12564.38ns  p75: 12628.90ns  p99: 12773.63ns)  calibration: 64.41ns  [rescaled ×0.61 for the lib/ harness (#117); original 196.3685]"
           },
           {
             "name": "hitEnd — open-ended quantifiers and end anchor (email-like pattern) — hitEnd — incomplete match, warm probe",
@@ -19235,24 +19235,24 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — optional atom at truncation end — construct + exec (baseline, never asks)",
-            "value": 63.7273,
-            "range": "± 2.0016",
+            "value": 24.3563,
+            "range": "± 0.7650",
             "unit": "× calibration",
-            "extra": "4104.42ns  (min: 3907.07ns  p75: 4189.85ns  p99: 4537.32ns)  calibration: 64.41ns"
+            "extra": "4104.42ns  (min: 3907.07ns  p75: 4189.85ns  p99: 4537.32ns)  calibration: 64.41ns  [rescaled ×0.38 for the lib/ harness (#117); original 63.7273]"
           },
           {
             "name": "hitEnd — optional atom at truncation end — construct + exec + hitEnd (includes probe build)",
-            "value": 144.6272,
-            "range": "± 1.8994",
+            "value": 72.158,
+            "range": "± 0.9477",
             "unit": "× calibration",
-            "extra": "9314.85ns  (min: 9064.85ns  p75: 9382.41ns  p99: 9732.84ns)  calibration: 64.41ns"
+            "extra": "9314.85ns  (min: 9064.85ns  p75: 9382.41ns  p99: 9732.84ns)  calibration: 64.41ns  [rescaled ×0.50 for the lib/ harness (#117); original 144.6272]"
           },
           {
             "name": "hitEnd — optional atom at truncation end — construct + exec + hitEnd (taken, includes probe build)",
-            "value": 147.162,
-            "range": "± 1.0545",
+            "value": 73.2509,
+            "range": "± 0.5249",
             "unit": "× calibration",
-            "extra": "9478.11ns  (min: 9194.61ns  p75: 9431.50ns  p99: 9943.80ns)  calibration: 64.41ns"
+            "extra": "9478.11ns  (min: 9194.61ns  p75: 9431.50ns  p99: 9943.80ns)  calibration: 64.41ns  [rescaled ×0.50 for the lib/ harness (#117); original 147.162]"
           },
           {
             "name": "hitEnd — optional atom at truncation end — hitEnd — untaken atom, warm probe",
@@ -19270,17 +19270,17 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — backreference path (repeated word) — construct + exec (baseline, never asks)",
-            "value": 181.9968,
-            "range": "± 12.2165",
+            "value": 78.7285,
+            "range": "± 5.2846",
             "unit": "× calibration",
-            "extra": "11721.68ns  (min: 10444.91ns  p75: 12175.10ns  p99: 12396.74ns)  calibration: 64.41ns"
+            "extra": "11721.68ns  (min: 10444.91ns  p75: 12175.10ns  p99: 12396.74ns)  calibration: 64.41ns  [rescaled ×0.43 for the lib/ harness (#117); original 181.9968]"
           },
           {
             "name": "hitEnd — backreference path (repeated word) — construct + exec + hitEnd (includes probe build)",
-            "value": 326.3272,
-            "range": "± 4.2077",
+            "value": 173.0332,
+            "range": "± 2.2311",
             "unit": "× calibration",
-            "extra": "21017.42ns  (min: 17904.00ns  p75: 18886.00ns  p99: 47480.00ns)  calibration: 64.41ns"
+            "extra": "21017.42ns  (min: 17904.00ns  p75: 18886.00ns  p99: 47480.00ns)  calibration: 64.41ns  [rescaled ×0.53 for the lib/ harness (#117); original 326.3272]"
           },
           {
             "name": "hitEnd — backreference path (repeated word) — hitEnd — same match, expansion probe cached",
@@ -19298,24 +19298,24 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "hitEnd — backreference path (repeated word) — exec + hitEnd — fresh match, alternating capture, probe rebuilt per match",
-            "value": 164.6469,
-            "range": "± 1.2499",
+            "value": 132.1094,
+            "range": "± 1.0029",
             "unit": "× calibration",
-            "extra": "10604.24ns  (min: 9668.00ns  p75: 10059.00ns  p99: 23033.00ns)  calibration: 64.41ns"
+            "extra": "10604.24ns  (min: 9668.00ns  p75: 10059.00ns  p99: 23033.00ns)  calibration: 64.41ns  [rescaled ×0.80 for the lib/ harness (#117); original 164.6469]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — construct + exec (baseline, never asks)",
-            "value": 169.9487,
-            "range": "± 1.1203",
+            "value": 57.3731,
+            "range": "± 0.3782",
             "unit": "× calibration",
-            "extra": "10945.71ns  (min: 10776.49ns  p75: 10973.14ns  p99: 11192.17ns)  calibration: 64.41ns"
+            "extra": "10945.71ns  (min: 10776.49ns  p75: 10973.14ns  p99: 11192.17ns)  calibration: 64.41ns  [rescaled ×0.34 for the lib/ harness (#117); original 169.9487]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — construct + exec + hitEnd (includes probe build)",
-            "value": 283.4857,
-            "range": "± 4.0369",
+            "value": 114.1848,
+            "range": "± 1.6260",
             "unit": "× calibration",
-            "extra": "18258.17ns  (min: 16180.00ns  p75: 17122.00ns  p99: 43121.00ns)  calibration: 64.41ns"
+            "extra": "18258.17ns  (min: 16180.00ns  p75: 17122.00ns  p99: 43121.00ns)  calibration: 64.41ns  [rescaled ×0.40 for the lib/ harness (#117); original 283.4857]"
           },
           {
             "name": "hitEnd — raw lookaround backreference renumbering — hitEnd — warm instance",
@@ -19326,143 +19326,143 @@ window.BENCHMARK_DATA = {
           },
           {
             "name": "feature cost — construction, one construct per bench — literal characters (baseline)",
-            "value": 82.6802,
-            "range": "± 2.7796",
+            "value": 55.5889,
+            "range": "± 1.8688",
             "unit": "× calibration",
-            "extra": "5325.10ns  (min: 5079.73ns  p75: 5459.40ns  p99: 5714.75ns)  calibration: 64.41ns"
+            "extra": "5325.10ns  (min: 5079.73ns  p75: 5459.40ns  p99: 5714.75ns)  calibration: 64.41ns  [rescaled ×0.67 for the lib/ harness (#117); original 82.6802]"
           },
           {
             "name": "feature cost — construction, one construct per bench — character class",
-            "value": 83.3681,
-            "range": "± 2.4097",
+            "value": 54.0295,
+            "range": "± 1.5617",
             "unit": "× calibration",
-            "extra": "5369.40ns  (min: 5139.03ns  p75: 5491.01ns  p99: 5648.65ns)  calibration: 64.41ns"
+            "extra": "5369.40ns  (min: 5139.03ns  p75: 5491.01ns  p99: 5648.65ns)  calibration: 64.41ns  [rescaled ×0.65 for the lib/ harness (#117); original 83.3681]"
           },
           {
             "name": "feature cost — construction, one construct per bench — quantifier",
-            "value": 82.3483,
-            "range": "± 3.2894",
+            "value": 52.208,
+            "range": "± 2.0854",
             "unit": "× calibration",
-            "extra": "5303.72ns  (min: 5062.14ns  p75: 5502.25ns  p99: 5594.45ns)  calibration: 64.41ns"
+            "extra": "5303.72ns  (min: 5062.14ns  p75: 5502.25ns  p99: 5594.45ns)  calibration: 64.41ns  [rescaled ×0.63 for the lib/ harness (#117); original 82.3483]"
           },
           {
             "name": "feature cost — construction, one construct per bench — disjunction",
-            "value": 108.3489,
-            "range": "± 0.8518",
+            "value": 55.5907,
+            "range": "± 0.4370",
             "unit": "× calibration",
-            "extra": "6978.32ns  (min: 6775.48ns  p75: 7015.86ns  p99: 7229.14ns)  calibration: 64.41ns"
+            "extra": "6978.32ns  (min: 6775.48ns  p75: 7015.86ns  p99: 7229.14ns)  calibration: 64.41ns  [rescaled ×0.51 for the lib/ harness (#117); original 108.3489]"
           },
           {
             "name": "feature cost — construction, one construct per bench — non-capturing group",
-            "value": 109.8226,
-            "range": "± 1.48",
+            "value": 56.284,
+            "range": "± 0.7585",
             "unit": "× calibration",
-            "extra": "7073.23ns  (min: 6779.98ns  p75: 7163.10ns  p99: 7285.58ns)  calibration: 64.41ns"
+            "extra": "7073.23ns  (min: 6779.98ns  p75: 7163.10ns  p99: 7285.58ns)  calibration: 64.41ns  [rescaled ×0.51 for the lib/ harness (#117); original 109.8226]"
           },
           {
             "name": "feature cost — construction, one construct per bench — capturing group",
-            "value": 108.9663,
-            "range": "± 1.0888",
+            "value": 56.0842,
+            "range": "± 0.5604",
             "unit": "× calibration",
-            "extra": "7018.08ns  (min: 6779.91ns  p75: 7078.85ns  p99: 7172.33ns)  calibration: 64.41ns"
+            "extra": "7018.08ns  (min: 6779.91ns  p75: 7078.85ns  p99: 7172.33ns)  calibration: 64.41ns  [rescaled ×0.51 for the lib/ harness (#117); original 108.9663]"
           },
           {
             "name": "feature cost — construction, one construct per bench — named group",
-            "value": 116.5989,
-            "range": "± 1.321",
+            "value": 62.2185,
+            "range": "± 0.7049",
             "unit": "× calibration",
-            "extra": "7509.66ns  (min: 7171.04ns  p75: 7594.60ns  p99: 7774.30ns)  calibration: 64.41ns"
+            "extra": "7509.66ns  (min: 7171.04ns  p75: 7594.60ns  p99: 7774.30ns)  calibration: 64.41ns  [rescaled ×0.53 for the lib/ harness (#117); original 116.5989]"
           },
           {
             "name": "feature cost — construction, one construct per bench — lookahead",
-            "value": 109.7376,
-            "range": "± 1.5064",
+            "value": 56.7371,
+            "range": "± 0.7788",
             "unit": "× calibration",
-            "extra": "7067.75ns  (min: 6739.17ns  p75: 7150.64ns  p99: 7271.14ns)  calibration: 64.41ns"
+            "extra": "7067.75ns  (min: 6739.17ns  p75: 7150.64ns  p99: 7271.14ns)  calibration: 64.41ns  [rescaled ×0.52 for the lib/ harness (#117); original 109.7376]"
           },
           {
             "name": "feature cost — construction, one construct per bench — negative lookahead (raw)",
-            "value": 113.6711,
-            "range": "± 2.0684",
+            "value": 67.1304,
+            "range": "± 1.2215",
             "unit": "× calibration",
-            "extra": "7321.10ns  (min: 7031.80ns  p75: 7424.04ns  p99: 7546.44ns)  calibration: 64.41ns"
+            "extra": "7321.10ns  (min: 7031.80ns  p75: 7424.04ns  p99: 7546.44ns)  calibration: 64.41ns  [rescaled ×0.59 for the lib/ harness (#117); original 113.6711]"
           },
           {
             "name": "feature cost — construction, one construct per bench — lookbehind (raw)",
-            "value": 110.7102,
-            "range": "± 1.1356",
+            "value": 59.358,
+            "range": "± 0.6089",
             "unit": "× calibration",
-            "extra": "7130.40ns  (min: 6855.35ns  p75: 7205.02ns  p99: 7425.71ns)  calibration: 64.41ns"
+            "extra": "7130.40ns  (min: 6855.35ns  p75: 7205.02ns  p99: 7425.71ns)  calibration: 64.41ns  [rescaled ×0.54 for the lib/ harness (#117); original 110.7102]"
           },
           {
             "name": "feature cost — construction, one construct per bench — control escapes",
-            "value": 84.8354,
-            "range": "± 2.4973",
+            "value": 55.2972,
+            "range": "± 1.6278",
             "unit": "× calibration",
-            "extra": "5463.90ns  (min: 5199.12ns  p75: 5572.07ns  p99: 5866.22ns)  calibration: 64.41ns"
+            "extra": "5463.90ns  (min: 5199.12ns  p75: 5572.07ns  p99: 5866.22ns)  calibration: 64.41ns  [rescaled ×0.65 for the lib/ harness (#117); original 84.8354]"
           },
           {
             "name": "feature cost — construction, one construct per bench — control-letter escape",
-            "value": 83.6499,
-            "range": "± 2.0132",
+            "value": 54.9711,
+            "range": "± 1.3230",
             "unit": "× calibration",
-            "extra": "5387.55ns  (min: 5161.76ns  p75: 5482.94ns  p99: 5571.73ns)  calibration: 64.41ns"
+            "extra": "5387.55ns  (min: 5161.76ns  p75: 5482.94ns  p99: 5571.73ns)  calibration: 64.41ns  [rescaled ×0.66 for the lib/ harness (#117); original 83.6499]"
           },
           {
             "name": "feature cost — construction, one construct per bench — hex and unicode escapes",
-            "value": 86.4845,
-            "range": "± 2.6221",
+            "value": 58.2849,
+            "range": "± 1.7671",
             "unit": "× calibration",
-            "extra": "5570.12ns  (min: 5308.33ns  p75: 5698.80ns  p99: 5869.18ns)  calibration: 64.41ns"
+            "extra": "5570.12ns  (min: 5308.33ns  p75: 5698.80ns  p99: 5869.18ns)  calibration: 64.41ns  [rescaled ×0.67 for the lib/ harness (#117); original 86.4845]"
           },
           {
             "name": "feature cost — construction, one construct per bench — unicode property escape (u)",
-            "value": 84.2641,
-            "range": "± 2.839",
+            "value": 56.9632,
+            "range": "± 1.9192",
             "unit": "× calibration",
-            "extra": "5427.11ns  (min: 5163.71ns  p75: 5583.79ns  p99: 5755.69ns)  calibration: 64.41ns"
+            "extra": "5427.11ns  (min: 5163.71ns  p75: 5583.79ns  p99: 5755.69ns)  calibration: 64.41ns  [rescaled ×0.68 for the lib/ harness (#117); original 84.2641]"
           },
           {
             "name": "feature cost — construction, one construct per bench — nested character class (v)",
-            "value": 85.5912,
-            "range": "± 3.1705",
+            "value": 57.6915,
+            "range": "± 2.1370",
             "unit": "× calibration",
-            "extra": "5512.58ns  (min: 5251.91ns  p75: 5692.67ns  p99: 5831.01ns)  calibration: 64.41ns"
+            "extra": "5512.58ns  (min: 5251.91ns  p75: 5692.67ns  p99: 5831.01ns)  calibration: 64.41ns  [rescaled ×0.67 for the lib/ harness (#117); original 85.5912]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — capturing group, no reference (static path)",
-            "value": 104.029,
-            "range": "± 2.7531",
+            "value": 48.8188,
+            "range": "± 1.2920",
             "unit": "× calibration",
-            "extra": "6700.09ns  (min: 6368.78ns  p75: 6830.21ns  p99: 6930.20ns)  calibration: 64.41ns"
+            "extra": "6700.09ns  (min: 6368.78ns  p75: 6830.21ns  p99: 6930.20ns)  calibration: 64.41ns  [rescaled ×0.47 for the lib/ harness (#117); original 104.029]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — numeric backreference (dynamic path)",
-            "value": 159.8169,
-            "range": "± 12.2086",
+            "value": 69.2588,
+            "range": "± 5.2908",
             "unit": "× calibration",
-            "extra": "10293.16ns  (min: 8855.02ns  p75: 11017.11ns  p99: 11241.28ns)  calibration: 64.41ns"
+            "extra": "10293.16ns  (min: 8855.02ns  p75: 11017.11ns  p99: 11241.28ns)  calibration: 64.41ns  [rescaled ×0.43 for the lib/ harness (#117); original 159.8169]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — named backreference (dynamic path)",
-            "value": 176.0278,
-            "range": "± 16.6452",
+            "value": 75.9843,
+            "range": "± 7.1851",
             "unit": "× calibration",
-            "extra": "11337.24ns  (min: 9617.94ns  p75: 11887.93ns  p99: 12151.95ns)  calibration: 64.41ns"
+            "extra": "11337.24ns  (min: 9617.94ns  p75: 11887.93ns  p99: 12151.95ns)  calibration: 64.41ns  [rescaled ×0.43 for the lib/ harness (#117); original 176.0278]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — reclassified octal escape (static)",
-            "value": 119.347,
-            "range": "± 1.0153",
+            "value": 62.3156,
+            "range": "± 0.5301",
             "unit": "× calibration",
-            "extra": "7686.66ns  (min: 7436.66ns  p75: 7755.84ns  p99: 7848.48ns)  calibration: 64.41ns"
+            "extra": "7686.66ns  (min: 7436.66ns  p75: 7755.84ns  p99: 7848.48ns)  calibration: 64.41ns  [rescaled ×0.52 for the lib/ harness (#117); original 119.347]"
           },
           {
             "name": "feature cost — construction, backreferences and legacy escapes — reclassified \\k literal (static)",
-            "value": 126.1986,
-            "range": "± 0.9849",
+            "value": 73.5389,
+            "range": "± 0.5739",
             "unit": "× calibration",
-            "extra": "8127.94ns  (min: 7998.96ns  p75: 8187.16ns  p99: 8252.05ns)  calibration: 64.41ns"
+            "extra": "8127.94ns  (min: 7998.96ns  p75: 8187.16ns  p99: 8252.05ns)  calibration: 64.41ns  [rescaled ×0.58 for the lib/ harness (#117); original 126.1986]"
           },
           {
             "name": "feature cost — exec, legacy escape vs genuine backreference — legacy \\k literal — partial input",
