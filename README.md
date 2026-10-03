@@ -10,7 +10,7 @@ Unlike C/C++ (via [PCRE/PCRE2](https://www.pcre.org/original/doc/html/pcrepartia
 
 This library transforms regular expressions to best-effort support **partial matching**, allowing you to test if an incomplete string could potentially match the full pattern. This is particularly useful for real-time input validation, autocomplete systems, progressive form validation, stream chunk matching, etc.
 
-As a side effect of the parse this requires, [`features()`](#featurespartial-partialmatchregexp-readonlysetregexfeature) names the syntactic constructs a `PartialMatchRegExp`'s pattern uses — useful for consumers that need to reason about a pattern without writing their own regex parser.  For many features, a simple search in the [source](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/source) would be insufficient.
+As a side effect of the parse this requires, [`features()`](#features) names the syntactic constructs a `PartialMatchRegExp`'s pattern uses — useful for consumers that need to reason about a pattern without writing their own regex parser.  For many features, a simple search in the [source](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/source) would be insufficient.
 
 **Based on an algorithm created by [Lucas Trzesniewski](https://github.com/ltrzesniewski)**, re-created for NPM via ISC license, with permission.
 
@@ -48,7 +48,7 @@ partial.test("hel"); // true
 
 ### Telling a settled match from one still reading
 
-`test()` and `exec()` answer "could this match?", which is `true` for a prefix and for a complete match alike. [`hitEnd()`](#hitendpartial-partialmatchregexp-match-regexpexecarray-boolean) reports whether the engine reached the end of the input while producing the match, so more input could still change it [^1]. Testing the original pattern instead doesn't answer that [^2]. Together they give progressive validation its three states:
+`test()` and `exec()` answer "could this match?", which is `true` for a prefix and for a complete match alike. [`hitEnd()`](#hitend) reports whether the engine reached the end of the input while producing the match, so more input could still change it [^1]. Testing the original pattern instead doesn't answer that [^2]. Together they give progressive validation its three states:
 
 ```javascript
 import PartialMatchRegExp, { hitEnd } from "regex-partial-match";
@@ -111,7 +111,7 @@ const WithBoth = withModules(carets, backreferences);
 new WithBoth(/(a|b)\1/).test("a"); // true
 ```
 
-`withModules` returns a `PartialMatchRegExp` class extending `RegExp`, and the same set of modules in any order returns the same class: `withModules()` is the `core` class, and `withModules(carets, backreferences)` is the default `PartialMatchRegExp`, so `instanceof` holds between them. [`hitEnd()`](#hitendpartial-partialmatchregexp-match-regexpexecarray-boolean) and [`features()`](#featurespartial-partialmatchregexp-readonlysetregexfeature) accept instances of any of these classes.
+`withModules` returns a `PartialMatchRegExp` class extending `RegExp`, and the same set of modules in any order returns the same class: `withModules()` is the `core` class, and `withModules(carets, backreferences)` is the default `PartialMatchRegExp`, so `instanceof` holds between them. [`hitEnd()`](#hitend) and [`features()`](#features) accept instances of any of these classes.
 
 A module's type is `Module`, exported from both `regex-partial-match/core` and `regex-partial-match/modules`, for annotating a list of modules: `const modules: Module[] = [carets, backreferences]`. It is opaque, so what a module holds is not part of the API, and `withModules` throws a `TypeError` for anything that isn't a module.
 
@@ -178,13 +178,13 @@ The library is compiled to **ES2015** (ECMAScript 6). Certain regular expression
 - [**`v` (unicodeSets) flag**](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/unicodeSets) - ES2024+
 - [**Modifiers**](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Modifier) (`(?ims:...)`, `(?-ims:...)`, `(?i-ms:...)`) - ES2025+
 
-Each of these applies only when the *original* pattern uses the feature — everything else, including construction, `exec()` and `test()`, holds to the ES2015 floor. [`hitEnd()`](#hitendpartial-partialmatchregexp-match-regexpexecarray-boolean) is the one exception: it always requires **ES2018+**, regardless of the pattern, since its internal probe uses named capturing groups.
+Each of these applies only when the *original* pattern uses the feature — everything else, including construction, `exec()` and `test()`, holds to the ES2015 floor. [`hitEnd()`](#hitend) is the one exception: it always requires **ES2018+**, regardless of the pattern, since its internal probe uses named capturing groups.
 
 ## ⚠️ Caveats
 
 See [Caveats](./docs/caveats.md) for details, examples and workarounds.
 
-- [**`.test()` and empty matches at the end of the input**](./docs/caveats.md#test-behaviour-and-non-matching-results-from-exec-and-match): an unanchored pattern always matches `""` at the end of the input; anchor with `^`, or ask [`hitEnd()`](#hitendpartial-partialmatchregexp-match-regexpexecarray-boolean)
+- [**`.test()` and empty matches at the end of the input**](./docs/caveats.md#test-behaviour-and-non-matching-results-from-exec-and-match): an unanchored pattern always matches `""` at the end of the input; anchor with `^`, or ask [`hitEnd()`](#hitend)
 - [**Backreferences**](./docs/caveats.md#backreferences): some backreferences stay atomic
   - [Captures on a partial match](./docs/caveats.md#captures-on-a-partial-match)
   - [Prefix-ambiguous top-level alternation](./docs/caveats.md#prefix-ambiguous-top-level-alternation)
