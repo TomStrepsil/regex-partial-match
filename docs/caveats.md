@@ -51,7 +51,7 @@ e.g.
 ```
 
 > [!TIP]
-> [`hitEnd()`](../README.md#hitendpartial-partialmatchregexp-match-regexpexecarray-boolean) answers this without a length check, and covers more than one: it reports `true` for the empty end-of-input match, since it exists only because the input ran out, and equally for a non-empty prefix like `"hello"` against `/hello world/`, which a length check would wave through.
+> [`hitEnd()`](../README.md#hitend) answers this without a length check, and covers more than one: it reports `true` for the empty end-of-input match, since it exists only because the input ran out, and equally for a non-empty prefix like `"hello"` against `/hello world/`, which a length check would wave through.
 >
 > It describes a match, so ask it from `exec()` rather than `test()`:
 >
@@ -101,7 +101,7 @@ partial.exec("abcy"); // ["abcy", undefined, "abc"    ] — branch 2, complete
 
 A repeated group whose last iteration was cut short reports that partial iteration — `/(abc)+\1/` on `"abcab"` gives `m[1] === "ab"` — and `"abcabc"` then gives `"abc"`.
 
-When [`hitEnd()`](../README.md#hitendpartial-partialmatchregexp-match-regexpexecarray-boolean) reports `false` for a match, its captures are final; when it reports `true`, they are the closest available. Two known shapes still report `undefined` where `""` is closer: a group nested inside a group a multiline caret follows (`/((\n))^/m` on `"a"` gives `m[2] === undefined`), and a quantified group not yet iterated at the end of the input (`/(?=(a))(a|b)*/` on `""` gives `m[2] === undefined`).
+When [`hitEnd()`](../README.md#hitend) reports `false` for a match, its captures are final; when it reports `true`, they are the closest available. Two known shapes still report `undefined` where `""` is closer: a group nested inside a group a multiline caret follows (`/((\n))^/m` on `"a"` gives `m[2] === undefined`), and a quantified group not yet iterated at the end of the input (`/(?=(a))(a|b)*/` on `""` gives `m[2] === undefined`).
 
 ### Prefix-ambiguous top-level alternation
 
