@@ -47,9 +47,9 @@ interface PartialMatchRegExpConstructor
  * ```
  *
  * @remarks
- * - The transformed pattern always matches an empty string at the end of input;
- *   use a start anchor (`^`) to prevent false positives from empty string matches
- * - The `y` (sticky) flag may not behave as expected in partial matching scenarios
+ * The transformed pattern always matches an empty string at the end of input;
+ * use a start anchor (`^`) to prevent false positives from empty string matches.
+ * See the documentation for how the `y` (sticky) flag behaves.
  *
  * @see {@link https://github.com/TomStrepsil/regex-partial-match#readme | Documentation}
  */

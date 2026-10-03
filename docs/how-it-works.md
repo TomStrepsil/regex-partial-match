@@ -58,6 +58,12 @@ Whatever that scan captures (or leaves `undefined`, if the group hasn't been rea
 
 This path belongs to the backreferences module. `regex-partial-match/core` without it throws `TypeError: Needs the backreferences module` when a pattern needs the path, and compiles a pattern whose escapes resolve statically, such as `/x\8y/`, with the transform above.
 
+## 🧩 Modules and derived instances
+
+`withModules` keeps one class per set of modules, whatever their order, so `instanceof` holds between calls and between entry points. `regex-partial-match/core` exports `withModules()`, and `regex-partial-match` exports `withModules(carets, backreferences)`.
+
+`split()` and `matchAll()` build their copies through `Symbol.species`. A class does not override it, so `RegExp`'s own getter returns the class it is read on, and a copy is constructed by the same class, with the same modules bound.
+
 ## 🎯 `hitEnd()`
 
 [`hitEnd()`](../README.md#hitendpartial-partialmatchregexp-match-regexpexecarray-boolean) reports whether a match read the end of the input, so more input could still change it.

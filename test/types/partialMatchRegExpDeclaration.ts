@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars -- nothing imports this file: `tsc` type-checks it (tsconfig includes test/**), so each declaration is a compile-time assertion, and the `@ts-expect-error` lines fail the build if they stop being errors. Exporting each one only to silence the unused-variable rule would widen the file's surface for no reader. */
 import PartialMatchRegExp, {
   hitEnd,
   features,
@@ -22,93 +23,93 @@ declare module "../../src/partialMatchRegExp/index.ts" {
   }
 }
 
-export function constructs(): PartialMatchRegExp {
+function constructs(): PartialMatchRegExp {
   return new PartialMatchRegExp(/a/, "g");
 }
 
-export class Extended extends PartialMatchRegExp {
+class Extended extends PartialMatchRegExp {
   execAll(input: string): RegExpExecArray | null {
     return this.exec(input);
   }
 }
 
-export function extendsIt(): PartialMatchRegExp {
+function extendsIt(): PartialMatchRegExp {
   return new Extended("a").execAll("a") ? new Extended("a", "y") : constructs();
 }
 
-export function narrows(value: unknown): PartialMatchRegExp | undefined {
+function narrows(value: unknown): PartialMatchRegExp | undefined {
   return value instanceof PartialMatchRegExp ? value : undefined;
 }
 
-export function merges(partial: PartialMatchRegExp): true | undefined {
+function merges(partial: PartialMatchRegExp): true | undefined {
   return partial.mergedByDeclaration;
 }
 
-export function mergesIntoTheCoreInstance(): true | undefined {
+function mergesIntoTheCoreInstance(): true | undefined {
   return new CorePartialMatchRegExp(/a/).mergedByDeclaration;
 }
 
-export const coreConstructor: PartialMatchRegExpConstructor =
+const coreConstructor: PartialMatchRegExpConstructor =
   CorePartialMatchRegExp;
 
-export function extendsRegExpPrototype(): true | undefined {
+function extendsRegExpPrototype(): true | undefined {
   return /a/.toPartialMatchRegex().mergedByDeclaration;
 }
 
-export function constructsCore(): CorePartialMatchRegExp {
+function constructsCore(): CorePartialMatchRegExp {
   return new CorePartialMatchRegExp(/a/, "g");
 }
 
-export class CoreExtended extends CorePartialMatchRegExp {
+class CoreExtended extends CorePartialMatchRegExp {
   execAll(input: string): RegExpExecArray | null {
     return this.exec(input);
   }
 }
 
-export function extendsCore(): CorePartialMatchRegExp {
+function extendsCore(): CorePartialMatchRegExp {
   return new CoreExtended("a").execAll("a")
     ? new CoreExtended("a", "y")
     : constructsCore();
 }
 
-export function narrowsCore(
+function narrowsCore(
   value: unknown
 ): CorePartialMatchRegExp | undefined {
   return value instanceof CorePartialMatchRegExp ? value : undefined;
 }
 
-export function mergesIntoCoreDeclaration(
+function mergesIntoCoreDeclaration(
   partial: CorePartialMatchRegExp
 ): true | undefined {
   return partial.mergedByDeclaration;
 }
 
-export function mergesIntoCoreInstanceType(
+function mergesIntoCoreInstanceType(
   partial: CorePartialMatchRegExpInstance
 ): true | undefined {
   return partial.mergedByDeclaration;
 }
 
-export const sameInstanceType: CorePartialMatchRegExpInstance[] = [
+const sameInstanceType: CorePartialMatchRegExpInstance[] = [
   constructs(),
   constructsCore()
 ];
 
-export const sameConstructorType: CorePartialMatchRegExpConstructor[] = [
+const sameConstructorType: CorePartialMatchRegExpConstructor[] = [
   PartialMatchRegExp,
   CorePartialMatchRegExp
 ];
 
-export const coreInstance: PartialMatchRegExp = new CorePartialMatchRegExp(/a/);
+const coreInstance: PartialMatchRegExp = new CorePartialMatchRegExp(/a/);
 
-export const moduleBoundInstance: PartialMatchRegExp = new (withModules(
+const moduleBoundInstance: PartialMatchRegExp = new (withModules(
   carets
 ))(/a/);
 
-export const extendedRegExpInstance: PartialMatchRegExp =
+const extendedRegExpInstance: PartialMatchRegExp =
   /a/.toPartialMatchRegex();
 
-export function acceptsAnyInstance(match: RegExpExecArray): boolean {
+function acceptsAnyInstance(match: RegExpExecArray): boolean {
   return (
     hitEnd(new Extended(/a/), match) &&
     hitEnd(coreInstance, match) &&
@@ -116,29 +117,29 @@ export function acceptsAnyInstance(match: RegExpExecArray): boolean {
   );
 }
 
-export const species: PartialMatchRegExpConstructor =
+const species: PartialMatchRegExpConstructor =
   PartialMatchRegExp[Symbol.species];
 
-export const coreSpecies: CorePartialMatchRegExpConstructor =
+const coreSpecies: CorePartialMatchRegExpConstructor =
   CorePartialMatchRegExp[Symbol.species];
 
-export const subclassSpecies: PartialMatchRegExpConstructor =
+const subclassSpecies: PartialMatchRegExpConstructor =
   Extended[Symbol.species];
 
-export const boundSpecies: PartialMatchRegExpConstructor = withModules(
+const boundSpecies: PartialMatchRegExpConstructor = withModules(
   carets
 )[Symbol.species];
 
-export function narrowsSubclass(value: unknown): Extended | undefined {
+function narrowsSubclass(value: unknown): Extended | undefined {
   return value instanceof Extended ? value : undefined;
 }
 
-export function narrowsCoreSubclass(value: unknown): CoreExtended | undefined {
+function narrowsCoreSubclass(value: unknown): CoreExtended | undefined {
   return value instanceof CoreExtended ? value : undefined;
 }
 
 /* eslint-disable @typescript-eslint/no-deprecated -- RegExp's legacy statics are deprecated, but the class still inherits them */
-export const inheritedStatics: string[] = [
+const inheritedStatics: string[] = [
   PartialMatchRegExp.$1,
   PartialMatchRegExp.input,
   PartialMatchRegExp.lastMatch,
@@ -148,41 +149,43 @@ export const inheritedStatics: string[] = [
 ];
 /* eslint-enable @typescript-eslint/no-deprecated */
 
-export const modules: Module[] = [carets, backreferences];
+const modules: Module[] = [carets, backreferences];
 
-export const sameModuleType: ModuleFromModules[] = modules;
+const sameModuleType: ModuleFromModules[] = modules;
 
-export const bindsNamedModules: PartialMatchRegExpConstructor = withModules(
+const bindsNamedModules: PartialMatchRegExpConstructor = withModules(
   ...modules
 );
 
-export const misuse = [
+const consume = (value: unknown) => value;
+
+const misuse = [
   // @ts-expect-error a class constructor needs `new`
-  () => void PartialMatchRegExp(/a/),
+  () => consume(PartialMatchRegExp(/a/)),
   // @ts-expect-error a class constructor needs `new`, though RegExp's statics are kept
-  () => void PartialMatchRegExp("a"),
+  () => consume(PartialMatchRegExp("a")),
   // @ts-expect-error a pattern is a RegExp or a string
-  () => void new PartialMatchRegExp(1),
+  () => consume(new PartialMatchRegExp(1)),
   // @ts-expect-error flags are a string
-  () => void new PartialMatchRegExp(/a/, 1),
+  () => consume(new PartialMatchRegExp(/a/, 1)),
   // @ts-expect-error only declared members merge
-  () => void new PartialMatchRegExp(/a/).undeclared,
+  () => consume(new PartialMatchRegExp(/a/).undeclared),
   // @ts-expect-error the instance is not a constructor
-  () => void new (new PartialMatchRegExp(/a/))(/a/),
+  () => consume(new (new PartialMatchRegExp(/a/))(/a/)),
   // @ts-expect-error a module is opaque, not any object
-  () => void withModules({}),
+  () => consume(withModules({})),
   // @ts-expect-error a module's contents are not part of its type
-  () => void carets.bit,
+  () => consume(carets.bit),
   // @ts-expect-error a RegExp is not a PartialMatchRegExp
-  (match: RegExpExecArray) => void hitEnd(/a/, match),
+  (match: RegExpExecArray) => consume(hitEnd(/a/, match)),
   // @ts-expect-error a RegExp is not a PartialMatchRegExp
-  () => void features(/a/),
+  () => consume(features(/a/)),
   // @ts-expect-error a RegExp is not a PartialMatchRegExp
-  () => void ((partial: PartialMatchRegExp) => partial)(/a/),
+  () => consume(((partial: PartialMatchRegExp) => partial)(/a/)),
   // @ts-expect-error a RegExp is not a PartialMatchRegExp from core
-  () => void ((partial: CorePartialMatchRegExp) => partial)(/a/),
+  () => consume(((partial: CorePartialMatchRegExp) => partial)(/a/)),
   // @ts-expect-error core's class constructor needs `new`
-  () => void CorePartialMatchRegExp(/a/),
+  () => consume(CorePartialMatchRegExp(/a/)),
   // @ts-expect-error only declared members merge into core's instances
-  () => void new CorePartialMatchRegExp(/a/).undeclared
+  () => consume(new CorePartialMatchRegExp(/a/).undeclared)
 ];

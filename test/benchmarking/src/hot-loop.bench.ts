@@ -43,13 +43,19 @@ group("hot loop — manual global exec (~700 matches)", () => {
   });
 });
 
+function lengthOfAll(matches: Iterable<RegExpMatchArray>) {
+  let length = 0;
+  for (const match of matches) length += match[0].length;
+  return length;
+}
+
 group("hot loop — String.prototype.matchAll (~700 matches)", () => {
   bench("native matchAll", () => {
     nativeGlobal.lastIndex = 0;
-    for (const m of text.matchAll(nativeGlobal)) void m;
+    return lengthOfAll(text.matchAll(nativeGlobal));
   });
   bench("PartialMatchRegExp matchAll", () => {
     partialGlobalForMatchAll.lastIndex = 0;
-    for (const m of text.matchAll(partialGlobalForMatchAll)) void m;
+    return lengthOfAll(text.matchAll(partialGlobalForMatchAll));
   });
 });

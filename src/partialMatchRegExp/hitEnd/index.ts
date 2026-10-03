@@ -10,10 +10,9 @@ import probeSourceOf from "./probeSource.ts";
  * The contract is that of the JDK's `Matcher.hitEnd()`: when this returns
  * `false`, no continuation of the input changes the match's index or text,
  * and its captures are the ones the original pattern produces, except for
- * the two limits noted under `@remarks` below, where a read of the end
- * leaves no marker and `false` is reported despite it. `true` means the
- * match read the end of the input — an atom ran out of input and took a
- * `|$(?![\s\S])` truncation branch, a greedy quantifier stopped there with
+ * the two limits noted under `@remarks` below, where `false` is reported
+ * despite a read of the end. `true` means the match read the end of the
+ * input — an atom ran out of input, a greedy quantifier stopped there with
  * nothing left to read, or `$`, `\b` or `\B` held there — so more input
  * could extend it, change which alternative wins, or invalidate it, and
  * its captures are the closest to what a full match would report rather
@@ -30,8 +29,7 @@ import probeSourceOf from "./probeSource.ts";
  * settled short of it
  *
  * @remarks
- * Requires ES2018+ regardless of the pattern — the probe this builds uses
- * named capturing groups internally, unlike `exec()` and `test()`.
+ * Requires ES2018+ regardless of the pattern, unlike `exec()` and `test()`.
  *
  * Conservative where the JDK is exact in one place: a bounded greedy
  * quantifier (`?`, `{n,m}`) fully taken at the end of the input reports

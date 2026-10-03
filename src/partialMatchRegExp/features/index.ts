@@ -6,13 +6,10 @@ import type { RegexFeature } from "../regexFeatures.ts";
 export type { RegexFeature };
 
 /**
- * The syntactic constructs `partial`'s original pattern uses, recorded as a
- * side effect of the single walk that built it.
+ * The syntactic constructs `partial`'s original pattern uses.
  *
- * The set is built on the first call for an instance and cached, so patterns
- * that are only ever matched against never pay for it. It iterates in
- * `RegexFeature` declaration order, not the order the constructs appear in
- * the pattern.
+ * The set iterates in `RegexFeature` declaration order, not the order the
+ * constructs appear in the pattern.
  *
  * @param partial - A `PartialMatchRegExp` instance, from any entry point
  * @returns The features the original pattern contains

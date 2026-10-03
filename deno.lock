@@ -1,7 +1,6 @@
 {
   "version": "5",
   "specifiers": {
-    "npm:@eslint/js@^9.17.0": "9.39.5",
     "npm:@eslint/markdown@^7.5.1": "7.5.1",
     "npm:@types/node@^25.9.3": "25.9.5",
     "npm:@vitest/coverage-v8@^4.1.11": "4.1.11_vitest@4.1.11_esbuild@0.28.2",
@@ -2046,7 +2045,6 @@
   "workspace": {
     "packageJson": {
       "dependencies": [
-        "npm:@eslint/js@^9.17.0",
         "npm:@eslint/markdown@^7.5.1",
         "npm:@types/node@^25.9.3",
         "npm:@vitest/coverage-v8@^4.1.11",
