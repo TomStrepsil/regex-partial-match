@@ -77,11 +77,16 @@ export default function isCompleteToHitEnd(fileInfo, api) {
       .filter((specifier) => specifier.type === "ImportNamespaceSpecifier")
       .map((specifier) => specifier.local.name)
   );
-  const existingHitEnd = specifiers.find(
-    (specifier) =>
-      specifier.type === "ImportSpecifier" &&
-      importedName(specifier) === NEW_NAME
-  );
+  const existingHitEnd = importPaths
+    .nodes()
+    .filter((declaration) => declaration.importKind !== "type")
+    .flatMap((declaration) => declaration.specifiers)
+    .find(
+      (specifier) =>
+        specifier.type === "ImportSpecifier" &&
+        specifier.importKind !== "type" &&
+        importedName(specifier) === NEW_NAME
+    );
 
   const hitEndIsTaken = !existingHitEnd && globalScope.declares(NEW_NAME);
   if (hitEndIsTaken && oldSpecifiers.length > 0) {

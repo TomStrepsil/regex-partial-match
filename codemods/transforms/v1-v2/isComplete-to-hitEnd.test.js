@@ -84,6 +84,24 @@ describe("isComplete-to-hitEnd codemod", () => {
       expect(report).toContain('"done" is now `hitEnd`, the opposite of what it meant');
     });
 
+    it("does not reuse a type-only hitEnd import", () => {
+      for (const typeOnly of [
+        'import type { hitEnd } from "regex-partial-match";',
+        'import { type hitEnd } from "regex-partial-match";'
+      ]) {
+        const { output, report } = runTransform(
+          lines(
+            typeOnly,
+            'import { isComplete } from "regex-partial-match";',
+            "isComplete(p, m);"
+          )
+        );
+
+        expect(output).toBeNull();
+        expect(report).toContain('"hitEnd" is already bound');
+      }
+    });
+
     it("drops the alias when hitEnd is already imported", () => {
       const { output, report } = runTransform(
         lines(

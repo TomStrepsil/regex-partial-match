@@ -266,6 +266,29 @@ describe("features-getter report", () => {
       expect(report).toMatch(/fixture\.ts:6: likely:.*write `features\(re\)`/);
     });
 
+    it("picks an alias that is not bound either", () => {
+      const { report } = runTransform(
+        lines(
+          'import PartialMatchRegExp from "regex-partial-match";',
+          "const re = new PartialMatchRegExp('a');",
+          "function f(features, featuresOf) {",
+          "  return re.features;",
+          "}",
+          "const features = 1;",
+          "const featuresOf2 = 2;",
+          "re.features;"
+        )
+      );
+
+      expect(report).toContain("fixture.ts:4: likely:");
+      expect(report).toContain("write `featuresOf3(re)`");
+      expect(report).toContain(
+        'add: import { features as featuresOf3 } from "regex-partial-match";'
+      );
+      expect(report).toContain("fixture.ts:8: likely:");
+      expect(report).toContain("write `featuresOf(re)`");
+    });
+
     it("uses the local name of an existing alias", () => {
       const { report } = runTransform(
         lines(

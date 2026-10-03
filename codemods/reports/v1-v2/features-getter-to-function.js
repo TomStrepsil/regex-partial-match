@@ -46,6 +46,12 @@ function isFactoryCall(node) {
   );
 }
 
+function* candidateNames() {
+  yield FEATURES;
+  yield FEATURES_ALIAS;
+  for (let suffix = 2; ; suffix++) yield `${FEATURES_ALIAS}${suffix}`;
+}
+
 export default function transform(fileInfo, api) {
   const j = api.jscodeshift;
   const root = j(fileInfo.source);
@@ -116,6 +122,11 @@ export default function transform(fileInfo, api) {
   };
 
   const globalScope = root.find(j.Program).get().scope;
+  const unboundName = (path) => {
+    for (const name of candidateNames()) {
+      if (!path.scope.lookup(name)) return name;
+    }
+  };
   const findings = [];
   root
     .find(j.MemberExpression, { computed: false, property: { name: FEATURES } })
@@ -126,9 +137,7 @@ export default function transform(fileInfo, api) {
         path.scope.lookup(featuresImport.local.name) === globalScope;
       const functionName = importIsVisible
         ? featuresImport.local.name
-        : path.scope.lookup(FEATURES)
-          ? FEATURES_ALIAS
-          : FEATURES;
+        : unboundName(path);
       const importLine = importIsVisible
         ? ""
         : `\n    add: import { ${
