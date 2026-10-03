@@ -496,6 +496,19 @@ describe("isComplete-to-hitEnd codemod", () => {
       expect(report).toContain("destructured from a namespace import");
     });
 
+    it("does not flag a destructuring of a shadowing namespace name", () => {
+      const { report } = runTransform(
+        lines(
+          'import * as rpm from "regex-partial-match";',
+          "function f(rpm) {",
+          "  const { isComplete } = rpm;",
+          "}"
+        )
+      );
+
+      expect(report).toBe("");
+    });
+
     it("leaves an unrelated member named isComplete alone", () => {
       const { output, report } = runTransform(
         lines(

@@ -51,10 +51,10 @@ The codemod fixes the call shape. It cannot tell you whether this widened case m
 curl -fsSL -o rpm-codemod.js https://raw.githubusercontent.com/TomStrepsil/regex-partial-match/v2.0.0/codemods/transforms/v1-v2/isComplete-to-hitEnd.js
 
 # Dry run
-npx jscodeshift -t rpm-codemod.js --parser=tsx --extensions=js,jsx,ts,tsx,mjs --dry --print ./src
+npx jscodeshift -t rpm-codemod.js --parser=tsx --extensions=js,jsx,ts,tsx,mjs,cjs,mts,cts --dry --print ./src
 
 # Apply
-npx jscodeshift -t rpm-codemod.js --parser=tsx --extensions=js,jsx,ts,tsx,mjs ./src
+npx jscodeshift -t rpm-codemod.js --parser=tsx --extensions=js,jsx,ts,tsx,mjs,cjs,mts,cts ./src
 
 rm rpm-codemod.js
 ```
@@ -65,10 +65,10 @@ rm rpm-codemod.js
 Invoke-WebRequest -Uri "https://raw.githubusercontent.com/TomStrepsil/regex-partial-match/v2.0.0/codemods/transforms/v1-v2/isComplete-to-hitEnd.js" -OutFile rpm-codemod.js
 
 # Dry run
-npx jscodeshift -t rpm-codemod.js --parser=tsx --extensions=js,jsx,ts,tsx,mjs --dry --print ./src
+npx jscodeshift -t rpm-codemod.js --parser=tsx --extensions=js,jsx,ts,tsx,mjs,cjs,mts,cts --dry --print ./src
 
 # Apply
-npx jscodeshift -t rpm-codemod.js --parser=tsx --extensions=js,jsx,ts,tsx,mjs ./src
+npx jscodeshift -t rpm-codemod.js --parser=tsx --extensions=js,jsx,ts,tsx,mjs,cjs,mts,cts ./src
 
 del rpm-codemod.js
 ```
@@ -128,7 +128,7 @@ Run it over your source. Nothing is changed, so there is no dry-run flag to reme
 ```bash
 curl -fsSL -o rpm-report.js https://raw.githubusercontent.com/TomStrepsil/regex-partial-match/v2.0.0/codemods/reports/v1-v2/features-getter-to-function.js
 
-npx jscodeshift -t rpm-report.js --parser=tsx --extensions=js,jsx,ts,tsx,mjs --dry ./src
+npx jscodeshift -t rpm-report.js --parser=tsx --extensions=js,jsx,ts,tsx,mjs,cjs,mts,cts --dry ./src
 
 rm rpm-report.js
 ```
@@ -138,7 +138,7 @@ rm rpm-report.js
 ```powershell
 Invoke-WebRequest -Uri "https://raw.githubusercontent.com/TomStrepsil/regex-partial-match/v2.0.0/codemods/reports/v1-v2/features-getter-to-function.js" -OutFile rpm-report.js
 
-npx jscodeshift -t rpm-report.js --parser=tsx --extensions=js,jsx,ts,tsx,mjs --dry ./src
+npx jscodeshift -t rpm-report.js --parser=tsx --extensions=js,jsx,ts,tsx,mjs,cjs,mts,cts --dry ./src
 
 del rpm-report.js
 ```
@@ -146,5 +146,6 @@ del rpm-report.js
 ### Notes
 
 - A `features` destructured from an instance (`const { features } = partial`) is not found. Search for it by hand.
+- Static bracket reads (`partial["features"]`) are reported. Assignments to `.features` (`=`, `+=`, `++`, `delete`, destructuring targets) are not, since `features(x)` cannot replace a write.
 - If a variable called `features` is already in scope, the import line suggests `features as featuresOf`.
 - A file that reads the package only through `require()` is not reported on.

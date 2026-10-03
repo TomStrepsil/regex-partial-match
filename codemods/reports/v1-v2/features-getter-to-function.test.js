@@ -376,5 +376,48 @@ describe("features-getter report", () => {
 
       expect(report).toBe("");
     });
+
+    it("ignores write targets, which have no function replacement", () => {
+      const { report } = runTransform(
+        lines(
+          'import PartialMatchRegExp from "regex-partial-match";',
+          "config.features = value;",
+          "config.features += 1;",
+          "config.features++;",
+          "delete config.features;",
+          "[config.features] = list;",
+          "({ a: config.features } = obj);",
+          "for (config.features of list) {}"
+        )
+      );
+
+      expect(report).toBe("");
+    });
+  });
+
+  describe("computed access", () => {
+    it("reports a string-literal computed read", () => {
+      const { report } = runTransform(
+        lines(
+          'import PartialMatchRegExp from "regex-partial-match";',
+          "const re = new PartialMatchRegExp('a');",
+          'const used = re["features"];'
+        )
+      );
+
+      expect(report).toContain("fixture.ts:3");
+      expect(report).toContain("write `features(re)`");
+    });
+
+    it("ignores a dynamic computed read", () => {
+      const { report } = runTransform(
+        lines(
+          'import PartialMatchRegExp from "regex-partial-match";',
+          "re[key];"
+        )
+      );
+
+      expect(report).toBe("");
+    });
   });
 });

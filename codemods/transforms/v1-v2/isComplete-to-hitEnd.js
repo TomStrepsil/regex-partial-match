@@ -209,6 +209,7 @@ export default function isCompleteToHitEnd(fileInfo, api) {
       (path) =>
         path.node.init?.type === "Identifier" &&
         namespaceLocals.has(path.node.init.name) &&
+        resolvesToImport(path, path.node.init.name) &&
         path.node.id.properties.some(
           (property) => property.key?.name === OLD_NAME
         )

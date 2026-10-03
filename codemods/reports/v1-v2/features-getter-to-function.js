@@ -10,7 +10,7 @@
  *   import { features } from "regex-partial-match";
  *   const used = features(partial);
  *
- * This **reports** every `.features` read in a file that imports from
+ * This **reports** every `.features` (or `["features"]`) read in a file that imports from
  * "regex-partial-match" (any entry point), with the replacement written out.
  * It never edits a file, because `.features` is an ordinary property name and a
  * codemod cannot tell whether the object it is read from is a PartialMatchRegExp.
@@ -44,6 +44,37 @@ function isFactoryCall(node) {
     !node.callee.computed &&
     node.callee.property.name === FACTORY_NAME
   );
+}
+
+function namesFeatures(member) {
+  return member.computed
+    ? member.property.value === FEATURES
+    : member.property.name === FEATURES;
+}
+
+function isWriteTarget(path) {
+  const { node: parent } = path.parent;
+  const { node } = path;
+  switch (parent.type) {
+    case "AssignmentExpression":
+    case "ForInStatement":
+    case "ForOfStatement":
+      return parent.left === node;
+    case "UpdateExpression":
+    case "ArrayPattern":
+    case "RestElement":
+      return true;
+    case "UnaryExpression":
+      return parent.operator === "delete";
+    case "ObjectProperty":
+    case "Property":
+      return (
+        parent.value === node &&
+        path.parent.parent.node.type === "ObjectPattern"
+      );
+    default:
+      return false;
+  }
 }
 
 function* candidateNames() {
@@ -133,7 +164,8 @@ export default function transform(fileInfo, api) {
   };
   const findings = [];
   root
-    .find(j.MemberExpression, { computed: false, property: { name: FEATURES } })
+    .find(j.MemberExpression)
+    .filter((path) => namesFeatures(path.node) && !isWriteTarget(path))
     .forEach((path) => {
       const object = j(path.node.object).toSource();
       const importIsVisible =
