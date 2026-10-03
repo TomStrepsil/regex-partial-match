@@ -2,9 +2,11 @@ import { describe, it, expect } from "vitest";
 import { roleOf } from "./partRole.ts";
 import type { Backreference } from "../partialMatchRegExp/part.ts";
 import {
+  DISJUNCTION_TO_END_OF_INPUT,
   GROUP_CLOSING,
   MULTILINE_CARET,
   ONLY_AT_END_OF_INPUT,
+  OPTIONAL_ATOM_OPENING,
   START_ANCHOR,
   UNSATISFIABLE,
   WORD_BOUNDARY_ATOMS,
@@ -94,12 +96,14 @@ describe("roleOf, for every shape the multiline caret rule emits", () => {
     ["a multiline caret at an uncertain position", asOptionalAtom(MULTILINE_CARET)],
     ["the atom a quantifier repeating zero times is left with", ONLY_AT_END_OF_INPUT],
     ["a word boundary", WORD_BOUNDARY_ATOMS[0]],
-    ["a non-word boundary", WORD_BOUNDARY_ATOMS[1]]
+    ["a non-word boundary", WORD_BOUNDARY_ATOMS[1]],
+    ["the end of a group body wrapped for a caret", DISJUNCTION_TO_END_OF_INPUT]
   ])("classifies %s as a truncation end", (_, part) => {
     expect(roleOf(part)).toBe("truncationEnd");
   });
 
   it.each([
+    ["the opening of a group body wrapped for a caret", OPTIONAL_ATOM_OPENING],
     ["the closing of a group wrapped for a caret", GROUP_CLOSING + START_ANCHOR],
     ["the closing of a group wrapped for a multiline caret", GROUP_CLOSING + MULTILINE_CARET],
     ["a multiline caret", MULTILINE_CARET],
