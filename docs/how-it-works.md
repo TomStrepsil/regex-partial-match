@@ -94,7 +94,7 @@ Recognising a truncation branch, a raw lookaround, or a group open back out of t
 
 The marked copy, the twin, is built on first use and stays inside the library: the array, `groups`, numbering and `d`-flag indices you hold are the ones `exec()` produced.
 
-Beyond the rendered pattern, the twin needs the backreferences and groups inside each raw lookaround: its backreferences are renumbered past the markers before it, and the markers after it are numbered past its groups. Construction records a raw lookaround only when it holds either, so a pattern with neither records nothing.
+Beyond the rendered pattern, the twin needs the numbered backreferences and groups inside each raw lookaround: its numbered backreferences are renumbered past the markers before it, and the markers after it are numbered past its groups. A `\k<name>` needs no renumbering and is copied unchanged. Construction records a raw lookaround only when it holds a numbered backreference or a group, so a pattern with neither records nothing.
 
 Without [backreferences](./caveats.md#backreferences), one twin is cached per instance. With them, the pattern is re-expanded per input, so each twin belongs to an expansion:
 
