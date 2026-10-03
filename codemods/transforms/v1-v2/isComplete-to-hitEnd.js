@@ -203,20 +203,31 @@ export default function isCompleteToHitEnd(fileInfo, api) {
       flag(path.node, `"${OLD_NAME}" is read from the namespace other than by a direct call; \`!hitEnd(...)\` is its replacement, so rewrite it by hand`);
     });
 
+  const destructuresOldName = (path, pattern, source) =>
+    pattern.type === "ObjectPattern" &&
+    source?.type === "Identifier" &&
+    namespaceLocals.has(source.name) &&
+    resolvesToImport(path, source.name) &&
+    pattern.properties.some(
+      (property) =>
+        (property.key?.name ?? property.key?.value) === OLD_NAME
+    );
+  const flagDestructuring = (path) => {
+    flag(path.node, `"${OLD_NAME}" is destructured from a namespace import; rewrite its uses by hand`);
+  };
+
   root
-    .find(j.VariableDeclarator, { id: { type: "ObjectPattern" } })
-    .filter(
-      (path) =>
-        path.node.init?.type === "Identifier" &&
-        namespaceLocals.has(path.node.init.name) &&
-        resolvesToImport(path, path.node.init.name) &&
-        path.node.id.properties.some(
-          (property) => property.key?.name === OLD_NAME
-        )
+    .find(j.VariableDeclarator)
+    .filter((path) =>
+      destructuresOldName(path, path.node.id, path.node.init)
     )
-    .forEach((path) => {
-      flag(path.node, `"${OLD_NAME}" is destructured from a namespace import; rewrite its uses by hand`);
-    });
+    .forEach(flagDestructuring);
+  root
+    .find(j.AssignmentExpression, { operator: "=" })
+    .filter((path) =>
+      destructuresOldName(path, path.node.left, path.node.right)
+    )
+    .forEach(flagDestructuring);
 
   root
     .find(j.ExportNamedDeclaration, { source: { value: PACKAGE } })

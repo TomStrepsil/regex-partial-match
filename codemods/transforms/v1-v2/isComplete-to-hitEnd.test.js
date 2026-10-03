@@ -509,6 +509,20 @@ describe("isComplete-to-hitEnd codemod", () => {
       expect(report).toBe("");
     });
 
+    it("flags isComplete destructured from the namespace by assignment", () => {
+      const { output, report } = runTransform(
+        lines(
+          'import * as rpm from "regex-partial-match";',
+          "let done;",
+          "({ isComplete: done } = rpm);"
+        )
+      );
+
+      expect(output).toBeNull();
+      expect(report).toContain("fixture.ts:3");
+      expect(report).toContain("destructured from a namespace import");
+    });
+
     it("leaves an unrelated member named isComplete alone", () => {
       const { output, report } = runTransform(
         lines(
