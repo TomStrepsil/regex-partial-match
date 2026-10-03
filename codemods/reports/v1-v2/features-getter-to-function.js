@@ -183,10 +183,15 @@ export default function transform(fileInfo, api) {
             functionName === FEATURES ? FEATURES : `${FEATURES} as ${functionName}`
           } } from "${PACKAGE}";`;
       const rank = isLikely(path) ? "likely" : "possible";
+      const isOptional =
+        path.node.type === "OptionalMemberExpression" || path.node.optional;
+      const advice = isOptional
+        ? `is a getter in v1 and a function in v2; it is an optional read, so ` +
+          `\`${functionName}(...)\` would throw where it gave undefined: guard it by hand`
+        : `is a getter in v1 and a function in v2; write \`${functionName}(${object})\``;
       findings.push(
         `${fileInfo.path}:${path.node.loc?.start.line ?? "?"}: ${rank}: ` +
-          `\`${object}.features\` is a getter in v1 and a function in v2; ` +
-          `write \`${functionName}(${object})\`${importLine}`
+          `\`${object}.features\` ${advice}${importLine}`
       );
     });
 

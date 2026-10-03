@@ -412,6 +412,23 @@ describe("features-getter report", () => {
   });
 
   describe("computed access", () => {
+    it("flags an optional read for manual migration", () => {
+      const { report } = runTransform(
+        lines(
+          'import PartialMatchRegExp from "regex-partial-match";',
+          "const a = re?.features;",
+          "const b = re?.inner.features;",
+          "const c = re.features;"
+        )
+      );
+
+      const [first, second, third] = report.split("\n").filter((row) => row.startsWith("fixture.ts"));
+      expect(first).toContain("guard it by hand");
+      expect(second).toContain("guard it by hand");
+      expect(third).not.toContain("guard it by hand");
+      expect(third).toContain("write `features(re)`");
+    });
+
     it("reports a string-literal computed read", () => {
       const { report } = runTransform(
         lines(

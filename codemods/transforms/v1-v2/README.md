@@ -147,5 +147,6 @@ del rpm-report.js
 
 - A `features` destructured from an instance (`const { features } = partial`) is not found. Search for it by hand.
 - Static bracket reads (`partial["features"]`) are reported. Assignments to `.features` (`=`, `+=`, `++`, `delete`, destructuring targets) are not, since `features(x)` cannot replace a write.
+- An optional read (`partial?.features`) is reported without a ready-made replacement, since `features(partial)` throws where the getter gave `undefined`. Guard it by hand.
 - If a variable called `features` is already in scope, the import line suggests `features as featuresOf`.
 - A file that reads the package only through `require()` is not reported on.

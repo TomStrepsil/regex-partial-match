@@ -646,6 +646,20 @@ describe("isComplete-to-hitEnd codemod", () => {
       expect(report).toContain("without a static import");
     });
 
+    it("flags a require() whose isComplete is read by string-literal access", () => {
+      const { output, report } = runTransform(
+        lines(
+          'const rpm = require("regex-partial-match");',
+          'rpm["isComplete"](p, m);'
+        ),
+        "fixture.cjs"
+      );
+
+      expect(output).toBeNull();
+      expect(report).toContain("fixture.cjs:1");
+      expect(report).toContain("without a static import");
+    });
+
     it("says nothing about a dynamic import of a file that never mentions isComplete", () => {
       const { report } = runTransform(
         lines('const rpm = await import("regex-partial-match");')

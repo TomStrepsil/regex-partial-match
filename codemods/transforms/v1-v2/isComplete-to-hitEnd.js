@@ -258,7 +258,12 @@ export default function isCompleteToHitEnd(fileInfo, api) {
     changed = true;
   }
 
-  const mentionsOldName = root.find(j.Identifier, { name: OLD_NAME }).size() > 0;
+  const mentionsOldName =
+    root.find(j.Identifier, { name: OLD_NAME }).size() > 0 ||
+    root
+      .find(j.MemberExpression)
+      .filter((path) => path.node.computed && namesProperty(path.node, OLD_NAME))
+      .size() > 0;
   if (mentionsOldName) {
     root
       .find(j.CallExpression)
