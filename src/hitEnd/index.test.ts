@@ -344,7 +344,7 @@ describe("hitEnd()", () => {
   });
 
   describe("a name declared more than once", () => {
-    it("reads the end of the input a reference after both declarations ran out at", () => {
+    it("reports the end read by a reference that follows both declarations of its name", () => {
       const partial = new PartialMatchRegExp(/^(?:(?<x>a+)|(?<x>b+))c\k<x>$/);
 
       expect(hitEndOf(partial, "aac")).toBe(true);

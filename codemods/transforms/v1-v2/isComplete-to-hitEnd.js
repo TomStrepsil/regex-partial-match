@@ -17,7 +17,7 @@
  * See the "hitEnd()" section of the README for the contract.
  *
  * Reported rather than rewritten:
- *   -`isComplete` used as a value (callback, assignment, re-export, destructured
+ *   - `isComplete` used as a value (callback, assignment, re-export, destructured
  *     from a namespace); for the imported binding, the import and all its
  *     calls are then left as they are
  *   - a call where `hitEnd` is bound to something else in scope
