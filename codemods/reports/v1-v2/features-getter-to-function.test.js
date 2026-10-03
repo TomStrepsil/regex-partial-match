@@ -208,6 +208,64 @@ describe("features-getter report", () => {
       expect(report).not.toContain("add:");
     });
 
+    it("recognises the default export of the /features subpath", () => {
+      const { report } = runTransform(
+        lines(
+          'import PartialMatchRegExp from "regex-partial-match";',
+          'import featuresOf from "regex-partial-match/features";',
+          "const re = new PartialMatchRegExp('a');",
+          "re.features;"
+        )
+      );
+
+      expect(report).toContain("write `featuresOf(re)`");
+      expect(report).not.toContain("add:");
+    });
+
+    it("does not take the default export of another subpath for the class", () => {
+      const { report } = runTransform(
+        lines(
+          'import hitEnd from "regex-partial-match/hitEnd";',
+          "const re = new hitEnd('a');",
+          "re.features;"
+        )
+      );
+
+      expect(report).toContain("fixture.ts:3: possible:");
+    });
+
+    it("recognises the default export of the partialMatchRegExp subpath as the class", () => {
+      const { report } = runTransform(
+        lines(
+          'import P from "regex-partial-match/partialMatchRegExp";',
+          "const re = new P('a');",
+          "re.features;"
+        )
+      );
+
+      expect(report).toContain("fixture.ts:3: likely:");
+    });
+
+    it("does not recommend an imported features that is shadowed at the read", () => {
+      const { report } = runTransform(
+        lines(
+          'import PartialMatchRegExp, { features } from "regex-partial-match";',
+          "function f(features, re: PartialMatchRegExp) {",
+          "  return re.features;",
+          "}",
+          "const re = new PartialMatchRegExp('a');",
+          "re.features;"
+        )
+      );
+
+      expect(report).toContain("fixture.ts:3: likely:");
+      expect(report).toContain("write `featuresOf(re)`");
+      expect(report).toContain(
+        'add: import { features as featuresOf } from "regex-partial-match";'
+      );
+      expect(report).toMatch(/fixture\.ts:6: likely:.*write `features\(re\)`/);
+    });
+
     it("uses the local name of an existing alias", () => {
       const { report } = runTransform(
         lines(

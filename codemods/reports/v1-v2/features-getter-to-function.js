@@ -29,6 +29,8 @@ const CLASS_NAME = "PartialMatchRegExp";
 const FACTORY_NAME = "toPartialMatchRegex";
 const FEATURES = "features";
 const FEATURES_ALIAS = "featuresOf";
+const CLASS_ENTRIES = [PACKAGE, `${PACKAGE}/core`, `${PACKAGE}/partialMatchRegExp`];
+const FEATURES_ENTRY = `${PACKAGE}/features`;
 
 function importsFromPackage(declaration) {
   const source = declaration.source.value;
@@ -53,24 +55,29 @@ export default function transform(fileInfo, api) {
     .filter((path) => importsFromPackage(path.node));
   if (packageImports.size() === 0) return null;
 
-  const specifiers = packageImports
-    .nodes()
-    .flatMap((declaration) => declaration.specifiers);
+  const imported = packageImports.nodes().flatMap((declaration) =>
+    declaration.specifiers.map((specifier) => ({
+      specifier,
+      entry: declaration.source.value
+    }))
+  );
   const classLocals = new Set(
-    specifiers
+    imported
       .filter(
-        (specifier) =>
-          specifier.type === "ImportDefaultSpecifier" ||
+        ({ specifier, entry }) =>
+          (specifier.type === "ImportDefaultSpecifier" &&
+            CLASS_ENTRIES.includes(entry)) ||
           (specifier.type === "ImportSpecifier" &&
             specifier.imported.name === CLASS_NAME)
       )
-      .map((specifier) => specifier.local.name)
+      .map(({ specifier }) => specifier.local.name)
   );
-  const featuresImport = specifiers.find(
-    (specifier) =>
-      specifier.type === "ImportSpecifier" &&
-      specifier.imported.name === FEATURES
-  );
+  const featuresImport = imported.find(
+    ({ specifier, entry }) =>
+      (specifier.type === "ImportSpecifier" &&
+        specifier.imported.name === FEATURES) ||
+      (specifier.type === "ImportDefaultSpecifier" && entry === FEATURES_ENTRY)
+  )?.specifier;
 
   const isInstanceExpression = (node) =>
     (node?.type === "NewExpression" &&
@@ -108,17 +115,21 @@ export default function transform(fileInfo, api) {
     );
   };
 
+  const globalScope = root.find(j.Program).get().scope;
   const findings = [];
   root
     .find(j.MemberExpression, { computed: false, property: { name: FEATURES } })
     .forEach((path) => {
       const object = j(path.node.object).toSource();
-      const functionName = featuresImport
+      const importIsVisible =
+        featuresImport &&
+        path.scope.lookup(featuresImport.local.name) === globalScope;
+      const functionName = importIsVisible
         ? featuresImport.local.name
         : path.scope.lookup(FEATURES)
           ? FEATURES_ALIAS
           : FEATURES;
-      const importLine = featuresImport
+      const importLine = importIsVisible
         ? ""
         : `\n    add: import { ${
             functionName === FEATURES ? FEATURES : `${FEATURES} as ${functionName}`

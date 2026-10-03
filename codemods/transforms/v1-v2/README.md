@@ -76,7 +76,7 @@ del rpm-codemod.js
 ### Notes
 
 - Only the `isComplete` import from `"regex-partial-match"` is handled, which is the only place v1 exported it. Imports from `"regex-partial-match/extend"` and `"regex-partial-match/partialMatchRegExp"` are left alone.
-- A call through a namespace import (`rpm.isComplete(...)`) is rewritten the same way.
+- A call through a namespace import (`rpm.isComplete(...)`, or `rpm["isComplete"](...)`, which becomes `rpm.hitEnd(...)`) is rewritten the same way.
 - If `hitEnd` is already imported, `isComplete` is dropped from the imports rather than imported twice.
 - A local function that happens to be called `isComplete` is not touched.
 - An aliased import (`isComplete as done`) becomes `hitEnd as done`, and its calls are rewritten like any other (`done(p, m)` becomes `!done(p, m)`). The alias now names the opposite meaning, so the import is printed with its file and line for you to rename.
@@ -104,7 +104,7 @@ import { features } from "regex-partial-match";
 const used = features(partial);
 ```
 
-`features` is also imported from `"regex-partial-match/features"`.
+The same function is the default export of `"regex-partial-match/features"`: `import features from "regex-partial-match/features"`.
 
 This **reports** and leaves every file untouched. `.features` is an ordinary property name, and a codemod can't tell whether the object it is read from is a `PartialMatchRegExp`. It prints each read, with the replacement and the import line written out:
 

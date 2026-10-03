@@ -34,6 +34,12 @@ function importedName(specifier) {
   return specifier.imported?.name ?? specifier.imported?.value;
 }
 
+function namesProperty(member, name) {
+  return member.computed
+    ? member.property.value === name
+    : member.property.name === name;
+}
+
 function isCalled(path) {
   const parent = path.parent.node;
   return (
@@ -132,30 +138,30 @@ export default function isCompleteToHitEnd(fileInfo, api) {
     .filter((path) => {
       const callee = path.node.callee;
       return (
-        callee.type === "MemberExpression" &&
-        !callee.computed &&
+        j.MemberExpression.check(callee) &&
         callee.object.type === "Identifier" &&
         namespaceLocals.has(callee.object.name) &&
-        callee.property.name === OLD_NAME &&
+        namesProperty(callee, OLD_NAME) &&
         resolvesToImport(path, callee.object.name)
       );
     })
     .forEach((path) => {
-      path.node.callee.property.name = NEW_NAME;
+      const callee = path.node.callee;
+      callee.computed = false;
+      callee.property = j.identifier(NEW_NAME);
       invertCall(path);
     });
 
   root
     .find(j.MemberExpression)
     .filter((path) => {
-      const { object, property, computed } = path.node;
+      const { object } = path.node;
       return (
         object.type === "Identifier" &&
         namespaceLocals.has(object.name) &&
         resolvesToImport(path, object.name) &&
-        (computed
-          ? property.value === OLD_NAME
-          : property.name === OLD_NAME && !isCalled(path))
+        namesProperty(path.node, OLD_NAME) &&
+        !isCalled(path)
       );
     })
     .forEach((path) => {

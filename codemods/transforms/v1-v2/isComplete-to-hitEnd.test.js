@@ -392,15 +392,58 @@ describe("isComplete-to-hitEnd codemod", () => {
       expect(report).toContain("other than by a direct call");
     });
 
-    it("flags a computed namespace member", () => {
-      const { report } = runTransform(
+    it("rewrites a literal computed call through the namespace as a plain member call", () => {
+      const { output } = runTransform(
         lines(
           'import * as rpm from "regex-partial-match";',
-          'rpm["isComplete"](p, m);'
+          'const a = rpm["isComplete"](p, m);',
+          "if (!rpm['isComplete'](p, m)) wait();"
         )
       );
 
+      expect(output).toBe(
+        lines(
+          'import * as rpm from "regex-partial-match";',
+          "const a = !rpm.hitEnd(p, m);",
+          "if (rpm.hitEnd(p, m)) wait();"
+        )
+      );
+    });
+
+    it("rewrites an optional call through the namespace", () => {
+      const { output } = runTransform(
+        lines(
+          'import * as rpm from "regex-partial-match";',
+          "const a = rpm?.isComplete(p, m);"
+        )
+      );
+
+      expect(output).toContain("const a = !rpm?.hitEnd(p, m);");
+    });
+
+    it("flags a computed namespace member that is not called", () => {
+      const { output, report } = runTransform(
+        lines(
+          'import * as rpm from "regex-partial-match";',
+          'results.filter(rpm["isComplete"]);'
+        )
+      );
+
+      expect(output).toBeNull();
       expect(report).toContain("fixture.ts:2");
+      expect(report).toContain("other than by a direct call");
+    });
+
+    it("leaves a dynamic computed namespace member alone", () => {
+      const { output, report } = runTransform(
+        lines(
+          'import * as rpm from "regex-partial-match";',
+          "rpm[name](p, m);"
+        )
+      );
+
+      expect(output).toBeNull();
+      expect(report).toBe("");
     });
 
     it("flags isComplete destructured from the namespace", () => {
