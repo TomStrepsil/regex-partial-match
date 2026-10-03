@@ -291,7 +291,11 @@ Available via the default entry point of the package, or via `regex-partial-matc
 
 - A `PartialMatchRegExp` instance that matches partial strings of the original pattern
 
-### `RegExp.prototype.toPartialMatchRegex(): PartialMatchRegExp`
+### `toPartialMatchRegex()`
+
+```typescript
+RegExp.prototype.toPartialMatchRegex(): PartialMatchRegExp
+```
 
 When using `import 'regex-partial-match/extend'`, this method is added to `RegExp.prototype`.
 
