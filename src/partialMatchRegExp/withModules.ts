@@ -1,8 +1,6 @@
 import createPartialMatchRegExp from "./createPartialMatchRegExp.ts";
 import type { Module } from "./module.ts";
 import {
-  BACKREFERENCES_MODULE,
-  CARETS_MODULE,
   definedModuleHooks,
   moduleHooks,
   type HooksOfModule
@@ -11,6 +9,11 @@ import type { PartialMatchRegExpConstructor } from "./partialMatchRegExp.ts";
 import type { Hooks } from "./walk.ts";
 
 const boundByModuleMask: (PartialMatchRegExpConstructor | undefined)[] = [];
+
+const isModule = (
+  value: Module | null | undefined
+): value is HooksOfModule =>
+  !!value && moduleHooks in value && definedModuleHooks.has(value[moduleHooks]);
 
 /**
  * The `PartialMatchRegExp` class that applies the rules the given modules
@@ -27,14 +30,9 @@ export default function withModules(
 ): PartialMatchRegExpConstructor {
   const hooks: Hooks = {};
   let moduleMask = 0;
-  for (const module of modules as unknown as (HooksOfModule | null)[]) {
-    const bound = module && module[moduleHooks];
-    if (
-      !bound ||
-      !definedModuleHooks.has(bound) ||
-      (bound.bit !== CARETS_MODULE && bound.bit !== BACKREFERENCES_MODULE)
-    )
-      throw new TypeError("Not a module");
+  for (const module of modules) {
+    if (!isModule(module)) throw new TypeError("Not a module");
+    const bound = module[moduleHooks];
     moduleMask |= bound.bit;
     Object.assign(hooks, bound);
   }

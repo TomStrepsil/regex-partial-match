@@ -16,15 +16,16 @@ export interface ModuleHooks extends Hooks {
   readonly bit: number;
 }
 
-export interface HooksOfModule {
+export interface HooksOfModule extends Module {
   readonly [moduleHooks]: ModuleHooks;
 }
 
-export const definedModuleHooks = new WeakSet<ModuleHooks>();
+export const definedModuleHooks = new Set<unknown>();
 
-export function defineModule(hooks: ModuleHooks): Module {
+export function defineModule(hooks: ModuleHooks): Module;
+export function defineModule(hooks: ModuleHooks): unknown {
   definedModuleHooks.add(Object.freeze(hooks));
   return Object.freeze({
     [moduleHooks]: hooks
-  }) satisfies HooksOfModule as unknown as Module;
+  });
 }

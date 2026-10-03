@@ -23,11 +23,11 @@ export default function matchHitEnd(
 
 function dynamicProbe(
   compiled: CompiledDynamic,
-  match: RegExpExecArray,
+  match: ExpandedMatch,
   cache: TruncationProbeCache
 ) {
   const parts =
-    (match as ExpandedMatch)[backreferenceExpansion] ??
+    match[backreferenceExpansion] ??
     expandedPartsAt(compiled, match, cache);
   if (parts === undefined) return unexpandedProbe(compiled, cache);
   const cached = cache.expansion;

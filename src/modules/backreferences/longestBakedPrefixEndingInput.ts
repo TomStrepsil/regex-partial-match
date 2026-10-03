@@ -1,11 +1,13 @@
 import escapeAtom from "../../partialMatchRegExp/escapeAtom.ts";
 import caseFoldFlags from "./caseFoldFlags.ts";
 
-const NO_CASE_FOLDING = Object.create(null) as Partial<Record<string, RegExp>>;
+type FoldMatchers = Partial<Record<string, RegExp | null>>;
+
+const NO_CASE_FOLDING: FoldMatchers = { __proto__: null };
 
 function foldMatchersFor(atoms: readonly string[], flags: string) {
   if (!flags.includes("i")) return NO_CASE_FOLDING;
-  const matchers = Object.create(null) as Partial<Record<string, RegExp>>;
+  const matchers: FoldMatchers = { __proto__: null };
   const foldFlags = caseFoldFlags(flags);
   for (const atom of atoms) {
     if (!(atom in matchers)) {

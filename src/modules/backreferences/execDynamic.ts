@@ -37,7 +37,7 @@ export default function execDynamic(
   let expandedFrom = capture;
   let expandedParts = expand(expandedFrom);
   let expanded = new RegExp(renderParts(expandedParts), scanningFlags);
-  let match = execFrom(expanded, input, start);
+  let match: ExpandedMatch | null = execFrom(expanded, input, start);
 
   if (match !== null && !expansionFitsCaptures(expandedFrom, match, input)) {
     expandedFrom = match;
@@ -52,6 +52,6 @@ export default function execDynamic(
     return originalMatch;
 
   if (honoursLastIndex) this.lastIndex = expanded.lastIndex;
-  (match as ExpandedMatch)[backreferenceExpansion] = expandedParts;
+  match[backreferenceExpansion] = expandedParts;
   return match;
 }

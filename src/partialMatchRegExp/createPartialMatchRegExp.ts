@@ -6,7 +6,8 @@ import type { PartialMatchRegExpConstructor } from "./partialMatchRegExp.ts";
 
 export default function createPartialMatchRegExp(
   hooks: Hooks
-): PartialMatchRegExpConstructor {
+): PartialMatchRegExpConstructor;
+export default function createPartialMatchRegExp(hooks: Hooks): unknown {
   return class PartialMatchRegExp extends RegExp {
     declare [compiledPartial]: CompiledPartial;
 
@@ -25,5 +26,5 @@ export default function createPartialMatchRegExp(
       if (compiled.honoursLastIndex) this.lastIndex = regex.lastIndex;
       return match;
     }
-  } as unknown as PartialMatchRegExpConstructor;
+  };
 }

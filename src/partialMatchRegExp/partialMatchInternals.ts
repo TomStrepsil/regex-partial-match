@@ -3,11 +3,12 @@ import type { CompiledPartial } from "./compilePartial/compiled.ts";
 export const compiledPartial = Symbol("compiledPartial");
 
 interface PartialMatchInternals {
-  [compiledPartial]: CompiledPartial;
+  [compiledPartial]?: CompiledPartial;
 }
 
-export function compiledOf(partial: RegExp) {
-  return (partial as RegExp & PartialMatchInternals)[compiledPartial];
+export function compiledOf(partial: RegExp): CompiledPartial;
+export function compiledOf(partial: RegExp & PartialMatchInternals) {
+  return partial[compiledPartial];
 }
 
 export function execFrom(regex: RegExp, input: string, start: number) {
