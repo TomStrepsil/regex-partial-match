@@ -11,6 +11,8 @@ import type { TruncationProbeCache } from "./truncationProbeCache.ts";
 import type { Part } from "../partialMatchRegExp/part.ts";
 import { FLAGS_IRRELEVANT_TO_REBUILD } from "../partialMatchRegExp/constants.ts";
 
+export const EXPANDED_PROBES_KEPT = 12;
+
 export default function matchHitEnd(
   compiled: CompiledPartial,
   match: RegExpExecArray,
@@ -32,12 +34,13 @@ function dynamicProbe(
     match[backreferenceExpansion] ??
     expandedPartsAt(compiled, match, cache);
   if (parts === undefined) return unexpandedProbe(compiled, cache);
-  const cached = cache.expansion;
-  if (cached !== undefined && sameParts(cached.parts, parts)) {
-    return cached.probe;
+  for (const expansion of cache.expansions) {
+    if (sameParts(expansion.parts, parts)) return expansion.probe;
   }
-  cache.expansion = { parts, probe: probeOf(parts, cache) };
-  return cache.expansion.probe;
+  const probe = probeOf(parts, cache);
+  cache.expansions[cache.oldestExpansion] = { parts, probe };
+  cache.oldestExpansion = (cache.oldestExpansion + 1) % EXPANDED_PROBES_KEPT;
+  return probe;
 }
 
 function unexpandedProbe(
@@ -49,14 +52,9 @@ function unexpandedProbe(
 
 function probeOf(
   parts: readonly Part[],
-  { source, flags }: TruncationProbeCache
+  { rawLookarounds, flags }: TruncationProbeCache
 ) {
-  return buildTruncationProbe(
-    parts,
-    source.rawLookarounds,
-    source.declaredNames,
-    flags
-  );
+  return buildTruncationProbe(parts, rawLookarounds, flags);
 }
 
 function expandedPartsAt(

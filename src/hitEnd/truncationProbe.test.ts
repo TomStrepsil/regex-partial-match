@@ -1,21 +1,42 @@
 import { describe, it, expect } from "vitest";
 import PartialMatchRegExp from "../index.ts";
-import CorePartialMatchRegExp from "../core/index.ts";
 import { compiledOf } from "../partialMatchRegExp/partialMatchInternals.ts";
 import { buildTruncationProbe } from "./truncationProbe.ts";
-import probeSourceOf from "./probeSource.ts";
 import { hitEndOf } from "../../test/hitEndOf.ts";
 
 function probeOf(pattern: RegExp) {
   const partial = new PartialMatchRegExp(pattern);
   const compiled = compiledOf(partial);
-  const { rawLookarounds, declaredNames } = probeSourceOf(partial, compiled);
   return buildTruncationProbe(
     compiled.parts,
-    rawLookarounds,
-    declaredNames,
+    compiled.rawLookarounds ?? [],
     pattern.flags
   );
+}
+
+function emptyGroupNumbers(source: string) {
+  const numbers: number[] = [];
+  let groupsOpened = 0;
+  let inClass = false;
+  for (let index = 0; index < source.length; index++) {
+    const char = source[index];
+    if (char === "\\") {
+      index++;
+    } else if (inClass) {
+      inClass = char !== "]";
+    } else if (char === "[") {
+      inClass = true;
+    } else if (char === "(" && opensCapturingGroup(source, index)) {
+      groupsOpened++;
+      if (source[index + 1] === ")") numbers.push(groupsOpened);
+    }
+  }
+  return numbers;
+}
+
+function opensCapturingGroup(source: string, index: number) {
+  if (source[index + 1] !== "?") return true;
+  return source[index + 2] === "<" && !"=!".includes(source[index + 3]);
 }
 
 describe("buildTruncationProbe", () => {
@@ -44,14 +65,18 @@ describe("buildTruncationProbe", () => {
     /(?-m:\n)^/m,
     /\W(?m:^)/,
     /^(?i:AB)c/
-  ])("counts a marker for every marker group it emits in %s", (pattern) => {
-    const { regex, markerName, markerCount } = probeOf(pattern);
-    const markerGroups = regex.source.match(
-      new RegExp("\\(\\?<" + markerName + "\\d+>\\)", "g")
-    );
+  ])("numbers every marker group it emits in %s", (pattern) => {
+    const { regex, markerGroups } = probeOf(pattern);
 
-    expect(markerGroups?.length ?? 0).toBe(markerCount);
+    expect(markerGroups).toEqual(emptyGroupNumbers(regex.source));
   });
+
+  it.each([/^abc/, /^ab\b/, /^(ab)\1?c/, /^x(a)b(?!\1)c/, /^(\w+) \1$/])(
+    "emits no ES2018 group syntax for the ES2015 pattern %s",
+    (pattern) => {
+      expect(probeOf(pattern).regex.source).not.toContain("(?<");
+    }
+  );
 
   it("renumbers a raw lookaround's backreference past the two markers of a word boundary and the marker of a greedy quantifier before it", () => {
     const pattern = /^\ba+(b)c(?!\1)d/;
@@ -67,10 +92,8 @@ describe("the raw lookarounds construction records for the probe", () => {
   it.each([
     ["no lookaround", PartialMatchRegExp, /^ab/],
     ["a lookbehind and a negative lookahead holding no reference", PartialMatchRegExp, /^(?<=a)b(?!c)/],
-    ["groups opened inside raw lookarounds, with no reference anywhere", PartialMatchRegExp, /^(?<=(a))b(?!(c))/],
     ["a numbered reference outside any raw lookaround", PartialMatchRegExp, /^(a)\1(?<=b)/],
-    ["a named reference outside any raw lookaround", PartialMatchRegExp, /^(?<g>a)\k<g>(?!b)/],
-    ["a group inside a lookbehind, on the core class", CorePartialMatchRegExp, /^(?<=(a))b(?!c)/]
+    ["a named reference outside any raw lookaround", PartialMatchRegExp, /^(?<g>a)\k<g>(?!b)/]
   ])("records nothing for %s", (_, PartialClass, pattern) => {
     expect(compiledOf(new PartialClass(pattern)).rawLookarounds).toBeUndefined();
   });

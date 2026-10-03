@@ -1,8 +1,7 @@
 import {
   NOT_NUMBERS_REGEX,
   LITERAL_BACKSLASH,
-  LITERAL_K,
-  MAYBE_HAS_BACKREFERENCE_REGEX
+  LITERAL_K
 } from "./constants.ts";
 import {
   asOptionalAtom,
@@ -87,7 +86,6 @@ export function walk(
   let outermostRawLookaroundCount = 0;
   let rawLookarounds: RawLookaroundInfo[] | undefined;
   let rawReferences: RawReference[] | undefined;
-  let sourceMaybeHasBackreference: boolean | undefined;
   let lastBodyRunsOut = false;
 
   function extractSlice(length: number) {
@@ -145,12 +143,7 @@ export function walk(
       process(scope | WITHIN_LOOKAROUND | WITHIN_RAW_LOOKAROUND);
       if (!(scope & WITHIN_RAW_LOOKAROUND)) {
         const capturingGroupsOpened = groupCount - groupCountBefore;
-        if (
-          rawReferences ||
-          (capturingGroupsOpened &&
-            (sourceMaybeHasBackreference ??=
-              MAYBE_HAS_BACKREFERENCE_REGEX.test(source)))
-        ) {
+        if (rawReferences || capturingGroupsOpened) {
           (rawLookarounds ??= [])[outermostRawLookaroundCount] = {
             sourceStart: start,
             capturingGroupsOpened,
@@ -184,17 +177,11 @@ export function walk(
                 source[i + 2] === "<" ? source.indexOf(">", i) : -1;
               if (referenceEnd !== -1 && declaresNamedGroup) {
                 featureMask |= Feature.namedBackreference;
-                const start = i;
                 const ref = source.slice(i + 3, referenceEnd);
                 i = referenceEnd + 1;
                 if (result.length === alternativeStart)
                   alternativeRunsOut = true;
-                if (scope & WITHIN_RAW_LOOKAROUND)
-                  (rawReferences ??= []).push({ ref, start, end: i });
                 appendBackreference({ ref });
-              } else if (scope & WITHIN_RAW_LOOKAROUND) {
-                (rawReferences ??= []).push({ ref: "", start: i, end: i + 2 });
-                i += 2;
               } else {
                 i += 2;
                 if (result.length === alternativeStart)

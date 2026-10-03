@@ -23,11 +23,9 @@ import type {
 
 export interface TruncationProbe {
   regex: RegExp;
-  markerName: string;
-  markerCount: number;
+  markerGroups: readonly number[];
 }
 
-const TRUNCATION_MARKER_NAME = "truncation";
 const END_OF_INPUT = DISJUNCTION_TO_END_OF_INPUT.slice(1, -1);
 const OPTIONAL_QUANTIFIER = "?";
 const EXACT_QUANTIFIER = /^\{0*([1-9]\d*|0)(?:,0*\1)?\}$/;
@@ -132,8 +130,7 @@ function renumberedToken(
 function renumberRawBackreferences(
   part: string,
   info: RawLookaroundInfo,
-  shiftForGroup: readonly number[],
-  declaresNamedGroup: boolean
+  shiftForGroup: readonly number[]
 ) {
   let renumbered = "";
   let cursor = 0;
@@ -145,8 +142,7 @@ function renumberRawBackreferences(
       rawReferenceReplacement(
         part.slice(relativeStart, relativeEnd),
         reference,
-        shiftForGroup,
-        declaresNamedGroup
+        shiftForGroup
       );
     cursor = relativeEnd;
   }
@@ -156,35 +152,28 @@ function renumberRawBackreferences(
 function rawReferenceReplacement(
   spelling: string,
   { ref }: RawReference,
-  shiftForGroup: readonly number[],
-  declaresNamedGroup: boolean
+  shiftForGroup: readonly number[]
 ) {
-  if (typeof ref === "number") {
-    return ref >= 1 && ref < shiftForGroup.length
-      ? "\\" + String(ref + shiftForGroup[ref])
-      : legacyEscapeAsLiteral(spelling.slice(1));
-  }
-  return declaresNamedGroup ? spelling : "k" + spelling.slice(2);
+  return ref >= 1 && ref < shiftForGroup.length
+    ? "\\" + String(ref + shiftForGroup[ref])
+    : legacyEscapeAsLiteral(spelling.slice(1));
 }
 
 export const buildTruncationProbe = (
   parts: readonly Part[],
   rawLookarounds: RawLookarounds,
-  declaredNames: readonly string[],
   flags: string
 ): TruncationProbe => {
-  const declaresNamedGroup = declaredNames.length > 0;
-  let markerName = TRUNCATION_MARKER_NAME;
-  while (declaredNames.some((name) => name.startsWith(markerName))) {
-    markerName += "_";
-  }
-
   const markings = markingsOf(parts);
   const shiftForGroup = groupShiftTable(markings, rawLookarounds);
 
-  let markerCount = 0;
+  const markerGroups: number[] = [];
+  let groupsOpened = 0;
   let rawLookaroundIndex = 0;
-  const marker = () => "(?<" + markerName + String(markerCount++) + ">)";
+  const marker = () => {
+    markerGroups.push(groupsOpened + markerGroups.length + 1);
+    return "()";
+  };
   const truncationBranch = () => "|" + marker() + END_OF_INPUT + ")";
   const readAtEnd = () => "(?:" + marker() + END_OF_INPUT + "|)";
 
@@ -202,18 +191,22 @@ export const buildTruncationProbe = (
     switch (markings[index]) {
       case MARKING.rawLookaround: {
         const rawLookaround = rawLookarounds[rawLookaroundIndex++];
+        groupsOpened += rawLookaround?.capturingGroupsOpened ?? 0;
         probed.push(
           rawLookaround
             ? renumberRawBackreferences(
                 part,
                 rawLookaround,
-                shiftForGroup,
-                declaresNamedGroup
+                shiftForGroup
               )
             : part
         );
         break;
       }
+      case MARKING.groupOpen:
+        groupsOpened++;
+        probed.push(part);
+        break;
       case MARKING.truncationBranch:
         probed.push(
           part.slice(0, -DISJUNCTION_TO_END_OF_INPUT.length) + truncationBranch()
@@ -252,8 +245,7 @@ export const buildTruncationProbe = (
       probed.join(""),
       flags.replace(FLAGS_IRRELEVANT_TO_REBUILD, "") + "y"
     ),
-    markerName,
-    markerCount
+    markerGroups
   };
 };
 
@@ -262,14 +254,12 @@ export const tookTruncationBranch = (
   input: string,
   index: number
 ) => {
-  const { regex, markerName, markerCount } = probe;
+  const { regex, markerGroups } = probe;
   regex.lastIndex = index;
-  const probed = regex.exec(input);
+  const probed: readonly (string | undefined)[] | null = regex.exec(input);
   if (probed === null) return true;
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- if markerCount > 0, groups will be defined
-  const markers = probed.groups!;
-  for (let marker = 0; marker < markerCount; marker++) {
-    if (markers[markerName + String(marker)] !== undefined) return true;
+  for (const group of markerGroups) {
+    if (probed[group] !== undefined) return true;
   }
   return false;
 };

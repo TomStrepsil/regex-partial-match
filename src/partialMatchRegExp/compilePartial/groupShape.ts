@@ -8,7 +8,6 @@ export default function groupShape(regex: RegExp) {
   return {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion -- match must succeed, since pattern starts with empty alternative
     groupLimit: emptyMatch!.length - 1,
-    declaresNamedGroup: emptyMatch?.groups !== undefined,
-    namedGroups: emptyMatch?.groups
+    declaresNamedGroup: emptyMatch?.groups !== undefined
   };
 }
