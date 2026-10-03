@@ -25,6 +25,12 @@ export default [
       parserOptions: {
         project: ["./tsconfig.json", "./test/benchmarking/tsconfig.json"]
       }
+    },
+    rules: {
+      "@typescript-eslint/prefer-literal-enum-member": [
+        "error",
+        { allowBitwiseExpressions: true }
+      ]
     }
   },
   {
@@ -44,7 +50,9 @@ export default [
           ["replaceAll", "ES2021"],
           ["at", "ES2022"],
           ["findLast", "ES2023"],
-          ["findLastIndex", "ES2023"]
+          ["findLastIndex", "ES2023"],
+          ["getOrInsert", "ESNext"],
+          ["getOrInsertComputed", "ESNext"]
         ].map(([property, since]) => ({
           property,
           message: `${property}() is ${since}; src/ ships to the ES2015 floor the README states. RegExp properties newer than that are read behind a runtime guard — plain library methods are not.`

@@ -20,7 +20,7 @@ To mitigate, a start anchor (`^`) can prevent the engine from scanning forward t
 /^(?:x|$(?![\s\S]))/.test("a") === false;
 ```
 
-The anchor may lead a group body, as in `/(^x)/` or `/(^x|^y)+/`, provided it leads every alternative — see [How It Works](./how-it-works.md#-a-start-anchor-leading-a-group).
+The anchor may lead a group body, as in `/(^x)/` or `/(^x|^y)+/`, provided it leads every alternative — see [Carets](./modules/carets.md#-a-start-anchor-leading-a-group).
 
 > [!CAUTION]
 > In [multiline mode](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/multiline), `^` still matches at the start of the string and immediately after each `\n`, so the transformed regex can attempt the empty-string fallback at the start of any line — but, since the fallback requires strict end-of-input, it only succeeds if that line start is *also* genuinely where the input ends:
@@ -71,14 +71,14 @@ e.g.
 
 ## Backreferences
 
-`PartialMatchRegExp` supports partial matching of backreferences (`\1`, `\k<name>`) — see [How It Works](./how-it-works.md) and [docs/backreferences.md](./backreferences.md) for the algorithm. A backreference is inherently atomic — `\1` must match the complete captured text or fail — but the library resolves what each group captured from a partial input and expands the backreference into per-character partial form so matching can still proceed character-by-character in the common case.
+`PartialMatchRegExp` supports partial matching of backreferences (`\1`, `\k<name>`) — see [How It Works](./how-it-works.md) and [docs/modules/backreferences.md](./modules/backreferences.md) for the algorithm. A backreference is inherently atomic — `\1` must match the complete captured text or fail — but the library resolves what each group captured from a partial input and expands the backreference into per-character partial form so matching can still proceed character-by-character in the common case.
 
 The following cases remain atomic (full native value or exactly at true end of input, no mid-value partial matching):
 
 - **Backreferences inside lookbehinds and negative lookarounds.** These are verbatim contexts — the value a lookbehind or negative lookahead requires must be fully present or fully absent, so there's no partial-prefix position to expand into.
 - **A backreference whose captured value can't be determined from a partial input.** This only affects the backreference site itself; it's strictly better than rejecting the input outright, and never accepts anything unsound.
 - **A forward reference, outside a lookbehind** — `\1` written before group 1 opens, or referencing it while it's still open (a self-reference inside the group's own body, e.g. `\1` in `/^(\1a)$/`). Its value can't come from the capture scan, which resolves it on a path it could never have taken, so it's left to the engine — which, per ECMAScript, always resolves it to empty there (it can't have participated yet, even on a later iteration of an enclosing quantifier). This costs nothing in practice: there's no real value being withheld. (Inside a lookbehind — already covered above — matching runs right-to-left, so a reference written first can still follow its own group's capture; that's exactly why the whole body stays atomic regardless of `forward`.)
-- **A `\k<name>` referencing a name declared more than once**, which ECMAScript permits only across disjoint alternatives. This one is stricter than the rest — see [docs/backreferences.md](./backreferences.md#duplicate-named-groups) for why, and for the workaround.
+- **A `\k<name>` referencing a name declared more than once**, which ECMAScript permits only across disjoint alternatives. This one is stricter than the rest — see [docs/modules/backreferences.md](./modules/backreferences.md#duplicate-named-groups) for why, and for the workaround.
 
  The case-folding a backreference's expansion agrees against tracks a locally-scoped `(?i:...)`/`(?-i:...)` [modifier](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Modifier) around that specific backreference, rather than only the pattern's own flags. This holds for a backreference the local scope makes *more* case-insensitive than the pattern is, or *less*. V8 versions before [the fix](https://issues.chromium.org/issues/447583670) released in Node.js 24.12 can still mishandle the locally-disabled case when the surrounding pattern has `i`; Chromium/Electron support depends on their bundled V8 version.
 
@@ -122,7 +122,7 @@ partial.test("abca"); // false — but "abca" is a valid prefix of "abcabc" via 
 > partial.test("abca"); // true
 > ```
 
-See [docs/backreferences.md](./backreferences.md) for why this happens (the internal capture scan resolving the wrong alternative first).
+See [docs/modules/backreferences.md](./modules/backreferences.md) for why this happens (the internal capture scan resolving the wrong alternative first).
 
 
 ## Positive Lookbehinds
@@ -152,6 +152,7 @@ const partial = new PartialMatchRegExp(/hello/y);
 
 partial.lastIndex = 2;
 partial.test("xyhello"); // true  — partial match at position 2
+partial.lastIndex = 2;
 partial.test("xyworld"); // false — no match at position 2, no forward scan
 partial.lastIndex = 2;
 partial.test("xyhel"); // true  — partial prefix "hel" at position 2

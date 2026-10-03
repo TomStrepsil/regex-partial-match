@@ -4,6 +4,8 @@ export const DOT_ALL = 4;
 export const UNICODE = 8;
 export const UNICODE_SETS = 16;
 export const WITHIN_LOOKAROUND = 32;
+export const WITHIN_GROUP = 64;
+export const WITHIN_RAW_LOOKAROUND = 128;
 
 const MODIFIER_REMOVAL = "-";
 
@@ -18,7 +20,7 @@ function modifierBit(modifier: string) {
   }
 }
 
-export function scopeOf(regex: RegExp): number {
+export function scopeOf(regex: RegExp) {
   return (
     (regex.ignoreCase ? CASE_INSENSITIVE : 0) |
     (regex.multiline ? MULTILINE : 0) |
@@ -28,7 +30,9 @@ export function scopeOf(regex: RegExp): number {
   );
 }
 
-export function scopeWithModifiers(scope: number, modifiers: string): number {
+export type ModifiersHook = (scope: number, modifiers: string) => number;
+
+export function scopeWithModifiers(scope: number, modifiers: string) {
   let removing = false;
   for (let index = 0; index < modifiers.length; index++) {
     const modifier = modifiers[index];
@@ -39,7 +43,7 @@ export function scopeWithModifiers(scope: number, modifiers: string): number {
   return scope;
 }
 
-export function flagsOf(scope: number): string {
+export function flagsOf(scope: number) {
   return (
     (scope & CASE_INSENSITIVE ? "i" : "") +
     (scope & MULTILINE ? "m" : "") +

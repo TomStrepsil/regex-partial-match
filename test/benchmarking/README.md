@@ -58,7 +58,7 @@ Two patterns are used to cover different positions within a backreference:
 
 Each pattern is measured at three stages — full match (native fast path), partial input before the backreference atom is reached, and partial input mid-backreference — plus an accumulated keystroke simulation that sums the cost over all prefixes.
 
-A fourth group covers a native complete match at a *non-zero* index, where `exec()` must confirm no earlier partial exists before trusting it (see [docs/backreferences.md](../../docs/backreferences.md) — "Leftmost bound check"): once when the cheap `preScan` bound rejects outright (native wins, pipeline skipped), and once when the bound is loose enough that the full slow-path pipeline still has to run even though the native match wins in the end.
+A fourth group covers a native complete match at a *non-zero* index, where `exec()` must confirm no earlier partial exists before trusting it (see [docs/modules/backreferences.md](../../docs/modules/backreferences.md) — "Leftmost bound check"): once when the cheap `preScan` bound rejects outright (native wins, pipeline skipped), and once when the bound is loose enough that the full slow-path pipeline still has to run even though the native match wins in the end.
 
 A fifth group guards a bound rather than a cost. When a backreference's captured text has to be checked against the input, only the last `capture.length` characters of the input can decide the answer, so the two benches in it differ solely in how much irrelevant text precedes the part that does. They are read together: if that check ever goes back to scanning the whole input, the long one grows away from the short one while everything else here holds still.
 
@@ -83,7 +83,7 @@ Three patterns span the complexity range the walker branches on:
 
 ### 6. `hitEnd()` (`hit-end.bench.ts`)
 
-`hitEnd()` re-runs a twin of the compiled pattern to recover whether a match took a truncation branch. The twin is built lazily, so the cost splits in two and both halves are tracked: the one-off probe build, and the steady-state cost of one anchored `exec` per call thereafter. In each group the probe build is the delta between the first two benches, which differ only by the `hitEnd()` call.
+`hitEnd()` re-runs a twin of the compiled pattern to recover whether a match took a truncation branch. The twin is built lazily, so the cost splits in two and both halves are tracked: the one-off probe build and the steady-state cost of one anchored `exec` per call thereafter. In each group the probe build is the delta between the first two benches, which differ only by the `hitEnd()` call.
 
 The two paths cache the probe at different granularities, which is why they are measured separately:
 

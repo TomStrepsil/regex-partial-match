@@ -15,7 +15,7 @@
  */
 
 import { bench, group } from "mitata";
-import PartialMatchRegExp from "../../../lib/partialMatchRegExp/index.js";
+import PartialMatchRegExp from "../../../lib/index.js";
 
 const text = (
   "lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod " +
@@ -26,7 +26,7 @@ const nativeGlobal = /\b\w+\b/g;
 const partialGlobal = new PartialMatchRegExp(/\b\w+\b/, "g");
 const partialGlobalForMatchAll = new PartialMatchRegExp(/\b\w+\b/, "g");
 
-function execAll(re: RegExp, input: string): void {
+function execAll(re: RegExp, input: string) {
   re.lastIndex = 0;
   let match;
   while ((match = re.exec(input)) !== null) {
@@ -43,13 +43,19 @@ group("hot loop — manual global exec (~700 matches)", () => {
   });
 });
 
+function lengthOfAll(matches: Iterable<RegExpMatchArray>) {
+  let length = 0;
+  for (const match of matches) length += match[0].length;
+  return length;
+}
+
 group("hot loop — String.prototype.matchAll (~700 matches)", () => {
   bench("native matchAll", () => {
     nativeGlobal.lastIndex = 0;
-    for (const m of text.matchAll(nativeGlobal)) void m;
+    return lengthOfAll(text.matchAll(nativeGlobal));
   });
   bench("PartialMatchRegExp matchAll", () => {
     partialGlobalForMatchAll.lastIndex = 0;
-    for (const m of text.matchAll(partialGlobalForMatchAll)) void m;
+    return lengthOfAll(text.matchAll(partialGlobalForMatchAll));
   });
 });

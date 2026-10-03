@@ -1,5 +1,8 @@
-import type { Part, RawLookaroundInfo } from "../part.ts";
-import { featureSet, type RegexFeature } from "../regexFeatures.ts";
+import type { Part } from "../part.ts";
+import type { Hooks } from "../walk.ts";
+import type { RegexFeature } from "../regexFeatures.ts";
+import type { TruncationProbeCache } from "../../hitEnd/truncationProbeCache.ts";
+import type { RawLookarounds } from "../rawLookaroundInfo.ts";
 
 export interface DynamicPath {
   preScan: RegExp;
@@ -11,47 +14,39 @@ export interface DynamicPath {
   ) => boolean;
 }
 
-abstract class Compiled {
-  private _features?: ReadonlySet<RegexFeature>;
+export abstract class Compiled {
+  features?: ReadonlySet<RegexFeature>;
+  probeCache?: TruncationProbeCache;
+  declare rawLookarounds?: RawLookarounds;
 
   constructor(
     readonly parts: readonly Part[],
-    readonly rawLookarounds: readonly RawLookaroundInfo[],
-    readonly namedGroupOpenings: readonly string[],
-    private readonly _featureMask: number
+    readonly featureMask: number,
+    readonly hooks: Hooks
   ) {}
-
-  get features(): ReadonlySet<RegexFeature> {
-    return (this._features ??= featureSet(this._featureMask));
-  }
 }
 
 export class CompiledStatic extends Compiled {
-  readonly kind = "static";
+  readonly honoursLastIndex: boolean;
 
   constructor(
     readonly regex: RegExp,
     parts: string[],
-    rawLookarounds: readonly RawLookaroundInfo[],
-    namedGroupOpenings: readonly string[],
-    featureMask: number
+    featureMask: number,
+    hooks: Hooks
   ) {
-    super(parts, rawLookarounds, namedGroupOpenings, featureMask);
+    super(parts, featureMask, hooks);
+    this.honoursLastIndex = regex.global || regex.sticky;
   }
 }
 
-export class CompiledDynamic extends Compiled {
-  readonly kind = "dynamic";
-
-  constructor(
-    readonly dynamic: DynamicPath,
-    parts: readonly Part[],
-    rawLookarounds: readonly RawLookaroundInfo[],
-    namedGroupOpenings: readonly string[],
-    featureMask: number
-  ) {
-    super(parts, rawLookarounds, namedGroupOpenings, featureMask);
-  }
+export interface CompiledDynamic extends Compiled {
+  readonly dynamic: DynamicPath;
+  readonly execDynamic: (
+    this: RegExp,
+    dynamic: DynamicPath,
+    input: string
+  ) => RegExpExecArray | null;
 }
 
 export type CompiledPartial = CompiledStatic | CompiledDynamic;

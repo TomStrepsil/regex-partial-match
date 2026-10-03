@@ -12,13 +12,13 @@
  */
 
 import { bench, group } from "mitata";
-import compilePartial from "../../../lib/partialMatchRegExp/compilePartial/index.js";
-import PartialMatchRegExp from "../../../lib/partialMatchRegExp/index.js";
+import compilePartial from "./compilePartial.ts";
+import PartialMatchRegExp from "../../../lib/index.js";
 
 const pattern = /^[a-z]+(?:\s\w+){1,3}/;
 
 const compiled = compilePartial(pattern);
-if (compiled.kind !== "static") {
+if ("dynamic" in compiled) {
   throw new Error("expected a static (backreference-free) pattern");
 }
 

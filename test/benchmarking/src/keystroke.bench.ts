@@ -16,12 +16,12 @@
  */
 
 import { bench, group } from "mitata";
-import compilePartial from "../../../lib/partialMatchRegExp/compilePartial/index.js";
-import PartialMatchRegExp from "../../../lib/partialMatchRegExp/index.js";
+import compilePartial from "./compilePartial.ts";
+import PartialMatchRegExp from "../../../lib/index.js";
 
-function staticPartial(pattern: RegExp): RegExp {
+function staticPartial(pattern: RegExp) {
   const compiled = compilePartial(pattern);
-  if (compiled.kind !== "static") {
+  if ("dynamic" in compiled) {
     throw new Error("expected a static (backreference-free) pattern");
   }
   return compiled.regex;

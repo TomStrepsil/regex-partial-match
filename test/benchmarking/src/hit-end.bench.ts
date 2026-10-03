@@ -36,14 +36,14 @@
  */
 
 import { bench, group } from "mitata";
-import PartialMatchRegExp from "../../../lib/partialMatchRegExp/index.js";
-import hitEnd from "../../../lib/partialMatchRegExp/hitEnd/index.js";
+import PartialMatchRegExp from "../../../lib/index.js";
+import hitEnd from "../../../lib/hitEnd/index.js";
 
 // A bench whose match is null would time hitEnd() answering nothing at all, and would read as a large improvement rather than a broken setup.
 function matchOrThrow(
   partial: PartialMatchRegExp,
   input: string
-): RegExpExecArray {
+) {
   const match = partial.exec(input);
   if (match === null) {
     throw new Error(`no match for ${JSON.stringify(input)}`);

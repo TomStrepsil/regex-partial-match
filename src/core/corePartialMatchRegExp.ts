@@ -1,0 +1,27 @@
+import withModules from "../partialMatchRegExp/withModules.ts";
+import type { PartialMatchRegExpConstructor } from "../partialMatchRegExp/index.ts";
+
+/**
+ * `PartialMatchRegExp` without the rules that place a `^` in a group or after
+ * other parts under the `m` flag, or match a backreference, so that a bundle
+ * importing only `regex-partial-match/core` leaves them out.
+ *
+ * A pattern that needs either throws one `TypeError` naming every module it
+ * needs; every other pattern is transformed exactly as the class exported
+ * from `regex-partial-match` transforms it.
+ *
+ * @example
+ * ```typescript
+ * import PartialMatchRegExp from "regex-partial-match/core";
+ *
+ * new PartialMatchRegExp(/^hello world/).test("hello"); // true
+ * new PartialMatchRegExp(/(a)\1/); // throws TypeError
+ * ```
+ *
+ * @see {@link https://github.com/TomStrepsil/regex-partial-match#readme | Documentation}
+ */
+const PartialMatchRegExp: PartialMatchRegExpConstructor = withModules();
+type PartialMatchRegExp = InstanceType<typeof PartialMatchRegExp>;
+
+export default PartialMatchRegExp;
+export type { PartialMatchRegExp, PartialMatchRegExpConstructor };

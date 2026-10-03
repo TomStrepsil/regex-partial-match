@@ -1,10 +1,10 @@
 {
   "version": "5",
   "specifiers": {
-    "npm:@eslint/js@^9.17.0": "9.39.5",
     "npm:@eslint/markdown@^7.5.1": "7.5.1",
     "npm:@types/node@^25.9.3": "25.9.5",
     "npm:@vitest/coverage-v8@^4.1.11": "4.1.11_vitest@4.1.11_esbuild@0.28.2",
+    "npm:clean-pkg-json@2": "2.0.0",
     "npm:esbuild@~0.28.1": "0.28.2",
     "npm:eslint@^9.17.0": "9.39.5_jiti@2.7.0",
     "npm:jiti@^2.6.1": "2.7.0",
@@ -668,6 +668,10 @@
     },
     "character-entities@2.0.2": {
       "integrity": "sha512-shx7oQ0Awen/BRIdkjkvz54PnEEI/EjwXDSIZp86/KKdbafHh1Df/RYGBhn4hbe2+uKC9FnT5UCEdyPz3ai9hQ=="
+    },
+    "clean-pkg-json@2.0.0": {
+      "integrity": "sha512-HfgaeXf7xc2xEg28rKAb6iJ7KaBU6Bu1F+wefBUEm142fYvnn+dKuBg2WEwjv7hIs1S4tu/qdLK9wek03OolBQ==",
+      "bin": true
     },
     "cli-cursor@5.0.0": {
       "integrity": "sha512-aCj4O5wKyszjMmDT4tZj93kxyydN/K5zPWSCe6/0AV/AA1pqe5ZBIw0a2ZfPQV7lL5/yb5HsUreJ6UFAF1tEQw==",
@@ -2041,10 +2045,10 @@
   "workspace": {
     "packageJson": {
       "dependencies": [
-        "npm:@eslint/js@^9.17.0",
         "npm:@eslint/markdown@^7.5.1",
         "npm:@types/node@^25.9.3",
         "npm:@vitest/coverage-v8@^4.1.11",
+        "npm:clean-pkg-json@2",
         "npm:esbuild@~0.28.1",
         "npm:eslint@^9.17.0",
         "npm:jiti@^2.6.1",

@@ -1,13 +1,12 @@
-import PartialMatchRegExp from "../partialMatchRegExp/partialMatchRegExp.ts";
+import PartialMatchRegExp from "../partialMatchRegExp/index.ts";
 
 declare global {
   interface RegExp {
     /**
      * Transforms this regular expression to support partial matching.
      *
-     * This method wraps each atomic element of the regex pattern in a non-capturing group
-     * with an alternation to end-of-input (`|$(?![\s\S])`), allowing the pattern to match
-     * prefixes of the original pattern. This enables validation of incomplete input strings.
+     * The result matches any prefix of the original pattern, which enables
+     * validation of incomplete input strings.
      *
      * @returns A new PartialMatchRegExp that matches partial strings of the original pattern
      *
@@ -24,9 +23,9 @@ declare global {
      * ```
      *
      * @remarks
-     * - The transformed pattern always matches an empty string at the end of input;
-     *   use a start anchor (`^`) to prevent false positives from empty string matches
-     * - The `y` (sticky) flag may not behave as expected in partial matching scenarios
+     * The transformed pattern always matches an empty string at the end of input;
+     * use a start anchor (`^`) to prevent false positives from empty string matches.
+     * See the documentation for how the `y` (sticky) flag behaves.
      *
      * @see {@link https://github.com/TomStrepsil/regex-partial-match#readme | Documentation}
      */

@@ -10,7 +10,7 @@ Unlike C/C++ (via [PCRE/PCRE2](https://www.pcre.org/original/doc/html/pcrepartia
 
 This library transforms regular expressions to best-effort support **partial matching**, allowing you to test if an incomplete string could potentially match the full pattern. This is particularly useful for real-time input validation, autocomplete systems, progressive form validation, stream chunk matching, etc.
 
-As a side effect of the parse this requires, each `PartialMatchRegExp` also exposes a [`features`](#partialmatchregexpprototypefeatures-readonlysetregexfeature) set naming the syntactic constructs its pattern uses — useful for consumers that need to reason about a pattern without writing their own regex parser.  For many features, a simple search in the [source](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/source) would be insufficient.
+As a side effect of the parse this requires, [`features()`](#features) names the syntactic constructs a `PartialMatchRegExp`'s pattern uses — useful for consumers that need to reason about a pattern without writing their own regex parser.  For many features, a simple search in the [source](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/source) would be insufficient.
 
 **Based on an algorithm created by [Lucas Trzesniewski](https://github.com/ltrzesniewski)**, re-created for NPM via ISC license, with permission.
 
@@ -36,9 +36,19 @@ partial.test("hello world"); // true - full match
 partial.test("goodbye"); // false - cannot match
 ```
 
+### Extending RegExp.prototype
+
+```javascript
+import "regex-partial-match/extend";
+
+const partial = /^hello world/.toPartialMatchRegex();
+
+partial.test("hel"); // true
+```
+
 ### Telling a settled match from one still reading
 
-`test()` and `exec()` answer "could this match?", which is `true` for a prefix and for a complete match alike. [`hitEnd()`](#hitendpartial-partialmatchregexp-match-regexpexecarray-boolean) reports whether the engine reached the end of the input while producing the match, so more input could still change it [^1]. Testing the original pattern instead doesn't answer that [^2]. Together they give progressive validation its three states:
+`test()` and `exec()` answer "could this match?", which is `true` for a prefix and for a complete match alike. [`hitEnd()`](#hitend) reports whether the engine reached the end of the input while producing the match, so more input could still change it [^1]. Testing the original pattern instead doesn't answer that [^2]. Together they give progressive validation its three states:
 
 ```javascript
 import PartialMatchRegExp, { hitEnd } from "regex-partial-match";
@@ -69,21 +79,57 @@ state("2024-06-15"); // 'complete'   - accept, enable submit
 
 ### A note on Tree-Shaking
 
-If your environment doesn't tree-shake (e.g. Deno, or unbundled Node) and you have no use for `hitEnd`, import `PartialMatchRegExp` from its own subpath instead of the default entry, to avoid pulling in `hitEnd`'s code:
+If your environment doesn't tree-shake (e.g. Deno, or unbundled Node), the default entry loads `hitEnd` and `features` with the class. Import each from its own subpath instead, and only the ones you use:
 
 ```javascript
 import PartialMatchRegExp from "regex-partial-match/partialMatchRegExp";
+import hitEnd from "regex-partial-match/hitEnd";
+import features from "regex-partial-match/features";
 ```
 
-### Extending RegExp.prototype
+[`hitEnd`](#hitend) and [`features`](#features) accept an instance of any `PartialMatchRegExp` class, including those from [`regex-partial-match/core`](#the-lean-entry-regex-partial-matchcore).
+
+### The lean entry: `regex-partial-match/core`
+
+`regex-partial-match/core` exports a `PartialMatchRegExp` without two sets of rules, so a bundle that doesn't need them can leave them out. Each set is a module you bind back with `withModules`:
+
+| Module | Import | Supplies |
+|---|---|---|
+| `carets` | `regex-partial-match/modules/carets` | the rules for a `^` under the `m` flag that has something before it, and for a `^` in a group or positive lookahead |
+| `backreferences` | `regex-partial-match/modules/backreferences` | matching a backreference against the text its group captured |
+
+Both are also named exports of `regex-partial-match/modules`.
 
 ```javascript
-import "regex-partial-match/extend";
+import PartialMatchRegExp, { withModules } from "regex-partial-match/core";
+import carets from "regex-partial-match/modules/carets";
+import backreferences from "regex-partial-match/modules/backreferences";
 
-const partial = /^hello world/.toPartialMatchRegex();
+new PartialMatchRegExp(/^\d{4}-\d{2}/).test("20"); // true
 
-partial.test("hel"); // true
+const WithBoth = withModules(carets, backreferences);
+new WithBoth(/(a|b)\1/).test("a"); // true
 ```
+
+`withModules` returns a `PartialMatchRegExp` class extending `RegExp`, and the same set of modules in any order returns the same class: `withModules()` is the `core` class, and `withModules(carets, backreferences)` is the default `PartialMatchRegExp`, so `instanceof` holds between them. [`hitEnd()`](#hitend) and [`features()`](#features) accept instances of any of these classes.
+
+A module's type is `Module`, exported from both `regex-partial-match/core` and `regex-partial-match/modules`, for annotating a list of modules: `const modules: Module[] = [carets, backreferences]`. It is opaque, so what a module holds is not part of the API, and `withModules` throws a `TypeError` for anything that isn't a module.
+
+#### Choosing an entry point
+
+If your patterns aren't known when you build, because they come from users or configuration, use `regex-partial-match`. If they are fixed, use `core`: construct each pattern once, and bind the modules construction asks for.
+
+| Error when constructed | Bind |
+|---|---|
+| `TypeError: Needs the carets module` | `carets` |
+| `TypeError: Needs the backreferences module` | `backreferences` |
+| `TypeError: Needs the carets and backreferences modules` | both |
+
+The error names every module the pattern needs, and none that is already bound.
+
+**Without `carets`**, a `^` is accepted outside every group and positive lookahead and, under the `m` flag, only at the start of the pattern or of a top-level alternative, with nothing before it but `^`, `$`, `\b`, `\B`, a negative lookahead or a lookbehind: `/^a|^b/m` and `/\b^a/m` compile. A `^` inside a lookbehind or negative lookahead is always accepted, since those are kept as written: `/(?<=^)a/` compiles. Any other `^` throws `TypeError: Needs the carets module` when constructed, as `/x^a/m` and `/(?=a)^a/m` do. So does a `^` inside a group or positive lookahead, even without `m`, as in `/(^a|^b)/` and `/(?m:^a)/`, since the rule that moves such a caret in front of its group is in the carets module. The rule stays there to keep `core` small. An unquantified group whose every alternative starts with `^` matches the same with the caret written once in front of it, and `core` accepts `/^(a|b)/` where it refuses `/(^a|^b)/`. Every pattern `core` accepts is transformed exactly as by the default class.
+
+**Without `backreferences`**, a pattern whose backreference must be matched at run time throws `TypeError: Needs the backreferences module` when constructed, as `/(a)\1/` does. An escape that resolves without it still compiles: in `/x\8y/` there is no group 8, so `\8` is the literal `8`.
 
 ## ⚙️ How It Works
 
@@ -132,13 +178,13 @@ The library is compiled to **ES2015** (ECMAScript 6). Certain regular expression
 - [**`v` (unicodeSets) flag**](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/unicodeSets) - ES2024+
 - [**Modifiers**](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Modifier) (`(?ims:...)`, `(?-ims:...)`, `(?i-ms:...)`) - ES2025+
 
-Each of these applies only when the *original* pattern uses the feature — everything else, including construction, `exec()` and `test()`, holds to the ES2015 floor. [`hitEnd()`](#hitendpartial-partialmatchregexp-match-regexpexecarray-boolean) is the one exception: it always requires **ES2018+**, regardless of the pattern, since its internal probe uses named capturing groups.
+Each of these applies only when the *original* pattern uses the feature — everything else, including construction, `exec()` and `test()`, holds to the ES2015 floor. [`hitEnd()`](#hitend) is the one exception: it always requires **ES2018+**, regardless of the pattern, since its internal probe uses named capturing groups.
 
 ## ⚠️ Caveats
 
 See [Caveats](./docs/caveats.md) for details, examples and workarounds.
 
-- [**`.test()` and empty matches at the end of the input**](./docs/caveats.md#test-behaviour-and-non-matching-results-from-exec-and-match): an unanchored pattern always matches `""` at the end of the input; anchor with `^`, or ask [`hitEnd()`](#hitendpartial-partialmatchregexp-match-regexpexecarray-boolean)
+- [**`.test()` and empty matches at the end of the input**](./docs/caveats.md#test-behaviour-and-non-matching-results-from-exec-and-match): an unanchored pattern always matches `""` at the end of the input; anchor with `^`, or ask [`hitEnd()`](#hitend)
 - [**Backreferences**](./docs/caveats.md#backreferences): some backreferences stay atomic
   - [Captures on a partial match](./docs/caveats.md#captures-on-a-partial-match)
   - [Prefix-ambiguous top-level alternation](./docs/caveats.md#prefix-ambiguous-top-level-alternation)
@@ -226,7 +272,11 @@ Useful for parsing log files, network streams, or any chunked data where records
 
 ## 🔌 API
 
-### `new PartialMatchRegExp(pattern: RegExp | string, flags?: string)`
+### `new PartialMatchRegExp()`
+
+```typescript
+new PartialMatchRegExp(pattern: RegExp | string, flags?: string)
+```
 
 Extends `RegExp`. An instance behaves like a normal `RegExp`; `instanceof RegExp` is `true`, and `.test()`, `.exec()`, `.match()`, `.matchAll()`, `.replace()` etc. all work as expected, but also matches any input string that is a valid prefix of the original pattern, in addition to full matches.
 
@@ -241,7 +291,11 @@ Available via the default entry point of the package, or via `regex-partial-matc
 
 - A `PartialMatchRegExp` instance that matches partial strings of the original pattern
 
-### `RegExp.prototype.toPartialMatchRegex(): PartialMatchRegExp`
+### `toPartialMatchRegex()`
+
+```typescript
+RegExp.prototype.toPartialMatchRegex(): PartialMatchRegExp
+```
 
 When using `import 'regex-partial-match/extend'`, this method is added to `RegExp.prototype`.
 
@@ -249,11 +303,15 @@ When using `import 'regex-partial-match/extend'`, this method is added to `RegEx
 
 - A new `PartialMatchRegExp` that matches partial strings, created from the `RegExp` instance the method was called on.
 
-### `hitEnd(partial: PartialMatchRegExp, match: RegExpExecArray): boolean`
+### `hitEnd()`
+
+```typescript
+hitEnd(partial: PartialMatchRegExp, match: RegExpExecArray): boolean
+```
 
 Reports whether the engine **reached the end of the input** while producing `match`, so that more input could change it — the contract of the JDK's [`Matcher.hitEnd()`](https://docs.oracle.com/javase/8/docs/api/java/util/regex/Matcher.html#hitEnd--): when it returns `false`, no continuation of the input changes the match's index or text. `exec()` alone cannot say: it returns the same shape of array for `"h"`, `"hello"` and `"hello world"` against `/hello world/`.
 
-Available as a named export of the default entry point: `import { hitEnd } from 'regex-partial-match'`. Its probe requires ES2018+, so in an environment that doesn't tree-shake and has no use for it, import `PartialMatchRegExp` from `regex-partial-match/partialMatchRegExp` instead of the default entry to avoid bundling `hitEnd`'s code; see [A note on Tree-Shaking](#a-note-on-tree-shaking).
+Available as a named export of the default entry point, `import { hitEnd } from 'regex-partial-match'`, or as the default export of `regex-partial-match/hitEnd`.
 
 **Parameters:**
 
@@ -284,33 +342,40 @@ hitEnd(greedy, greedy.exec("hello world")); // true  — \w+ read the end lookin
 
 See [How It Works](./docs/how-it-works.md#why-the-question-cant-be-answered-from-the-outside) for why this can't be worked out from the match alone, and how `hitEnd()` records a read of the end.
 
-> [!NOTE]
+> [!WARNING]
 > `hitEnd()` itself always requires ES2018+, regardless of the pattern: its truncation probe is built from named capturing groups internally, even for a pattern as plain as `/^abc/`. See [Browser Compatibility](#browser-compatibility) — every other method holds to the ES2015 floor stated there.
 
 #### What it cannot see
 
 - **A read of the end inside a lookahead in an earlier iteration of a quantified group.** The probe's [markers](./docs/how-it-works.md#recording-a-read-of-the-end) are capturing groups, and [`RepeatMatcher`](https://tc39.es/ecma262/#sec-runtime-semantics-repeatmatcher-abstract-operation) resets a quantified group's captures at the start of every iteration. `/(?:a(?=bcd)|b)+/` on `"abc"` reads the end inside `(?=bcd)` in its first iteration, matches `b` in its second, and reports `false` — although `"abcx"` changes the match to `"b"` at index 1. Nothing placed inside the repeated atom survives the reset, so this is a limit of the marker approach rather than an oversight, and it is pinned by a test.
-- **A read of the end inside a raw lookaround.** Negative lookaheads and both lookbehinds are kept verbatim (see [Caveats](./docs/caveats.md)), so a read of the end inside them leaves no marker: `/^a(?!b)/` on `"a"` reports `false`, although `"ab"` invalidates the match. A scanner whose output must not depend on where its input was chunked should refuse or buffer patterns that use them, as [`replace-content-transformer`](https://github.com/TomStrepsil/replace-content-transformer) does.
-### `PartialMatchRegExp.prototype.features: ReadonlySet<RegexFeature>`
+- **A read of the end inside a raw lookaround.** Negative lookaheads and both lookbehinds are kept verbatim (see [Caveats](./docs/caveats.md)), so a read of the end inside them leaves no marker: `/^a(?!b)/` on `"a"` reports `false`, although `"ab"` invalidates the match. A scanner whose output must not depend on where its input was chunked should refuse or buffer patterns that use them.
 
-Building the partial-match regex requires walking the entire source pattern once. As a side effect of that same walk, each instance records which syntactic constructs its pattern actually uses, exposed as a `features` set — no separate scan of the source is performed to produce it.
+### `features()`
+
+```typescript
+features(partial: PartialMatchRegExp): ReadonlySet<RegexFeature>
+```
+
+Building the partial-match regex requires walking the entire source pattern, usually once. The [carets module](./docs/modules/carets.md) guesses from a cheap look at the source whether a pattern needs its rules, and when it guesses wrong the pattern is walked a second time with them. As a side effect of the walk that builds the regex, each instance records which syntactic constructs its pattern actually uses, and `features()` names them as a set — no separate scan of the source is performed to produce it. The set is built on the first call for an instance and the same set is returned after that.
+
+Available as a named export of the default entry point, `import { features } from 'regex-partial-match'`, or as the default export of `regex-partial-match/features`. It accepts an instance of any `PartialMatchRegExp` class, including those from [`regex-partial-match/core`](#the-lean-entry-regex-partial-matchcore).
 
 This is useful for consumers building on top of `PartialMatchRegExp` who need to reason about which constructs a *specific* pattern uses, without writing their own regex parser to find out. Two concrete cases:
 
 - **Flagging patterns likely to hit one of the [caveats](./docs/caveats.md).** For example, a pattern combining `backreference` with `lookbehind`, `negativeLookahead`, or `negativeLookbehind` is a candidate for the [atomic-backreference caveat](./docs/caveats.md#backreferences); one combining `backreference` with `disjunction` is a candidate for the [prefix-ambiguous top-level alternation caveat](./docs/caveats.md#prefix-ambiguous-top-level-alternation). A consumer accepting user-supplied patterns can surface a warning instead of letting the edge case surprise someone later.
-- **Restricting which constructs a product surface allows.** e.g. a system that only wants to accept "simple" patterns (no lookaround, no backreferences) from untrusted input can check `features` against an allow-list and reject the rest, without needing to hand-roll that check against the raw pattern source.
-- **Deciding at construction time whether a pattern needs a careful path.** A capture nested inside a lookaround is decided by the assertion rather than by the consumed text, so its value can vary with how far the input has been seen. `features.has("lookaroundCapture")` isolates exactly those patterns, where `features.has("lookahead") && features.has("capturingGroup")` would also catch the ordinary `/(\w+)(?= END)/`.
+- **Restricting which constructs a product surface allows.** e.g. a system that only wants to accept "simple" patterns (no lookaround, no backreferences) from untrusted input can check `features()` against an allow-list and reject the rest, without needing to hand-roll that check against the raw pattern source.
+- **Deciding at construction time whether a pattern needs a careful path.** A capture nested inside a lookaround is decided by the assertion rather than by the consumed text, so its value can vary with how far the input has been seen. `features(partial).has("lookaroundCapture")` isolates exactly those patterns, where checking for both `lookahead` and `capturingGroup` would also catch the ordinary `/(\w+)(?= END)/`.
 
 ```javascript
-import PartialMatchRegExp from "regex-partial-match";
+import PartialMatchRegExp, { features } from "regex-partial-match";
 
 const partial = new PartialMatchRegExp(/^[a-z]+(?<domain>\.[a-z]+)\1/);
 
-partial.features; // Set { "startAnchor", "backreference", "namedGroup", "capturingGroup", "characterClass", "quantifier", "otherEscape" }
-partial.features.has("backreference"); // true
+features(partial); // Set { "startAnchor", "backreference", "namedGroup", "capturingGroup", "characterClass", "quantifier", "otherEscape" }
+features(partial).has("backreference"); // true
 ```
 
-`RegexFeature` is a string union, exported alongside `PartialMatchRegExp`:
+`RegexFeature` is a string union, exported from `regex-partial-match` and `regex-partial-match/features`:
 
 | Feature                    | Matches                                                | Notes                                                                          |
 | --------------------------- | ------------------------------------------------------- | ------------------------------------------------------------------------------- |
@@ -343,7 +408,7 @@ partial.features.has("backreference"); // true
 | `controlLetterEscape`        | `\cX`                                                   |                                                                                 |
 | `hexEscapeSequence`          | `\xXX`                                                  |                                                                                 |
 | `unicodeEscapeSequence`      | `\uXXXX`, `\u{...}`                                     |                                                                                 |
-| `otherEscape`                 | Any other `\X`, e.g. `\.`                               | `\0` alone is tagged `otherEscape` only under `u`/`v`; otherwise `backreference`, [like any other digit escape](docs/backreferences.md) |
+| `otherEscape`                 | Any other `\X`, e.g. `\.`                               | `\0` alone is tagged `otherEscape` only under `u`/`v`; otherwise `backreference`, [like any other digit escape](docs/modules/backreferences.md) |
 
 Three things worth knowing about how these tags line up with the grammar:
 
