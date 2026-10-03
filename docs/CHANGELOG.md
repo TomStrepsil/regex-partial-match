@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.0] - 2026-10-03
+
 ### Added
 
 - `regex-partial-match/core`: a smaller `PartialMatchRegExp` without the rules for a `^` inside a group or positive lookahead or after other input under `m`, or for a backreference that must be matched at run time
