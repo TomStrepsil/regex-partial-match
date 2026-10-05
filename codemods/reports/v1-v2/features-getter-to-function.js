@@ -64,6 +64,13 @@ function namesFeaturesProperty(property) {
   );
 }
 
+function isNestedInObjectPattern(path) {
+  const { node: parent } = path.parent;
+  const container =
+    parent.type === "AssignmentPattern" ? path.parent.parent.node : parent;
+  return container.type === "ObjectProperty" || container.type === "Property";
+}
+
 function localNameOf(property) {
   const target =
     property.value.type === "AssignmentPattern"
@@ -240,7 +247,11 @@ export default function transform(fileInfo, api) {
 
   root
     .find(j.ObjectPattern)
-    .filter((path) => path.node.properties.some(namesFeaturesProperty))
+    .filter(
+      (path) =>
+        path.node.properties.some(namesFeaturesProperty) &&
+        !isNestedInObjectPattern(path)
+    )
     .forEach((path) => {
       const source = destructuredSource(path);
       const isLikely = source

@@ -603,6 +603,20 @@ describe("features-getter report", () => {
       expect(report).toBe("");
     });
 
+    it("ignores a pattern nested in another object pattern", () => {
+      const { report } = runTransform(
+        lines(
+          header,
+          "const re = new PartialMatchRegExp('a');",
+          "const { a: { features } } = re;",
+          "const f = ({ a: { features } }) => 1;",
+          "const g = ({ a: { features } = {} }) => 1;"
+        )
+      );
+
+      expect(report).toBe("");
+    });
+
     it("ignores a rest element", () => {
       const { report } = runTransform(
         lines(

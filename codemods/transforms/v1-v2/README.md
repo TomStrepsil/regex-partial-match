@@ -145,7 +145,7 @@ del rpm-report.js
 
 ### Notes
 
-- A `features` destructured from an instance (`const { features } = partial`, renamed, defaulted or assigned) is reported, with the object it is destructured from named when it is visible. A nested pattern or a rest element (`const { ...rest } = partial`) is not followed.
+- A `features` destructured from an instance (`const { features } = partial`, renamed, defaulted or assigned) is reported, with the object it is destructured from named when it is visible. A pattern nested in another object pattern (`const { a: { features } } = x`) or a rest element (`const { ...rest } = partial`) is not followed.
 - Static bracket reads (`partial["features"]`) are reported. Assignments to `.features` (`=`, `+=`, `++`, `delete`, destructuring targets) are not, since `features(x)` cannot replace a write.
 - An optional read (`partial?.features`) is reported without a ready-made replacement, since `features(partial)` throws where the getter gave `undefined`. Guard it by hand.
 - If a variable called `features` is already in scope, the import line suggests `features as featuresOf`.
