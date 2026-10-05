@@ -464,4 +464,155 @@ describe("features-getter report", () => {
       expect(report).toBe("");
     });
   });
+
+  describe("destructuring", () => {
+    const header = 'import PartialMatchRegExp from "regex-partial-match";';
+
+    it("reports a destructured features from an instance as likely", () => {
+      const { report } = runTransform(
+        lines(
+          header,
+          "const re = new PartialMatchRegExp('a');",
+          "const { features } = re;"
+        )
+      );
+
+      expect(report).toContain("fixture.ts:3: likely:");
+      expect(report).toContain("`features` from `featuresOf(re)`");
+      expect(report).toContain(
+        'add: import { features as featuresOf } from "regex-partial-match";'
+      );
+    });
+
+    it("reports a renamed destructuring", () => {
+      const { report } = runTransform(
+        lines(
+          header,
+          "const re = new PartialMatchRegExp('a');",
+          "const { features: used } = re;"
+        )
+      );
+
+      expect(report).toContain("fixture.ts:3: likely:");
+      expect(report).toContain("`used` from `features(re)`");
+    });
+
+    it("reports a defaulted destructuring", () => {
+      const { report } = runTransform(
+        lines(
+          header,
+          "const re = new PartialMatchRegExp('a');",
+          "const { features = fallback } = re;"
+        )
+      );
+
+      expect(report).toContain("fixture.ts:3: likely:");
+      expect(report).toContain("`features` from `featuresOf(re)`");
+    });
+
+    it("reports a string-literal key", () => {
+      const { report } = runTransform(
+        lines(
+          header,
+          "const re = new PartialMatchRegExp('a');",
+          'const { "features": used } = re;'
+        )
+      );
+
+      expect(report).toContain("fixture.ts:3: likely:");
+    });
+
+    it("reports an assignment pattern", () => {
+      const { report } = runTransform(
+        lines(
+          header,
+          "const re = new PartialMatchRegExp('a');",
+          "let used;",
+          "({ features: used } = re);"
+        )
+      );
+
+      expect(report).toContain("fixture.ts:4: likely:");
+      expect(report).toContain("`used` from `features(re)`");
+    });
+
+    it("reports a destructured parameter annotated with the class as likely", () => {
+      const { report } = runTransform(
+        lines(
+          header,
+          "const f = ({ features }: PartialMatchRegExp) => features;"
+        )
+      );
+
+      expect(report).toContain("fixture.ts:2: likely:");
+    });
+
+    it("reports a destructuring from an unknown object as possible", () => {
+      const { report } = runTransform(
+        lines(header, "const { features } = something;")
+      );
+
+      expect(report).toContain("fixture.ts:2: possible:");
+    });
+
+    it("reports a destructured parameter of unknown type as possible", () => {
+      const { report } = runTransform(
+        lines(header, "const f = ({ features }) => features;")
+      );
+
+      expect(report).toContain("fixture.ts:2: possible:");
+      expect(report).toContain("`featuresOf(<object>)`");
+    });
+
+    it("reports one finding per features property, other properties ignored", () => {
+      const { report } = runTransform(
+        lines(
+          header,
+          "const re = new PartialMatchRegExp('a');",
+          "const { source, features, flags } = re;"
+        )
+      );
+
+      expect(report.split("\n").filter((l) => l.includes("destructures"))).toHaveLength(1);
+    });
+
+    it("uses the features import already visible", () => {
+      const { report } = runTransform(
+        lines(
+          'import PartialMatchRegExp, { features } from "regex-partial-match";',
+          "function f(re: PartialMatchRegExp) {",
+          "  const { features: used } = re;",
+          "}"
+        )
+      );
+
+      expect(report).toContain("`used` from `features(re)`");
+      expect(report).not.toContain("add: import");
+    });
+
+    it("ignores a destructuring with no features property", () => {
+      const { report } = runTransform(
+        lines(
+          header,
+          "const re = new PartialMatchRegExp('a');",
+          "const { source, flags } = re;",
+          "const { [key]: other } = re;"
+        )
+      );
+
+      expect(report).toBe("");
+    });
+
+    it("ignores a rest element", () => {
+      const { report } = runTransform(
+        lines(
+          header,
+          "const re = new PartialMatchRegExp('a');",
+          "const { ...rest } = re;"
+        )
+      );
+
+      expect(report).toBe("");
+    });
+  });
 });
