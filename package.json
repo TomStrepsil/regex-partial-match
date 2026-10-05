@@ -1,6 +1,6 @@
 {
   "name": "regex-partial-match",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "A regular expression transform for partial matching",
   "devEngines": {
     "runtime": {

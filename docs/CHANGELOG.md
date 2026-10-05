@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.1] - 2026-10-05
+
 ### Changed
 
 - re-formatting and consistent `hitEnd()` and `features()` links in `README.md`
