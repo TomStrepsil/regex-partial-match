@@ -10,7 +10,7 @@ Unlike C/C++ (via [PCRE/PCRE2](https://www.pcre.org/original/doc/html/pcrepartia
 
 This library transforms regular expressions to best-effort support **partial matching**, allowing you to test if an incomplete string could potentially match the full pattern. This is particularly useful for real-time input validation, autocomplete systems, progressive form validation, stream chunk matching, etc.
 
-As a side effect of the parse this requires, [`features()`](#features) names the syntactic constructs a `PartialMatchRegExp`'s pattern uses — useful for consumers that need to reason about a pattern without writing their own regex parser.  For many features, a simple search in the [source](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/source) would be insufficient.
+As a side effect of the parse this requires, [`features()`](#features) names the syntactic constructs a `PartialMatchRegExp`'s pattern uses — useful for consumers that need to reason about a pattern without writing their own regex parser. For many features, a simple search in the [source](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/source) would be insufficient.
 
 **Based on an algorithm created by [Lucas Trzesniewski](https://github.com/ltrzesniewski)**, re-created for NPM via ISC license, with permission.
 
@@ -69,19 +69,17 @@ state("2024-06-15"); // 'complete'   - accept, enable submit
 ```
 
 > [!NOTE]
-> `hitEnd()` answers "could more input change this match?", not "is this text a match?". `/hello \w+/` matches `"hello world"` in full, and `hitEnd()` is still `true`: `\w+` read the end of the input looking for more. For an exact-length pattern like the date above the two questions coincide, which is what makes the three states work; a validator for an open-ended pattern that wants "valid so far" should test the original pattern as well.
+> [`hitEnd()`](#hitend) answers "could more input change this match?", not "is this text a match?". `/hello \w+/` matches `"hello world"` in full, and `hitEnd()` is still `true`: `\w+` read the end of the input looking for more. For an exact-length pattern like the date above the two questions coincide, which is what makes the three states work; a validator for an open-ended pattern that wants "valid so far" should test the original pattern as well.
 
 Upgrading from 1.x, where this was `isComplete()`? See the [migration guide](./codemods/transforms/v1-v2/README.md).
 
-[^1]: 
-    Mimicking JDK's [`Matcher.hitEnd()`](https://docs.oracle.com/javase/8/docs/api/java/util/regex/Matcher.html#hitEnd--)
+[^1]: Mimicking JDK's [`Matcher.hitEnd()`](https://docs.oracle.com/javase/8/docs/api/java/util/regex/Matcher.html#hitEnd--)
 
-[^2]:
-    Testing the original, untransformed pattern looks like it should answer this — "did the input fully satisfy the original pattern?" — but it asks a different question: whether the original matches *at all* here, not whether *this* match reached the end of the input on its way. The two agree almost always, but a read of the end inside a zero-width assertion can make both return an identical result by different paths. See [Why the question can't be answered from the outside](https://github.com/TomStrepsil/regex-partial-match/blob/main/docs/how-it-works.md#why-the-question-cant-be-answered-from-the-outside) for the case where they diverge.
+[^2]: Testing the original, untransformed pattern looks like it should answer this — "did the input fully satisfy the original pattern?" — but it asks a different question: whether the original matches _at all_ here, not whether _this_ match reached the end of the input on its way. The two agree almost always, but a read of the end inside a zero-width assertion can make both return an identical result by different paths. See [Why the question can't be answered from the outside](https://github.com/TomStrepsil/regex-partial-match/blob/main/docs/how-it-works.md#why-the-question-cant-be-answered-from-the-outside) for the case where they diverge.
 
 ### A note on Tree-Shaking
 
-If your environment doesn't tree-shake (e.g. Deno, or unbundled Node), the default entry loads `hitEnd` and `features` with the class. Import each from its own subpath instead, and only the ones you use:
+If your environment doesn't tree-shake (e.g. Deno, or unbundled Node), the default entry loads [`hitEnd`](#hitend) and [`features`](#features) with the class. Import each from its own subpath instead, and only the ones you use:
 
 ```javascript
 import PartialMatchRegExp from "regex-partial-match/partialMatchRegExp";
@@ -95,10 +93,10 @@ import features from "regex-partial-match/features";
 
 `regex-partial-match/core` exports a `PartialMatchRegExp` without two sets of rules, so a bundle that doesn't need them can leave them out. Each set is a module you bind back with `withModules`:
 
-| Module | Import | Supplies |
-|---|---|---|
-| `carets` | `regex-partial-match/modules/carets` | the rules for a `^` under the `m` flag that has something before it, and for a `^` in a group or positive lookahead |
-| `backreferences` | `regex-partial-match/modules/backreferences` | matching a backreference against the text its group captured |
+| Module           | Import                                       | Supplies                                                                                                            |
+| ---------------- | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `carets`         | `regex-partial-match/modules/carets`         | the rules for a `^` under the `m` flag that has something before it, and for a `^` in a group or positive lookahead |
+| `backreferences` | `regex-partial-match/modules/backreferences` | matching a backreference against the text its group captured                                                        |
 
 Both are also named exports of `regex-partial-match/modules`.
 
@@ -113,7 +111,7 @@ const WithBoth = withModules(carets, backreferences);
 new WithBoth(/(a|b)\1/).test("a"); // true
 ```
 
-`withModules` returns a `PartialMatchRegExp` class extending `RegExp`, and the same set of modules in any order returns the same class: `withModules()` is the `core` class, and `withModules(carets, backreferences)` is the default `PartialMatchRegExp`, so `instanceof` holds between them. [`hitEnd()`](#hitend) and [`features()`](#features) accept instances of any of these classes.
+`withModules` returns a `PartialMatchRegExp` class extending `RegExp`, and the same set of modules in any order returns the same class: `withModules()` is the `core` class, and `withModules(carets, backreferences)` is the default `PartialMatchRegExp`, so `instanceof` holds between them. [`hitEnd`](#hitend) and [`features`](#features) accept instances of any of these classes.
 
 A module's type is `Module`, exported from both `regex-partial-match/core` and `regex-partial-match/modules`, for annotating a list of modules: `const modules: Module[] = [carets, backreferences]`. It is opaque, so what a module holds is not part of the API, and `withModules` throws a `TypeError` for anything that isn't a module.
 
@@ -121,11 +119,11 @@ A module's type is `Module`, exported from both `regex-partial-match/core` and `
 
 If your patterns aren't known when you build, because they come from users or configuration, use `regex-partial-match`. If they are fixed, use `core`: construct each pattern once, and bind the modules construction asks for.
 
-| Error when constructed | Bind |
-|---|---|
-| `TypeError: Needs the carets module` | `carets` |
-| `TypeError: Needs the backreferences module` | `backreferences` |
-| `TypeError: Needs the carets and backreferences modules` | both |
+| Error when constructed                                   | Bind             |
+| -------------------------------------------------------- | ---------------- |
+| `TypeError: Needs the carets module`                     | `carets`         |
+| `TypeError: Needs the backreferences module`             | `backreferences` |
+| `TypeError: Needs the carets and backreferences modules` | both             |
 
 The error names every module the pattern needs, and none that is already bound.
 
@@ -180,7 +178,7 @@ The library is compiled to **ES2015** (ECMAScript 6). Certain regular expression
 - [**`v` (unicodeSets) flag**](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/unicodeSets) - ES2024+
 - [**Modifiers**](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Modifier) (`(?ims:...)`, `(?-ims:...)`, `(?i-ms:...)`) - ES2025+
 
-Each of these applies only when the *original* pattern uses the feature — everything else, including construction, `exec()`, `test()` and [`hitEnd()`](#hitend), holds to the ES2015 floor.
+Each of these applies only when the _original_ pattern uses the feature — everything else, including construction, `exec()`, `test()` and [`hitEnd()`](#hitend), holds to the ES2015 floor.
 
 ## ⚠️ Caveats
 
@@ -340,9 +338,9 @@ hitEnd(greedy, greedy.exec("hello world")); // true  — \w+ read the end lookin
 ```
 
 > [!NOTE]
-> Where the JDK is exact, `hitEnd()` is conservative in one place: a bounded greedy quantifier (`?`, `{n,m}`) fully taken at the end of the input reports `true`, although the engine attempted no further read there — on a *group* (`/(ab)?/` on `"ab"` is `true` here and `false` in Java), and the same way for an unequal-bound `{n,m}` directly on a single atom once it's saturated at its maximum (`/a{1,2}/` on `"aa"` is `true`, though no continuation can add a third `a`). Outside the two limits in [What it cannot see](#what-it-cannot-see), it is never wrong in the other direction.
+> Where the JDK is exact, [`hitEnd`](#hitend) is conservative in one place: a bounded greedy quantifier (`?`, `{n,m}`) fully taken at the end of the input reports `true`, although the engine attempted no further read there — on a _group_ (`/(ab)?/` on `"ab"` is `true` here and `false` in Java), and the same way for an unequal-bound `{n,m}` directly on a single atom once it's saturated at its maximum (`/a{1,2}/` on `"aa"` is `true`, though no continuation can add a third `a`). Outside the two limits in [What it cannot see](#what-it-cannot-see), it is never wrong in the other direction.
 
-See [How It Works](./docs/how-it-works.md#why-the-question-cant-be-answered-from-the-outside) for why this can't be worked out from the match alone, and how `hitEnd()` records a read of the end.
+See [How It Works](./docs/how-it-works.md#why-the-question-cant-be-answered-from-the-outside) for why this can't be worked out from the match alone, and how [`hitEnd`](#hitend) records a read of the end.
 
 #### What it cannot see
 
@@ -355,11 +353,11 @@ See [How It Works](./docs/how-it-works.md#why-the-question-cant-be-answered-from
 features(partial: PartialMatchRegExp): ReadonlySet<RegexFeature>
 ```
 
-Building the partial-match regex requires walking the entire source pattern, usually once. The [carets module](./docs/modules/carets.md) guesses from a cheap look at the source whether a pattern needs its rules, and when it guesses wrong the pattern is walked a second time with them. As a side effect of the walk that builds the regex, each instance records which syntactic constructs its pattern actually uses, and `features()` names them as a set — no separate scan of the source is performed to produce it. The set is built on the first call for an instance and the same set is returned after that.
+Building the partial-match regex requires walking the entire source pattern, usually once. [^3] As a side effect of the walk that builds the regex, each instance records which syntactic constructs its pattern actually uses, and `features()` names them as a set — no separate scan of the source is performed to produce it. The set is built on the first call for an instance and the same set is returned after that.
 
 Available as a named export of the default entry point, `import { features } from 'regex-partial-match'`, or as the default export of `regex-partial-match/features`. It accepts an instance of any `PartialMatchRegExp` class, including those from [`regex-partial-match/core`](#the-lean-entry-regex-partial-matchcore).
 
-This is useful for consumers building on top of `PartialMatchRegExp` who need to reason about which constructs a *specific* pattern uses, without writing their own regex parser to find out. Two concrete cases:
+This is useful for consumers building on top of `PartialMatchRegExp` who need to reason about which constructs a _specific_ pattern uses, without writing their own regex parser to find out. Two concrete cases:
 
 - **Flagging patterns likely to hit one of the [caveats](./docs/caveats.md).** For example, a pattern combining `backreference` with `lookbehind`, `negativeLookahead`, or `negativeLookbehind` is a candidate for the [atomic-backreference caveat](./docs/caveats.md#backreferences); one combining `backreference` with `disjunction` is a candidate for the [prefix-ambiguous top-level alternation caveat](./docs/caveats.md#prefix-ambiguous-top-level-alternation). A consumer accepting user-supplied patterns can surface a warning instead of letting the edge case surprise someone later.
 - **Restricting which constructs a product surface allows.** e.g. a system that only wants to accept "simple" patterns (no lookaround, no backreferences) from untrusted input can check `features()` against an allow-list and reject the rest, without needing to hand-roll that check against the raw pattern source.
@@ -376,44 +374,46 @@ features(partial).has("backreference"); // true
 
 `RegexFeature` is a string union, exported from `regex-partial-match` and `regex-partial-match/features`:
 
-| Feature                    | Matches                                                | Notes                                                                          |
-| --------------------------- | ------------------------------------------------------- | ------------------------------------------------------------------------------- |
-| `patternCharacter`          | An ordinary literal character                          |                                                                                 |
-| `startAnchor`                | Top-level `^`                                           |                                                                                 |
-| `endAnchor`                  | Top-level `$`                                           |                                                                                 |
-| `wordBoundary`               | Top-level `\b`                                          |                                                                                 |
-| `nonWordBoundary`            | Top-level `\B`                                          |                                                                                 |
-| `lookahead`                  | `(?=...)`                                               |                                                                                 |
-| `negativeLookahead`          | `(?!...)`                                               |                                                                                 |
-| `lookbehind`                 | `(?<=...)`                                              |                                                                                 |
-| `negativeLookbehind`         | `(?<!...)`                                              |                                                                                 |
-| `backreference`              | `\1`                                                     |                                                                                 |
-| `namedBackreference`         | `\k<name>`                                              |                                                                                 |
-| `namedGroup`                 | `(?<name>...)`                                          | Always accompanied by `capturingGroup` — see below                            |
-| `capturingGroup`             | `(...)`, including named groups                        |                                                                                 |
-| `lookaroundCapture`          | A capturing group inside any lookaround                | Nesting, not a construct — always accompanied by `capturingGroup`             |
-| `nonCapturingGroup`          | `(?:...)`                                               |                                                                                 |
-| `modifierGroup`              | `(?ims:...)`                                            |                                                                                 |
-| `modifierGroupWithRemoval`   | `(?ims-ims:...)`                                        | Mutually exclusive with `modifierGroup`                                       |
-| `characterClass`             | `[...]`                                                 |                                                                                 |
-| `nestedCharacterClass`       | `[...[...]...]`                                         | `v` flag only                                                                  |
-| `classIntersection`          | `&&` inside a character class                          | `v` flag only                                                                  |
-| `classSubtraction`           | `--` inside a character class                          | `v` flag only                                                                  |
-| `disjunction`                | `\|`                                                    |                                                                                 |
-| `quantifier`                 | `*`, `+`, `?`, `{n}`, `{n,}`, `{n,m}`                    |                                                                                 |
-| `unicodePropertyEscape`      | `\p{...}`, `\P{...}`                                    | `u`/`v` flag only — otherwise tagged `otherEscape`                            |
-| `characterClassEscape`       | `\d`, `\D`, `\w`, `\W`, `\s`, `\S`                       |                                                                                 |
-| `controlEscape`               | `\f`, `\n`, `\r`, `\t`, `\v`                             |                                                                                 |
-| `controlLetterEscape`        | `\cX`                                                   |                                                                                 |
-| `hexEscapeSequence`          | `\xXX`                                                  |                                                                                 |
-| `unicodeEscapeSequence`      | `\uXXXX`, `\u{...}`                                     |                                                                                 |
-| `otherEscape`                 | Any other `\X`, e.g. `\.`                               | `\0` alone is tagged `otherEscape` only under `u`/`v`; otherwise `backreference`, [like any other digit escape](docs/modules/backreferences.md) |
+| Feature                    | Matches                                 | Notes                                                                                                                                           |
+| -------------------------- | --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `patternCharacter`         | An ordinary literal character           |                                                                                                                                                 |
+| `startAnchor`              | Top-level `^`                           |                                                                                                                                                 |
+| `endAnchor`                | Top-level `$`                           |                                                                                                                                                 |
+| `wordBoundary`             | Top-level `\b`                          |                                                                                                                                                 |
+| `nonWordBoundary`          | Top-level `\B`                          |                                                                                                                                                 |
+| `lookahead`                | `(?=...)`                               |                                                                                                                                                 |
+| `negativeLookahead`        | `(?!...)`                               |                                                                                                                                                 |
+| `lookbehind`               | `(?<=...)`                              |                                                                                                                                                 |
+| `negativeLookbehind`       | `(?<!...)`                              |                                                                                                                                                 |
+| `backreference`            | `\1`                                    |                                                                                                                                                 |
+| `namedBackreference`       | `\k<name>`                              |                                                                                                                                                 |
+| `namedGroup`               | `(?<name>...)`                          | Always accompanied by `capturingGroup` — see below                                                                                              |
+| `capturingGroup`           | `(...)`, including named groups         |                                                                                                                                                 |
+| `lookaroundCapture`        | A capturing group inside any lookaround | Nesting, not a construct — always accompanied by `capturingGroup`                                                                               |
+| `nonCapturingGroup`        | `(?:...)`                               |                                                                                                                                                 |
+| `modifierGroup`            | `(?ims:...)`                            |                                                                                                                                                 |
+| `modifierGroupWithRemoval` | `(?ims-ims:...)`                        | Mutually exclusive with `modifierGroup`                                                                                                         |
+| `characterClass`           | `[...]`                                 |                                                                                                                                                 |
+| `nestedCharacterClass`     | `[...[...]...]`                         | `v` flag only                                                                                                                                   |
+| `classIntersection`        | `&&` inside a character class           | `v` flag only                                                                                                                                   |
+| `classSubtraction`         | `--` inside a character class           | `v` flag only                                                                                                                                   |
+| `disjunction`              | `\|`                                    |                                                                                                                                                 |
+| `quantifier`               | `*`, `+`, `?`, `{n}`, `{n,}`, `{n,m}`   |                                                                                                                                                 |
+| `unicodePropertyEscape`    | `\p{...}`, `\P{...}`                    | `u`/`v` flag only — otherwise tagged `otherEscape`                                                                                              |
+| `characterClassEscape`     | `\d`, `\D`, `\w`, `\W`, `\s`, `\S`      |                                                                                                                                                 |
+| `controlEscape`            | `\f`, `\n`, `\r`, `\t`, `\v`            |                                                                                                                                                 |
+| `controlLetterEscape`      | `\cX`                                   |                                                                                                                                                 |
+| `hexEscapeSequence`        | `\xXX`                                  |                                                                                                                                                 |
+| `unicodeEscapeSequence`    | `\uXXXX`, `\u{...}`                     |                                                                                                                                                 |
+| `otherEscape`              | Any other `\X`, e.g. `\.`               | `\0` alone is tagged `otherEscape` only under `u`/`v`; otherwise `backreference`, [like any other digit escape](docs/modules/backreferences.md) |
 
 Three things worth knowing about how these tags line up with the grammar:
 
 - **One ECMA-262 production can map to several tags.** `Assertion` alone covers `^`, `$`, `\b`, `\B`, and all four lookarounds — `features` splits it by whichever discriminant is easiest to read off during the walk (`^` vs `$`, `=` vs `!` after `(?<`, etc.), since that information is free at the point each construct is recognised.
 - **A named capturing group always carries both `namedGroup` and `capturingGroup`.** The grammar treats a capturing group with a name and one without as the same production (`( GroupSpecifier? Disjunction )`), not two, so both tags are added together.
 - **`lookaroundCapture` records nesting, not a construct.** Every other tag names something the source contains; this one names where something sits — a capturing group appearing lexically inside `(?=...)`, `(?!...)`, `(?<=...)` or `(?<!...)`, at any depth of nested groups. It is the one relationship between constructs the flattened set cannot otherwise express: `/(\w+)(?= END)/` and `/a(?=(?:b(?:x|(c))d|b))/` both report `lookahead` and `capturingGroup`, but only the second has a capture whose value the assertion decides.
+
+[^3]: The [carets module](./docs/modules/carets.md) guesses from a cheap look at the source whether a pattern needs its rules, and when it guesses wrong the pattern is walked a second time with them.
 
 ## 📜 License
 

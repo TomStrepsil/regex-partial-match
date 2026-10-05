@@ -10,8 +10,10 @@
  *   import { features } from "regex-partial-match";
  *   const used = features(partial);
  *
- * This **reports** every `.features` (or `["features"]`) read in a file that imports from
- * "regex-partial-match" (any entry point), with the replacement written out.
+ * This **reports** every `.features` (or `["features"]`) read, and every object
+ * pattern destructuring `features` (`const { features } = partial`, renamed or
+ * defaulted, or assigned), in a file that imports from "regex-partial-match"
+ * (any entry point), with the replacement written out.
  * It never edits a file, because `.features` is an ordinary property name and a
  * codemod cannot tell whether the object it is read from is a PartialMatchRegExp.
  *
@@ -20,8 +22,6 @@
  * initialised from either or annotated with the class. Every other read in the
  * file is "possible". A file that imports nothing from the package reports
  * nothing.
- *
- * Not found: a `features` destructured from an instance (`const { features } = re`).
  */
 
 const PACKAGE = "regex-partial-match";
@@ -50,6 +50,33 @@ function namesFeatures(member) {
   return member.computed
     ? member.property.value === FEATURES
     : member.property.name === FEATURES;
+}
+
+function namesFeaturesProperty(property) {
+  if (property.type !== "ObjectProperty" && property.type !== "Property") {
+    return false;
+  }
+  const { key, computed } = property;
+  if (key.type === "Identifier" && !computed) return key.name === FEATURES;
+  return (
+    (key.type === "StringLiteral" || key.type === "Literal") &&
+    key.value === FEATURES
+  );
+}
+
+function isNestedInObjectPattern(path) {
+  const { node: parent } = path.parent;
+  const container =
+    parent.type === "AssignmentPattern" ? path.parent.parent.node : parent;
+  return container.type === "ObjectProperty" || container.type === "Property";
+}
+
+function localNameOf(property) {
+  const target =
+    property.value.type === "AssignmentPattern"
+      ? property.value.left
+      : property.value;
+  return target.type === "Identifier" ? target.name : null;
 }
 
 function isWriteTarget(path) {
@@ -152,12 +179,9 @@ export default function transform(fileInfo, api) {
     });
   };
 
-  const isLikely = (path) => {
-    const { object } = path.node;
-    if (isInstanceExpression(object, path.scope)) return true;
-    return (
-      object.type === "Identifier" && isBoundToInstance(path, object.name)
-    );
+  const isLikelySource = (node, path) => {
+    if (isInstanceExpression(node, path.scope)) return true;
+    return node?.type === "Identifier" && isBoundToInstance(path, node.name);
   };
 
   const unboundName = (path) => {
@@ -165,39 +189,90 @@ export default function transform(fileInfo, api) {
       if (!path.scope.lookup(name)) return name;
     }
   };
+  const describeReplacement = (path, receiver) => {
+    const importIsVisible =
+      featuresImport &&
+      path.scope.lookup(featuresImport.local.name) === globalScope;
+    const functionName = importIsVisible
+      ? featuresImport.local.name
+      : unboundName(path);
+    const call = j(
+      j.callExpression(j.identifier(functionName), [receiver])
+    ).toSource();
+    const importLine = importIsVisible
+      ? ""
+      : `\n    add: import { ${
+          functionName === FEATURES ? FEATURES : `${FEATURES} as ${functionName}`
+        } } from "${PACKAGE}";`;
+    return { functionName, call, importLine };
+  };
+
   const findings = [];
+  const lineOf = (node) => node.loc?.start.line ?? "?";
+
   root
     .find(j.MemberExpression)
     .filter((path) => namesFeatures(path.node) && !isWriteTarget(path))
     .forEach((path) => {
       const read = j(path.node).toSource();
-      const importIsVisible =
-        featuresImport &&
-        path.scope.lookup(featuresImport.local.name) === globalScope;
-      const functionName = importIsVisible
-        ? featuresImport.local.name
-        : unboundName(path);
       const receiver =
         path.node.object.type === "Super" ? j.thisExpression() : path.node.object;
-      const replacement = j(
-        j.callExpression(j.identifier(functionName), [receiver])
-      ).toSource();
-      const importLine = importIsVisible
-        ? ""
-        : `\n    add: import { ${
-            functionName === FEATURES ? FEATURES : `${FEATURES} as ${functionName}`
-          } } from "${PACKAGE}";`;
-      const rank = isLikely(path) ? "likely" : "possible";
+      const { functionName, call, importLine } = describeReplacement(
+        path,
+        receiver
+      );
+      const rank = isLikelySource(path.node.object, path) ? "likely" : "possible";
       const isOptional =
         path.node.type === "OptionalMemberExpression" || path.node.optional;
       const advice = isOptional
         ? `is a getter in v1 and a function in v2; it is an optional read, so ` +
           `\`${functionName}(...)\` would throw where it gave undefined: guard it by hand`
-        : `is a getter in v1 and a function in v2; write \`${replacement}\``;
+        : `is a getter in v1 and a function in v2; write \`${call}\``;
       findings.push(
-        `${fileInfo.path}:${path.node.loc?.start.line ?? "?"}: ${rank}: ` +
+        `${fileInfo.path}:${lineOf(path.node)}: ${rank}: ` +
           `\`${read}\` ${advice}${importLine}`
       );
+    });
+
+  const destructuredSource = (path) => {
+    const { node: parent } = path.parent;
+    if (parent.type === "VariableDeclarator" && parent.id === path.node) {
+      return parent.init;
+    }
+    if (parent.type === "AssignmentExpression" && parent.left === path.node) {
+      return parent.right;
+    }
+    return null;
+  };
+
+  root
+    .find(j.ObjectPattern)
+    .filter(
+      (path) =>
+        path.node.properties.some(namesFeaturesProperty) &&
+        !isNestedInObjectPattern(path)
+    )
+    .forEach((path) => {
+      const source = destructuredSource(path);
+      const isLikely = source
+        ? isLikelySource(source, path)
+        : isAnnotatedAsClass(path.node);
+      const rank = isLikely ? "likely" : "possible";
+      for (const property of path.node.properties.filter(namesFeaturesProperty)) {
+        const localName = localNameOf(property);
+        const read = j(path.node).toSource();
+        const { call, importLine } = describeReplacement(
+          path,
+          source ?? j.identifier("<object>")
+        );
+        const target = localName ? `\`${localName}\`` : "the bound pattern";
+        findings.push(
+          `${fileInfo.path}:${lineOf(property)}: ${rank}: ` +
+            `\`${read}\` destructures the v1 \`features\` getter, which is a function ` +
+            `in v2 (the binding would be undefined); set ${target} from \`${call}\` instead` +
+            importLine
+        );
+      }
     });
 
   for (const finding of findings) {
