@@ -39,7 +39,7 @@ if (!source.startsWith(DATA_PREFIX)) {
   throw new Error(`${values.data} does not start with "${DATA_PREFIX}"`);
 }
 const data = JSON.parse(source.slice(DATA_PREFIX.length)) as BenchmarkData;
-const series = data.entries[SERIES];
+const series = data.entries[SERIES] ?? [];
 
 const kept = series.filter((entry) => entry.commit.id !== values.commit);
 
