@@ -321,7 +321,7 @@ Available as a named export of the default entry point, `import { hitEnd } from 
 **Returns:**
 
 - `true` when the match read the end of the input: an atom ran out of input and took one of the `|$(?![\s\S])` branches described in [How It Works](#how-it-works); a greedy quantifier stopped at the end because there was nothing left to read; or `$`, `\b` or `\B` held there. More input could extend the match, change which alternative wins, or invalidate it, and its captures are the closest available rather than final — see [Captures on a partial match](./docs/caveats.md#captures-on-a-partial-match).
-- `false` when every atom matched literally and nothing read past the last character consumed. No continuation of the input changes the match's index or text, and the captures are the ones the original pattern produces — except the two cases in [What it cannot see](#what-it-cannot-see) below, where a read of the end leaves no marker and `false` is reported despite it.
+- `false` when every atom matched literally and nothing read past the last character consumed. No continuation of the input changes the match's index or text, and the captures are the ones the original pattern produces — except the three cases in [What it cannot see](#what-it-cannot-see) below, where a read of the end leaves no marker, or a split surrogate pair can still change the match, and `false` is reported despite it.
 
 ```javascript
 import PartialMatchRegExp, { hitEnd } from "regex-partial-match";
@@ -338,7 +338,7 @@ hitEnd(greedy, greedy.exec("hello world")); // true  — \w+ read the end lookin
 ```
 
 > [!NOTE]
-> Where the JDK is exact, [`hitEnd`](#hitend) is conservative in one place: a bounded greedy quantifier (`?`, `{n,m}`) fully taken at the end of the input reports `true`, although the engine attempted no further read there — on a _group_ (`/(ab)?/` on `"ab"` is `true` here and `false` in Java), and the same way for an unequal-bound `{n,m}` directly on a single atom once it's saturated at its maximum (`/a{1,2}/` on `"aa"` is `true`, though no continuation can add a third `a`). Outside the two limits in [What it cannot see](#what-it-cannot-see), it is never wrong in the other direction.
+> Where the JDK is exact, [`hitEnd`](#hitend) is conservative in one place: a bounded greedy quantifier (`?`, `{n,m}`) fully taken at the end of the input reports `true`, although the engine attempted no further read there — on a _group_ (`/(ab)?/` on `"ab"` is `true` here and `false` in Java), and the same way for an unequal-bound `{n,m}` directly on a single atom once it's saturated at its maximum (`/a{1,2}/` on `"aa"` is `true`, though no continuation can add a third `a`). Outside the three limits in [What it cannot see](#what-it-cannot-see), it is never wrong in the other direction.
 
 See [How It Works](./docs/how-it-works.md#why-the-question-cant-be-answered-from-the-outside) for why this can't be worked out from the match alone, and how [`hitEnd`](#hitend) records a read of the end.
 
@@ -346,6 +346,7 @@ See [How It Works](./docs/how-it-works.md#why-the-question-cant-be-answered-from
 
 - **A read of the end inside a lookahead in an earlier iteration of a quantified group.** The probe's [markers](./docs/how-it-works.md#recording-a-read-of-the-end) are capturing groups, and [`RepeatMatcher`](https://tc39.es/ecma262/#sec-runtime-semantics-repeatmatcher-abstract-operation) resets a quantified group's captures at the start of every iteration. `/(?:a(?=bcd)|b)+/` on `"abc"` reads the end inside `(?=bcd)` in its first iteration, matches `b` in its second, and reports `false` — although `"abcx"` changes the match to `"b"` at index 1. Nothing placed inside the repeated atom survives the reset, so this is a limit of the marker approach rather than an oversight, and it is pinned by a test.
 - **A read of the end inside a raw lookaround.** Negative lookaheads and both lookbehinds are kept verbatim (see [Caveats](./docs/caveats.md)), so a read of the end inside them leaves no marker: `/^a(?!b)/` on `"a"` reports `false`, although `"ab"` invalidates the match. A scanner whose output must not depend on where its input was chunked should refuse or buffer patterns that use them.
+- **A high surrogate ending the input under `u` or `v`.** Only whole astral characters are supported (see [Surrogate Pair Matching](./docs/caveats.md#surrogate-pair-matching)), so a match whose last code unit is a lone high surrogate reports `false`, although a following low surrogate would pair with it and change the match's text: `/./u` on `"\ud83d"` matches `"\ud83d"`, but `"😄"` matches `"😄"`. [^3]
 
 ### `features()`
 
@@ -353,7 +354,7 @@ See [How It Works](./docs/how-it-works.md#why-the-question-cant-be-answered-from
 features(partial: PartialMatchRegExp): ReadonlySet<RegexFeature>
 ```
 
-Building the partial-match regex requires walking the entire source pattern, usually once. [^3] As a side effect of the walk that builds the regex, each instance records which syntactic constructs its pattern actually uses, and `features()` names them as a set — no separate scan of the source is performed to produce it. The set is built on the first call for an instance and the same set is returned after that.
+Building the partial-match regex requires walking the entire source pattern, usually once. [^4] As a side effect of the walk that builds the regex, each instance records which syntactic constructs its pattern actually uses, and `features()` names them as a set — no separate scan of the source is performed to produce it. The set is built on the first call for an instance and the same set is returned after that.
 
 Available as a named export of the default entry point, `import { features } from 'regex-partial-match'`, or as the default export of `regex-partial-match/features`. It accepts an instance of any `PartialMatchRegExp` class, including those from [`regex-partial-match/core`](#the-lean-entry-regex-partial-matchcore).
 
@@ -413,7 +414,9 @@ Three things worth knowing about how these tags line up with the grammar:
 - **A named capturing group always carries both `namedGroup` and `capturingGroup`.** The grammar treats a capturing group with a name and one without as the same production (`( GroupSpecifier? Disjunction )`), not two, so both tags are added together.
 - **`lookaroundCapture` records nesting, not a construct.** Every other tag names something the source contains; this one names where something sits — a capturing group appearing lexically inside `(?=...)`, `(?!...)`, `(?<=...)` or `(?<!...)`, at any depth of nested groups. It is the one relationship between constructs the flattened set cannot otherwise express: `/(\w+)(?= END)/` and `/a(?=(?:b(?:x|(c))d|b))/` both report `lookahead` and `capturingGroup`, but only the second has a capture whose value the assertion decides.
 
-[^3]: The [carets module](./docs/modules/carets.md) guesses from a cheap look at the source whether a pattern needs its rules, and when it guesses wrong the pattern is walked a second time with them.
+[^3]: A scanner fed from a source that can split a surrogate pair across chunks, rather than a [`TextDecoder`](https://developer.mozilla.org/en-US/docs/Web/API/TextDecoder) in streaming mode (`stream: true`, or `TextDecoderStream`), should defer any match ending on a code unit in `0xD800`–`0xDBFF` at the end of the input.
+
+[^4]: The [carets module](./docs/modules/carets.md) guesses from a cheap look at the source whether a pattern needs its rules, and when it guesses wrong the pattern is walked a second time with them.
 
 ## 📜 License
 

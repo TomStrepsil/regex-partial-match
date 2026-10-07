@@ -30,7 +30,7 @@ jobs:
 
   benchmark-main:
     name: Run benchmarks (main)
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' && github.actor != 'regex-partial-match-release-bot[bot]'
     runs-on: ubuntu-latest
     permissions:
       contents: write

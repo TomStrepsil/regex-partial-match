@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- `README.md`:
+  - lists a high surrogate ending the input under `u` or `v` among the cases `hitEnd()` cannot see, with advice on feeding a scanner
+- `docs/how-it-works.md`:
+  - reformats and repositions the "groups and truncation branches" section
+
 ## [2.0.1] - 2026-10-05
 
 ### Changed
