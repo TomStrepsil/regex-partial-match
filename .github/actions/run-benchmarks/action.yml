@@ -22,6 +22,25 @@ runs:
       run: npx tsx .github/scripts/mitata-to-action-format.ts < /tmp/bench-raw.json > /tmp/bench-results.json
       shell: bash
 
+    - name: Check out benchmark history
+      if: inputs.auto-push == 'true'
+      uses: actions/checkout@v4
+      with:
+        ref: gh-pages
+        path: gh-pages
+        token: ${{ inputs.github-token }}
+
+    - name: Drop earlier results for this commit
+      if: inputs.auto-push == 'true'
+      working-directory: gh-pages
+      run: |
+        npx tsx ../.github/scripts/prune-benchmark-history.ts --data dev/bench/data.js --commit "$GITHUB_SHA"
+        git diff --quiet && exit 0
+        git -c user.name=github-actions -c user.email=github-actions@github.com \
+          commit --all --message "prune benchmark results for $GITHUB_SHA"
+        git push || (git pull --rebase && git push)
+      shell: bash
+
     - name: Store / compare benchmark results
       uses: benchmark-action/github-action-benchmark@v1
       with:
