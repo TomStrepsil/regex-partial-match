@@ -7,6 +7,13 @@ import carets from "../modules/carets/index.ts";
 import backreferences from "../modules/backreferences/index.ts";
 import { isPartialMatchRegExp as fromFeatures } from "../features/index.ts";
 import { isPartialMatchRegExp as fromRoot } from "../index.ts";
+import { compiledPartial } from "./partialMatchInternals.ts";
+
+function withSymbolOf(instance: RegExp) {
+  return Object.defineProperty(new RegExp("a"), compiledPartial, {
+    value: Reflect.get(instance, compiledPartial)
+  });
+}
 
 describe("isPartialMatchRegExp", () => {
   it.each([
@@ -30,6 +37,10 @@ describe("isPartialMatchRegExp", () => {
     [
       "a plain RegExp that Object.assign has copied an instance's state onto",
       Object.assign(new RegExp("a"), new PartialMatchRegExp(/b/))
+    ],
+    [
+      "a plain RegExp given an instance's state under its symbol",
+      withSymbolOf(new PartialMatchRegExp(/b/))
     ],
     ["a string", "a"],
     ["a number", 1],

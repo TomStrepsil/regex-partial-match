@@ -1,4 +1,4 @@
-import { compiledPartial } from "./partialMatchInternals.ts";
+import { constructedPartials } from "./partialMatchInternals.ts";
 import type { PartialMatchRegExp } from "./index.ts";
 
 /**
@@ -24,6 +24,6 @@ export default function isPartialMatchRegExp(
   return (
     typeof value === "object" &&
     value !== null &&
-    Object.prototype.hasOwnProperty.call(value, compiledPartial)
+    constructedPartials.has(value)
   );
 }
