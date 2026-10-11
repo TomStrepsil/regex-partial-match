@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `isPartialMatchRegExp()`, a named export of `regex-partial-match/features` and the default entry point, telling a `PartialMatchRegExp` instance from a plain `RegExp` whatever modules it was built with
+
 ### Changed
 
 - `README.md`:

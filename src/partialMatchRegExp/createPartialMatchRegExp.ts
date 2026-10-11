@@ -1,6 +1,9 @@
 import compileWith from "./compilePartial/compileWith.ts";
 import type { CompiledPartial } from "./compilePartial/compiled.ts";
-import { compiledPartial } from "./partialMatchInternals.ts";
+import {
+  compiledPartial,
+  constructedPartials
+} from "./partialMatchInternals.ts";
 import execFrom from "./execFrom.ts";
 import type { Hooks } from "./walk.ts";
 import type { PartialMatchRegExpConstructor } from "./index.ts";
@@ -15,6 +18,7 @@ export default function createPartialMatchRegExp(hooks: Hooks): unknown {
     constructor(pattern: RegExp | string, flags?: string) {
       super(pattern, flags);
       this[compiledPartial] = compileWith(this, hooks);
+      constructedPartials.add(this);
     }
 
     override exec(input: string) {

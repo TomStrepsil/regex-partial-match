@@ -2,6 +2,8 @@ import type { CompiledPartial } from "./compilePartial/compiled.ts";
 
 export const compiledPartial = Symbol("compiledPartial");
 
+export const constructedPartials = new WeakSet<object>();
+
 interface PartialMatchInternals {
   [compiledPartial]?: CompiledPartial;
 }

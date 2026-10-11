@@ -6,6 +6,7 @@ import {
 } from "../partialMatchRegExp/regexFeatures.ts";
 
 export type { RegexFeature };
+export { default as isPartialMatchRegExp } from "../partialMatchRegExp/isPartialMatchRegExp.ts";
 
 /**
  * The syntactic constructs `partial`'s original pattern uses.
