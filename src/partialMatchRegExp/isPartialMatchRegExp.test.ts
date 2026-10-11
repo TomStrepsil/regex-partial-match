@@ -27,6 +27,10 @@ describe("isPartialMatchRegExp", () => {
       "an object inheriting from a PartialMatchRegExp instance",
       Object.create(new PartialMatchRegExp(/a/))
     ],
+    [
+      "a plain RegExp that Object.assign has copied an instance's state onto",
+      Object.assign(new RegExp("a"), new PartialMatchRegExp(/b/))
+    ],
     ["a string", "a"],
     ["a number", 1],
     ["null", null],

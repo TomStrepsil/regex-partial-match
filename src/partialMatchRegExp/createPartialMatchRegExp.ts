@@ -14,7 +14,9 @@ export default function createPartialMatchRegExp(hooks: Hooks): unknown {
 
     constructor(pattern: RegExp | string, flags?: string) {
       super(pattern, flags);
-      this[compiledPartial] = compileWith(this, hooks);
+      Object.defineProperty(this, compiledPartial, {
+        value: compileWith(this, hooks)
+      });
     }
 
     override exec(input: string) {

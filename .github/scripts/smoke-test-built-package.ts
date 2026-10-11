@@ -49,6 +49,7 @@ import ts from "typescript";
 import type PartialMatchRegExpInstance from "../../src/index.ts";
 import type hitEndType from "../../src/hitEnd/index.ts";
 import type featuresType from "../../src/features/index.ts";
+import type isPartialMatchRegExpType from "../../src/partialMatchRegExp/isPartialMatchRegExp.ts";
 import type withModulesType from "../../src/partialMatchRegExp/withModules.ts";
 
 const SUPPORTED_ECMA_VERSION = 2015;
@@ -254,6 +255,29 @@ function assertFeaturesBehaves(
   );
 }
 
+function assertIsPartialMatchRegExpBehaves(
+  PartialMatchRegExp: PartialMatchRegExpConstructor,
+  isPartialMatchRegExp: typeof isPartialMatchRegExpType
+) {
+  assert.equal(
+    isPartialMatchRegExp(new PartialMatchRegExp(/a/)),
+    true,
+    "does not accept an instance"
+  );
+  assert.equal(
+    isPartialMatchRegExp(/a/),
+    false,
+    "accepts a plain RegExp"
+  );
+  assert.equal(
+    isPartialMatchRegExp(
+      Object.assign(new RegExp("a"), new PartialMatchRegExp(/b/))
+    ),
+    false,
+    "accepts a plain RegExp that Object.assign copied an instance's state onto"
+  );
+}
+
 function assertHitEndBehaves(
   PartialMatchRegExp: PartialMatchRegExpConstructor,
   hitEnd: typeof hitEndType
@@ -295,6 +319,12 @@ const SMOKE_TESTS: Record<
     const features = loaded.features as typeof featuresType | undefined;
     assert.ok(features, "no features named export");
     assertFeaturesBehaves(PartialMatchRegExp, features);
+
+    const isPartialMatchRegExp = loaded.isPartialMatchRegExp as
+      | typeof isPartialMatchRegExpType
+      | undefined;
+    assert.ok(isPartialMatchRegExp, "no isPartialMatchRegExp named export");
+    assertIsPartialMatchRegExpBehaves(PartialMatchRegExp, isPartialMatchRegExp);
 
     const reached = await transitiveRuntimeImports(builtFile);
     for (const name of FUNCTION_NAMES) {
@@ -378,6 +408,15 @@ const SMOKE_TESTS: Record<
     const features = loaded.default as typeof featuresType | undefined;
     assert.ok(features, "no default export");
     assertFeaturesBehaves((await importCore()).default, features);
+
+    const isPartialMatchRegExp = loaded.isPartialMatchRegExp as
+      | typeof isPartialMatchRegExpType
+      | undefined;
+    assert.ok(isPartialMatchRegExp, "no isPartialMatchRegExp named export");
+    assertIsPartialMatchRegExpBehaves(
+      (await importCore()).default,
+      isPartialMatchRegExp
+    );
 
     await assertNeverReachesModules("regex-partial-match/features", builtFile);
     await assertNeverReaches("regex-partial-match/features", builtFile, [
