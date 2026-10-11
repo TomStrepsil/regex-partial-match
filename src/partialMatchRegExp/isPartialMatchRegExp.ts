@@ -11,6 +11,7 @@ import type { PartialMatchRegExp } from "./index.ts";
  *
  * @example
  * ```typescript
+ * import PartialMatchRegExp from "regex-partial-match/core";
  * import { isPartialMatchRegExp } from "regex-partial-match/features";
  *
  * isPartialMatchRegExp(new PartialMatchRegExp(/a/)); // true
@@ -21,6 +22,8 @@ export default function isPartialMatchRegExp(
   value: unknown
 ): value is PartialMatchRegExp {
   return (
-    typeof value === "object" && value !== null && compiledPartial in value
+    typeof value === "object" &&
+    value !== null &&
+    Object.prototype.hasOwnProperty.call(value, compiledPartial)
   );
 }

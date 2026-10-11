@@ -84,6 +84,7 @@ const PUBLIC_DECLARATIONS = [
   "lib/hitEnd/index.d.ts",
   "lib/index.d.ts",
   "lib/partialMatchRegExp/index.d.ts",
+  "lib/partialMatchRegExp/isPartialMatchRegExp.d.ts",
   "lib/partialMatchRegExp/opaqueModule.d.ts",
   "lib/partialMatchRegExp/regexFeatures.d.ts",
   "lib/partialMatchRegExp/withModules.d.ts"

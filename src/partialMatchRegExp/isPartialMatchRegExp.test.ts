@@ -22,7 +22,11 @@ describe("isPartialMatchRegExp", () => {
   it.each([
     ["a plain RegExp", /a/],
     ["a RegExp from a string", new RegExp("a")],
-    ["a RegExp subclass that is not a PartialMatchRegExp", class extends RegExp {}],
+    ["an instance of a RegExp subclass", new (class extends RegExp {})(/a/)],
+    [
+      "an object inheriting from a PartialMatchRegExp instance",
+      Object.create(new PartialMatchRegExp(/a/))
+    ],
     ["a string", "a"],
     ["a number", 1],
     ["null", null],
