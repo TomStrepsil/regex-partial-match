@@ -89,6 +89,16 @@ import features from "regex-partial-match/features";
 
 [`hitEnd`](#hitend) and [`features`](#features) accept an instance of any `PartialMatchRegExp` class, including those from [`regex-partial-match/core`](#the-lean-entry-regex-partial-matchcore).
 
+To tell an instance from a plain `RegExp` without importing a class, use [`isPartialMatchRegExp()`](#ispartialmatchregexp). It returns `true` for an instance of any `PartialMatchRegExp` class and `false` for anything else, including a plain `RegExp`:
+
+```javascript
+import PartialMatchRegExp from "regex-partial-match/core";
+import { isPartialMatchRegExp } from "regex-partial-match/features";
+
+isPartialMatchRegExp(new PartialMatchRegExp(/a/)); // true
+isPartialMatchRegExp(/a/); // false
+```
+
 ### The lean entry: `regex-partial-match/core`
 
 `regex-partial-match/core` exports a `PartialMatchRegExp` without two sets of rules, so a bundle that doesn't need them can leave them out. Each set is a module you bind back with `withModules`:
@@ -417,6 +427,19 @@ Three things worth knowing about how these tags line up with the grammar:
 [^3]: A scanner fed from a source that can split a surrogate pair across chunks, rather than a [`TextDecoder`](https://developer.mozilla.org/en-US/docs/Web/API/TextDecoder) in streaming mode (`stream: true`, or `TextDecoderStream`), should defer any match ending on a code unit in `0xD800`–`0xDBFF` at the end of the input.
 
 [^4]: The [carets module](./docs/modules/carets.md) guesses from a cheap look at the source whether a pattern needs its rules, and when it guesses wrong the pattern is walked a second time with them.
+
+### `isPartialMatchRegExp()`
+
+```typescript
+isPartialMatchRegExp(value: unknown): value is PartialMatchRegExp
+```
+
+Returns `true` for an instance of any `PartialMatchRegExp` class, from `regex-partial-match/core`, from `withModules(...)`, or from the default entry point, and `false` for a plain `RegExp` or any other value. It doesn't import a class or module, so it can be used to accept either a `RegExp` or a ready-built instance without pulling the default class into a bundle.
+
+Available as a named export of `regex-partial-match/features`, or of the default entry point, `import { isPartialMatchRegExp } from 'regex-partial-match'`.
+
+> [!CAUTION]
+> It recognises instances from the same installed copy of the library only: an instance from a second copy, such as a duplicate install in a bundle, returns `false`.
 
 ## 📜 License
 
