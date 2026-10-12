@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1791754776294,
+  "lastUpdate": 1791832486003,
   "repoUrl": "https://github.com/TomStrepsil/regex-partial-match",
   "entries": {
     "regex-partial-match": [
@@ -20032,6 +20032,702 @@ window.BENCHMARK_DATA = {
             "range": "± 0.0195",
             "unit": "× calibration",
             "extra": "67.72ns  (min: 65.74ns  p75: 68.64ns  p99: 84.68ns)  calibration: 64.71ns"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "49699333+dependabot[bot]@users.noreply.github.com",
+            "name": "dependabot[bot]",
+            "username": "dependabot[bot]"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "8afca40ad1c485396078b2ff457374ef95be58c3",
+          "message": "Bump source-map-js from 1.2.1 to 1.2.2 in the npm_and_yarn group across 1 directory (#135)\n\nBump source-map-js\n\nBumps the npm_and_yarn group with 1 update in the / directory: [source-map-js](https://github.com/7rulnik/source-map-js).\n\n\nUpdates `source-map-js` from 1.2.1 to 1.2.2\n- [Release notes](https://github.com/7rulnik/source-map-js/releases)\n- [Changelog](https://github.com/7rulnik/source-map-js/blob/main/CHANGELOG.md)\n- [Commits](https://github.com/7rulnik/source-map-js/compare/v1.2.1...v1.2.2)\n\n---\nupdated-dependencies:\n- dependency-name: source-map-js\n  dependency-version: 1.2.2\n  dependency-type: indirect\n  dependency-group: npm_and_yarn\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>\nCo-authored-by: dependabot[bot] <49699333+dependabot[bot]@users.noreply.github.com>",
+          "timestamp": "2026-10-12T20:13:05+01:00",
+          "tree_id": "cca7dd33c2851d243ddd86b21efb12dff190bcd7",
+          "url": "https://github.com/TomStrepsil/regex-partial-match/commit/8afca40ad1c485396078b2ff457374ef95be58c3"
+        },
+        "date": 1791832484564,
+        "tool": "customSmallerIsBetter",
+        "benches": [
+          {
+            "name": "dispatch overhead — full match input — native RegExp.exec",
+            "value": 0.6535,
+            "range": "± 0.0066",
+            "unit": "× calibration",
+            "extra": "42.03ns  (min: 39.41ns  p75: 41.61ns  p99: 66.76ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "dispatch overhead — full match input — plain partial RegExp (no class wrapper)",
+            "value": 1.2831,
+            "range": "± 0.0222",
+            "unit": "× calibration",
+            "extra": "82.53ns  (min: 78.67ns  p75: 83.03ns  p99: 114.28ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "dispatch overhead — full match input — PartialMatchRegExp.exec",
+            "value": 1.3049,
+            "range": "± 0.0229",
+            "unit": "× calibration",
+            "extra": "83.94ns  (min: 81.11ns  p75: 84.58ns  p99: 115.62ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "dispatch overhead — partial input (returns null on native) — native RegExp.exec",
+            "value": 0.365,
+            "range": "± 0",
+            "unit": "× calibration",
+            "extra": "23.48ns  (min: 23.05ns  p75: 23.14ns  p99: 28.42ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "dispatch overhead — partial input (returns null on native) — plain partial RegExp (no class wrapper)",
+            "value": 1.1751,
+            "range": "± 0.0229",
+            "unit": "× calibration",
+            "extra": "75.59ns  (min: 69.06ns  p75: 73.63ns  p99: 116.89ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "dispatch overhead — partial input (returns null on native) — PartialMatchRegExp.exec",
+            "value": 1.1581,
+            "range": "± 0.0173",
+            "unit": "× calibration",
+            "extra": "74.49ns  (min: 70.82ns  p75: 75.03ns  p99: 89.60ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "hot loop — manual global exec (~700 matches) — native RegExp (global exec loop)",
+            "value": 832.0598,
+            "range": "± 2.5591",
+            "unit": "× calibration",
+            "extra": "53520.48ns  (min: 52876.90ns  p75: 53272.55ns  p99: 54925.02ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "hot loop — manual global exec (~700 matches) — PartialMatchRegExp (global exec loop)",
+            "value": 1515.2852,
+            "range": "± 19.9385",
+            "unit": "× calibration",
+            "extra": "97467.49ns  (min: 72105.00ns  p75: 94457.00ns  p99: 181520.00ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "hot loop — String.prototype.matchAll (~700 matches) — native matchAll",
+            "value": 1030.491,
+            "range": "± 40.8175",
+            "unit": "× calibration",
+            "extra": "66284.14ns  (min: 58609.00ns  p75: 66856.00ns  p99: 131155.00ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "hot loop — String.prototype.matchAll (~700 matches) — PartialMatchRegExp matchAll",
+            "value": 2550.7333,
+            "range": "± 49.1427",
+            "unit": "× calibration",
+            "extra": "164070.49ns  (min: 153928.00ns  p75: 164047.00ns  p99: 208601.00ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "keystroke simulation — phone number (18 chars) — native RegExp.test per keystroke (fails until full input)",
+            "value": 5.6634,
+            "range": "± 0.0176",
+            "unit": "× calibration",
+            "extra": "364.29ns  (min: 358.04ns  p75: 362.57ns  p99: 377.35ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "keystroke simulation — phone number (18 chars) — plain partial RegExp.test per keystroke",
+            "value": 21.5799,
+            "range": "± 0.0934",
+            "unit": "× calibration",
+            "extra": "1388.08ns  (min: 1364.41ns  p75: 1391.55ns  p99: 1452.94ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "keystroke simulation — phone number (18 chars) — PartialMatchRegExp.test per keystroke",
+            "value": 32.3231,
+            "range": "± 0.2486",
+            "unit": "× calibration",
+            "extra": "2079.11ns  (min: 2040.99ns  p75: 2088.53ns  p99: 2190.23ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "keystroke simulation — ISO date (10 chars) — native RegExp.test per keystroke (fails until full input)",
+            "value": 3.2156,
+            "range": "± 0.0053",
+            "unit": "× calibration",
+            "extra": "206.84ns  (min: 203.56ns  p75: 206.42ns  p99: 221.41ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "keystroke simulation — ISO date (10 chars) — plain partial RegExp.test per keystroke",
+            "value": 6.3803,
+            "range": "± 0.0508",
+            "unit": "× calibration",
+            "extra": "410.40ns  (min: 373.31ns  p75: 383.53ns  p99: 796.07ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "keystroke simulation — ISO date (10 chars) — PartialMatchRegExp.test per keystroke",
+            "value": 11.8495,
+            "range": "± 0.0456",
+            "unit": "× calibration",
+            "extra": "762.20ns  (min: 750.99ns  p75: 759.88ns  p99: 836.07ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "backref — single exec, repeated-word pattern — native exec (full match only)",
+            "value": 0.6686,
+            "range": "± 0.0106",
+            "unit": "× calibration",
+            "extra": "43.01ns  (min: 40.16ns  p75: 41.91ns  p99: 83.58ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "backref — single exec, repeated-word pattern — PartialMatchRegExp — full match (native fast path)",
+            "value": 1.0274,
+            "range": "± 0.0192",
+            "unit": "× calibration",
+            "extra": "66.09ns  (min: 63.80ns  p75: 66.72ns  p99: 98.15ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "backref — single exec, repeated-word pattern — PartialMatchRegExp — partial pre-backref (slow path)",
+            "value": 34.9447,
+            "range": "± 0.2332",
+            "unit": "× calibration",
+            "extra": "2247.74ns  (min: 2104.00ns  p75: 2184.00ns  p99: 4128.00ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "backref — single exec, repeated-word pattern — PartialMatchRegExp — partial mid-backref (slow path)",
+            "value": 31.6642,
+            "range": "± 0.2144",
+            "unit": "× calibration",
+            "extra": "2036.73ns  (min: 2010.53ns  p75: 2045.32ns  p99: 2103.47ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "backref — single exec, HTML tag pattern — native exec (full match only)",
+            "value": 1.435,
+            "range": "± 0.0181",
+            "unit": "× calibration",
+            "extra": "92.31ns  (min: 88.46ns  p75: 93.00ns  p99: 115.89ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "backref — single exec, HTML tag pattern — PartialMatchRegExp — full match (native fast path)",
+            "value": 2.0391,
+            "range": "± 0.0284",
+            "unit": "× calibration",
+            "extra": "131.16ns  (min: 121.41ns  p75: 131.25ns  p99: 180.32ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "backref — single exec, HTML tag pattern — PartialMatchRegExp — partial mid-backref (slow path)",
+            "value": 121.1602,
+            "range": "± 0.5441",
+            "unit": "× calibration",
+            "extra": "7793.37ns  (min: 7394.00ns  p75: 7634.00ns  p99: 14066.00ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "backref — leftmost bound check (native match at a later index) — bound rejects quickly — native wins, no pipeline",
+            "value": 2.2377,
+            "range": "± 0.0255",
+            "unit": "× calibration",
+            "extra": "143.94ns  (min: 136.31ns  p75: 144.35ns  p99: 184.92ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "backref — leftmost bound check (native match at a later index) — bound doesn't reject — full pipeline still runs",
+            "value": 38.9283,
+            "range": "± 0.3109",
+            "unit": "× calibration",
+            "extra": "2503.98ns  (min: 2334.00ns  p75: 2435.00ns  p99: 4248.00ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "backref — capture agreement, irrelevant input ahead of the match — 4-character input",
+            "value": 68.2107,
+            "range": "± 0.4452",
+            "unit": "× calibration",
+            "extra": "4387.51ns  (min: 4320.81ns  p75: 4408.98ns  p99: 4498.00ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "backref — capture agreement, irrelevant input ahead of the match — 10004-character input",
+            "value": 464.5187,
+            "range": "± 0.9384",
+            "unit": "× calibration",
+            "extra": "29879.18ns  (min: 29447.86ns  p75: 29601.99ns  p99: 29667.50ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "backref — keystroke simulation (accumulated exec cost) — repeated word: 7 keystrokes",
+            "value": 185.4579,
+            "range": "± 0.2064",
+            "unit": "× calibration",
+            "extra": "11929.18ns  (min: 11886.85ns  p75: 11931.13ns  p99: 11977.38ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "backref — keystroke simulation (accumulated exec cost) — HTML tag: 90 keystrokes",
+            "value": 9569.2298,
+            "range": "± 99.4514",
+            "unit": "× calibration",
+            "extra": "615520.33ns  (min: 594253.00ns  p75: 614020.00ns  p99: 818813.00ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "construction — simple pattern (no groups, no backreferences) — native new RegExp()",
+            "value": 1.4633,
+            "range": "± 0.0208",
+            "unit": "× calibration",
+            "extra": "94.12ns  (min: 91.47ns  p75: 94.71ns  p99: 117.77ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "construction — simple pattern (no groups, no backreferences) — compilePartial()",
+            "value": 15.9893,
+            "range": "± 0.0688",
+            "unit": "× calibration",
+            "extra": "1028.48ns  (min: 1002.24ns  p75: 1018.35ns  p99: 1284.68ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "construction — simple pattern (no groups, no backreferences) — new PartialMatchRegExp()",
+            "value": 30.782,
+            "range": "± 0.6311",
+            "unit": "× calibration",
+            "extra": "1979.99ns  (min: 1707.91ns  p75: 1826.08ns  p99: 3800.92ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "construction — phone pattern (character classes, optional groups) — native new RegExp()",
+            "value": 2.0149,
+            "range": "± 0.0285",
+            "unit": "× calibration",
+            "extra": "129.60ns  (min: 123.97ns  p75: 131.23ns  p99: 147.91ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "construction — phone pattern (character classes, optional groups) — compilePartial()",
+            "value": 36.8472,
+            "range": "± 0.3031",
+            "unit": "× calibration",
+            "extra": "2370.11ns  (min: 2328.00ns  p75: 2378.17ns  p99: 2575.55ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "construction — phone pattern (character classes, optional groups) — new PartialMatchRegExp()",
+            "value": 52.6079,
+            "range": "± 0.8579",
+            "unit": "× calibration",
+            "extra": "3383.89ns  (min: 3108.89ns  p75: 3274.25ns  p99: 4334.83ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "construction — HTML tag pattern (capturing group + backreference) — native new RegExp()",
+            "value": 2.1654,
+            "range": "± 0.0201",
+            "unit": "× calibration",
+            "extra": "139.28ns  (min: 134.70ns  p75: 139.90ns  p99: 154.07ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "construction — HTML tag pattern (capturing group + backreference) — compilePartial()",
+            "value": 61.1115,
+            "range": "± 0.7074",
+            "unit": "× calibration",
+            "extra": "3930.87ns  (min: 3526.00ns  p75: 3707.00ns  p99: 9107.00ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "construction — HTML tag pattern (capturing group + backreference) — new PartialMatchRegExp()",
+            "value": 75.1189,
+            "range": "± 4.3339",
+            "unit": "× calibration",
+            "extra": "4831.86ns  (min: 4523.13ns  p75: 5121.94ns  p99: 5193.58ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "construction — legacy numeric escape (\\N past the group count) — native new RegExp()",
+            "value": 1.4757,
+            "range": "± 0.0204",
+            "unit": "× calibration",
+            "extra": "94.92ns  (min: 92.46ns  p75: 95.79ns  p99: 109.96ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "construction — legacy numeric escape (\\N past the group count) — compilePartial()",
+            "value": 31.7613,
+            "range": "± 0.361",
+            "unit": "× calibration",
+            "extra": "2042.98ns  (min: 2007.47ns  p75: 2061.23ns  p99: 2275.29ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "construction — legacy numeric escape (\\N past the group count) — new PartialMatchRegExp()",
+            "value": 49.0679,
+            "range": "± 0.9121",
+            "unit": "× calibration",
+            "extra": "3156.19ns  (min: 2892.82ns  p75: 3048.59ns  p99: 3879.58ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "construction — legacy named escape (\\k<name> naming no group) — native new RegExp()",
+            "value": 1.6898,
+            "range": "± 0.022",
+            "unit": "× calibration",
+            "extra": "108.69ns  (min: 104.29ns  p75: 108.04ns  p99: 149.47ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "construction — legacy named escape (\\k<name> naming no group) — compilePartial()",
+            "value": 40.3554,
+            "range": "± 0.3575",
+            "unit": "× calibration",
+            "extra": "2595.78ns  (min: 2549.10ns  p75: 2608.73ns  p99: 2885.42ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "construction — legacy named escape (\\k<name> naming no group) — new PartialMatchRegExp()",
+            "value": 57.5067,
+            "range": "± 1.3071",
+            "unit": "× calibration",
+            "extra": "3698.99ns  (min: 3433.77ns  p75: 3655.29ns  p99: 4418.38ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "hitEnd — static path (ISO date) — construct + exec (baseline, never asks)",
+            "value": 38.1589,
+            "range": "± 0.7176",
+            "unit": "× calibration",
+            "extra": "2454.49ns  (min: 2197.62ns  p75: 2348.84ns  p99: 3761.73ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (includes probe build)",
+            "value": 93.3921,
+            "range": "± 1.5547",
+            "unit": "× calibration",
+            "extra": "6007.25ns  (min: 5310.00ns  p75: 5711.00ns  p99: 12914.00ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "hitEnd — static path (ISO date) — construct + exec + hitEnd (complete, includes probe build)",
+            "value": 88.9679,
+            "range": "± 2.2245",
+            "unit": "× calibration",
+            "extra": "5722.67ns  (min: 5405.56ns  p75: 5775.85ns  p99: 6306.71ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "hitEnd — static path (ISO date) — hitEnd — incomplete match, warm probe",
+            "value": 1.4775,
+            "range": "± 0.0222",
+            "unit": "× calibration",
+            "extra": "95.04ns  (min: 90.99ns  p75: 94.51ns  p99: 171.32ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "hitEnd — static path (ISO date) — hitEnd — complete match, warm probe",
+            "value": 1.3443,
+            "range": "± 0.024",
+            "unit": "× calibration",
+            "extra": "86.47ns  (min: 83.62ns  p75: 87.37ns  p99: 109.08ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "hitEnd — word boundary at truncation end — construct + exec (baseline, never asks)",
+            "value": 27.9268,
+            "range": "± 0.6735",
+            "unit": "× calibration",
+            "extra": "1796.33ns  (min: 1543.44ns  p75: 1661.55ns  p99: 3600.39ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "hitEnd — word boundary at truncation end — construct + exec + hitEnd (includes probe build)",
+            "value": 61.3154,
+            "range": "± 0.6685",
+            "unit": "× calibration",
+            "extra": "3943.98ns  (min: 3667.56ns  p75: 3814.65ns  p99: 4696.62ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "hitEnd — word boundary at truncation end — construct + exec + hitEnd (complete, includes probe build)",
+            "value": 61.6359,
+            "range": "± 0.7597",
+            "unit": "× calibration",
+            "extra": "3964.60ns  (min: 3738.04ns  p75: 3874.21ns  p99: 4702.86ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "hitEnd — word boundary at truncation end — hitEnd — incomplete match, warm probe",
+            "value": 0.875,
+            "range": "± 0.0192",
+            "unit": "× calibration",
+            "extra": "56.28ns  (min: 54.13ns  p75: 56.94ns  p99: 83.97ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "hitEnd — word boundary at truncation end — hitEnd — complete match, warm probe",
+            "value": 0.9139,
+            "range": "± 0.0192",
+            "unit": "× calibration",
+            "extra": "58.79ns  (min: 56.56ns  p75: 59.46ns  p99: 90.27ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "hitEnd — open-ended quantifiers and end anchor (email-like pattern) — construct + exec (baseline, never asks)",
+            "value": 39.5811,
+            "range": "± 0.8083",
+            "unit": "× calibration",
+            "extra": "2545.97ns  (min: 2285.06ns  p75: 2437.72ns  p99: 3848.38ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "hitEnd — open-ended quantifiers and end anchor (email-like pattern) — construct + exec + hitEnd (includes probe build)",
+            "value": 99.5984,
+            "range": "± 0.7713",
+            "unit": "× calibration",
+            "extra": "6406.45ns  (min: 6144.90ns  p75: 6329.43ns  p99: 6952.98ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "hitEnd — open-ended quantifiers and end anchor (email-like pattern) — construct + exec + hitEnd (complete, includes probe build)",
+            "value": 99.7124,
+            "range": "± 0.4781",
+            "unit": "× calibration",
+            "extra": "6413.79ns  (min: 6183.11ns  p75: 6288.30ns  p99: 6948.56ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "hitEnd — open-ended quantifiers and end anchor (email-like pattern) — hitEnd — incomplete match, warm probe",
+            "value": 2.2821,
+            "range": "± 0.0301",
+            "unit": "× calibration",
+            "extra": "146.79ns  (min: 140.90ns  p75: 147.54ns  p99: 191.51ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "hitEnd — open-ended quantifiers and end anchor (email-like pattern) — hitEnd — complete match, warm probe",
+            "value": 2.1215,
+            "range": "± 0.0233",
+            "unit": "× calibration",
+            "extra": "136.46ns  (min: 129.34ns  p75: 136.13ns  p99: 182.99ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "hitEnd — optional atom at truncation end — construct + exec (baseline, never asks)",
+            "value": 27.8766,
+            "range": "± 0.5683",
+            "unit": "× calibration",
+            "extra": "1793.11ns  (min: 1559.27ns  p75: 1662.89ns  p99: 3653.93ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "hitEnd — optional atom at truncation end — construct + exec + hitEnd (includes probe build)",
+            "value": 65.736,
+            "range": "± 0.3818",
+            "unit": "× calibration",
+            "extra": "4228.33ns  (min: 3962.51ns  p75: 4090.88ns  p99: 4931.91ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "hitEnd — optional atom at truncation end — construct + exec + hitEnd (taken, includes probe build)",
+            "value": 65.5632,
+            "range": "± 0.9727",
+            "unit": "× calibration",
+            "extra": "4217.21ns  (min: 3935.97ns  p75: 4113.58ns  p99: 5021.99ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "hitEnd — optional atom at truncation end — hitEnd — untaken atom, warm probe",
+            "value": 0.901,
+            "range": "± 0.0188",
+            "unit": "× calibration",
+            "extra": "57.95ns  (min: 55.83ns  p75: 58.61ns  p99: 92.63ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "hitEnd — optional atom at truncation end — hitEnd — taken atom, warm probe",
+            "value": 0.8678,
+            "range": "± 0.0174",
+            "unit": "× calibration",
+            "extra": "55.82ns  (min: 52.70ns  p75: 56.42ns  p99: 77.99ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "hitEnd — backreference path (repeated word) — construct + exec (baseline, never asks)",
+            "value": 79.5513,
+            "range": "± 4.0104",
+            "unit": "× calibration",
+            "extra": "5116.97ns  (min: 4811.31ns  p75: 5391.20ns  p99: 5505.57ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "hitEnd — backreference path (repeated word) — construct + exec + hitEnd (includes probe build)",
+            "value": 162.6634,
+            "range": "± 13.6872",
+            "unit": "× calibration",
+            "extra": "10462.97ns  (min: 9375.59ns  p75: 11170.76ns  p99: 11343.78ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "hitEnd — backreference path (repeated word) — hitEnd — same match, expansion probe cached",
+            "value": 2.2282,
+            "range": "± 0.0191",
+            "unit": "× calibration",
+            "extra": "143.32ns  (min: 137.70ns  p75: 142.14ns  p99: 190.49ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "hitEnd — backreference path (repeated word) — exec + hitEnd — fresh match, same capture, probe shared",
+            "value": 40.8679,
+            "range": "± 0.1415",
+            "unit": "× calibration",
+            "extra": "2628.74ns  (min: 2598.61ns  p75: 2621.34ns  p99: 2894.40ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "hitEnd — backreference path (repeated word) — exec + hitEnd — fresh match, alternating capture, probe rebuilt per match",
+            "value": 45.0465,
+            "range": "± 0.4742",
+            "unit": "× calibration",
+            "extra": "2897.52ns  (min: 2705.00ns  p75: 2846.00ns  p99: 4799.00ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "hitEnd — raw lookaround backreference renumbering — construct + exec (baseline, never asks)",
+            "value": 60.4002,
+            "range": "± 8.1578",
+            "unit": "× calibration",
+            "extra": "3885.12ns  (min: 3341.91ns  p75: 4442.38ns  p99: 4741.75ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "hitEnd — raw lookaround backreference renumbering — construct + exec + hitEnd (includes probe build)",
+            "value": 120.2848,
+            "range": "± 1.9433",
+            "unit": "× calibration",
+            "extra": "7737.07ns  (min: 6583.00ns  p75: 7114.00ns  p99: 18825.00ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "hitEnd — raw lookaround backreference renumbering — hitEnd — warm instance",
+            "value": 1.1994,
+            "range": "± 0.021",
+            "unit": "× calibration",
+            "extra": "77.15ns  (min: 73.66ns  p75: 77.51ns  p99: 119.86ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "feature cost — construction, one construct per bench — literal characters (baseline)",
+            "value": 49.3562,
+            "range": "± 0.7851",
+            "unit": "× calibration",
+            "extra": "3174.73ns  (min: 2765.00ns  p75: 2976.00ns  p99: 5740.00ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "feature cost — construction, one construct per bench — character class",
+            "value": 47.457,
+            "range": "± 0.7132",
+            "unit": "× calibration",
+            "extra": "3052.57ns  (min: 2822.05ns  p75: 2948.16ns  p99: 4087.87ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "feature cost — construction, one construct per bench — quantifier",
+            "value": 46.1331,
+            "range": "± 0.9155",
+            "unit": "× calibration",
+            "extra": "2967.41ns  (min: 2736.30ns  p75: 2884.32ns  p99: 4068.80ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "feature cost — construction, one construct per bench — disjunction",
+            "value": 47.346,
+            "range": "± 0.6398",
+            "unit": "× calibration",
+            "extra": "3045.43ns  (min: 2807.67ns  p75: 2912.75ns  p99: 3869.76ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "feature cost — construction, one construct per bench — non-capturing group",
+            "value": 48.0883,
+            "range": "± 0.4563",
+            "unit": "× calibration",
+            "extra": "3093.18ns  (min: 2868.11ns  p75: 2966.73ns  p99: 3865.57ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "feature cost — construction, one construct per bench — capturing group",
+            "value": 47.2846,
+            "range": "± 0.866",
+            "unit": "× calibration",
+            "extra": "3041.48ns  (min: 2822.69ns  p75: 2954.07ns  p99: 3778.13ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "feature cost — construction, one construct per bench — named group",
+            "value": 48.0344,
+            "range": "± 0.6619",
+            "unit": "× calibration",
+            "extra": "3089.71ns  (min: 2875.73ns  p75: 2974.16ns  p99: 3879.27ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "feature cost — construction, one construct per bench — lookahead",
+            "value": 47.7271,
+            "range": "± 0.4727",
+            "unit": "× calibration",
+            "extra": "3069.94ns  (min: 2852.48ns  p75: 2937.29ns  p99: 3834.21ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "feature cost — construction, one construct per bench — negative lookahead (raw)",
+            "value": 51.7729,
+            "range": "± 0.5259",
+            "unit": "× calibration",
+            "extra": "3330.18ns  (min: 3095.08ns  p75: 3183.58ns  p99: 4134.53ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "feature cost — construction, one construct per bench — lookbehind (raw)",
+            "value": 49.2455,
+            "range": "± 0.4152",
+            "unit": "× calibration",
+            "extra": "3167.61ns  (min: 2915.09ns  p75: 3005.51ns  p99: 4077.61ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "feature cost — construction, one construct per bench — control escapes",
+            "value": 48.7258,
+            "range": "± 0.6142",
+            "unit": "× calibration",
+            "extra": "3134.18ns  (min: 2902.36ns  p75: 3024.67ns  p99: 4142.65ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "feature cost — construction, one construct per bench — control-letter escape",
+            "value": 48.1294,
+            "range": "± 0.9735",
+            "unit": "× calibration",
+            "extra": "3095.82ns  (min: 2864.32ns  p75: 3019.58ns  p99: 4144.94ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "feature cost — construction, one construct per bench — hex and unicode escapes",
+            "value": 50.0826,
+            "range": "± 0.6538",
+            "unit": "× calibration",
+            "extra": "3221.46ns  (min: 3008.02ns  p75: 3115.43ns  p99: 4172.27ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "feature cost — construction, one construct per bench — unicode property escape (u)",
+            "value": 47.2939,
+            "range": "± 0.6963",
+            "unit": "× calibration",
+            "extra": "3042.08ns  (min: 2840.06ns  p75: 2949.35ns  p99: 4020.13ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "feature cost — construction, one construct per bench — nested character class (v)",
+            "value": 48.181,
+            "range": "± 0.6668",
+            "unit": "× calibration",
+            "extra": "3099.14ns  (min: 2875.78ns  p75: 2993.08ns  p99: 4119.91ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "feature cost — construction, backreferences and legacy escapes — capturing group, no reference (static path)",
+            "value": 43.0164,
+            "range": "± 0.7778",
+            "unit": "× calibration",
+            "extra": "2766.94ns  (min: 2482.62ns  p75: 2613.26ns  p99: 3675.51ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "feature cost — construction, backreferences and legacy escapes — numeric backreference (dynamic path)",
+            "value": 58.6288,
+            "range": "± 4.9491",
+            "unit": "× calibration",
+            "extra": "3771.17ns  (min: 3523.67ns  p75: 4178.72ns  p99: 4405.31ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "feature cost — construction, backreferences and legacy escapes — named backreference (dynamic path)",
+            "value": 67.9433,
+            "range": "± 6.1725",
+            "unit": "× calibration",
+            "extra": "4370.31ns  (min: 3974.69ns  p75: 4817.42ns  p99: 5125.20ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "feature cost — construction, backreferences and legacy escapes — reclassified octal escape (static)",
+            "value": 57.3695,
+            "range": "± 0.7067",
+            "unit": "× calibration",
+            "extra": "3690.17ns  (min: 3447.67ns  p75: 3578.33ns  p99: 4361.04ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "feature cost — construction, backreferences and legacy escapes — reclassified \\k literal (static)",
+            "value": 63.7527,
+            "range": "± 4.8704",
+            "unit": "× calibration",
+            "extra": "4100.75ns  (min: 3871.61ns  p75: 4531.41ns  p99: 4623.10ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "feature cost — exec, legacy escape vs genuine backreference — legacy \\k literal — partial input",
+            "value": 0.5655,
+            "range": "± 0.003",
+            "unit": "× calibration",
+            "extra": "36.37ns  (min: 34.82ns  p75: 35.51ns  p99: 58.50ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "feature cost — exec, legacy escape vs genuine backreference — legacy \\k literal — full match",
+            "value": 0.546,
+            "range": "± 0.0081",
+            "unit": "× calibration",
+            "extra": "35.12ns  (min: 33.27ns  p75: 34.64ns  p99: 63.79ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "feature cost — exec, legacy escape vs genuine backreference — genuine backreference — partial input",
+            "value": 32.3537,
+            "range": "± 0.2029",
+            "unit": "× calibration",
+            "extra": "2081.08ns  (min: 2043.10ns  p75: 2076.74ns  p99: 2353.05ns)  calibration: 64.32ns"
+          },
+          {
+            "name": "feature cost — exec, legacy escape vs genuine backreference — genuine backreference — full match",
+            "value": 1.0626,
+            "range": "± 0.0186",
+            "unit": "× calibration",
+            "extra": "68.35ns  (min: 65.77ns  p75: 68.77ns  p99: 105.41ns)  calibration: 64.32ns"
           }
         ]
       }
