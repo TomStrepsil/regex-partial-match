@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- `exec()` no longer throws `RangeError: Maximum call stack size exceeded` on V8 for a quantified single-character atom (`\S+`, `[^{}]*`, `.{2,}`) repeated over a few MiB: its truncation branch now sits outside the quantifier ([#137](https://github.com/TomStrepsil/regex-partial-match/issues/137))
+
+### Changed
+
+- `docs/caveats.md`:
+  - adds "Very long repetitions", covering the multi-character groups and `hitEnd()` probe that can still overflow
+- `docs/how-it-works.md`:
+  - adds "Quantified single characters"
+
 ## [2.1.0] - 2026-10-11
 
 ### Added

@@ -202,6 +202,7 @@ See [Caveats](./docs/caveats.md) for details, examples and workarounds.
 - [**Surrogate pair matching**](./docs/caveats.md#surrogate-pair-matching): only whole astral characters match
 - [**Sticky flag (`y`)**](./docs/caveats.md#sticky-flag-y): not suited to progressive input validation
 - [**"String properties"**](./docs/caveats.md#string-properties): match atomically
+- [**Very long repetitions**](./docs/caveats.md#very-long-repetitions): a multi-character group repeated over a few MiB can overflow V8's stack
 
 ## 💡 Examples
 

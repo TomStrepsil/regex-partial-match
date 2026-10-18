@@ -31,6 +31,16 @@ A body containing a lookbehind keeps the branch, because a lookbehind judged at 
 /(a(?<=a))/ → /((?:a|$(?![\s\S]))(?<=a)|$(?![\s\S]))/
 ```
 
+### Quantified single characters
+
+An atom that reads exactly one character — a literal, `.`, a character class, or a single-character escape such as `\S`, `\w` or `\p{L}` — has its truncation branch moved outside its quantifier. Inside, every repetition would leave an alternative to backtrack into, and V8 runs out of stack on runs of a few MiB. Since such an atom can only meet the end of the input after its last repetition, the branch only has to cover a run cut short of the minimum:
+
+```javascript
+/\S+/     → /(?:\S+|$(?![\s\S]))/
+/a*/      → /a*/
+/a{3,5}?/ → /(?:a{3,5}?|a{0,2}?$(?![\s\S]))/
+```
+
 ### Why `$(?![\s\S])` and not `$`
 
 A bare `$` alone isn't sufficient here: under the `m` (multiline) flag, including one turned on locally via a `(?m:...)` [modifier](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Modifier), `$` also matches immediately before *any* line terminator, not just the true end of input. That would let a `"\n"` the source pattern never allowed for be silently accepted as if the input had simply run out, e.g. `new PartialMatchRegExp(/^foobar/m)` would wrongly accept `"foo\nbaz"`. Appending `(?![\s\S])` narrows the disjunction down to strict end-of-input, regardless of multiline state.

@@ -12,6 +12,7 @@ import {
   type Part
 } from "../../partialMatchRegExp/part.ts";
 import type { Hooks } from "../../partialMatchRegExp/walk.ts";
+import hoistTruncationBranches from "../../partialMatchRegExp/compilePartial/hoistTruncationBranches.ts";
 import type { DynamicPath } from "../../partialMatchRegExp/compilePartial/compiled.ts";
 import { CompiledBackreferences } from "./compiledBackreferences.ts";
 import asPreScanPart from "./asPreScanPart.ts";
@@ -29,7 +30,10 @@ export default function compileDynamic(
   hooks: Hooks
 ) {
   const dynamic: DynamicPath = {
-    preScan: new RegExp(parts.map(asPreScanPart).join(""), flags),
+    preScan: new RegExp(
+      hoistTruncationBranches(parts).map(asPreScanPart).join(""),
+      flags
+    ),
     expansionFitsCaptures: (expandedFrom, match, input) => {
       for (const backref of backreferences) {
         const baked = resolvedFromScan(backref, expandedFrom);
