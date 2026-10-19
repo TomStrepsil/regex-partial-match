@@ -1,6 +1,5 @@
 import type { Hooks } from "../walk.ts";
 import { CompiledStatic } from "./compiled.ts";
-import hoistTruncationBranches from "./hoistTruncationBranches.ts";
 
 export default function toStatic(
   parts: string[],
@@ -9,7 +8,7 @@ export default function toStatic(
   hooks: Hooks
 ) {
   return new CompiledStatic(
-    new RegExp(hoistTruncationBranches(parts).join(""), flags),
+    new RegExp(parts.join(""), flags),
     parts,
     featureMask,
     hooks

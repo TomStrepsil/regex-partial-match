@@ -34,7 +34,7 @@ import type {
   RawReference
 } from "./rawLookaroundInfo.ts";
 import { BACKREFERENCES_MODULE, CARETS_MODULE } from "./moduleHooks.ts";
-import { OCCURRENCES_REGEX } from "./quantifier.ts";
+import { LOOP, OCCURRENCES_REGEX } from "./quantifier.ts";
 import {
   MULTILINE,
   UNICODE,
@@ -87,6 +87,7 @@ export function walk(
   let rawLookarounds: RawLookaroundInfo[] | undefined;
   let rawReferences: RawReference[] | undefined;
   let lastBodyRunsOut = false;
+  const loopedAtoms = new Map<Part, string>();
 
   function extractSlice(length: number) {
     return source.slice(i, (i += length));
@@ -98,10 +99,28 @@ export function walk(
     let alternativeStart = 0;
     let alternativeRunsOut = false;
     let everyAlternativeRunsOut = true;
+    let atomEnd = -1;
+    let lastAtom = "";
+    let lastOptionalAtom = "";
+
+    function appendAtom(atom: string) {
+      lastAtom = atom;
+      lastOptionalAtom = asOptionalAtom(atom);
+      result.push(lastOptionalAtom);
+      atomEnd = result.length;
+    }
 
     function appendOptional(length: number) {
       if (result.length === alternativeStart) alternativeRunsOut = true;
-      result.push(asOptionalAtom(extractSlice(length)));
+      appendAtom(extractSlice(length));
+    }
+
+    function appendLoop(minimum: number, length: number) {
+      i += length;
+      if (minimum > 1) result.push("{" + String(minimum) + "}");
+      if (minimum > 0) result.push(lastOptionalAtom);
+      result.push(LOOP);
+      loopedAtoms.set(lastOptionalAtom, lastAtom);
     }
 
     function appendRaw(length: number) {
@@ -131,7 +150,7 @@ export function walk(
         return;
       }
       for (const atom of legacyEscapeAtoms(source.slice(start + 1, end))) {
-        result.push(asOptionalAtom(atom));
+        appendAtom(atom);
       }
     }
 
@@ -169,7 +188,7 @@ export function walk(
                 i++;
                 if (result.length === alternativeStart)
                   alternativeRunsOut = true;
-                result.push(asOptionalAtom(LITERAL_BACKSLASH));
+                appendAtom(LITERAL_BACKSLASH);
               }
               break;
             case "k": {
@@ -186,7 +205,7 @@ export function walk(
                 i += 2;
                 if (result.length === alternativeStart)
                   alternativeRunsOut = true;
-                result.push(asOptionalAtom(LITERAL_K));
+                appendAtom(LITERAL_K);
               }
               break;
             }
@@ -349,6 +368,11 @@ export function walk(
           break;
         case "*":
         case "+":
+          featureMask |= Feature.quantifier;
+          if (result.length === atomEnd)
+            appendLoop(source[i] === "+" ? 1 : 0, 1);
+          else appendRaw(1);
+          break;
         case "?":
           featureMask |= Feature.quantifier;
           appendRaw(1);
@@ -358,7 +382,13 @@ export function walk(
           const regExpExecArray = OCCURRENCES_REGEX.exec(source);
           if (regExpExecArray) {
             featureMask |= Feature.quantifier;
-            appendRaw(regExpExecArray[0].length);
+            const occurrences = regExpExecArray[0];
+            if (result.length === atomEnd && occurrences.endsWith(",}"))
+              appendLoop(
+                parseInt(occurrences.slice(1), 10),
+                occurrences.length
+              );
+            else appendRaw(occurrences.length);
           } else {
             appendOptional(1);
           }
@@ -485,5 +515,5 @@ export function walk(
 
   const parts = process(scopeOf(regex));
 
-  return { parts, featureMask, needs, rawLookarounds };
+  return { parts, featureMask, needs, rawLookarounds, loopedAtoms };
 }
