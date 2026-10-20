@@ -14,7 +14,7 @@ import {
 import type { Part } from "../../partialMatchRegExp/part.ts";
 import {
   LAZY_MARK,
-  LOOP,
+  KLEENE_STAR,
   isQuantifier
 } from "../../partialMatchRegExp/quantifier.ts";
 import { optionalAtomTextOf } from "./caretSyntax.ts";
@@ -95,7 +95,7 @@ function leadingCarets(
 
 function unwrapStarredAtoms(parts: Part[]) {
   for (let index = 1; index < parts.length; index++) {
-    if (parts[index] === LOOP) {
+    if (parts[index] === KLEENE_STAR) {
       const atom = parts[index - 1];
       if (isOptionalAtom(atom)) parts[index - 1] = optionalAtomTextOf(atom);
     }

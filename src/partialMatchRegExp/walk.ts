@@ -34,7 +34,7 @@ import type {
   RawReference
 } from "./rawLookaroundInfo.ts";
 import { BACKREFERENCES_MODULE, CARETS_MODULE } from "./moduleHooks.ts";
-import { LOOP, OCCURRENCES_REGEX } from "./quantifier.ts";
+import { KLEENE_STAR, OCCURRENCES_REGEX } from "./quantifier.ts";
 import {
   MULTILINE,
   UNICODE,
@@ -120,7 +120,7 @@ export function walk(
       const looped = caretFrame ? lastOptionalAtom : lastAtom;
       if (minimum > 0) result.push(looped);
       else result[atomEnd - 1] = looped;
-      result.push(LOOP);
+      result.push(KLEENE_STAR);
     }
 
     function appendRaw(length: number) {
