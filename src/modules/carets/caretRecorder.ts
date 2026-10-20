@@ -7,14 +7,17 @@ import {
   START_ANCHOR,
   UNSATISFIABLE,
   asOptionalAtom,
+  isOptionalAtom,
   isRawLookaround,
   isWordBoundaryAtom
 } from "../../partialMatchRegExp/atomSyntax.ts";
 import type { Part } from "../../partialMatchRegExp/part.ts";
 import {
   LAZY_MARK,
+  LOOP,
   isQuantifier
 } from "../../partialMatchRegExp/quantifier.ts";
+import { optionalAtomTextOf } from "./caretSyntax.ts";
 import { MULTILINE } from "../../partialMatchRegExp/scope.ts";
 import {
   ON_ALTERNATIVE,
@@ -90,7 +93,17 @@ function leadingCarets(
   return carets;
 }
 
+function unwrapStarredAtoms(parts: Part[]) {
+  for (let index = 1; index < parts.length; index++) {
+    if (parts[index] === LOOP) {
+      const atom = parts[index - 1];
+      if (isOptionalAtom(atom)) parts[index - 1] = optionalAtomTextOf(atom);
+    }
+  }
+}
+
 export default function caretRecorder(): CaretRecorder {
+  let outermost: Part[] | undefined;
   let lastBodyAlternativeStarts: number[] | undefined;
   let lastBodyLookaheadSpans: LookaheadSpan[] | undefined;
   let lastBodyCaretsBefore = 0;
@@ -99,6 +112,7 @@ export default function caretRecorder(): CaretRecorder {
   let verbatimMultilineCarets = 0;
 
   return (result, scope): CaretFrame => {
+    outermost ??= result;
     const caretsBefore = caretsSeen;
     const verbatimMultilineCaretsBefore = verbatimMultilineCarets;
     let lastGroupOpen = -1;
@@ -235,6 +249,7 @@ export default function caretRecorder(): CaretRecorder {
         lastBodyLookaheadSpans = lookaheadSpans;
         lastBodyCaretsBefore = caretsBefore;
         lastBodyVerbatimMultilineCaretsBefore = verbatimMultilineCaretsBefore;
+        if (result === outermost) unwrapStarredAtoms(result);
       }
     }) as CaretFrame;
   };

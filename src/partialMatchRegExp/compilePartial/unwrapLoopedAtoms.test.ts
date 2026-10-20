@@ -20,7 +20,8 @@ describe("an unbounded quantifier on an atom runs as a native loop after the min
     [/a{1,}/, `(?:a|${E})a*`],
     [/a{3,}/, `(?:a|${E}){3}a*`],
     [/a{3,}?/, `(?:a|${E}){3}a*?`],
-    [/a{03,}/, `(?:a|${E}){3}a*`],
+    [/a{03,}/, `(?:a|${E}){03}a*`],
+    [/a{1000000000000000000000,}/u, `(?:a|${E}){1000000000000000000000}a*`],
     [/\S+/, `(?:\\S|${E})\\S*`],
     [/.+/, `(?:.|${E}).*`],
     [/[^{}]*/, "[^{}]*"],
@@ -43,6 +44,10 @@ describe("an unbounded quantifier on an atom runs as a native loop after the min
     [/(?:ab)+/, `)+`]
   ])("leaves the bounded or grouped %s as it was", (pattern, looped) => {
     expect(sourceOf(pattern)).toContain(looped);
+  });
+
+  it("compiles a pattern needing multiline caret rules after an unbounded loop", () => {
+    expect(sourceOf(/x\S+^a/m)).toContain("[]*");
   });
 
   it.each([
@@ -92,7 +97,12 @@ describe("multi-megabyte runs through a quantified atom neither overflow the sta
     ["an 8 MiB run of \\S+", /\S+/, "x".repeat(EIGHT_MIB)],
     ["an 8 MiB run of \\w{2,}", /\w{2,}/, "x".repeat(EIGHT_MIB)],
     [
-      "an 8 MiB unclosed {{",
+      "an 8 MiB unclosed {{ with [^{}]*",
+      /\{\{[^{}]*\}\}/,
+      "{{" + "x".repeat(EIGHT_MIB)
+    ],
+    [
+      "an 8 MiB unclosed {{ with [\\s\\S]*?",
       /\{\{[\s\S]*?\}\}/,
       "{{" + "x".repeat(EIGHT_MIB)
     ],

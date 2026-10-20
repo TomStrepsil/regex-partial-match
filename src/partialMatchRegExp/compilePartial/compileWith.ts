@@ -6,7 +6,6 @@ import { UNCONSTRAINED_GROUP_SHAPE } from "./constants.ts";
 import { isBackreference } from "../part.ts";
 import groupShape from "./groupShape.ts";
 import toStatic from "./toStatic.ts";
-import unwrapLoopedAtoms from "./unwrapLoopedAtoms.ts";
 import type { BackreferenceHook } from "../backreferenceHook.ts";
 import type { CompiledPartial } from "./compiled.ts";
 
@@ -54,7 +53,7 @@ export default function compileWith(
   const backreferenceHook = maybeHasBackreference
     ? hooks.backreference
     : undefined;
-  const { featureMask, needs, rawLookarounds, ...walked } =
+  const { parts, featureMask, needs, rawLookarounds } =
     walkWithCaretRulesWhereNeeded(
       regex,
       declaresNamedGroup,
@@ -64,7 +63,6 @@ export default function compileWith(
       hooks.modifiers
     );
   if (needs) throw new TypeError("Needs the " + MODULES_NAMED_BY_MASK[needs]);
-  const parts = unwrapLoopedAtoms(walked.parts, walked.loopedAtoms);
 
   const backreferences = backreferenceHook
     ? parts.filter(isBackreference)

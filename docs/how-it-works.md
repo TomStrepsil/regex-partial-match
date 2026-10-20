@@ -31,15 +31,17 @@ A body containing a lookbehind keeps the branch, because a lookbehind judged at 
 /(a(?<=a))/ → /((?:a|$(?![\s\S]))(?<=a)|$(?![\s\S]))/
 ```
 
-### Quantified single characters
+### Quantified atoms
 
-An atom that reads exactly one character — a literal, `.`, a character class, or a single-character escape such as `\S`, `\w` or `\p{L}` — has its truncation branch moved outside its quantifier. Inside, every repetition would leave an alternative to backtrack into, and V8 runs out of stack on runs of a few MiB. Since such an atom can only meet the end of the input after its last repetition, the branch only has to cover a run cut short of the minimum:
+An atom with an unbounded quantifier (`*`, `+`, or `{n,}`) splits its minimum count from subsequent repetitions. The minimum keeps the truncation branch so a partial match cut short can still end at the end of input, and the remaining repetitions run as a native loop with no branch:
 
 ```javascript
-/\S+/     → /(?:\S+|$(?![\s\S]))/
-/a*/      → /a*/
-/a{3,5}?/ → /(?:a{3,5}?|a{0,2}?$(?![\s\S]))/
+/\S+/    → /(?:\S|$(?![\s\S]))\S*/
+/\w{2,}/ → /(?:\w|$(?![\s\S])){2}\w*/
+/a*b/    → /a*(?:b|$(?![\s\S]))/
 ```
+
+Writing the bare atom after the group rather than as a second alternative avoids V8's modifier fault, where a character class in a later alternative inside `(?i:...)` loses its case-insensitivity on Node.js 24/26 and Deno. Bounded counts such as `{3,5}?` or `{3}` are left as they were, since their repetitions are fixed and cannot run into unbounded backtrack stack depths.
 
 ### Why `$(?![\s\S])` and not `$`
 

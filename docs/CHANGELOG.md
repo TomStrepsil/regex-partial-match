@@ -9,14 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- `exec()` no longer throws `RangeError: Maximum call stack size exceeded` on V8 for a quantified single-character atom (`\S+`, `[^{}]*`, `.{2,}`) repeated over a few MiB: an unbounded quantifier on an atom now keeps its truncation branch only for the minimum count, then runs the atom as a native loop, in `exec()` and `hitEnd()` alike ([#137](https://github.com/TomStrepsil/regex-partial-match/issues/137))
+- `exec()` no longer throws `RangeError: Maximum call stack size exceeded` on V8 for an atom repeated by `*`, `+` or `{n,}` (`\S+`, `[^{}]*`, `\w{2,}`) over a few MiB: an unbounded quantifier on an atom now keeps its truncation branch only for the minimum count, then runs the atom as a native loop, in `exec()` and `hitEnd()` alike ([#137](https://github.com/TomStrepsil/regex-partial-match/issues/137))
 
 ### Changed
 
-- `docs/caveats.md`:
-  - adds "Very long repetitions", covering the multi-character groups and `hitEnd()` probe that can still overflow
-- `docs/how-it-works.md`:
-  - adds "Quantified single characters"
+- `README.md`:
+  - adds "Very long repetitions" to Caveats, covering the repetitions that can still overflow
 
 ## [2.1.0] - 2026-10-11
 

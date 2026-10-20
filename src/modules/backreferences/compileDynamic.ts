@@ -29,10 +29,7 @@ export default function compileDynamic(
   hooks: Hooks
 ) {
   const dynamic: DynamicPath = {
-    preScan: new RegExp(
-      parts.map(asPreScanPart).join(""),
-      flags
-    ),
+    preScan: new RegExp(parts.map(asPreScanPart).join(""), flags),
     expansionFitsCaptures: (expandedFrom, match, input) => {
       for (const backref of backreferences) {
         const baked = resolvedFromScan(backref, expandedFrom);

@@ -87,7 +87,6 @@ export function walk(
   let rawLookarounds: RawLookaroundInfo[] | undefined;
   let rawReferences: RawReference[] | undefined;
   let lastBodyRunsOut = false;
-  const loopedAtoms = new Map<Part, string>();
 
   function extractSlice(length: number) {
     return source.slice(i, (i += length));
@@ -115,12 +114,13 @@ export function walk(
       appendAtom(extractSlice(length));
     }
 
-    function appendLoop(minimum: number, length: number) {
+    function appendLoop(minimum: string | undefined, length: number) {
       i += length;
-      if (minimum > 1) result.push("{" + String(minimum) + "}");
-      if (minimum > 0) result.push(lastOptionalAtom);
+      if (minimum) result.push(minimum);
+      const looped = caretFrame ? lastOptionalAtom : lastAtom;
+      if (minimum !== undefined) result.push(looped);
+      else result[atomEnd - 1] = looped;
       result.push(LOOP);
-      loopedAtoms.set(lastOptionalAtom, lastAtom);
     }
 
     function appendRaw(length: number) {
@@ -370,7 +370,7 @@ export function walk(
         case "+":
           featureMask |= Feature.quantifier;
           if (result.length === atomEnd)
-            appendLoop(source[i] === "+" ? 1 : 0, 1);
+            appendLoop(source[i] === "+" ? "" : undefined, 1);
           else appendRaw(1);
           break;
         case "?":
@@ -383,12 +383,17 @@ export function walk(
           if (regExpExecArray) {
             featureMask |= Feature.quantifier;
             const occurrences = regExpExecArray[0];
-            if (result.length === atomEnd && occurrences.endsWith(",}"))
+            if (result.length === atomEnd && occurrences.endsWith(",}")) {
+              const minimum = parseInt(occurrences.slice(1), 10);
               appendLoop(
-                parseInt(occurrences.slice(1), 10),
+                minimum === 0
+                  ? undefined
+                  : minimum === 1
+                  ? ""
+                  : occurrences.slice(0, -2) + "}",
                 occurrences.length
               );
-            else appendRaw(occurrences.length);
+            } else appendRaw(occurrences.length);
           } else {
             appendOptional(1);
           }
@@ -515,5 +520,5 @@ export function walk(
 
   const parts = process(scopeOf(regex));
 
-  return { parts, featureMask, needs, rawLookarounds, loopedAtoms };
+  return { parts, featureMask, needs, rawLookarounds };
 }

@@ -184,13 +184,12 @@ The `gy` flag combination is also fully supported: `exec()`/`test()` behave as s
 
 ## Very long repetitions
 
-A quantified atom that reads exactly one character (`\S+`, `[^{}]*`, `.{2,}`) matches runs of any length — see [Quantified single characters](./how-it-works.md#quantified-single-characters). Anything else repeated keeps a truncation branch inside every repetition, and V8 can throw `RangeError: Maximum call stack size exceeded` once a single run reaches a few MiB:
+An atom repeated by `*`, `+` or `{n,}` (`\S+`, `[^{}]*`, `\w{2,}`) matches runs of any length — see [Quantified atoms](./how-it-works.md#quantified-atoms). Other repetitions keep a truncation branch inside every repetition, and V8 can throw `RangeError: Maximum call stack size exceeded` once a single run reaches a few MiB:
 
 - a quantified group spanning more than one character, as in `/(?:ab)+/` or `/(\w\s)*/`
-- a quantified backreference, or a character class that can match strings under `v` (`[\q{abc}]+`, `\p{RGI_Emoji}+`)
-- [`hitEnd()`](../README.md#hitend), whose probe keeps the branch in every repetition even for single characters
+- a quantified backreference, or a repetition with a bounded count or minimum in the millions (such as `/\w{1,5000000}/`)
 
-Split such input into smaller chunks, or quantify single characters where the pattern allows it.
+Split such input into smaller chunks, or quantify atoms without huge bounds where the pattern allows it.
 
 ## "String properties"
 
