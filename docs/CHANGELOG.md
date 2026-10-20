@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- `exec()` and `hitEnd()` no longer throw `RangeError: Maximum call stack size exceeded` on V8 when `*`, `+` or `{n,}` repeats an atom about 4 million times, as `/\S+/` over 8 MiB did
+
+### Changed
+
+- `README.md`:
+  - adds "Very long repetitions" to Caveats, covering the repetitions that can still overflow
+
 ## [2.1.0] - 2026-10-11
 
 ### Added

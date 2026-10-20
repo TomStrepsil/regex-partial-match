@@ -31,6 +31,22 @@ A body containing a lookbehind keeps the branch, because a lookbehind judged at 
 /(a(?<=a))/ → /((?:a|$(?![\s\S]))(?<=a)|$(?![\s\S]))/
 ```
 
+### Quantified atoms
+
+An atom with an unbounded quantifier (`*`, `+`, or `{n,}`) splits its minimum count from subsequent repetitions. The minimum keeps the truncation branch so a partial match cut short can still end at the end of input, and the remaining repetitions run as a native loop with no branch:
+
+```javascript
+/\S+/    → /(?:\S|$(?![\s\S]))\S*/
+/\w{2,}/ → /(?:\w|$(?![\s\S])){2}\w*/
+/a*b/    → /a*(?:b|$(?![\s\S]))/
+```
+
+Writing the bare atom after the group, rather than as a second alternative as in `(?:\w{2,}|\w{0,1}$(?![\s\S]))`, avoids a V8 fault: on Node.js 24 and 26 and Deno, a character class in a later alternative inside `(?i:…)` or `(?-i:…)` loses the modifier's case setting, so `/(?i:xx|[ab])/` doesn't match `"A"`.
+
+Bounded counts, such as `{3}` or `{3,5}`, are left as they were, since they stop at their maximum. V8 also loses the modifier's case setting on a bounded lazy loop over a character class, so `/(?i:[ab]{0,2}?)B/` matches only `"B"` of `"AB"`, which the per-repetition form avoids. A bounded count in the millions can still overflow; see [Very long repetitions](./caveats.md#very-long-repetitions).
+
+V8 15.8 gets both cases right, but no Node.js release has it yet. [nodejs/node#66277](https://github.com/nodejs/node/issues/66277) asks for the related modifier fix to be backported.
+
 ### Why `$(?![\s\S])` and not `$`
 
 A bare `$` alone isn't sufficient here: under the `m` (multiline) flag, including one turned on locally via a `(?m:...)` [modifier](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Modifier), `$` also matches immediately before *any* line terminator, not just the true end of input. That would let a `"\n"` the source pattern never allowed for be silently accepted as if the input had simply run out, e.g. `new PartialMatchRegExp(/^foobar/m)` would wrongly accept `"foo\nbaz"`. Appending `(?![\s\S])` narrows the disjunction down to strict end-of-input, regardless of multiline state.

@@ -182,6 +182,15 @@ There is no way to distinguish "scanning forward in the same string" from "testi
 
 The `gy` flag combination is also fully supported: `exec()`/`test()` behave as sticky, while `match()`, `matchAll()`, `replace()`, and `replaceAll()` iterate via `exec()` as global, matching [the language specification](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/sticky).
 
+## Very long repetitions
+
+An atom repeated by `*`, `+` or `{n,}` (`\S+`, `[^{}]*`, `\w{2,}`) matches runs of any length — see [Quantified atoms](./how-it-works.md#quantified-atoms). Other repetitions keep a truncation branch inside every repetition, and V8 can throw `RangeError: Maximum call stack size exceeded` once a single run reaches a few MiB:
+
+- a quantified group spanning more than one character, as in `/(?:ab)+/` or `/(\w\s)*/`
+- a quantified backreference, or a repetition with a bounded count or minimum in the millions (such as `/\w{1,5000000}/`)
+
+Split such input into smaller chunks, or quantify atoms without huge bounds where the pattern allows it.
+
 ## "String properties"
 
 As with surrogate pair matching, grapheme clusters / string properties can only match atomically.
