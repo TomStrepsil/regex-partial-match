@@ -1248,6 +1248,32 @@ describe("PartialMatchRegExp", () => {
         }
       });
     });
+
+    it.each([
+      ["an 8 MiB run of \\S+", /\S+/, "x".repeat(8 * 2 ** 20)],
+      ["an 8 MiB run of \\w{2,}", /\w{2,}/, "x".repeat(8 * 2 ** 20)],
+      [
+        "an 8 MiB unclosed {{ with [^{}]*",
+        /\{\{[^{}]*\}\}/,
+        "{{" + "x".repeat(8 * 2 ** 20)
+      ],
+      [
+        "an 8 MiB unclosed {{ with [\\s\\S]*?",
+        /\{\{[\s\S]*?\}\}/,
+        "{{" + "x".repeat(8 * 2 ** 20)
+      ],
+      [
+        "an 8 MiB run through the backreference path",
+        /(a)x+\1/,
+        "a" + "x".repeat(8 * 2 ** 20)
+      ]
+    ])("should match %s to the end of the input, without overflowing V8's backtrack stack in exec() or hitEnd()", (_, pattern, input) => {
+      const partial = new PartialMatchRegExp(pattern);
+      const match = partial.exec(input);
+      expect(match?.index).toBe(0);
+      expect(match?.[0].length).toBe(input.length);
+      expect(match && hitEnd(partial, match)).toBe(true);
+    });
   });
 
   // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/unicodeSets
@@ -1608,6 +1634,18 @@ c`)
         index: 0
       });
       expect(partial.exec(`A\nC`)).toNotMatch(); // dot-all disabled
+    });
+
+    it.each([
+      [/(?i:[ab]{2,})B/, "A", "A", 0],
+      [/(?i:[ab]{3})B/, "A", "A", 0],
+      [/(?i:[ab]{0,2}?)B/, "A", "A", 0],
+      [/(?-i:[ab]{2,})b/i, "A", "", 1]
+    ])("should keep the modifier's case setting on every repetition of a quantified atom, so %s against %j matches %j at %i", (pattern, input, match, index) => {
+      expect(new PartialMatchRegExp(pattern).exec(input)).toMatchAt({
+        match,
+        index
+      });
     });
   });
 

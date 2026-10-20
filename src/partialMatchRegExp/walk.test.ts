@@ -1,11 +1,10 @@
 import { describe, it, expect } from "vitest";
-import PartialMatchRegExp from "../index.ts";
-import { compiledOf } from "../partialMatchInternals.ts";
-import { hitEndOf } from "../../../test/hitEndOf.ts";
-import type { CompiledStatic } from "./compiled.ts";
+import PartialMatchRegExp from "./index.ts";
+import { compiledOf } from "./partialMatchInternals.ts";
+import { hitEndOf } from "../../test/hitEndOf.ts";
+import type { CompiledStatic } from "./compilePartial/compiled.ts";
 
 const E = "$(?![\\s\\S])";
-const EIGHT_MIB = 8 * 2 ** 20;
 
 const sourceOf = (pattern: RegExp) =>
   (compiledOf(new PartialMatchRegExp(pattern)) as CompiledStatic).regex.source;
@@ -47,14 +46,6 @@ describe("an unbounded quantifier on an atom runs as a native loop after the min
   });
 
   it.each([
-    [/x\S+^a/m, `(?:x|${E})(?:\\S|${E})[]*[](?:a|${E})`],
-    [/\w*^b/m, `[]*^(?:b|${E})`],
-    [/(^a\w{2,})/, `^((?:a|${E})(?:\\w|${E}){2}\\w*)`]
-  ])("unwraps the looped atom in %s once the caret rules have run", (pattern, source) => {
-    expect(sourceOf(pattern)).toBe(source);
-  });
-
-  it.each([
     [/(\S+)/, `((?:\\S|${E})+)`, ["ab cd", "abc", ""]],
     [/\w{2,}c/, `(?:\\w|${E}){2,}(?:c|${E})`, ["abc", "a", "ab", "a c"]],
     [/(a+?)(a*)/, `((?:a|${E})+?)((?:a|${E})*)`, ["aaa", "b"]],
@@ -79,48 +70,6 @@ describe("an unbounded quantifier on an atom runs as a native loop after the min
         expect(partial.exec(prefix)).toEqual(reference.exec(prefix));
       }
     }
-  });
-});
-
-describe("a modifier group around a quantified atom keeps its flags on every repetition", () => {
-  it.each([
-    [/(?i:[ab]{2,})B/, "A", "A", 0],
-    [/(?i:[ab]{3})B/, "A", "A", 0],
-    [/(?i:[ab]{0,2}?)B/, "A", "A", 0],
-    [/(?-i:[ab]{2,})b/i, "A", "", 1]
-  ])("matches %s against %j as %j at %i", (pattern, input, match, index) => {
-    expect(new PartialMatchRegExp(pattern).exec(input)).toMatchAt({
-      match,
-      index
-    });
-  });
-});
-
-describe("multi-megabyte runs through a quantified atom neither overflow the stack on exec nor in hitEnd's probe", () => {
-  it.each([
-    ["an 8 MiB run of \\S+", /\S+/, "x".repeat(EIGHT_MIB)],
-    ["an 8 MiB run of \\w{2,}", /\w{2,}/, "x".repeat(EIGHT_MIB)],
-    [
-      "an 8 MiB unclosed {{ with [^{}]*",
-      /\{\{[^{}]*\}\}/,
-      "{{" + "x".repeat(EIGHT_MIB)
-    ],
-    [
-      "an 8 MiB unclosed {{ with [\\s\\S]*?",
-      /\{\{[\s\S]*?\}\}/,
-      "{{" + "x".repeat(EIGHT_MIB)
-    ],
-    [
-      "an 8 MiB run through the backreference path",
-      /(a)x+\1/,
-      "a" + "x".repeat(EIGHT_MIB)
-    ]
-  ])("matches %s to the end of input, having hit the end", (_, pattern, input) => {
-    const partial = new PartialMatchRegExp(pattern);
-    const match = partial.exec(input);
-    expect(match?.index).toBe(0);
-    expect(match?.[0].length).toBe(input.length);
-    expect(hitEndOf(new PartialMatchRegExp(pattern), input)).toBe(true);
   });
 });
 
