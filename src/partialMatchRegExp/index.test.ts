@@ -1266,6 +1266,11 @@ describe("PartialMatchRegExp", () => {
         "an 8 MiB run through the backreference path",
         /(a)x+\1/,
         "a" + "x".repeat(8 * 2 ** 20)
+      ],
+      [
+        "an 8 MiB run after a caret moved in front of its group",
+        /(^\S+)/,
+        "x".repeat(8 * 2 ** 20)
       ]
     ])("should match %s to the end of the input, without overflowing V8's backtrack stack in exec() or hitEnd()", (_, pattern, input) => {
       const partial = new PartialMatchRegExp(pattern);
@@ -1273,6 +1278,87 @@ describe("PartialMatchRegExp", () => {
       expect(match?.index).toBe(0);
       expect(match?.[0].length).toBe(input.length);
       expect(match && hitEnd(partial, match)).toBe(true);
+    });
+
+    it("should construct a pattern whose minimum count is too large for a safe integer", () => {
+      expect(
+        () => new PartialMatchRegExp(/a{1000000000000000000000,}/u)
+      ).not.toThrow();
+    });
+
+    describe("should match as the same atom repeated by a non-capturing group, which keeps the truncation branch in every repetition, with the same hitEnd()", () => {
+      function expectSameAs(
+        partial: InstanceType<typeof PartialMatchRegExp>,
+        grouped: InstanceType<typeof PartialMatchRegExp>,
+        inputs: readonly string[]
+      ) {
+        for (const input of inputs) {
+          const match = partial.exec(input);
+          const expected = grouped.exec(input);
+          expect(match && [match.index, ...match]).toEqual(
+            expected && [expected.index, ...expected]
+          );
+          if (match === null || expected === null) continue;
+          expect(hitEnd(partial, match)).toBe(hitEnd(grouped, expected));
+        }
+      }
+
+      const prefixesOf = (inputs: readonly string[]) =>
+        inputs.flatMap((input) =>
+          Array.from({ length: input.length + 1 }, (_, end) =>
+            input.slice(0, end)
+          )
+        );
+
+      it.each([
+        [/(\S+)/, /((?:\S)+)/, ["ab cd", "abc", ""]],
+        [/\w{2,}c/, /(?:\w){2,}c/, ["abc", "a", "ab", "a c"]],
+        [/(a+?)(a*)/, /((?:a)+?)((?:a)*)/, ["aaa", "b"]],
+        [/x\d{3,}?y/, /x(?:\d){3,}?y/, ["x12", "x123y", "x1234y"]],
+        [/\{\{[^{}]*\}\}/, /\{\{(?:[^{}])*\}\}/, ["{{ab}}", "{{ab", "{"]],
+        [/(?i:[ab]{2,})B/, /(?i:(?:[ab]){2,})B/, ["A", "aB", "abb"]],
+        [/[\q{abc}]+d/v, /(?:[\q{abc}])+d/v, ["abcabcd", "abcab", "ab"]],
+        [/\p{RGI_Emoji}+!/v, /(?:\p{RGI_Emoji})+!/v, ["👍🏽👍!", "👍🏽"]]
+      ])("for %s", (pattern, grouped, inputs) => {
+        expectSameAs(
+          new PartialMatchRegExp(pattern),
+          new PartialMatchRegExp(grouped),
+          prefixesOf(inputs)
+        );
+      });
+
+      const atoms = ["a", "[ab]", ".", "\\w", "[^b]", "[]"];
+      const quantifiers = ["*", "+", "{0,}", "{1,}", "{2,}", "*?", "+?", "{2,}?"];
+      const contexts = [
+        (quantified: string) => quantified,
+        (quantified: string) => "(" + quantified + ")c",
+        (quantified: string) => "(?:" + quantified + "|b)c",
+        (quantified: string) => "(?=" + quantified + "c)"
+      ];
+      const inputs = [""];
+      for (let index = 0; inputs[index].length < 3; index++) {
+        for (const character of ["a", "b", "c", "A", "\n"])
+          inputs.push(inputs[index] + character);
+      }
+
+      it.each(
+        atoms.flatMap((atom) =>
+          quantifiers.map((quantifier) => [atom, quantifier])
+        )
+      )("for %s%s in each context", (atom, quantifier) => {
+        for (const context of contexts) {
+          for (const flags of ["", "i"]) {
+            expectSameAs(
+              new PartialMatchRegExp(context(atom + quantifier), flags),
+              new PartialMatchRegExp(
+                context("(?:" + atom + ")" + quantifier),
+                flags
+              ),
+              inputs
+            );
+          }
+        }
+      });
     });
   });
 
