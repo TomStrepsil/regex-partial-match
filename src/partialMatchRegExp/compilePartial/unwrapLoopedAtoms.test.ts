@@ -46,8 +46,12 @@ describe("an unbounded quantifier on an atom runs as a native loop after the min
     expect(sourceOf(pattern)).toContain(looped);
   });
 
-  it("compiles a pattern needing multiline caret rules after an unbounded loop", () => {
-    expect(sourceOf(/x\S+^a/m)).toContain("[]*");
+  it.each([
+    [/x\S+^a/m, `(?:x|${E})(?:\\S|${E})[]*[](?:a|${E})`],
+    [/\w*^b/m, `[]*^(?:b|${E})`],
+    [/(^a\w{2,})/, `^((?:a|${E})(?:\\w|${E}){2}\\w*)`]
+  ])("unwraps the looped atom in %s once the caret rules have run", (pattern, source) => {
+    expect(sourceOf(pattern)).toBe(source);
   });
 
   it.each([
@@ -117,5 +121,44 @@ describe("multi-megabyte runs through a quantified atom neither overflow the sta
     expect(match?.index).toBe(0);
     expect(match?.[0].length).toBe(input.length);
     expect(hitEndOf(new PartialMatchRegExp(pattern), input)).toBe(true);
+  });
+});
+
+describe("matches as the same atom repeated by a group, which keeps the truncation branch in every repetition, with the same hitEnd()", () => {
+  const atoms = ["a", "[ab]", ".", "\\w", "[^b]", "[]"];
+  const quantifiers = ["*", "+", "{0,}", "{1,}", "{2,}", "*?", "+?", "{2,}?"];
+  const contexts = [
+    (quantified: string) => quantified,
+    (quantified: string) => "(" + quantified + ")c",
+    (quantified: string) => "(?:" + quantified + "|b)c",
+    (quantified: string) => "(?=" + quantified + "c)"
+  ];
+  const inputs = [""];
+  for (let index = 0; inputs[index].length < 3; index++) {
+    for (const character of ["a", "b", "c", "A", "\n"])
+      inputs.push(inputs[index] + character);
+  }
+
+  it.each(
+    atoms.flatMap((atom) => quantifiers.map((quantifier) => [atom, quantifier]))
+  )("%s%s", (atom, quantifier) => {
+    for (const context of contexts) {
+      for (const flags of ["", "i"]) {
+        const partial = new PartialMatchRegExp(context(atom + quantifier), flags);
+        const grouped = new PartialMatchRegExp(
+          context("(?:" + atom + ")" + quantifier),
+          flags
+        );
+        for (const input of inputs) {
+          const match = partial.exec(input);
+          const expected = grouped.exec(input);
+          expect(match && [match.index, ...match]).toEqual(
+            expected && [expected.index, ...expected]
+          );
+          if (match === null || expected === null) continue;
+          expect(hitEndOf(partial, input)).toBe(hitEndOf(grouped, input));
+        }
+      }
+    }
   });
 });

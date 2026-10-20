@@ -41,7 +41,11 @@ An atom with an unbounded quantifier (`*`, `+`, or `{n,}`) splits its minimum co
 /a*b/    → /a*(?:b|$(?![\s\S]))/
 ```
 
-Writing the bare atom after the group rather than as a second alternative avoids V8's modifier fault, where a character class in a later alternative inside `(?i:...)` loses its case-insensitivity on Node.js 24/26 and Deno. Bounded counts such as `{3,5}?` or `{3}` are left as they were, since their repetitions are fixed and cannot run into unbounded backtrack stack depths.
+Writing the bare atom after the group, rather than as a second alternative as in `(?:\w{2,}|\w{0,1}$(?![\s\S]))`, avoids a V8 fault: on Node.js 24 and 26 and Deno, a character class in a later alternative inside `(?i:…)` or `(?-i:…)` loses the modifier's case setting, so `/(?i:xx|[ab])/` doesn't match `"A"`.
+
+Bounded counts, such as `{3}` or `{3,5}`, are left as they were, since they stop at their maximum. V8 also loses the modifier's case setting on a bounded lazy loop over a character class, so `/(?i:[ab]{0,2}?)B/` matches only `"B"` of `"AB"`, which the per-repetition form avoids. A bounded count in the millions can still overflow; see [Very long repetitions](./caveats.md#very-long-repetitions).
+
+V8 15.8 gets both cases right, but no Node.js release has it yet. [nodejs/node#66277](https://github.com/nodejs/node/issues/66277) asks for the related modifier fix to be backported.
 
 ### Why `$(?![\s\S])` and not `$`
 

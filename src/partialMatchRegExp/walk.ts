@@ -114,11 +114,11 @@ export function walk(
       appendAtom(extractSlice(length));
     }
 
-    function appendLoop(minimum: string | undefined, length: number) {
+    function appendLoop(minimum: number, requiredCount: string, length: number) {
       i += length;
-      if (minimum) result.push(minimum);
+      if (minimum > 1) result.push(requiredCount);
       const looped = caretFrame ? lastOptionalAtom : lastAtom;
-      if (minimum !== undefined) result.push(looped);
+      if (minimum > 0) result.push(looped);
       else result[atomEnd - 1] = looped;
       result.push(LOOP);
     }
@@ -370,7 +370,7 @@ export function walk(
         case "+":
           featureMask |= Feature.quantifier;
           if (result.length === atomEnd)
-            appendLoop(source[i] === "+" ? "" : undefined, 1);
+            appendLoop(source[i] === "+" ? 1 : 0, "", 1);
           else appendRaw(1);
           break;
         case "?":
@@ -384,13 +384,9 @@ export function walk(
             featureMask |= Feature.quantifier;
             const occurrences = regExpExecArray[0];
             if (result.length === atomEnd && occurrences.endsWith(",}")) {
-              const minimum = parseInt(occurrences.slice(1), 10);
               appendLoop(
-                minimum === 0
-                  ? undefined
-                  : minimum === 1
-                  ? ""
-                  : occurrences.slice(0, -2) + "}",
+                parseInt(occurrences.slice(1), 10),
+                occurrences.slice(0, -2) + "}",
                 occurrences.length
               );
             } else appendRaw(occurrences.length);

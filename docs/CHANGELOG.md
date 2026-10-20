@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- `exec()` no longer throws `RangeError: Maximum call stack size exceeded` on V8 for an atom repeated by `*`, `+` or `{n,}` (`\S+`, `[^{}]*`, `\w{2,}`) over a few MiB: an unbounded quantifier on an atom now keeps its truncation branch only for the minimum count, then runs the atom as a native loop, in `exec()` and `hitEnd()` alike ([#137](https://github.com/TomStrepsil/regex-partial-match/issues/137))
+- `exec()` and `hitEnd()` no longer throw `RangeError: Maximum call stack size exceeded` on V8 when `*`, `+` or `{n,}` repeats an atom about 4 million times, as `/\S+/` over 8 MiB did
 
 ### Changed
 
