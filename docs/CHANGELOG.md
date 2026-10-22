@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- `backreferencesWith({ longestPartial })`, from `regex-partial-match/modules` and `regex-partial-match/modules/backreferences`, sets how far into its group's capture a backreference can run out of input (64 characters by default)
+- `backreferencesWith({ longestPartial })`, from `regex-partial-match/modules` and `regex-partial-match/modules/backreferences`, returns the `backreferences` module with another limit on how far into its group's capture a backreference can run out of input
 
 ### Fixed
 
@@ -23,7 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - `exec()` prefers a higher-priority alternative that ran out of input to a native match on a pattern with backreferences, as it does without them: `/(a)\1b|a/` on `"aa"` returns `"aa"`, not `"a"`
-- A backreference runs out of input part way only within the first `longestPartial` characters of its capture, and on an engine without lookbehind it matches only in full or at the end of the input
+- A backreference runs out of input part way only within the first 64 characters of its capture, or the limit `backreferencesWith()` sets, and on an engine without lookbehind it matches only in full or at the end of the input
 - `README.md`:
   - adds "Very long repetitions" to Caveats, covering the repetitions that can still overflow
   - lists backtracking among the caveats

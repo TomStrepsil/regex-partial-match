@@ -77,7 +77,7 @@ The following cases remain atomic (full native value or exactly at true end of i
 
 - **Backreferences inside lookbehinds and negative lookarounds.** These are verbatim contexts — the value a lookbehind or negative lookahead requires must be fully present or fully absent, so there's no partial-prefix position to expand into.
 - **A forward reference** — `\1` written before group 1 opens, or referencing it while it's still open (a self-reference inside the group's own body, e.g. `\1` in `/^(\1a)$/`). Per ECMAScript the engine always resolves it to empty there (it can't have participated yet, even on a later iteration of an enclosing quantifier), so there's no real value being withheld.
-- **A prefix longer than [`longestPartial`](./modules/backreferences.md#longestpartial)** (64 characters by default). `/(\w+)-\1/` matches `"abcd-abc"` from index 0, but with `longestPartial` set to 2 only from index 5, where `"abc"` is a prefix of a full match on its own.
+- **A prefix longer than [`longestPartial`](./modules/backreferences.md#longestpartial)** (64 characters in the `backreferences` module, or another limit set with `backreferencesWith()`). `/(\w+)-\1/` matches `"abcd-abc"` from index 0, but with `longestPartial` set to 2 only from index 5, where `"abc"` is a prefix of a full match on its own.
 - **Every backreference, on an engine without lookbehind.** The check of a prefix needs one, so such an engine gets atomic backreferences throughout.
 - **A `\k<name>` written before a later declaration of its duplicated name.** ECMAScript permits a duplicated name only across disjoint alternatives. This one is stricter than the rest — see [docs/modules/backreferences.md](./modules/backreferences.md#duplicate-named-groups) for why, and for the workaround.
 

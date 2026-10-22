@@ -13,7 +13,8 @@ export interface BackreferencesOptions {
    * before the input ends, for the match to count as partial. A longer run
    * is matched only once the input holds the whole capture. Each
    * backreference that fails to match reads up to this many characters
-   * ahead, so a larger value costs more on long input. Defaults to 64.
+   * ahead, so a larger value costs more on long input. The `backreferences`
+   * module, which the default `PartialMatchRegExp` binds, uses 64.
    */
   readonly longestPartial: number;
 }
@@ -21,7 +22,8 @@ export interface BackreferencesOptions {
 const configured = new Map<number, Module>();
 
 /**
- * The backreferences module, with `options` in place of its defaults.
+ * The backreferences module with another `longestPartial` than the 64 the
+ * `backreferences` module uses.
  *
  * The same options return the same module, so `withModules` returns the same
  * class for them.
@@ -55,7 +57,9 @@ export function backreferencesWith({
 
 /**
  * The module that matches a backreference against the text its group
- * captured, for `withModules` from `regex-partial-match/core`.
+ * captured, for `withModules` from `regex-partial-match/core`. A backreference
+ * runs out of input part way only within the first 64 characters of its
+ * capture; `backreferencesWith` sets another limit.
  *
  * Without it, the `core` class throws a `TypeError` for a pattern whose
  * backreference can only be resolved at match time.
