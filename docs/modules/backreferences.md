@@ -20,7 +20,7 @@ re.exec("abcabc"); // full:    m[0] = "abcabc", m[1] = "abc"
 
 The pattern is walked once, into parts that every rendering below is built from, so they all agree on what is a backreference. A `\N` is a backreference only when 1 ≤ `N` ≤ the pattern's final group count. Otherwise it's an Annex B escape, split into one atom per character it stands for (`\128` is `\x0a` then `8`). The group count, and whether any group is named, come from the engine. That lookup runs only when the source may hold a `\N` or `\k<` and the pattern isn't in `u` or `v` mode.
 
-A pattern with no backreference left compiles to the static transform. Otherwise each backward backreference becomes a choice of three, in this order. Written with an atomic group and a possessive quantifier, which JavaScript doesn't have, it reads:
+A pattern with no backreference left compiles to the static transform. Otherwise each backward backreference becomes a choice of three, in this order. Written with an [atomic group](https://www.regular-expressions.info/atomic.html) and a [possessive quantifier](https://www.regular-expressions.info/possessive.html) (which JavaScript doesn't have), it reads:
 
 ```text
 \N  →  (?:
