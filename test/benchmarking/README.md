@@ -86,14 +86,9 @@ Three patterns span the complexity range the walker branches on:
 
 `hitEnd()` re-runs a twin of the compiled pattern to recover whether a match took a truncation branch. The twin is built lazily, so the cost splits in two and both halves are tracked: the one-off probe build and the steady-state cost of one anchored `exec` per call thereafter. In each group the probe build is the delta between the first two benches, which differ only by the `hitEnd()` call.
 
-The two paths cache the probe at different granularities, which is why they are measured separately:
+Both paths build the probe once per instance, so every later call on that instance is steady state. On the backreference path the probe is rendered from the same regex `exec()` runs, so it serves every match whatever its captures.
 
-| Path          | Probe cached on                   | Consequence                                                                                         |
-| ------------- | ---------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| Static        | The instance                       | Every later call on that instance is steady state                                                    |
-| Backreference | The instance, keyed by expansion   | Fresh matches whose captures expand alike share the same probe; a capture that differs rebuilds it   |
-
-The last three benches in the backreference group are that difference, and are the ones to watch: asking about the same match repeatedly is cheap, a fresh match with the same capture is just as cheap since it reuses the cached expansion probe, and only a fresh match with a *different* capture pays to rebuild — roughly an order of magnitude more expensive. A further group covers a raw lookaround, the one case where probe construction does more than splice a marker into each truncation branch — the backreferences inside it have to be renumbered past every marker added before them.
+The last three benches in the backreference group keep the names they had when that path cached a probe per expansion, so their history stays comparable. The alternating-capture bench rebuilt the probe on every match then; it should now cost what the other two do, and is the one to watch for that cache coming back. A further group covers a raw lookaround, the one case where probe construction does more than splice a marker into each truncation branch — the backreferences inside it have to be renumbered past every marker added before them.
 
 Three more groups cover marking kinds this scenario's predecessor (`isComplete()`) never had a probe for: a word boundary at a truncation point, which splices in two markers instead of one; a greedy open-ended quantifier or a trailing `$` reading the end on its own, with no backreference or exact-count atom behind it; and an optional atom right at the end, spliced in by rewriting the previous probed segment rather than appending a marker. All three are cheap, single-instance, static-path probes, so each is measured the same way as the ISO date group above.
 
@@ -118,3 +113,31 @@ Two workloads rather than one because the suite spans exec-bound benches and con
 ### 9. Backtracking (`backtracking.bench.ts`)
 
 A quantifier over a backreference, followed by a lookbehind that fails at the end of the input, once made `exec()` try exponentially many splits of a run of `a`. Each group times native and partial `exec()` on 12 `a`s for one such shape: a quantified backreference, a group holding only backreferences, a bounded count, and a capture nothing reads, each over `(a+)`, and once over a one-character group. Each should cost about what native does; before, they cost milliseconds to a quarter of a second, so a regression shows by orders of magnitude.
+
+## 🤖 CI integration
+
+The workflow at [`.github/workflows/benchmark.yml`](../../.github/workflows/benchmark.yml) runs on every push to `main` and on pull requests targeting `main`.
+
+Results are stored and compared by [`benchmark-action/github-action-benchmark`](https://github.com/benchmark-action/github-action-benchmark) using the `customSmallerIsBetter` tool. A regression alert comment is posted on the PR if any benchmark regresses beyond 150% of the stored baseline.
+
+Numbers are compared as a ratio to the calibration group, not in nanoseconds, so a regression alert reflects the code rather than which machine the job landed on. No nanosecond figure is lost: every point carries its own, and the calibration it was divided by, in its tooltip. The oldest stored points predate the blended calibration and are bridged from a single native workload, at some cost in noise; those say so in their tooltip.
+
+The baseline is only updated on merges to `main` — PR runs read but do not write the baseline.
+
+## 📊 Output format
+
+`../../.github/scripts/mitata-to-action-format.ts` converts mitata's JSON output to the `github-action-benchmark` schema:
+
+```json
+[
+  {
+    "name": "<group> — <bench name>",
+    "value": 1.6459,
+    "unit": "× calibration",
+    "range": "± 0.0143",
+    "extra": "90.43ns  (min: 88.10ns  p75: 91.20ns  p99: 99.40ns)  calibration: 54.94ns"
+  }
+]
+```
+
+Mitata v1's JSON stats are already in nanoseconds per iteration. The converter divides each one by the geometric mean of the calibration group and reports the ratio, keeping the raw nanoseconds and the calibration figure in `extra` so absolute cost and machine speed both stay visible. The calibration benches themselves are not emitted.

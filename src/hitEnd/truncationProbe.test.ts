@@ -86,6 +86,27 @@ describe("buildTruncationProbe", () => {
     expect(hitEndOf(partial, "abc")).toBe(true);
     expect(hitEndOf(partial, "abcd")).toBe(false);
   });
+
+  it.each([/(a)\1?(\w+)-\2/, /(a)a?(\w+)-\2/])(
+    "renumbers a backreference after a greedy optional backreference or optional atom past no marker of the ?, in %s",
+    (pattern) => {
+      const partial = new PartialMatchRegExp(pattern);
+
+      expect(probeOf(pattern).regex.source).toContain("(?!\\4)");
+      expect(pattern.exec("ab-b")?.[0]).toBe("ab-b");
+      expect(hitEndOf(partial, "ab-")).toBe(true);
+      expect(hitEndOf(partial, "ab-b")).toBe(false);
+    }
+  );
+
+  it("renumbers a raw lookaround's backreference after a greedy optional backreference past no marker of the ?", () => {
+    const pattern = /^(a)\1?(\w+)-(?!\2)c/;
+    const partial = new PartialMatchRegExp(pattern);
+
+    expect(probeOf(pattern).regex.source).toContain("(?!\\4)(?:c|");
+    expect(pattern.exec("ab-cz")?.[0]).toBe("ab-c");
+    expect(hitEndOf(partial, "ab-c")).toBe(false);
+  });
 });
 
 describe("the raw lookarounds construction records for the probe", () => {

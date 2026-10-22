@@ -84,6 +84,7 @@ function markersAddedBy(marking: Marking) {
   switch (marking) {
     case MARKING.none:
     case MARKING.rawLookaround:
+    case MARKING.optionalAtEnd:
       return 0;
     case MARKING.wordBoundary:
       return 2;

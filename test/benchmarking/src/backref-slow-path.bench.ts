@@ -1,5 +1,4 @@
 /**
-/**
  * Scenario 4: a backreference matched at run time
  *
  * A backreference whose group can capture more than one character is
