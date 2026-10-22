@@ -20,15 +20,30 @@ re.exec("abcabc"); // full:    m[0] = "abcabc", m[1] = "abc"
 
 The pattern is walked once, into parts that every rendering below is built from, so they all agree on what is a backreference. A `\N` is a backreference only when 1 ≤ `N` ≤ the pattern's final group count. Otherwise it's an Annex B escape, split into one atom per character it stands for (`\128` is `\x0a` then `8`). The group count, and whether any group is named, come from the engine. That lookup runs only when the source may hold a `\N` or `\k<` and the pattern isn't in `u` or `v` mode.
 
-A pattern with no backreference left compiles to the static transform. Otherwise each backward backreference becomes a choice of three, in this order:
+A pattern with no backreference left compiles to the static transform. Otherwise each backward backreference becomes a choice of three, in this order. Written with an atomic group and a possessive quantifier, which JavaScript doesn't have, it reads:
+
+```text
+\N  →  (?:
+         \N                                            the whole capture
+       | (?!\N)(?![\s\S]{L+1})                         it doesn't fit, and at most L characters are left
+         (?<rest>[\s\S]++)                             take the rest of the input
+         (?<=(?=\k<rest>)(?>(?=\N)[\s\S]*?)\k<rest>)   the nearest occurrence of the capture before it
+                                                       starts with the rest
+       | (?![\s\S])(?!\N)                              nothing is left, and \N didn't already match empty
+       )
+```
+
+1. **`\N`** — the whole capture, as native.
+2. **Run out part way** — the rest of the input is shorter than the capture and a prefix of it. `(?!\N)` rules out the capture fitting in full, and `(?![\s\S]{L+1})` limits the rest to `L` characters. The lookbehind reads right to left: it steps back over the rest, finds the nearest point where the capture starts and commits to it, then checks the rest starts there too. Every occurrence holds the same text, so the nearest one decides, and committing to it keeps the check from reading further back. Only a group a lookahead captured further on has no occurrence before this point, and its capture can't start with the rest.
+3. **`(?![\s\S])(?!\N)`** — the input ends before the backreference starts. `(?!\N)` keeps this branch from matching where `\N` already matched the same empty string, as it does when the group captured nothing. Without it, a backreference repeated at the end of the input would give the engine two ways to match each repetition, and a failing assertion after them would make it try every combination, doubling the time with each repetition, as `/(a?)\1{22}(?<=b)/` on `"c"` did.
+
+The module writes this in native syntax, with two hidden groups, `\H` and `\G`:
 
 ```text
 \N  →  (?:\N|(?!\N)(?![\s\S]{L+1})(?=([\s\S]+))(?<=(?=\N)([\s\S]*?))(?<=(?=\H)\G)\H|$(?![\s\S])(?!\N))
 ```
 
-1. **`\N`** — the whole capture, as native.
-2. **Run out part way** — the rest of the input is shorter than the capture and a prefix of it. `(?!\N)` rules out the capture fitting in full. `(?![\s\S]{L+1})` limits the rest to `L` characters. `(?=([\s\S]+))` captures the rest in a hidden group `\H`. The first lookbehind finds the nearest occurrence of the capture starting before this point, usually the group's own capture, and captures the text from there to here in a second hidden group `\G`. The second steps back over `\G` to that occurrence and checks it starts with the rest. Every occurrence holds the same text, so the nearest one decides. Only a group a lookahead captured further on has none, and its capture can't start with the rest. `\H` then consumes the rest.
-3. **`$(?![\s\S])(?!\N)`** — the input ends before the backreference starts. `(?!\N)` keeps this branch from matching where `\N` already matched the same empty string, as it does when the group captured nothing. Without it, a backreference repeated at the end of the input would give the engine two ways to match each repetition, and a failing assertion after them would make it try every combination, doubling the time with each repetition, as `/(a?)\1{22}(?<=b)/` on `"c"` did.
+`(?=([\s\S]+))…\H` is the possessive `[\s\S]++`: a lookahead captures the rest, which can't be backtracked into, and `\H` replays it, as `regex` compiles one. The checks sit between the capture and the replay. The atomic group inside the lookbehind becomes two lookbehinds: the first captures the text from the nearest occurrence to here as `\G`, and the second steps back over `\G` and checks the rest there. `regex`'s own emulation reads forward from where a lookbehind starts but replays backward, so inside one it fails: it compiles `(?<=(?>a|ab))c` to a pattern that finds nothing in `"abc"`.
 
 `L` is the smaller of `longestPartial` (64 by default) and the longest text the group can capture, less one. A group that captures one character at most, as `(\w)` does, needs no second branch, so its backreference stays `(?:\N|$(?![\s\S])(?!\N))`. The longest capture is read from the walk: a quantifier without a maximum, or a group holding a forward reference, makes it unbounded, and so do a group inside a lookbehind or negative lookahead and, under `v`, a class or property escape that can match a string (`[\q{abc}]`, `\p{RGI_Emoji}`).
 
