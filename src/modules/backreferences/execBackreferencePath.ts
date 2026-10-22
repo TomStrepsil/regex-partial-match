@@ -1,4 +1,4 @@
-import type { DynamicPath } from "../../partialMatchRegExp/compilePartial/compiled.ts";
+import type { BackreferencePath } from "../../partialMatchRegExp/compilePartial/compiled.ts";
 import { RUN_OUT_BRANCH_GROUPS } from "../../partialMatchRegExp/runOutBranch.ts";
 
 function withoutHiddenGroups(
@@ -12,12 +12,12 @@ function withoutHiddenGroups(
   return match;
 }
 
-export default function execDynamic(
+export default function execBackreferencePath(
   this: RegExp,
-  dynamic: DynamicPath,
+  backreferencePath: BackreferencePath,
   input: string
 ) {
-  const { regex, hiddenGroups, nativeMayStartEarlier } = dynamic;
+  const { regex, hiddenGroups, nativeMayStartEarlier } = backreferencePath;
   const honoursLastIndex = this.global || this.sticky;
   const start = honoursLastIndex ? this.lastIndex : 0;
   regex.lastIndex = start;

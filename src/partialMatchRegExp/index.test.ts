@@ -4000,7 +4000,7 @@ c`)
         expect(partial.exec("ab")).toBeNull();
       });
 
-      it("exercises the dynamic path directly, since native has no full match here to shortcut through", () => {
+      it("exercises the backreference path directly, since native has no full match here to shortcut through", () => {
         const partial = new PartialMatchRegExp(/^(?:\1(a))+$/);
 
         expect(partial.exec("")).toMatchAt({ match: "", index: 0 });

@@ -854,7 +854,7 @@ describe("hitEnd()", () => {
       expect(hitEndOf(partial, "abc")).toBe(false);
     });
 
-    it("also renumbers correctly on the backreference (dynamic) path", () => {
+    it("also renumbers correctly on the backreference path", () => {
       const partial = new PartialMatchRegExp(/^(x)(a)b(?!\2)c\1/);
 
       expect(hitEndOf(partial, "xabc")).toBe(true);

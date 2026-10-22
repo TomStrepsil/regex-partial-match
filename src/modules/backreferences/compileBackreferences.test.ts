@@ -13,8 +13,9 @@ function hiddenGroupsOf(
   internalCompiledOf: typeof compiledOf = compiledOf
 ) {
   const compiled = internalCompiledOf(partial);
-  if (!("dynamic" in compiled)) throw new Error("expected a dynamic pattern");
-  return compiled.dynamic.hiddenGroups;
+  return "backreferencePath" in compiled
+    ? compiled.backreferencePath.hiddenGroups
+    : [];
 }
 
 describe("a backreference running out of input part way through its capture", () => {
@@ -83,6 +84,20 @@ describe("a backreference running out of input part way through its capture", ()
   it("matches a capture of any length without writing it into the pattern", () => {
     const input = "ab".repeat(8000);
     expect(new PartialMatchRegExp(/(\w+)\1x/).exec(input)?.index).toBe(0);
+  });
+});
+
+describe("the compiled path", () => {
+  it.each([
+    [/(a)\1/, PartialMatchRegExp],
+    [/(["'])(?:\\.|(?!\1).)*\1/, PartialMatchRegExp],
+    [/(\w+)-\1/, withModules(carets, backreferencesWith({ longestPartial: 0 }))]
+  ])("takes %s down the static path, since no match needs anything removed", (pattern, Partial) => {
+    expect("backreferencePath" in compiledOf(new Partial(pattern))).toBe(false);
+  });
+
+  it.each([/(\w\w)\1/, /(?=(a))\1/])("keeps %s on the backreference path, for its hidden groups or a capture inside a lookaround", (pattern) => {
+    expect("backreferencePath" in compiledOf(new PartialMatchRegExp(pattern))).toBe(true);
   });
 });
 

@@ -4,7 +4,7 @@ import {
   defineModule
 } from "../../partialMatchRegExp/moduleHooks.ts";
 import backreferenceRecorder from "./backreferenceRecorder.ts";
-import compilerWith from "./compileDynamic.ts";
+import compilerWith from "./compileBackreferences.ts";
 import scopeWithModifiers from "../scopeWithModifiers.ts";
 
 export interface BackreferencesOptions {

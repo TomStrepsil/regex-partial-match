@@ -17,7 +17,7 @@
  * Patterns span the complexity range the walker branches on:
  *   - simple:  no groups, no character classes, no backreferences
  *   - phone:   several character classes and optional groups, no backreferences
- *   - HTML tag: capturing group + backreference, exercises the dynamic path
+ *   - HTML tag: capturing group + backreference, exercises the backreference path
  *   - repeated character: a backreference to a one-character group, whose
  *     longest capture is worked out so it needs no partial branch
  *   - legacy numeric escape: an out-of-range \N, classified from a native group pre-count

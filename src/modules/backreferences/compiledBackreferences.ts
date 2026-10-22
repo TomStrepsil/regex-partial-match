@@ -1,17 +1,17 @@
 import {
   Compiled,
-  type CompiledDynamic,
-  type DynamicPath
+  type CompiledWithBackreferences,
+  type BackreferencePath
 } from "../../partialMatchRegExp/compilePartial/compiled.ts";
 import type { Part } from "../../partialMatchRegExp/part.ts";
 import type { Hooks } from "../../partialMatchRegExp/walk.ts";
-import execDynamic from "./execDynamic.ts";
+import execBackreferencePath from "./execBackreferencePath.ts";
 
-export class CompiledBackreferences extends Compiled implements CompiledDynamic {
-  readonly execDynamic = execDynamic;
+export class CompiledBackreferences extends Compiled implements CompiledWithBackreferences {
+  readonly execBackreferencePath = execBackreferencePath;
 
   constructor(
-    readonly dynamic: DynamicPath,
+    readonly backreferencePath: BackreferencePath,
     parts: readonly Part[],
     featureMask: number,
     hooks: Hooks

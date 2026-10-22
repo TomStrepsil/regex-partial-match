@@ -20,6 +20,7 @@ import runOutBranch, {
   endOfInputUnmatchedBy
 } from "../../partialMatchRegExp/runOutBranch.ts";
 import { CompiledBackreferences } from "./compiledBackreferences.ts";
+import { CompiledStatic } from "../../partialMatchRegExp/compilePartial/compiled.ts";
 
 let lookbehindSupported: boolean | undefined;
 
@@ -33,7 +34,7 @@ function lookbehindParses() {
 }
 
 export default function compilerWith(longestPartial: number) {
-  return function compileDynamic(
+  return function compileBackreferences(
     parts: readonly Part[],
     flags: string,
     featureMask: number,
@@ -87,16 +88,16 @@ export default function compilerWith(longestPartial: number) {
       }
     });
 
-    return new CompiledBackreferences(
-      {
-        regex: new RegExp(source, flags),
-        hiddenGroups,
-        partialLengths,
-        nativeMayStartEarlier: (featureMask & Feature.lookaroundCapture) !== 0
-      },
-      parts,
-      featureMask,
-      hooks
-    );
+    const regex = new RegExp(source, flags);
+    const nativeMayStartEarlier =
+      (featureMask & Feature.lookaroundCapture) !== 0;
+    return hiddenGroups.length === 0 && !nativeMayStartEarlier
+      ? new CompiledStatic(regex, parts, featureMask, hooks)
+      : new CompiledBackreferences(
+          { regex, hiddenGroups, partialLengths, nativeMayStartEarlier },
+          parts,
+          featureMask,
+          hooks
+        );
   };
 }

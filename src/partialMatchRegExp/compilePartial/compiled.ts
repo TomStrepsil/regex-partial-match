@@ -4,7 +4,7 @@ import type { RegexFeature } from "../regexFeatures.ts";
 import type { TruncationProbe } from "../../hitEnd/truncationProbe.ts";
 import type { RawLookarounds } from "../rawLookaroundInfo.ts";
 
-export interface DynamicPath {
+export interface BackreferencePath {
   regex: RegExp;
   hiddenGroups: readonly number[];
   partialLengths: readonly number[];
@@ -28,7 +28,7 @@ export class CompiledStatic extends Compiled {
 
   constructor(
     readonly regex: RegExp,
-    parts: string[],
+    parts: readonly Part[],
     featureMask: number,
     hooks: Hooks
   ) {
@@ -37,13 +37,13 @@ export class CompiledStatic extends Compiled {
   }
 }
 
-export interface CompiledDynamic extends Compiled {
-  readonly dynamic: DynamicPath;
-  readonly execDynamic: (
+export interface CompiledWithBackreferences extends Compiled {
+  readonly backreferencePath: BackreferencePath;
+  readonly execBackreferencePath: (
     this: RegExp,
-    dynamic: DynamicPath,
+    backreferencePath: BackreferencePath,
     input: string
   ) => RegExpExecArray | null;
 }
 
-export type CompiledPartial = CompiledStatic | CompiledDynamic;
+export type CompiledPartial = CompiledStatic | CompiledWithBackreferences;

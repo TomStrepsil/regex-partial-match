@@ -103,7 +103,7 @@ export const buildTruncationProbe = (
   const { parts } = compiled;
   const rawLookarounds = compiled.rawLookarounds ?? [];
   const partialLengths =
-    "dynamic" in compiled ? compiled.dynamic.partialLengths : [];
+    "backreferencePath" in compiled ? compiled.backreferencePath.partialLengths : [];
   const markings = markingsOf(parts, partialLengths);
   const groupsBefore = groupsOpenedBefore(parts, rawLookarounds);
   const shiftForGroup = shiftForGroupOf(groupsBefore, (index) =>

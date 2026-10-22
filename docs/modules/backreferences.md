@@ -54,7 +54,7 @@ Two kinds of backreference stay native:
 - **Inside a lookbehind or negative lookahead.** These bodies are kept as written, so the reference there is atomic.
 - **Forward references:** written before their group closes, as in `/^\1?(a|b)\1/` or the self-reference `/^(\1a)$/`. Outside a lookbehind, ECMAScript always resolves them to empty, so leaving them to the engine costs nothing.
 
-## ⚙️ `exec()` on the dynamic path
+## ⚙️ `exec()` on the backreference path
 
 `exec()` runs the compiled regex from `start`, so the engine tries alternatives in the pattern's own priority order, as it does for every other atom: `/(a)\1b|a/` on `"aa"` returns `"aa"`, as `/aab|a/` does. Where a lookaround holds a capturing group and the regex finds nothing at `start`, the native pattern is run too, and returned if it starts earlier: a lookahead keeps the first capture it makes, so a partial capture inside one can hide a start the native pattern finds, as in `/(?=(a|-b){1,2})\1/` on `"a-"`. Without such a group, nothing can hide a start, so the native pattern isn't run. `lastIndex` is written only for `g` and `y`, as native does.
 

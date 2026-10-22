@@ -1,6 +1,6 @@
 import type { Backreference, Part } from "./part.ts";
 import type { Hooks } from "./walk.ts";
-import type { CompiledDynamic } from "./compilePartial/compiled.ts";
+import type { CompiledPartial } from "./compilePartial/compiled.ts";
 import type { RawLookarounds } from "./rawLookaroundInfo.ts";
 
 export interface BackreferenceRecorder {
@@ -16,5 +16,5 @@ export interface BackreferenceHook {
     featureMask: number,
     hooks: Hooks,
     rawLookarounds: RawLookarounds
-  ) => CompiledDynamic;
+  ) => CompiledPartial;
 }

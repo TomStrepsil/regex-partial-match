@@ -29,7 +29,7 @@
  * The genuinely expensive constructs are in the second group, and each for a
  * structural reason worth keeping visible:
  *
- *   - a backreference forces the dynamic path, which defers most of its work
+ *   - a backreference puts a pattern on the backreference path
  *     to exec() but still builds two extra regexes up front
  *   - a \k<name> in a pattern declaring no named group is an Annex B literal,
  *     which the walk cannot know until it has seen the whole source — so
@@ -54,9 +54,9 @@ import PartialMatchRegExp from "../../../lib/index.js";
 
 function emittedPartCount(pattern: RegExp) {
   const compiled = compilePartial(pattern);
-  if ("dynamic" in compiled) {
+  if ("backreferencePath" in compiled) {
     throw new Error(
-      `${pattern.source} has no part count to equalise — it compiles to the dynamic path`
+      `${pattern.source} has no part count to equalise — it compiles to the backreference path`
     );
   }
   return compiled.parts.length;
@@ -107,7 +107,7 @@ group("feature cost — construction, one construct per bench", () => {
   }
 });
 
-// Backreferences and legacy escapes are grouped separately: they are the constructs that decide which compiled path a pattern lands on, so they are worth reading against each other rather than against the walk-only features above. A \k<name> in a pattern that declares no named group is an Annex B literal, not a reference — it compiles static, and the pair below is what keeps that from silently regressing back onto the dynamic path.
+// Backreferences and legacy escapes are grouped separately: they are the constructs that decide which compiled path a pattern lands on, so they are worth reading against each other rather than against the walk-only features above. A \k<name> in a pattern that declares no named group is an Annex B literal, not a reference — it compiles static, and the pair below is what keeps that from silently regressing onto the backreference path.
 const pathDeciding: [name: string, pattern: RegExp][] = [
   ["capturing group, no reference (static path)", /^(abcd) x_tail/],
   ["numeric backreference (dynamic path)", /^(abcd) \1_tail/],
@@ -122,7 +122,7 @@ group("feature cost — construction, backreferences and legacy escapes", () => 
   }
 });
 
-// Which path a legacy escape lands on is worth far more at exec() than at construction: the backreference path rebuilds a RegExp per call, so a pattern misfiled onto it pays that on every keystroke despite having no backreference to expand. These benches exist to make that regression loud — a literal \k that drifted back onto the dynamic path would show here as a step change, not the few percent it costs to construct.
+// Which path a legacy escape lands on is worth far more at exec() than at construction: the backreference path compiles a larger regex and post-processes every match, so a pattern misfiled onto it pays that on every keystroke despite having no backreference to match. These benches exist to make that regression loud — a literal \k that drifted onto the backreference path would show here as a step change, not the few percent it costs to construct.
 const literalK = new PartialMatchRegExp(new RegExp("^\\k<none>tail"));
 const genuineBackref = new PartialMatchRegExp(/^(\w+) \1$/);
 

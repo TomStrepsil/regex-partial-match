@@ -21,7 +21,7 @@ import PartialMatchRegExp from "../../../lib/index.js";
 
 function staticPartial(pattern: RegExp) {
   const compiled = compilePartial(pattern);
-  if ("dynamic" in compiled) {
+  if ("backreferencePath" in compiled) {
     throw new Error("expected a static (backreference-free) pattern");
   }
   return compiled.regex;
