@@ -18,7 +18,7 @@ import PartialMatchRegExp from "../../../lib/index.js";
 const pattern = /^[a-z]+(?:\s\w+){1,3}/;
 
 const compiled = compilePartial(pattern);
-if ("backreferencePath" in compiled) {
+if ("exec" in compiled) {
   throw new Error("expected a static (backreference-free) pattern");
 }
 

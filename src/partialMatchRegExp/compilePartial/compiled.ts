@@ -4,13 +4,6 @@ import type { RegexFeature } from "../regexFeatures.ts";
 import type { TruncationProbe } from "../../hitEnd/truncationProbe.ts";
 import type { RawLookarounds } from "../rawLookaroundInfo.ts";
 
-export interface BackreferencePath {
-  regex: RegExp;
-  hiddenGroups: readonly number[];
-  partialLengths: readonly number[];
-  nativeMayStartEarlier: boolean;
-}
-
 export abstract class Compiled {
   features?: ReadonlySet<RegexFeature>;
   probe?: TruncationProbe;
@@ -37,13 +30,8 @@ export class CompiledStatic extends Compiled {
   }
 }
 
-export interface CompiledWithBackreferences extends Compiled {
-  readonly backreferencePath: BackreferencePath;
-  readonly execBackreferencePath: (
-    this: RegExp,
-    backreferencePath: BackreferencePath,
-    input: string
-  ) => RegExpExecArray | null;
+export interface CompiledWithOwnExec extends Compiled {
+  exec(partial: RegExp, input: string): RegExpExecArray | null;
 }
 
-export type CompiledPartial = CompiledStatic | CompiledWithBackreferences;
+export type CompiledPartial = CompiledStatic | CompiledWithOwnExec;

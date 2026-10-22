@@ -5,6 +5,7 @@ import {
 } from "../../partialMatchRegExp/moduleHooks.ts";
 import backreferenceRecorder from "./backreferenceRecorder.ts";
 import compilerWith from "./compileBackreferences.ts";
+import probeBackreference from "./probeBackreference.ts";
 import scopeWithModifiers from "../scopeWithModifiers.ts";
 
 export interface BackreferencesOptions {
@@ -46,7 +47,8 @@ export function backreferencesWith({
       bit: BACKREFERENCES_MODULE,
       backreference: Object.freeze({
         record: backreferenceRecorder,
-        compile: compilerWith(longestPartial)
+        compile: compilerWith(longestPartial),
+        probe: probeBackreference
       }),
       modifiers: scopeWithModifiers
     });

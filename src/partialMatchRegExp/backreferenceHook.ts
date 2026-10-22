@@ -8,6 +8,16 @@ export interface BackreferenceRecorder {
   backreference(backreference: Backreference, scope: number): void;
 }
 
+export interface ProbeGroups {
+  readonly marker: () => string;
+  readonly hidden: (count: number) => number;
+}
+
+export interface BackreferenceProbe {
+  readonly groups: number;
+  render(token: string, groups: ProbeGroups): string;
+}
+
 export interface BackreferenceHook {
   record: () => BackreferenceRecorder;
   compile: (
@@ -17,4 +27,5 @@ export interface BackreferenceHook {
     hooks: Hooks,
     rawLookarounds: RawLookarounds
   ) => CompiledPartial;
+  probe: (compiled: CompiledPartial, index: number) => BackreferenceProbe;
 }

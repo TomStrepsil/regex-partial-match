@@ -54,7 +54,7 @@ import PartialMatchRegExp from "../../../lib/index.js";
 
 function emittedPartCount(pattern: RegExp) {
   const compiled = compilePartial(pattern);
-  if ("backreferencePath" in compiled) {
+  if ("exec" in compiled) {
     throw new Error(
       `${pattern.source} has no part count to equalise — it compiles to the backreference path`
     );

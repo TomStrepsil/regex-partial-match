@@ -11,10 +11,11 @@ import {
 } from "../partialMatchRegExp/atomSyntax.ts";
 import { isQuantifier, quantifierEndingAt } from "../partialMatchRegExp/quantifier.ts";
 import { isBackreference, type Part } from "../partialMatchRegExp/part.ts";
-import runOutBranch, {
-  RUN_OUT_BRANCH_GROUPS,
-  endOfInputUnmatchedBy
-} from "../partialMatchRegExp/runOutBranch.ts";
+import type {
+  BackreferenceHook,
+  BackreferenceProbe,
+  ProbeGroups
+} from "../partialMatchRegExp/backreferenceHook.ts";
 import {
   groupsOpenedBefore,
   shiftForGroupOf
@@ -38,8 +39,7 @@ const MARKING = {
   wordBoundary: 4,
   endAnchor: 5,
   readAtEnd: 6,
-  optionalAtEnd: 7,
-  runningOut: 8
+  optionalAtEnd: 7
 } as const;
 
 type Marking = (typeof MARKING)[keyof typeof MARKING];
@@ -77,10 +77,8 @@ function markingOf(parts: readonly Part[], index: number): Marking {
   }
 }
 
-const markingsOf = (parts: readonly Part[], partialLengths: readonly number[]) =>
-  parts.map((_, index) =>
-    partialLengths[index] > 0 ? MARKING.runningOut : markingOf(parts, index)
-  );
+const markingsOf = (parts: readonly Part[]) =>
+  parts.map((_, index) => markingOf(parts, index));
 
 function markersAddedBy(marking: Marking) {
   switch (marking) {
@@ -89,8 +87,6 @@ function markersAddedBy(marking: Marking) {
       return 0;
     case MARKING.wordBoundary:
       return 2;
-    case MARKING.runningOut:
-      return RUN_OUT_BRANCH_GROUPS + 2;
     default:
       return 1;
   }
@@ -102,12 +98,20 @@ export const buildTruncationProbe = (
 ): TruncationProbe => {
   const { parts } = compiled;
   const rawLookarounds = compiled.rawLookarounds ?? [];
-  const partialLengths =
-    "backreferencePath" in compiled ? compiled.backreferencePath.partialLengths : [];
-  const markings = markingsOf(parts, partialLengths);
+  const markings = markingsOf(parts);
+  const backreferenceProbes = parts.map((part, index) =>
+    isBackreference(part)
+      ? (compiled.hooks.backreference as BackreferenceHook).probe(
+          compiled,
+          index
+        )
+      : undefined
+  );
   const groupsBefore = groupsOpenedBefore(parts, rawLookarounds);
-  const shiftForGroup = shiftForGroupOf(groupsBefore, (index) =>
-    markersAddedBy(markings[index])
+  const shiftForGroup = shiftForGroupOf(
+    groupsBefore,
+    (index) =>
+      backreferenceProbes[index]?.groups ?? markersAddedBy(markings[index])
   );
 
   const markerGroups: number[] = [];
@@ -118,10 +122,13 @@ export const buildTruncationProbe = (
     markerGroups.push(groupsOpened + markerGroups.length + hiddenGroups + 1);
     return "()";
   };
-  const hiddenGroup = () => {
-    const first = groupsOpened + markerGroups.length + hiddenGroups + 1;
-    hiddenGroups += RUN_OUT_BRANCH_GROUPS;
-    return first;
+  const groups: ProbeGroups = {
+    marker,
+    hidden: (count) => {
+      const first = groupsOpened + markerGroups.length + hiddenGroups + 1;
+      hiddenGroups += count;
+      return first;
+    }
   };
   const truncationBranch = () => "|" + marker() + END_OF_INPUT + ")";
   const readAtEnd = () => "(?:" + marker() + END_OF_INPUT + "|)";
@@ -131,18 +138,11 @@ export const buildTruncationProbe = (
     const part = parts[index];
     groupsOpened = groupsBefore[index];
     if (isBackreference(part)) {
-      const token = renumberedToken(part, shiftForGroup);
-      const longest = partialLengths[index];
       probed.push(
-        OPTIONAL_ATOM_OPENING +
-          token +
-          (longest > 0
-            ? "|" + runOutBranch(token, hiddenGroup(), longest) + marker()
-            : "") +
-          "|" +
-          marker() +
-          endOfInputUnmatchedBy(token) +
-          ")"
+        (backreferenceProbes[index] as BackreferenceProbe).render(
+          renumberedToken(part, shiftForGroup),
+          groups
+        )
       );
       continue;
     }

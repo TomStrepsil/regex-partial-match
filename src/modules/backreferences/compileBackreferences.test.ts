@@ -4,6 +4,7 @@ import withModules from "../../partialMatchRegExp/withModules.ts";
 import { compiledOf } from "../../partialMatchRegExp/partialMatchInternals.ts";
 import carets from "../carets/index.ts";
 import backreferences, { backreferencesWith } from "./index.ts";
+import { CompiledBackreferences } from "./compiledBackreferences.ts";
 
 const resultOf = (match: RegExpExecArray | null) =>
   match && [match.index, ...match];
@@ -13,9 +14,7 @@ function hiddenGroupsOf(
   internalCompiledOf: typeof compiledOf = compiledOf
 ) {
   const compiled = internalCompiledOf(partial);
-  return "backreferencePath" in compiled
-    ? compiled.backreferencePath.hiddenGroups
-    : [];
+  return compiled instanceof CompiledBackreferences ? compiled.hiddenGroups : [];
 }
 
 describe("a backreference running out of input part way through its capture", () => {
@@ -93,11 +92,11 @@ describe("the compiled path", () => {
     [/(["'])(?:\\.|(?!\1).)*\1/, PartialMatchRegExp],
     [/(\w+)-\1/, withModules(carets, backreferencesWith({ longestPartial: 0 }))]
   ])("takes %s down the static path, since no match needs anything removed", (pattern, Partial) => {
-    expect("backreferencePath" in compiledOf(new Partial(pattern))).toBe(false);
+    expect(compiledOf(new Partial(pattern))).not.toBeInstanceOf(CompiledBackreferences);
   });
 
   it.each([/(\w\w)\1/, /(?=(a))\1/])("keeps %s on the backreference path, for its hidden groups or a capture inside a lookaround", (pattern) => {
-    expect("backreferencePath" in compiledOf(new PartialMatchRegExp(pattern))).toBe(true);
+    expect(compiledOf(new PartialMatchRegExp(pattern))).toBeInstanceOf(CompiledBackreferences);
   });
 });
 

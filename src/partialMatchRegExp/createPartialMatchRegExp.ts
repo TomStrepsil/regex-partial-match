@@ -23,8 +23,7 @@ export default function createPartialMatchRegExp(hooks: Hooks): unknown {
 
     override exec(input: string) {
       const compiled = this[compiledPartial];
-      if ("backreferencePath" in compiled)
-        return compiled.execBackreferencePath.call(this, compiled.backreferencePath, input);
+      if ("exec" in compiled) return compiled.exec(this, input);
 
       const { regex } = compiled;
       const match = execFrom(regex, input, this.lastIndex);

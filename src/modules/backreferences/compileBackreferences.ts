@@ -1,9 +1,5 @@
 import longestCaptureOf from "./longestCaptures.ts";
-import {
-  GROUP_CLOSING,
-  OPTIONAL_ATOM_OPENING,
-  isRawLookaround
-} from "../../partialMatchRegExp/atomSyntax.ts";
+import { isRawLookaround } from "../../partialMatchRegExp/atomSyntax.ts";
 import {
   groupsOpenedBefore,
   shiftForGroupOf
@@ -15,10 +11,9 @@ import type { RawLookarounds } from "../../partialMatchRegExp/rawLookaroundInfo.
 import renumberRawBackreferences, {
   renumberedToken
 } from "../../partialMatchRegExp/renumberRawBackreferences.ts";
-import runOutBranch, {
-  RUN_OUT_BRANCH_GROUPS,
-  endOfInputUnmatchedBy
-} from "../../partialMatchRegExp/runOutBranch.ts";
+import renderBackreference, {
+  RUN_OUT_BRANCH_GROUPS
+} from "./renderBackreference.ts";
 import { CompiledBackreferences } from "./compiledBackreferences.ts";
 import { CompiledStatic } from "../../partialMatchRegExp/compilePartial/compiled.ts";
 
@@ -62,22 +57,19 @@ export default function compilerWith(longestPartial: number) {
     let rawLookaroundCount = 0;
     parts.forEach((part, index) => {
       if (isBackreference(part)) {
-        const token = renumberedToken(part, shiftForGroup);
-        const longest = partialLengths[index];
-        let runningOut = "";
-        if (longest > 0) {
-          const hiddenGroup =
-            groupsBefore[index] + hiddenGroups.length * RUN_OUT_BRANCH_GROUPS + 1;
-          hiddenGroups.push(hiddenGroup);
-          runningOut = "|" + runOutBranch(token, hiddenGroup, longest);
-        }
-        source +=
-          OPTIONAL_ATOM_OPENING +
-          token +
-          runningOut +
-          "|" +
-          endOfInputUnmatchedBy(token) +
-          GROUP_CLOSING;
+        source += renderBackreference(
+          renumberedToken(part, shiftForGroup),
+          partialLengths[index],
+          () => {
+            const hiddenGroup =
+              groupsBefore[index] +
+              hiddenGroups.length * RUN_OUT_BRANCH_GROUPS +
+              1;
+            hiddenGroups.push(hiddenGroup);
+            return hiddenGroup;
+          },
+          () => ""
+        );
       } else if (isRawLookaround(part)) {
         const info = rawLookarounds[rawLookaroundCount++];
         source += info
@@ -94,7 +86,10 @@ export default function compilerWith(longestPartial: number) {
     return hiddenGroups.length === 0 && !nativeMayStartEarlier
       ? new CompiledStatic(regex, parts, featureMask, hooks)
       : new CompiledBackreferences(
-          { regex, hiddenGroups, partialLengths, nativeMayStartEarlier },
+          regex,
+          hiddenGroups,
+          partialLengths,
+          nativeMayStartEarlier,
           parts,
           featureMask,
           hooks
