@@ -1,4 +1,6 @@
-import { legacyEscapeAsLiteral } from "../partialMatchRegExp/legacyEscape.ts";
+import renumberRawBackreferences, {
+  renumberedToken
+} from "../partialMatchRegExp/renumberRawBackreferences.ts";
 import { FLAGS_IRRELEVANT_TO_REBUILD } from "../partialMatchRegExp/constants.ts";
 import {
   DISJUNCTION_TO_END_OF_INPUT,
@@ -8,18 +10,17 @@ import {
   isWordBoundaryAtom
 } from "../partialMatchRegExp/atomSyntax.ts";
 import { isQuantifier, quantifierEndingAt } from "../partialMatchRegExp/quantifier.ts";
+import { isBackreference, type Part } from "../partialMatchRegExp/part.ts";
+import runOutBranch, {
+  RUN_OUT_BRANCH_GROUPS,
+  endOfInputUnmatchedBy
+} from "../partialMatchRegExp/runOutBranch.ts";
 import {
-  isBackreference,
-  isNumericBackreference,
-  type Backreference,
-  type Part
-} from "../partialMatchRegExp/part.ts";
+  groupsOpenedBefore,
+  shiftForGroupOf
+} from "../partialMatchRegExp/groupNumbering.ts";
 import { roleOf } from "./partRole.ts";
-import type {
-  RawLookaroundInfo,
-  RawLookarounds,
-  RawReference
-} from "../partialMatchRegExp/rawLookaroundInfo.ts";
+import type { CompiledPartial } from "../partialMatchRegExp/compilePartial/compiled.ts";
 
 export interface TruncationProbe {
   regex: RegExp;
@@ -32,13 +33,13 @@ const EXACT_QUANTIFIER = /^\{0*([1-9]\d*|0)(?:,0*\1)?\}$/;
 
 const MARKING = {
   none: 0,
-  groupOpen: 1,
   rawLookaround: 2,
   truncationBranch: 3,
   wordBoundary: 4,
   endAnchor: 5,
   readAtEnd: 6,
-  optionalAtEnd: 7
+  optionalAtEnd: 7,
+  runningOut: 8
 } as const;
 
 type Marking = (typeof MARKING)[keyof typeof MARKING];
@@ -60,8 +61,6 @@ function markingOf(parts: readonly Part[], index: number): Marking {
       return MARKING.truncationBranch;
     case "rawLookaround":
       return MARKING.rawLookaround;
-    case "groupOpen":
-      return MARKING.groupOpen;
     case "truncationEnd":
       return isWordBoundaryAtom(part)
         ? MARKING.wordBoundary
@@ -78,101 +77,51 @@ function markingOf(parts: readonly Part[], index: number): Marking {
   }
 }
 
-const markingsOf = (parts: readonly Part[]) =>
-  parts.map((_, index) => markingOf(parts, index));
+const markingsOf = (parts: readonly Part[], partialLengths: readonly number[]) =>
+  parts.map((_, index) =>
+    partialLengths[index] > 0 ? MARKING.runningOut : markingOf(parts, index)
+  );
 
 function markersAddedBy(marking: Marking) {
   switch (marking) {
     case MARKING.none:
-    case MARKING.groupOpen:
     case MARKING.rawLookaround:
       return 0;
     case MARKING.wordBoundary:
       return 2;
+    case MARKING.runningOut:
+      return RUN_OUT_BRANCH_GROUPS + 2;
     default:
       return 1;
   }
 }
 
-function groupShiftTable(
-  markings: readonly Marking[],
-  rawLookarounds: RawLookarounds
-) {
-  const shiftForGroup = [0];
-  let markerCount = 0;
-  let rawLookaroundIndex = 0;
-
-  for (const marking of markings) {
-    if (marking === MARKING.groupOpen) {
-      shiftForGroup.push(markerCount);
-    } else if (marking === MARKING.rawLookaround) {
-      const capturingGroupsOpened =
-        rawLookarounds[rawLookaroundIndex++]?.capturingGroupsOpened ?? 0;
-      for (let opened = 0; opened < capturingGroupsOpened; opened++) {
-        shiftForGroup.push(markerCount);
-      }
-    }
-    markerCount += markersAddedBy(marking);
-  }
-
-  return shiftForGroup;
-}
-
-function renumberedToken(
-  backreference: Backreference,
-  shiftForGroup: readonly number[]
-) {
-  return isNumericBackreference(backreference)
-    ? "\\" + String(backreference.ref + shiftForGroup[backreference.ref])
-    : "\\k<" + backreference.ref + ">";
-}
-
-function renumberRawBackreferences(
-  part: string,
-  info: RawLookaroundInfo,
-  shiftForGroup: readonly number[]
-) {
-  let renumbered = "";
-  let cursor = 0;
-  for (const reference of info.references) {
-    const relativeStart = reference.start - info.sourceStart;
-    const relativeEnd = reference.end - info.sourceStart;
-    renumbered +=
-      part.slice(cursor, relativeStart) +
-      rawReferenceReplacement(
-        part.slice(relativeStart, relativeEnd),
-        reference,
-        shiftForGroup
-      );
-    cursor = relativeEnd;
-  }
-  return renumbered + part.slice(cursor);
-}
-
-function rawReferenceReplacement(
-  spelling: string,
-  { ref }: RawReference,
-  shiftForGroup: readonly number[]
-) {
-  return ref >= 1 && ref < shiftForGroup.length
-    ? "\\" + String(ref + shiftForGroup[ref])
-    : legacyEscapeAsLiteral(spelling.slice(1));
-}
-
 export const buildTruncationProbe = (
-  parts: readonly Part[],
-  rawLookarounds: RawLookarounds,
+  compiled: CompiledPartial,
   flags: string
 ): TruncationProbe => {
-  const markings = markingsOf(parts);
-  const shiftForGroup = groupShiftTable(markings, rawLookarounds);
+  const { parts } = compiled;
+  const rawLookarounds = compiled.rawLookarounds ?? [];
+  const partialLengths =
+    "dynamic" in compiled ? compiled.dynamic.partialLengths : [];
+  const markings = markingsOf(parts, partialLengths);
+  const groupsBefore = groupsOpenedBefore(parts, rawLookarounds);
+  const shiftForGroup = shiftForGroupOf(groupsBefore, (index) =>
+    markersAddedBy(markings[index])
+  );
 
   const markerGroups: number[] = [];
   let groupsOpened = 0;
+  let hiddenGroups = 0;
   let rawLookaroundIndex = 0;
   const marker = () => {
-    markerGroups.push(groupsOpened + markerGroups.length + 1);
+    markerGroups.push(groupsOpened + markerGroups.length + hiddenGroups + 1);
     return "()";
+  };
+  const hiddenGroup = () => {
+    const first = groupsOpened + markerGroups.length + hiddenGroups + 1;
+    hiddenGroups += RUN_OUT_BRANCH_GROUPS;
+    return first;
   };
   const truncationBranch = () => "|" + marker() + END_OF_INPUT + ")";
   const readAtEnd = () => "(?:" + marker() + END_OF_INPUT + "|)";
@@ -180,18 +129,26 @@ export const buildTruncationProbe = (
   const probed: string[] = [];
   for (let index = 0; index < parts.length; index++) {
     const part = parts[index];
+    groupsOpened = groupsBefore[index];
     if (isBackreference(part)) {
+      const token = renumberedToken(part, shiftForGroup);
+      const longest = partialLengths[index];
       probed.push(
         OPTIONAL_ATOM_OPENING +
-          renumberedToken(part, shiftForGroup) +
-          truncationBranch()
+          token +
+          (longest > 0
+            ? "|" + runOutBranch(token, hiddenGroup(), longest) + marker()
+            : "") +
+          "|" +
+          marker() +
+          endOfInputUnmatchedBy(token) +
+          ")"
       );
       continue;
     }
     switch (markings[index]) {
       case MARKING.rawLookaround: {
         const rawLookaround = rawLookarounds[rawLookaroundIndex++];
-        groupsOpened += rawLookaround?.capturingGroupsOpened ?? 0;
         probed.push(
           rawLookaround
             ? renumberRawBackreferences(
@@ -203,10 +160,6 @@ export const buildTruncationProbe = (
         );
         break;
       }
-      case MARKING.groupOpen:
-        groupsOpened++;
-        probed.push(part);
-        break;
       case MARKING.truncationBranch:
         probed.push(
           part.slice(0, -DISJUNCTION_TO_END_OF_INPUT.length) + truncationBranch()
@@ -227,12 +180,7 @@ export const buildTruncationProbe = (
         break;
       case MARKING.optionalAtEnd:
         probed[probed.length - 1] =
-          OPTIONAL_ATOM_OPENING +
-          probed[probed.length - 1] +
-          "|" +
-          marker() +
-          END_OF_INPUT +
-          "|)";
+          OPTIONAL_ATOM_OPENING + probed[probed.length - 1] + "|(?=[\\s\\S]))";
         break;
       default:
         probed.push(part);

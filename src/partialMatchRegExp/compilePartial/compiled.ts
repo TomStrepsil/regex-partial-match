@@ -1,22 +1,19 @@
 import type { Part } from "../part.ts";
 import type { Hooks } from "../walk.ts";
 import type { RegexFeature } from "../regexFeatures.ts";
-import type { TruncationProbeCache } from "../../hitEnd/truncationProbeCache.ts";
+import type { TruncationProbe } from "../../hitEnd/truncationProbe.ts";
 import type { RawLookarounds } from "../rawLookaroundInfo.ts";
 
 export interface DynamicPath {
-  preScan: RegExp;
-  expand: (capture: RegExpExecArray) => Part[];
-  expansionFitsCaptures: (
-    expandedFrom: RegExpExecArray,
-    match: RegExpExecArray,
-    input: string
-  ) => boolean;
+  regex: RegExp;
+  hiddenGroups: readonly number[];
+  partialLengths: readonly number[];
+  nativeMayStartEarlier: boolean;
 }
 
 export abstract class Compiled {
   features?: ReadonlySet<RegexFeature>;
-  probeCache?: TruncationProbeCache;
+  probe?: TruncationProbe;
   declare rawLookarounds?: RawLookarounds;
 
   constructor(

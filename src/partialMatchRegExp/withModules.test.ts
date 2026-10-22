@@ -366,7 +366,11 @@ describe("withModules refuses anything but a module from regex-partial-match/mod
       expect(Object.isFrozen(held(loadedGraph))).toBe(true);
     });
 
-    it.each(Object.entries(everyModule))(
+    it.each(
+      Object.entries(everyModule).filter(
+        (entry): entry is [string, Module] => typeof entry[1] === "object"
+      )
+    )(
       "every object the %s module's hooks hold",
       (_, module) => {
         const held = Object.values(hooksOf(module, moduleHooks)).filter(

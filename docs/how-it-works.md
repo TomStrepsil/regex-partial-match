@@ -78,9 +78,9 @@ Any other caret needs the carets module, whose rules are in [Carets](./modules/c
 
 ## 🔁 Patterns with backreferences
 
-Backreferences cannot be handled by the `|$(?![\s\S])` transform alone because they are atomic — `\1` must match the entire captured string or fail, and its length is only known at runtime. `PartialMatchRegExp` first tries a full match natively, but that native result only wins outright if nothing earlier in the input could still be a viable partial — a cheap bound check settles that without needing to resolve the backreference's actual value, so the common case (no earlier partial exists) stays fast. Otherwise it runs a "capture scan": a variant of the pattern with each backreference swapped for a lazy `(?:[\s\S]*?)` wildcard, so the group it depends on can still capture against a partial input — matching anything, or nothing at all, without needing to already know the backreference's value.
+Backreferences cannot be handled by the `|$(?![\s\S])` transform alone because they are atomic — `\1` must match the entire captured string or fail, and its length is only known at runtime.
 
-Whatever that scan captures (or leaves `undefined`, if the group hasn't been reached yet) is then used to build a fresh partial-matching regex for this specific input, expanding the backreference character-by-character from the captured value with the same per-atom transform as the rest of the pattern. See [Backreferences](./modules/backreferences.md) for the full algorithm.
+Each backreference that can run out part way through its group's capture gets a second alternative, built once with the pattern. It captures the rest of the input into a hidden group, provided that rest is no longer than [`longestPartial`](./modules/backreferences.md#longestpartial) characters, and lookbehinds check that the nearest occurrence of the capture starts with it. The engine therefore resolves partial backreferences in its own priority order, as it does every other atom. The hidden groups are removed from the match before it's returned. See [Backreferences](./modules/backreferences.md) for the full algorithm.
 
 This path belongs to the backreferences module. `regex-partial-match/core` without it throws `TypeError: Needs the backreferences module` when a pattern needs the path, and compiles a pattern whose escapes resolve statically, such as `/x\8y/`, with the transform above.
 
@@ -114,21 +114,15 @@ Neither of the obvious workarounds answers it:
 
 ### Recording a read of the end
 
-The information only exists during matching. `hitEnd()` recovers it by re-running the compiled pattern, [sticky](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/sticky) at `match.index`, with an empty group in front of each truncation branch, after each greedy quantifier and after `$`, `\b` and `\B`, the latter three placed so that they can only match at the true end of the input; an empty group is zero-width and always succeeds, so the twin walks the identical path, and any marker that comes back defined is a read of the end the match actually made.
+The information only exists during matching. `hitEnd()` recovers it by re-running the compiled pattern, [sticky](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/sticky) at `match.index`, with an empty group in front of each truncation branch, after each greedy quantifier and after `$`, `\b` and `\B`, the latter three placed so that they can only match at the true end of the input. A greedy `?` after an atom that already has a marked truncation branch is written as a choice of the atom, or of nothing only where input remains, so the end of the input is read one way rather than three; an empty group is zero-width and always succeeds, so the twin walks the identical path, and any marker that comes back defined is a read of the end the match actually made.
 
-Recognising a truncation branch, a raw lookaround, or a group open back out of the rendered pattern is one classification, shared by every pass that needs it, rather than re-derived independently wherever it's needed.
+Recognising a truncation branch or a raw lookaround back out of the rendered pattern is one classification, and numbering the capturing groups, including those a raw lookaround opens, is one count. Each is shared by every pass that needs it, the backreferences module's included, rather than re-derived independently wherever it's needed.
 
 The marked copy, the twin, is built on first use and stays inside the library: the array, `groups`, numbering and `d`-flag indices you hold are the ones `exec()` produced.
 
 Beyond the rendered pattern, the twin needs the numbered backreferences and groups inside each raw lookaround: its numbered backreferences are renumbered past the markers before it, and the markers after it are numbered past its groups. A `\k<name>` needs no renumbering and is copied unchanged. Construction records a raw lookaround only when it holds a numbered backreference or a group, so a pattern with neither records nothing.
 
-Without [backreferences](./caveats.md#backreferences), one twin is cached per instance. With them, the pattern is re-expanded per input, so each twin belongs to an expansion:
-
-- **A match `exec()` expanded** uses that expansion's twin.
-- **A match the native pattern found outright** has no expansion behind it. The capture scan is re-run sticky at its index, and the twin is built from what it resolves. That is how a backreference that ran out part way through its capture is seen: `/(ab)\1|a/` on `"aba"` returns `"a"`, and `hitEnd()` is `true`.
-- **Where the scan resolves nothing**, the un-expanded twin is used. It follows the transformed pattern's own alternative order, so a higher-priority alternative that ran out of input behind a native match is still reported: `/(a)\1b|a/` on `"aa"` returns `"a"`, and `hitEnd()` is `true`.
-
-The last twelve expansions are kept per instance, from either path, the oldest replaced first. A capture that stays the same as the input grows, or one of a few captures that recur, such as the tag names of a document, has its twin built once.
+One twin is cached per instance. A backreference in it keeps the branch that runs out part way through its capture, with a marker after it and its hidden groups numbered among the markers, so the twin follows the path `exec()` took whatever the group captured: `/(ab)\1|a/` on `"aba"` returns `"aba"`, and `hitEnd()` is `true`.
 
 > [!NOTE]
 > See [Partial Match Parity](./partial-match-parity.md) for full details on how the library compares to reference implementations

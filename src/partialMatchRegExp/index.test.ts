@@ -3878,8 +3878,8 @@ c`)
         ],
         invalidInputs: ["abce", "abcabd"],
         expected: (str: string) => ({
-          0: str.match(/^(abc)+\1/)?.[0] ?? str,
-          1: { abca: "a", abcab: "ab" }[str] ?? "abc"
+          0: str,
+          1: str.length % 3 === 0 ? "abc" : str.slice(-(str.length % 3))
         })
       },
       {
@@ -3979,14 +3979,14 @@ c`)
         expect(partial.exec("ab")).toMatchAt({ match: "ab", index: 0 });
       });
 
-      it("does not let its capture scan hand a later backward reference a value it could not have", () => {
+      it("does not hand a later backward reference a value a forward reference could not have", () => {
         const partial = new PartialMatchRegExp(/^\1?(a|b)\1/);
 
         expect(partial.exec("ab")).toBeNull();
         expect(partial.exec("aa")).toMatchAt({ match: "aa", index: 0 });
       });
 
-      it("named: does not let its capture scan hand a later backward reference a value it could not have", () => {
+      it("named: does not hand a later backward reference a value a forward reference could not have", () => {
         const partial = new PartialMatchRegExp(/^\k<n>?(?<n>a|b)\k<n>/);
 
         expect(partial.exec("ab")).toBeNull();
@@ -4367,8 +4367,8 @@ c`)
       });
     });
 
-    describe("a capture the expanded match resolves differently from the capture scan", () => {
-      it("rejects input whose backreference ran out against the scan's value rather than its own", () => {
+    describe("a backreference running out against the capture its own path made", () => {
+      it("rejects input whose backreference ran out against another path's capture", () => {
         const partial = new PartialMatchRegExp(/^([ab])\1([ab])\2$/);
 
         expect(partial.exec("aaba")).toBeNull();
@@ -4383,21 +4383,24 @@ c`)
         expect(partial).toMatchPartially({ characters: "aabb".split("") });
       });
 
-      it("compares against the capture's own reach, not the whole of a long input", () => {
+      it("finds the start whose own capture fits, after a long input", () => {
         const partial = new PartialMatchRegExp(/([ab])\1([ab])\2$/);
         const lead = "z".repeat(200);
 
-        expect(partial.exec(lead + "aaba")).toBeNull();
+        expect(partial.exec(lead + "aaba")).toMatchAt({
+          match: "a",
+          index: lead.length + 3
+        });
         expect(partial.exec(lead + "aabb")).toMatchAt({
           match: "aabb",
           index: lead.length
         });
       });
 
-      it("accepted limit: refuses a viable prefix when re-expanding from the expanded match's capture disagrees again, since the input's own ending cannot say how much of the backreference was consumed", () => {
+      it("finds a viable prefix whose capture differs from the one the first attempt read", () => {
         const partial = new PartialMatchRegExp(/(.?(\W))+?\1/);
 
-        expect(partial.exec("-b-")).toBeNull();
+        expect(partial.exec("-b-")).toMatchAt({ match: "-b-", index: 0 });
         expect(/(.?(\W))+?\1/.exec("-b-b-")).toMatchAt({
           match: "-b-b-",
           index: 0

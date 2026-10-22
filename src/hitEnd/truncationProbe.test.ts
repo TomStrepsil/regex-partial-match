@@ -5,11 +5,8 @@ import { buildTruncationProbe } from "./truncationProbe.ts";
 import { hitEndOf } from "../../test/hitEndOf.ts";
 
 function probeOf(pattern: RegExp) {
-  const partial = new PartialMatchRegExp(pattern);
-  const compiled = compiledOf(partial);
   return buildTruncationProbe(
-    compiled.parts,
-    compiled.rawLookarounds ?? [],
+    compiledOf(new PartialMatchRegExp(pattern)),
     pattern.flags
   );
 }
@@ -64,14 +61,17 @@ describe("buildTruncationProbe", () => {
     /(-|\n)^/m,
     /(?-m:\n)^/m,
     /\W(?m:^)/,
-    /^(?i:AB)c/
+    /^(?i:AB)c/,
+    /(\w+)-\1(b+)\2(?!\1)/,
+    /(a(b))\2\1(?<=\1)c/,
+    /(?<n>\w\w)\k<n>x(y)/
   ])("numbers every marker group it emits in %s", (pattern) => {
     const { regex, markerGroups } = probeOf(pattern);
 
     expect(markerGroups).toEqual(emptyGroupNumbers(regex.source));
   });
 
-  it.each([/^abc/, /^ab\b/, /^(ab)\1?c/, /^x(a)b(?!\1)c/, /^(\w+) \1$/])(
+  it.each([/^abc/, /^ab\b/, /^x(a)b(?!\1)c/, /^(a)\1?c/])(
     "emits no ES2018 group syntax for the ES2015 pattern %s",
     (pattern) => {
       expect(probeOf(pattern).regex.source).not.toContain("(?<");

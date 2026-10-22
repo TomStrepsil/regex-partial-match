@@ -3,21 +3,24 @@ import {
   END_ANCHOR,
   GROUP_CLOSING,
   LOOKAHEAD_OPENING,
-  ONLY_AT_END_OF_INPUT,
   START_ANCHOR,
-  UNSATISFIABLE,
   asOptionalAtom,
   isOptionalAtom,
   isRawLookaround,
   isWordBoundaryAtom
 } from "../../partialMatchRegExp/atomSyntax.ts";
+import {
+  ONLY_AT_END_OF_INPUT,
+  UNSATISFIABLE,
+  optionalAtomTextOf
+} from "../atomSyntax.ts";
 import type { Part } from "../../partialMatchRegExp/part.ts";
 import {
   LAZY_MARK,
   KLEENE_STAR,
   isQuantifier
 } from "../../partialMatchRegExp/quantifier.ts";
-import { optionalAtomTextOf } from "./caretSyntax.ts";
+import { minimumOf } from "../quantifierBounds.ts";
 import { MULTILINE } from "../../partialMatchRegExp/scope.ts";
 import {
   ON_ALTERNATIVE,
@@ -31,7 +34,7 @@ import appendMultilineCaret, {
   canEndLine,
   type LookaheadSpan
 } from "./appendMultilineCaret.ts";
-import { isQuantifierAhead, minimumOf, quantifierAhead } from "./quantifierBounds.ts";
+import { isQuantifierAhead, quantifierAhead } from "./quantifierAhead.ts";
 
 const NO_ALTERNATIVES: readonly number[] = [0];
 const NO_LOOKAHEAD_SPANS: readonly LookaheadSpan[] = [];

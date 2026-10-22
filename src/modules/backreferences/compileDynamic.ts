@@ -1,78 +1,102 @@
-import escapeAtom from "./escapeAtom.ts";
-import { ALTERNATION } from "./constants.ts";
+import longestCaptureOf from "./longestCaptures.ts";
 import {
   GROUP_CLOSING,
-  ONLY_AT_END_OF_INPUT,
   OPTIONAL_ATOM_OPENING,
-  asOptionalAtom
+  isRawLookaround
 } from "../../partialMatchRegExp/atomSyntax.ts";
 import {
-  isBackreference,
-  type Backreference,
-  type Part
-} from "../../partialMatchRegExp/part.ts";
+  groupsOpenedBefore,
+  shiftForGroupOf
+} from "../../partialMatchRegExp/groupNumbering.ts";
+import { isBackreference, type Part } from "../../partialMatchRegExp/part.ts";
+import { Feature } from "../../partialMatchRegExp/regexFeatures.ts";
 import type { Hooks } from "../../partialMatchRegExp/walk.ts";
-import type { DynamicPath } from "../../partialMatchRegExp/compilePartial/compiled.ts";
+import type { RawLookarounds } from "../../partialMatchRegExp/rawLookaroundInfo.ts";
+import renumberRawBackreferences, {
+  renumberedToken
+} from "../../partialMatchRegExp/renumberRawBackreferences.ts";
+import runOutBranch, {
+  RUN_OUT_BRANCH_GROUPS,
+  endOfInputUnmatchedBy
+} from "../../partialMatchRegExp/runOutBranch.ts";
 import { CompiledBackreferences } from "./compiledBackreferences.ts";
-import asPreScanPart from "./asPreScanPart.ts";
-import resolvedFromScan from "./resolvedFromScan.ts";
-import startsWithUnderFlags from "./startsWithUnderFlags.ts";
-import longestBakedPrefixEndingInput from "./longestBakedPrefixEndingInput.ts";
-import flagsAtBackreference from "./flagsAtBackreference.ts";
 
-export default function compileDynamic(
-  parts: readonly Part[],
-  backreferences: readonly Backreference[],
-  flags: string,
-  isUnicode: boolean,
-  featureMask: number,
-  hooks: Hooks
-) {
-  const dynamic: DynamicPath = {
-    preScan: new RegExp(parts.map(asPreScanPart).join(""), flags),
-    expansionFitsCaptures: (expandedFrom, match, input) => {
-      for (const backref of backreferences) {
-        const baked = resolvedFromScan(backref, expandedFrom);
-        if (baked === undefined) continue;
-        const resolved = resolvedFromScan(backref, match) ?? "";
-        if (resolved === baked) continue;
-        const backrefFlags = flagsAtBackreference(backref, flags);
-        const consumed = longestBakedPrefixEndingInput(
-          baked,
-          input,
-          backrefFlags
-        );
-        if (!startsWithUnderFlags(resolved, consumed, backrefFlags))
-          return false;
+let lookbehindSupported: boolean | undefined;
+
+function lookbehindParses() {
+  try {
+    new RegExp("(?<=a)");
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export default function compilerWith(longestPartial: number) {
+  return function compileDynamic(
+    parts: readonly Part[],
+    flags: string,
+    featureMask: number,
+    hooks: Hooks,
+    rawLookarounds: RawLookarounds
+  ) {
+    const groupsBefore = groupsOpenedBefore(parts, rawLookarounds);
+    const longestCapture = longestCaptureOf(
+      parts,
+      groupsBefore,
+      flags.indexOf("v") !== -1
+    );
+    const canRunOut = (lookbehindSupported ??= lookbehindParses());
+    const partialLengths = parts.map((part) =>
+      isBackreference(part) && !part.forward && canRunOut
+        ? Math.min(longestPartial, longestCapture(part) - 1)
+        : 0
+    );
+    const shiftForGroup = shiftForGroupOf(groupsBefore, (index) =>
+      partialLengths[index] > 0 ? RUN_OUT_BRANCH_GROUPS : 0
+    );
+
+    const hiddenGroups: number[] = [];
+    let source = "";
+    let rawLookaroundCount = 0;
+    parts.forEach((part, index) => {
+      if (isBackreference(part)) {
+        const token = renumberedToken(part, shiftForGroup);
+        const longest = partialLengths[index];
+        let runningOut = "";
+        if (longest > 0) {
+          const hiddenGroup =
+            groupsBefore[index] + hiddenGroups.length * RUN_OUT_BRANCH_GROUPS + 1;
+          hiddenGroups.push(hiddenGroup);
+          runningOut = "|" + runOutBranch(token, hiddenGroup, longest);
+        }
+        source +=
+          OPTIONAL_ATOM_OPENING +
+          token +
+          runningOut +
+          "|" +
+          endOfInputUnmatchedBy(token) +
+          GROUP_CLOSING;
+      } else if (isRawLookaround(part)) {
+        const info = rawLookarounds[rawLookaroundCount++];
+        source += info
+          ? renumberRawBackreferences(part, info, shiftForGroup)
+          : part;
+      } else {
+        source += part;
       }
-      return true;
-    },
-    expand: (capture) => {
-      const expanded: Part[] = [];
-      for (const part of parts) {
-        if (!isBackreference(part)) {
-          expanded.push(part);
-          continue;
-        }
-        const captured = resolvedFromScan(part, capture);
-        if (captured === undefined || captured === "") {
-          expanded.push(part);
-          continue;
-        }
-        const atoms = isUnicode ? Array.from(captured) : captured.split("");
-        expanded.push(OPTIONAL_ATOM_OPENING, part, ALTERNATION);
-        for (const atom of atoms) {
-          expanded.push(asOptionalAtom(escapeAtom(atom)));
-        }
-        expanded.push(ONLY_AT_END_OF_INPUT, GROUP_CLOSING);
-      }
-      return expanded;
-    }
+    });
+
+    return new CompiledBackreferences(
+      {
+        regex: new RegExp(source, flags),
+        hiddenGroups,
+        partialLengths,
+        nativeMayStartEarlier: (featureMask & Feature.lookaroundCapture) !== 0
+      },
+      parts,
+      featureMask,
+      hooks
+    );
   };
-  return new CompiledBackreferences(
-    dynamic,
-    parts,
-    featureMask,
-    hooks
-  );
 }

@@ -47,7 +47,7 @@ Each group compares native `test` (always returns `false` for incomplete input),
 
 ### 4. Backreference path (`backref-slow-path.bench.ts`)
 
-When `exec()` is called on a partial input that contains backreferences, the path constructs a per-input `RegExp` on every call (capture scan → pattern substitution → `new RegExp()`). This is the most expensive code path.
+A pattern whose backreference is matched at run time is compiled, at construction, to a regex where each backreference can also run out of input part way through its capture. `exec()` runs that regex, and the native pattern too where it finds nothing at the start. The bench names below are kept from the capture scan this path replaced, so their history stays comparable.
 
 Two patterns are used to cover different positions within a backreference:
 
@@ -58,9 +58,9 @@ Two patterns are used to cover different positions within a backreference:
 
 Each pattern is measured at three stages — full match (native fast path), partial input before the backreference atom is reached, and partial input mid-backreference — plus an accumulated keystroke simulation that sums the cost over all prefixes.
 
-A fourth group covers a native complete match at a *non-zero* index, where `exec()` must confirm no earlier partial exists before trusting it (see [docs/modules/backreferences.md](../../docs/modules/backreferences.md) — "Leftmost bound check"): once when the cheap `preScan` bound rejects outright (native wins, pipeline skipped), and once when the bound is loose enough that the full slow-path pipeline still has to run even though the native match wins in the end.
+A fourth group covers a native complete match at a *non-zero* index, which the compiled regex finds itself, before the native pattern is run, in two inputs that once took different paths.
 
-A fifth group guards a bound rather than a cost. When a backreference's captured text has to be checked against the input, only the last `capture.length` characters of the input can decide the answer, so the two benches in it differ solely in how much irrelevant text precedes the part that does. They are read together: if that check ever goes back to scanning the whole input, the long one grows away from the short one while everything else here holds still.
+A fifth group guards a bound rather than a cost. A backreference running out of input reads only the rest of the input and back to its capture, so the two benches in it differ solely in how much irrelevant text precedes the match. They are read together: if that check ever goes back to scanning the whole input, the long one grows away from the short one while everything else here holds still.
 
 ### 5. Construction cost (`construction-cost.bench.ts`)
 
@@ -79,6 +79,7 @@ Three patterns span the complexity range the walker branches on:
 | Simple (`/^hello+$/`) | No groups, no character classes, no backreferences               |
 | Phone number          | Several character classes and optional groups, no backreferences |
 | HTML tag              | Capturing group + backreference — exercises the dynamic path     |
+| Repeated character    | `/(\w)\1{2,}/` — a backreference to a one-character group, whose longest capture is worked out so it needs no partial branch |
 | Legacy escape         | `\7` and `\k<none>` — exercises the Annex B classification       |
 
 ### 6. `hitEnd()` (`hit-end.bench.ts`)
@@ -114,30 +115,6 @@ The two duplicate the native baselines in `dispatch-overhead.bench.ts` and `cons
 
 Two workloads rather than one because the suite spans exec-bound benches and construction-bound benches, and runners do not scale the two identically; blending the two swings less than either alone.
 
-## 🤖 CI integration
+### 9. Backtracking (`backtracking.bench.ts`)
 
-The workflow at [`.github/workflows/benchmark.yml`](../../.github/workflows/benchmark.yml) runs on every push to `main` and on pull requests targeting `main`.
-
-Results are stored and compared by [`benchmark-action/github-action-benchmark`](https://github.com/benchmark-action/github-action-benchmark) using the `customSmallerIsBetter` tool. A regression alert comment is posted on the PR if any benchmark regresses beyond 150% of the stored baseline.
-
-Numbers are compared as a ratio to the calibration group, not in nanoseconds, so a regression alert reflects the code rather than which machine the job landed on. No nanosecond figure is lost: every point carries its own, and the calibration it was divided by, in its tooltip. The oldest stored points predate the blended calibration and are bridged from a single native workload, at some cost in noise; those say so in their tooltip.
-
-The baseline is only updated on merges to `main` — PR runs read but do not write the baseline.
-
-## 📊 Output format
-
-`../../.github/scripts/mitata-to-action-format.ts` converts mitata's JSON output to the `github-action-benchmark` schema:
-
-```json
-[
-  {
-    "name": "<group> — <bench name>",
-    "value": 1.6459,
-    "unit": "× calibration",
-    "range": "± 0.0143",
-    "extra": "90.43ns  (min: 88.10ns  p75: 91.20ns  p99: 99.40ns)  calibration: 54.94ns"
-  }
-]
-```
-
-Mitata v1's JSON stats are already in nanoseconds per iteration. The converter divides each one by the geometric mean of the calibration group and reports the ratio, keeping the raw nanoseconds and the calibration figure in `extra` so absolute cost and machine speed both stay visible. The calibration benches themselves are not emitted.
+A quantifier over a backreference, followed by a lookbehind that fails at the end of the input, once made `exec()` try exponentially many splits of a run of `a`. Each group times native and partial `exec()` on 12 `a`s for one such shape: a quantified backreference, a group holding only backreferences, a bounded count, and a capture nothing reads, each over `(a+)`, and once over a one-character group. Each should cost about what native does; before, they cost milliseconds to a quarter of a second, so a regression shows by orders of magnitude.

@@ -7,14 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `backreferencesWith({ longestPartial })`, from `regex-partial-match/modules` and `regex-partial-match/modules/backreferences`, sets how far into its group's capture a backreference can run out of input (64 characters by default)
+
 ### Fixed
 
 - `exec()` and `hitEnd()` no longer throw `RangeError: Maximum call stack size exceeded` on V8 when `*`, `+` or `{n,}` repeats an atom about 4 million times, as `/\S+/` over 8 MiB did
+- `exec()` no longer backtracks exponentially on a repeated backreference when a lookbehind or negative lookahead follows, as `/(a)\1+(?<=b)/` did on a run of `a`
+- `exec()` and `hitEnd()` no longer throw `SyntaxError` (`Stack overflow`) when a group a backreference reads has captured several thousand characters
+- `hitEnd()` reports `false` for more matches that settled before the end of the input with a backreference, as `/(a|b)\1?/` on `"aa"`
+- `hitEnd()` no longer backtracks exponentially over optional atoms repeated at the end of the input, as `/(?:a?-?){10}(?<=b)|c/` did on `""`
+- `exec()` finds partial matches it missed or found late where a backreference runs out part way through its capture, as `/(\w\w)\1/` did on `"abxcdc"`, `/(\w+)-\1/` on `"ab-xbc-b"` and `/^(a+b)\1|^(a+bc)\2/` on `"abca"`
 
 ### Changed
 
+- `exec()` prefers a higher-priority alternative that ran out of input to a native match on a pattern with backreferences, as it does without them: `/(a)\1b|a/` on `"aa"` returns `"aa"`, not `"a"`
+- A backreference runs out of input part way only within the first `longestPartial` characters of its capture, and on an engine without lookbehind it matches only in full or at the end of the input
 - `README.md`:
   - adds "Very long repetitions" to Caveats, covering the repetitions that can still overflow
+  - lists backtracking among the caveats
+  - documents `backreferencesWith()`
+  - states that a backreference matches part way only where the engine supports lookbehind
+  - states that `isPartialMatchRegExp()` recognises only instances from the same evaluated copy of the library, in the same realm
+  - links the carets module footnote to the module's source
 
 ## [2.1.0] - 2026-10-11
 

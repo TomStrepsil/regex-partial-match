@@ -121,6 +121,14 @@ const WithBoth = withModules(carets, backreferences);
 new WithBoth(/(a|b)\1/).test("a"); // true
 ```
 
+`backreferencesWith({ longestPartial })`, also exported from `regex-partial-match/modules/backreferences`, returns a `backreferences` module that lets a backreference stop part way through its group's capture only within `longestPartial` characters of the end of the input (64 by default). Past that, the backreference matches in full or not at all. See [docs/modules/backreferences.md](./docs/modules/backreferences.md#longestpartial) for what the value costs.
+
+```javascript
+import { backreferencesWith } from "regex-partial-match/modules/backreferences";
+
+const LongPartials = withModules(carets, backreferencesWith({ longestPartial: 256 }));
+```
+
 `withModules` returns a `PartialMatchRegExp` class extending `RegExp`, and the same set of modules in any order returns the same class: `withModules()` is the `core` class, and `withModules(carets, backreferences)` is the default `PartialMatchRegExp`, so `instanceof` holds between them. [`hitEnd`](#hitend) and [`features`](#features) accept instances of any of these classes.
 
 A module's type is `Module`, exported from both `regex-partial-match/core` and `regex-partial-match/modules`, for annotating a list of modules: `const modules: Module[] = [carets, backreferences]`. It is opaque, so what a module holds is not part of the API, and `withModules` throws a `TypeError` for anything that isn't a module.
@@ -188,7 +196,7 @@ The library is compiled to **ES2015** (ECMAScript 6). Certain regular expression
 - [**`v` (unicodeSets) flag**](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/unicodeSets) - ES2024+
 - [**Modifiers**](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Modifier) (`(?ims:...)`, `(?-ims:...)`, `(?i-ms:...)`) - ES2025+
 
-Each of these applies only when the _original_ pattern uses the feature — everything else, including construction, `exec()`, `test()` and [`hitEnd()`](#hitend), holds to the ES2015 floor.
+Each of these applies only when the _original_ pattern uses the feature — everything else, including construction, `exec()`, `test()` and [`hitEnd()`](#hitend), holds to the ES2015 floor. The one exception is a backreference matching part way through its group's capture, which needs lookbehind; an engine without it matches each backreference only in full or at the end of the input.
 
 ## ⚠️ Caveats
 
@@ -197,8 +205,8 @@ See [Caveats](./docs/caveats.md) for details, examples and workarounds.
 - [**`.test()` and empty matches at the end of the input**](./docs/caveats.md#test-behaviour-and-non-matching-results-from-exec-and-match): an unanchored pattern always matches `""` at the end of the input; anchor with `^`, or ask [`hitEnd()`](#hitend)
 - [**Backreferences**](./docs/caveats.md#backreferences): some backreferences stay atomic
   - [Captures on a partial match](./docs/caveats.md#captures-on-a-partial-match)
-  - [Prefix-ambiguous top-level alternation](./docs/caveats.md#prefix-ambiguous-top-level-alternation)
 - [**Positive lookbehinds**](./docs/caveats.md#positive-lookbehinds): must match in their entirety
+- [**Backtracking**](./docs/caveats.md#backtracking): costs about what the original pattern costs, except for repeated alternatives that the input ends inside, and backreferences retried many times
 - [**Surrogate pair matching**](./docs/caveats.md#surrogate-pair-matching): only whole astral characters match
 - [**Sticky flag (`y`)**](./docs/caveats.md#sticky-flag-y): not suited to progressive input validation
 - [**"String properties"**](./docs/caveats.md#string-properties): match atomically
@@ -371,7 +379,7 @@ Available as a named export of the default entry point, `import { features } fro
 
 This is useful for consumers building on top of `PartialMatchRegExp` who need to reason about which constructs a _specific_ pattern uses, without writing their own regex parser to find out. Two concrete cases:
 
-- **Flagging patterns likely to hit one of the [caveats](./docs/caveats.md).** For example, a pattern combining `backreference` with `lookbehind`, `negativeLookahead`, or `negativeLookbehind` is a candidate for the [atomic-backreference caveat](./docs/caveats.md#backreferences); one combining `backreference` with `disjunction` is a candidate for the [prefix-ambiguous top-level alternation caveat](./docs/caveats.md#prefix-ambiguous-top-level-alternation). A consumer accepting user-supplied patterns can surface a warning instead of letting the edge case surprise someone later.
+- **Flagging patterns likely to hit one of the [caveats](./docs/caveats.md).** For example, a pattern combining `backreference` with `lookbehind`, `negativeLookahead`, or `negativeLookbehind` is a candidate for the [atomic-backreference caveat](./docs/caveats.md#backreferences). A consumer accepting user-supplied patterns can surface a warning instead of letting the edge case surprise someone later.
 - **Restricting which constructs a product surface allows.** e.g. a system that only wants to accept "simple" patterns (no lookaround, no backreferences) from untrusted input can check `features()` against an allow-list and reject the rest, without needing to hand-roll that check against the raw pattern source.
 - **Deciding at construction time whether a pattern needs a careful path.** A capture nested inside a lookaround is decided by the assertion rather than by the consumed text, so its value can vary with how far the input has been seen. `features(partial).has("lookaroundCapture")` isolates exactly those patterns, where checking for both `lookahead` and `capturingGroup` would also catch the ordinary `/(\w+)(?= END)/`.
 
@@ -427,7 +435,7 @@ Three things worth knowing about how these tags line up with the grammar:
 
 [^3]: A scanner fed from a source that can split a surrogate pair across chunks, rather than a [`TextDecoder`](https://developer.mozilla.org/en-US/docs/Web/API/TextDecoder) in streaming mode (`stream: true`, or `TextDecoderStream`), should defer any match ending on a code unit in `0xD800`–`0xDBFF` at the end of the input.
 
-[^4]: The [carets module](./docs/modules/carets.md) guesses from a cheap look at the source whether a pattern needs its rules, and when it guesses wrong the pattern is walked a second time with them.
+[^4]: The [carets module](https://github.com/TomStrepsil/regex-partial-match/tree/main/src/modules/carets) guesses from a cheap look at the source whether a pattern needs its rules, and when it guesses wrong the pattern is walked a second time with them.
 
 ### `isPartialMatchRegExp()`
 
@@ -440,7 +448,7 @@ Returns `true` for an instance of any `PartialMatchRegExp` class, from `regex-pa
 Available as a named export of `regex-partial-match/features`, or of the default entry point, `import { isPartialMatchRegExp } from 'regex-partial-match'`.
 
 > [!CAUTION]
-> It recognises instances from the same installed copy of the library only: an instance from a second copy, such as a duplicate install in a bundle, returns `false`.
+> It recognises only instances built by the same evaluated copy of the library, in the same JavaScript realm. An instance from another copy returns `false`, even if the two are identical: a duplicate install, a bundler that evaluates the library once per compiler (such as separate server and edge builds), or a copy loaded in another realm (an iframe or `vm` context). Serialising an instance (for example with `postMessage` or `structuredClone`) yields a plain `RegExp`, which also returns `false`.
 
 ## 📜 License
 

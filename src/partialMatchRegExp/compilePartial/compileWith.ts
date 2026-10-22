@@ -64,19 +64,15 @@ export default function compileWith(
     );
   if (needs) throw new TypeError("Needs the " + MODULES_NAMED_BY_MASK[needs]);
 
-  const backreferences = backreferenceHook
-    ? parts.filter(isBackreference)
-    : [];
   const compiled =
-    backreferenceHook === undefined || backreferences.length === 0
+    backreferenceHook === undefined || !parts.some(isBackreference)
       ? toStatic(parts as string[], flags, featureMask, hooks)
       : backreferenceHook.compile(
           parts,
-          backreferences,
           flags,
-          isUnicode,
           featureMask,
-          hooks
+          hooks,
+          rawLookarounds ?? []
         );
   if (rawLookarounds) compiled.rawLookarounds = rawLookarounds;
   return compiled;

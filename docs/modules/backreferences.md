@@ -4,7 +4,7 @@ _The backreferences module, `regex-partial-match/modules/backreferences`. To bin
 
 ## 🧩 The problem
 
-A backreference (`\1`, `\k<name>`) is atomic: it matches its group's whole capture or nothing, and how long that capture is, is only known at match time. So the `|$(?![\s\S])` transform (see [How It Works](../how-it-works.md)) has nowhere to go inside it. This module resolves the captures for each input, then expands each backreference into one partial atom per character:
+A backreference (`\1`, `\k<name>`) is atomic: it matches its group's whole capture or nothing, and how long that capture is, is only known at match time. So the `|$(?![\s\S])` transform (see [How It Works](../how-it-works.md)) has nowhere to go inside it. This module lets a backreference match a prefix of its group's capture that runs to the end of the input, checked by the engine itself in one regex built at construction:
 
 ```js
 import PartialMatchRegExp from "regex-partial-match";
@@ -20,46 +20,71 @@ re.exec("abcabc"); // full:    m[0] = "abcabc", m[1] = "abc"
 
 The pattern is walked once, into parts that every rendering below is built from, so they all agree on what is a backreference. A `\N` is a backreference only when 1 ≤ `N` ≤ the pattern's final group count. Otherwise it's an Annex B escape, split into one atom per character it stands for (`\128` is `\x0a` then `8`). The group count, and whether any group is named, come from the engine. That lookup runs only when the source may hold a `\N` or `\k<` and the pattern isn't in `u` or `v` mode.
 
-A pattern with no backreference left compiles to the static transform. Otherwise the module builds a dynamic path:
+A pattern with no backreference left compiles to the static transform. Otherwise each backward backreference becomes a choice of three, in this order:
 
-| Rendering | A backreference becomes |
-|---|---|
-| static transform | `(?:\N\|$(?![\s\S]))` |
-| capture scan (`preScan`) | `(?:[\s\S]*?)` |
-| expansion (per `exec`) | `(?:\N\|⟨one atom per captured character⟩$(?![\s\S]))`, or `(?:\N\|$(?![\s\S]))` when the capture is `""` or `undefined` |
+```text
+\N  →  (?:\N|(?!\N)(?![\s\S]{L+1})(?=([\s\S]+))(?<=(?=\N)([\s\S]*?))(?<=(?=\H)\G)\H|$(?![\s\S])(?!\N))
+```
 
-The scan's stand-in is lazy, so it can't swallow text a later group captures, and it can't be dropped, since everything after it would then shift.
+1. **`\N`** — the whole capture, as native.
+2. **Run out part way** — the rest of the input is shorter than the capture and a prefix of it. `(?!\N)` rules out the capture fitting in full. `(?![\s\S]{L+1})` limits the rest to `L` characters. `(?=([\s\S]+))` captures the rest in a hidden group `\H`. The first lookbehind finds the nearest occurrence of the capture starting before this point, usually the group's own capture, and captures the text from there to here in a second hidden group `\G`. The second steps back over `\G` to that occurrence and checks it starts with the rest. Every occurrence holds the same text, so the nearest one decides. Only a group a lookahead captured further on has none, and its capture can't start with the rest. `\H` then consumes the rest.
+3. **`$(?![\s\S])(?!\N)`** — the input ends before the backreference starts. `(?!\N)` keeps this branch from matching where `\N` already matched the same empty string, as it does when the group captured nothing. Without it, a backreference repeated at the end of the input would give the engine two ways to match each repetition, and a failing assertion after them would make it try every combination, doubling the time with each repetition, as `/(a?)\1{22}(?<=b)/` on `"c"` did.
 
-Two kinds of backreference stay native in every rendering:
+`L` is the smaller of `longestPartial` (64 by default) and the longest text the group can capture, less one. A group that captures one character at most, as `(\w)` does, needs no second branch, so its backreference stays `(?:\N|$(?![\s\S])(?!\N))`. The longest capture is read from the walk: a quantifier without a maximum, or a group holding a forward reference, makes it unbounded, and so do a group inside a lookbehind or negative lookahead and, under `v`, a class or property escape that can match a string (`[\q{abc}]`, `\p{RGI_Emoji}`).
+
+The regex is built once, at construction. Its hidden groups are numbered among the pattern's own, so the backreferences after one, including those inside a lookbehind or negative lookahead, are renumbered past it, and `exec()` removes them from each match, and from its `d` indices, before returning it. On an engine that can't parse a lookbehind, every backreference stays `(?:\N|$(?![\s\S])(?!\N))`, so it matches only in full or at the end of the input.
+
+Two kinds of backreference stay native:
 
 - **Inside a lookbehind or negative lookahead.** These bodies are kept as written, so the reference there is atomic.
-- **Forward references:** written before their group closes, as in `/^\1?(a|b)\1/` or the self-reference `/^(\1a)$/`. Outside a lookbehind, ECMAScript always resolves them to empty, so leaving them to the engine costs nothing. A stand-in, or a scanned value, would demand text the original never required.
+- **Forward references:** written before their group closes, as in `/^\1?(a|b)\1/` or the self-reference `/^(\1a)$/`. Outside a lookbehind, ECMAScript always resolves them to empty, so leaving them to the engine costs nothing.
 
 ## ⚙️ `exec()` on the dynamic path
 
-1. **Native first.** Run the original pattern from `start`. A match at or before `start` is returned.
-2. **Bound.** Run the capture scan from `start`. If it can't begin earlier than the native match, the native match wins.
-3. **Expand.** Render the expansion from the scan's captures and run it from `start`. Under `u`/`v` it splits by code point.
-
-   Each expanded backreference leads with the native `\N`, so the engine resolves the capture whenever the input holds it in full. The per-character atoms only cover input that runs out part way through the reference. An `undefined` capture renders as plain `\N`, which is sound, though atomic for that occurrence.
-4. **Agree.** The atoms a backreference truncated against must be a prefix of the capture the match itself resolved. If they aren't, the match was built from text that capture never held. In that case, expand once more from the match's own captures, starting at the first match's index. If they disagree a second time, fall back to the native match. That is sound, though it may miss a valid partial. A second re-derivation recovered nothing in testing that the first didn't.
-5. **`lastIndex`.** It is written only for `g` and `y`, as native does. If any step fails, the result is the native match, never `null`.
+`exec()` runs the compiled regex from `start`, so the engine tries alternatives in the pattern's own priority order, as it does for every other atom: `/(a)\1b|a/` on `"aa"` returns `"aa"`, as `/aab|a/` does. Where a lookaround holds a capturing group and the regex finds nothing at `start`, the native pattern is run too, and returned if it starts earlier: a lookahead keeps the first capture it makes, so a partial capture inside one can hide a start the native pattern finds, as in `/(?=(a|-b){1,2})\1/` on `"a-"`. Without such a group, nothing can hide a start, so the native pattern isn't run. `lastIndex` is written only for `g` and `y`, as native does.
 
 Only `exec` is overridden. `test`, `match` and `matchAll` reach it through the standard protocol.
+
+## 🎛️ `longestPartial`
+
+`backreferencesWith({ longestPartial })`, from `regex-partial-match/modules` or `regex-partial-match/modules/backreferences`, returns the module with another limit, to bind with `withModules`:
+
+```js
+import { withModules } from "regex-partial-match/core";
+import { carets, backreferencesWith } from "regex-partial-match/modules";
+
+const LongTails = withModules(carets, backreferencesWith({ longestPartial: 256 }));
+```
+
+A backreference that runs out of input more than `longestPartial` characters into its capture isn't matched part way: `/(\w+)-\1/` on `"abcd-abc"` matches at 0 with the default, but at 5 with `longestPartial: 2`. `0` makes every backreference match only in full or at the end of the input. It must be a whole number up to `Number.MAX_SAFE_INTEGER`. The same options return the same module, so `withModules` returns the same class for them, and a class can bind only one backreferences module.
+
+A backreference that fails to match reads up to `longestPartial` characters ahead before it gives up, and one that runs out part way checks its capture against what's left, so the cost grows with the limit on long input where backreferences often fail, or where the engine backtracks through many places they run out. Over an unbounded group, a pattern that backtracks heavily near the end of the input costs a multiple of the native pattern, about ten times with the default in the third column, and more where the group's capture is far back, since each check reads back to it: `/(a+b)[^]*\1(?<=#)/` on 3,200 characters is about sixty times native. Input that matches early, a stream of short inputs and construction (about 1.8 µs for `/(\w+)-\1/`) don't change. Node 24.20, one `exec()`, median of five:
+
+| `longestPartial` | `/(\w+)-\1/` on 32,000 characters of `"foo-bar "` | `/(a\|bb+)\1-/` on 24,000 characters of `"abb"` | `/(\w+)\1(?<=x)/` on 800 `a`s (7.6 ms native) | `/^(.+)\n\1/` on a 2,000-character line and its first half | `/^<([a-zA-Z][\w:-]*)>[^<]*?<\/\1>/` per keystroke of a 259-character element |
+| --: | --: | --: | --: | --: | --: |
+| 0 | 0.16 ms | 0.08 ms | 7.91 ms | < 0.01 ms | 0.26 µs |
+| 8 | 0.37 ms | 0.41 ms | 23.96 ms | < 0.01 ms | 0.32 µs |
+| 16 | 0.36 ms | 0.48 ms | 30.99 ms | < 0.01 ms | 0.43 µs |
+| 32 | 0.69 ms | 0.72 ms | 43.01 ms | < 0.01 ms | 0.33 µs |
+| **64** | **1.06 ms** | **1.48 ms** | **65.56 ms** | **< 0.01 ms** | **0.36 µs** |
+| 128 | 2.00 ms | 2.73 ms | 109.14 ms | < 0.01 ms | 0.36 µs |
+| 256 | 3.87 ms | 3.79 ms | 159.74 ms | < 0.01 ms | 0.24 µs |
+| 512 | 5.82 ms | 9.35 ms | 181.94 ms | < 0.01 ms | 0.33 µs |
+| 1024 | 17.60 ms | 24.59 ms | 176.96 ms | 0.44 ms | 0.23 µs |
+
+The first two never match before the end of the input, so every backreference fails once per start. The third backtracks through every place `\1` runs out near the end of the input, so it grows with the limit until the limit passes the longest capture that can run out there. The fourth runs out 1,000 characters into its capture, so it's matched there only from a limit of 1,000, where checking that the capture starts with what's left costs about the distance back to the capture.
 
 ## Limits
 
 These are sound but incomplete: an input is never wrongly accepted, but some valid prefixes are rejected or found late. Each one is described in [Caveats](../caveats.md#backreferences).
 
 - references inside lookbehinds and negative lookaheads;
-- captures the scan can't determine;
-- top-level alternatives that share a prefix;
-- a viable index that isn't the scan's leftmost;
-- a `\k<name>` written before a later declaration of its duplicated name.
+- a `\k<name>` written before a later declaration of its duplicated name;
+- a backreference that runs out of input more than `longestPartial` characters into its capture.
 
 ### Duplicate named groups
 
-ECMAScript allows a name to be declared more than once only in alternatives that can't both take part, so a `\k<name>` after every declaration of its name reads whichever group took part, and is resolved per character like any other backward reference: `/^(?:(?<x>a+)|(?<x>b+))c\k<x>$/` accepts `"aaca"`.
+ECMAScript allows a name to be declared more than once only in alternatives that can't both take part, so a `\k<name>` after every declaration of its name reads whichever group took part, and can run out part way like any other backward reference, within the longest capture any of the declarations can make: `/^(?:(?<x>a+)|(?<x>b+))c\k<x>$/` accepts `"aaca"`.
 
 A `\k<name>` written before a later declaration of its name is treated as a forward reference, so it stays atomic, even where a group of that name has already closed. `/^(?:(?<x>ab)\k<x>|z(?<x>q))$/` rejects `"aba"`, a prefix of `"abab"`. Renaming the duplicate avoids it.
 

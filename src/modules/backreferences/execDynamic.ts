@@ -1,13 +1,15 @@
-import renderParts from "./renderParts.ts";
 import type { DynamicPath } from "../../partialMatchRegExp/compilePartial/compiled.ts";
-import {
-  backreferenceExpansion,
-  type ExpandedMatch
-} from "../../partialMatchRegExp/backreferenceExpansion.ts";
-import execFrom from "../../partialMatchRegExp/execFrom.ts";
+import { RUN_OUT_BRANCH_GROUPS } from "../../partialMatchRegExp/runOutBranch.ts";
 
-function isAtOrBefore(match: RegExpExecArray | null, index: number) {
-  return match !== null && match.index <= index;
+function withoutHiddenGroups(
+  match: RegExpExecArray,
+  hiddenGroups: readonly number[]
+) {
+  for (let index = hiddenGroups.length - 1; index >= 0; index--) {
+    match.splice(hiddenGroups[index], RUN_OUT_BRANCH_GROUPS);
+    match.indices?.splice(hiddenGroups[index], RUN_OUT_BRANCH_GROUPS);
+  }
+  return match;
 }
 
 export default function execDynamic(
@@ -15,44 +17,19 @@ export default function execDynamic(
   dynamic: DynamicPath,
   input: string
 ) {
-  const { preScan, expand, expansionFitsCaptures } = dynamic;
-
+  const { regex, hiddenGroups, nativeMayStartEarlier } = dynamic;
   const honoursLastIndex = this.global || this.sticky;
   const start = honoursLastIndex ? this.lastIndex : 0;
-
-  const originalMatch = RegExp.prototype.exec.call(this, input);
-  if (isAtOrBefore(originalMatch, start)) return originalMatch;
-
-  let preScanMatch: RegExpExecArray | null = null;
-  if (originalMatch) {
-    preScanMatch = execFrom(preScan, input, start);
-    const noEarlierPartialPossible =
-      preScanMatch === null || preScanMatch.index >= originalMatch.index;
-    if (noEarlierPartialPossible) return originalMatch;
+  regex.lastIndex = start;
+  const match = regex.exec(input);
+  if (nativeMayStartEarlier && (match === null || match.index > start)) {
+    const nativeMatch = RegExp.prototype.exec.call(this, input);
+    if (
+      nativeMatch !== null &&
+      (match === null || nativeMatch.index < match.index)
+    )
+      return nativeMatch;
   }
-
-  const capture = preScanMatch ?? execFrom(preScan, input, start);
-  if (capture === null) return originalMatch;
-
-  const scanningFlags = honoursLastIndex ? this.flags : this.flags + "g";
-  let expandedFrom = capture;
-  let expandedParts = expand(expandedFrom);
-  let expanded = new RegExp(renderParts(expandedParts), scanningFlags);
-  let match: ExpandedMatch | null = execFrom(expanded, input, start);
-
-  if (match !== null && !expansionFitsCaptures(expandedFrom, match, input)) {
-    expandedFrom = match;
-    expandedParts = expand(expandedFrom);
-    expanded = new RegExp(renderParts(expandedParts), scanningFlags);
-    match = execFrom(expanded, input, expandedFrom.index);
-    if (match !== null && !expansionFitsCaptures(expandedFrom, match, input))
-      match = null;
-  }
-
-  if (match === null || isAtOrBefore(originalMatch, match.index))
-    return originalMatch;
-
-  if (honoursLastIndex) this.lastIndex = expanded.lastIndex;
-  match[backreferenceExpansion] = expandedParts;
-  return match;
+  if (honoursLastIndex) this.lastIndex = regex.lastIndex;
+  return match && withoutHiddenGroups(match, hiddenGroups);
 }
