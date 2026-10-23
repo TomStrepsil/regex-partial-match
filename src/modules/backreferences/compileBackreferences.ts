@@ -1,9 +1,5 @@
 import longestCaptureOf from "./longestCaptures.ts";
 import { isRawLookaround } from "../../partialMatchRegExp/atomSyntax.ts";
-import {
-  groupsOpenedBefore,
-  shiftForGroupOf
-} from "../../partialMatchRegExp/groupNumbering.ts";
 import { isBackreference, type Part } from "../../partialMatchRegExp/part.ts";
 import { Feature } from "../../partialMatchRegExp/regexFeatures.ts";
 import type { Hooks } from "../../partialMatchRegExp/walk.ts";
@@ -34,23 +30,25 @@ export default function compilerWith(longestPartial: number) {
     flags: string,
     featureMask: number,
     hooks: Hooks,
-    rawLookarounds: RawLookarounds
+    rawLookarounds: RawLookarounds,
+    groupCount: number
   ) {
-    const groupsBefore = groupsOpenedBefore(parts, rawLookarounds);
-    const longestCapture = longestCaptureOf(
-      parts,
-      groupsBefore,
-      flags.indexOf("v") !== -1
-    );
+    const longestCapture = longestCaptureOf(flags.indexOf("v") !== -1);
     const canRunOut = (lookbehindSupported ??= lookbehindParses());
-    const partialLengths = parts.map((part) =>
-      isBackreference(part) && !part.forward && canRunOut
-        ? Math.min(longestPartial, longestCapture(part) - 1)
-        : 0
-    );
-    const shiftForGroup = shiftForGroupOf(groupsBefore, (index) =>
-      partialLengths[index] > 0 ? RUN_OUT_BRANCH_GROUPS : 0
-    );
+    const groupsBeforeRunningOut: number[] = [];
+    const partialLengths = parts.map((part) => {
+      if (!isBackreference(part) || part.capture === undefined || !canRunOut)
+        return 0;
+      const longest = Math.min(longestPartial, longestCapture(part) - 1);
+      if (longest > 0) groupsBeforeRunningOut.push(part.capture.groupsBefore);
+      return longest;
+    });
+    const shiftForGroup = [0];
+    let runningOutBefore = 0;
+    for (let group = 1; group <= groupCount; group++) {
+      while (groupsBeforeRunningOut[runningOutBefore] < group) runningOutBefore++;
+      shiftForGroup.push(runningOutBefore * RUN_OUT_BRANCH_GROUPS);
+    }
 
     const hiddenGroups: number[] = [];
     let source = "";
@@ -62,7 +60,7 @@ export default function compilerWith(longestPartial: number) {
           partialLengths[index],
           () => {
             const hiddenGroup =
-              groupsBefore[index] +
+              groupsBeforeRunningOut[hiddenGroups.length] +
               hiddenGroups.length * RUN_OUT_BRANCH_GROUPS +
               1;
             hiddenGroups.push(hiddenGroup);

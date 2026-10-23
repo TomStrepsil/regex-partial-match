@@ -99,6 +99,16 @@ describe("buildTruncationProbe", () => {
     }
   );
 
+  it("counts the groups a second raw lookaround opens when numbering a backreference after it", () => {
+    const pattern = /(?<=a)b(?<=(b))(c+)-\2/;
+    const partial = new PartialMatchRegExp(pattern);
+
+    expect(pattern.exec("abcc-cc")?.[0]).toBe("bcc-cc");
+    expect(pattern.exec("abcc-ccz")?.[0]).toBe("bcc-cc");
+    expect(hitEndOf(partial, "abcc-c")).toBe(true);
+    expect(hitEndOf(partial, "abcc-cc")).toBe(false);
+  });
+
   it("renumbers a raw lookaround's backreference after a greedy optional backreference past no marker of the ?", () => {
     const pattern = /^(a)\1?(\w+)-(?!\2)c/;
     const partial = new PartialMatchRegExp(pattern);

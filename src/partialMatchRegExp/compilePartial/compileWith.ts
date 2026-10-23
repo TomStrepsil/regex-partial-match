@@ -53,7 +53,7 @@ export default function compileWith(
   const backreferenceHook = maybeHasBackreference
     ? hooks.backreference
     : undefined;
-  const { parts, featureMask, needs, rawLookarounds } =
+  const { parts, featureMask, needs, rawLookarounds, groupCount } =
     walkWithCaretRulesWhereNeeded(
       regex,
       declaresNamedGroup,
@@ -72,7 +72,8 @@ export default function compileWith(
           flags,
           featureMask,
           hooks,
-          rawLookarounds ?? []
+          rawLookarounds ?? [],
+          groupCount
         );
   if (rawLookarounds) compiled.rawLookarounds = rawLookarounds;
   return compiled;

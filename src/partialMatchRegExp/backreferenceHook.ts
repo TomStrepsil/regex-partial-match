@@ -4,8 +4,17 @@ import type { CompiledPartial } from "./compilePartial/compiled.ts";
 import type { RawLookarounds } from "./rawLookaroundInfo.ts";
 
 export interface BackreferenceRecorder {
-  groupClosed(groupNumber: number, opening: string): void;
-  backreference(backreference: Backreference, scope: number): void;
+  groupClosed(
+    groupNumber: number,
+    opening: string,
+    body: readonly Part[],
+    scope: number
+  ): void;
+  backreference(
+    backreference: Backreference,
+    scope: number,
+    groupsBefore: number
+  ): void;
 }
 
 export interface ProbeGroups {
@@ -25,7 +34,8 @@ export interface BackreferenceHook {
     flags: string,
     featureMask: number,
     hooks: Hooks,
-    rawLookarounds: RawLookarounds
+    rawLookarounds: RawLookarounds,
+    groupCount: number
   ) => CompiledPartial;
   probe: (compiled: CompiledPartial, index: number) => BackreferenceProbe;
 }

@@ -2,17 +2,11 @@ import { describe, it, expect } from "vitest";
 import PartialMatchRegExp from "../../partialMatchRegExp/index.ts";
 import { compiledOf } from "../../partialMatchRegExp/partialMatchInternals.ts";
 import { isBackreference } from "../../partialMatchRegExp/part.ts";
-import { groupsOpenedBefore } from "../../partialMatchRegExp/groupNumbering.ts";
 import longestCaptureOf from "./longestCaptures.ts";
 
 function longestCapturesRead(pattern: RegExp) {
-  const compiled = compiledOf(new PartialMatchRegExp(pattern));
-  const { parts } = compiled;
-  const longestCapture = longestCaptureOf(
-    parts,
-    groupsOpenedBefore(parts, compiled.rawLookarounds ?? []),
-    pattern.flags.indexOf("v") !== -1
-  );
+  const { parts } = compiledOf(new PartialMatchRegExp(pattern));
+  const longestCapture = longestCaptureOf(pattern.flags.indexOf("v") !== -1);
   return parts
     .filter(isBackreference)
     .map((backreference) => longestCapture(backreference));
@@ -33,6 +27,8 @@ describe("longestCaptureOf", () => {
     [/(?:(?<n>abc)|(?<n>b))\k<n>/, [3]],
     [/(?:(?<n>b)|(?<n>abc))\k<n>/, [3]],
     [/(a)(\1b)\2/, [1, 2]],
+    [/(ab)(\1c)\2/, [2, 3]],
+    [/(\2a)(b)\1/, [Infinity, Infinity]],
     [/(^a$)\1/, [1]],
     [/(a(?<=a)b)\1/, [2]],
     [/(?=(ab))\1/, [2]],
@@ -44,9 +40,9 @@ describe("longestCaptureOf", () => {
   });
 
   it.each([
-    [/(a+)\1/, "a quantifier without a maximum"],
-    [/(a*)\1/, "a quantifier without a maximum"],
-    [/(a{2,})\1/, "a quantifier without a maximum"],
+    [/(a+)\1/, "a quantifier (+) without a maximum"],
+    [/(a*)\1/, "a quantifier (*) without a maximum"],
+    [/(a{2,})\1/, "a quantifier ({2,}) without a maximum"],
     [/(\2a)(b)\1/, "a group holding a forward reference"],
     [/(a)(\2b)\2/, "a group holding a backreference to itself"],
     [/([\q{abc}])\1/v, "a class that can match a string"],

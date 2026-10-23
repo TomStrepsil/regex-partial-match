@@ -129,7 +129,7 @@ export function walk(
 
     function appendBackreference(backreference: Backreference) {
       if (backreferenceRecorder)
-        backreferenceRecorder.backreference(backreference, scope);
+        backreferenceRecorder.backreference(backreference, scope, groupCount);
       else if (!(scope & WITHIN_RAW_LOOKAROUND)) needs |= BACKREFERENCES_MODULE;
       result.push(backreference);
     }
@@ -488,7 +488,7 @@ export function walk(
             closing = DISJUNCTION_TO_END_OF_INPUT;
           result.push(opening, ...body, closing);
           if (groupNumber)
-            backreferenceRecorder?.groupClosed(groupNumber, opening);
+            backreferenceRecorder?.groupClosed(groupNumber, opening, body, scope);
           break;
         }
         case ")":
@@ -516,5 +516,5 @@ export function walk(
 
   const parts = process(scopeOf(regex));
 
-  return { parts, featureMask, needs, rawLookarounds };
+  return { parts, featureMask, needs, rawLookarounds, groupCount };
 }
