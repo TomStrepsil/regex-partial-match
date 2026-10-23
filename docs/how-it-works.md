@@ -10,6 +10,15 @@ The library transforms a regular expression by wrapping each [atomic element](ht
 
 This allows the pattern to match prefixes of the original pattern, enabling validation of incomplete input.
 
+We call the added `|$(?![\s\S])` alternative an atom's **truncation branch**. `$(?![\s\S])` matches only at the very end of the input and reads nothing, so the branch can be taken only where the input was cut short, or truncated, before that atom. We say the atom then *runs out* of input. Every atom after it runs out the same way, so a match of a prefix ends there. Wherever more input follows, the branch can't be taken, and the atom has to match just as it would in the original pattern:
+
+```javascript
+/^abc/ on "ab"  → "ab": a and b match, c runs out
+/^abc/ on "abx" → null: c can't match x, and its truncation branch can't fire before the end
+```
+
+(Why `$(?![\s\S])` rather than `$`: see [below](#why-ss-and-not-).)
+
 Since the library accepts only valid regular expressions, this enables the algorithm to make lots of unguarded assumptions about the source of the expression. To remain lightweight, no runtime type validation is applied, so non-TypeScript consumers will be reliant on underlying errors thrown if used incorrectly.
 
 The library has been stress-tested with various regular expression features in isolation, and some in likely combination, but obviously it's an unbounded test space.
