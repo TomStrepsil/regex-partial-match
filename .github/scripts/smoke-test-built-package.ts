@@ -51,6 +51,7 @@ import type hitEndType from "../../src/hitEnd/index.ts";
 import type featuresType from "../../src/features/index.ts";
 import type isPartialMatchRegExpType from "../../src/partialMatchRegExp/isPartialMatchRegExp.ts";
 import type withModulesType from "../../src/partialMatchRegExp/withModules.ts";
+import type { backreferencesWith as backreferencesWithType } from "../../src/modules/backreferences/index.ts";
 
 const SUPPORTED_ECMA_VERSION = 2015;
 
@@ -235,6 +236,45 @@ async function assertBindsTheCaretsModule(
     new PartialMatchRegExp(/x^a/m).test("x"),
     false,
     "the carets module does not decide a caret after a consuming part"
+  );
+}
+
+async function assertBackreferencesWithBehaves(
+  backreferencesWith: unknown,
+  backreferences: unknown
+) {
+  assert.equal(
+    typeof backreferencesWith,
+    "function",
+    "no backreferencesWith named export"
+  );
+  const configured = backreferencesWith as typeof backreferencesWithType;
+  assert.equal(
+    configured({ longestPartial: 64 }),
+    backreferences,
+    "backreferencesWith({ longestPartial: 64 }) is not the backreferences module"
+  );
+  const { withModules } = await importCore();
+  const Default = withModules(
+    backreferences as Parameters<typeof withModulesType>[0]
+  ) as unknown as PartialMatchRegExpConstructor;
+  const Short = withModules(
+    configured({ longestPartial: 2 })
+  ) as unknown as PartialMatchRegExpConstructor;
+  assert.equal(
+    new Default(/(\w+)-\1/).exec("abcd-abc")?.index,
+    0,
+    "the backreferences module does not run a backreference out part way through its capture"
+  );
+  assert.equal(
+    new Short(/(\w+)-\1/).exec("abcd-abc")?.index,
+    5,
+    "longestPartial: 2 still runs a backreference out more than two characters into its capture"
+  );
+  assert.throws(
+    () => configured({ longestPartial: -1 }),
+    RangeError,
+    "accepts a negative longestPartial"
   );
 }
 
@@ -483,6 +523,10 @@ const SMOKE_TESTS: Record<
     assert.ok(loaded.carets, "no carets named export");
     await assertBindsTheCaretsModule(loaded.carets);
     assert.ok(loaded.backreferences, "no backreferences named export");
+    await assertBackreferencesWithBehaves(
+      loaded.backreferencesWith,
+      loaded.backreferences
+    );
     const Both = (await importCore()).withModules(
       loaded.carets as Parameters<typeof withModulesType>[0],
       loaded.backreferences as Parameters<typeof withModulesType>[0]
@@ -518,6 +562,10 @@ const SMOKE_TESTS: Record<
       loaded.default as Parameters<typeof withModulesType>[0]
     ) as unknown as PartialMatchRegExpConstructor;
     assertPartialMatchRegExpBehaves(PartialMatchRegExp);
+    await assertBackreferencesWithBehaves(
+      loaded.backreferencesWith,
+      loaded.default
+    );
   }
 };
 
