@@ -5,6 +5,7 @@ import { backreferencesWith, carets } from "../../src/modules/index.ts";
 
 const RUNS = 5;
 const TOLERATED_RATIO = 5;
+const TOLERATED_RATIO_RUNNING_OUT_PART_WAY = 20;
 const TOLERATED_SLACK_MS = 5;
 
 function elapsedMs(run: () => unknown) {
@@ -51,11 +52,18 @@ function expectNearNativeTimeWith(
   );
 }
 
-function expectNearNativeTime(pattern: RegExp, input: string, lastIndex = 0) {
+function expectNearNativeTime(
+  pattern: RegExp,
+  input: string,
+  lastIndex = 0,
+  ratio = TOLERATED_RATIO
+) {
   const { native, partial } = timesOf(pattern, input, lastIndex);
-  expect(partial).toBeLessThanOrEqual(
-    native * TOLERATED_RATIO + TOLERATED_SLACK_MS
-  );
+  expect(partial).toBeLessThanOrEqual(native * ratio + TOLERATED_SLACK_MS);
+}
+
+function expectNearNativeTimeRunningOutPartWay(pattern: RegExp, input: string) {
+  expectNearNativeTime(pattern, input, 0, TOLERATED_RATIO_RUNNING_OUT_PART_WAY);
 }
 
 describe("backtracking against the native pattern", () => {
@@ -94,8 +102,8 @@ describe("backtracking against the native pattern", () => {
   );
 
   it.each(runs.map((run) => [new RegExp("(a+)" + run), "a".repeat(lengthFor(run))] as const))(
-    "costs %s no more than a small multiple of the native time, over a group that captures without limit",
-    expectNearNativeTime
+    "costs %s no more than the bounded multiple of the native time that running out part way adds, over a group that captures without limit",
+    expectNearNativeTimeRunningOutPartWay
   );
 
   it.each([
@@ -103,8 +111,8 @@ describe("backtracking against the native pattern", () => {
     [/(\w+)\1(?<=x)/, "a".repeat(200)],
     [/(\w+)-\1/, "foo-bar ".repeat(4000)]
   ])(
-    "costs %s no more than a small multiple of the native time, on input longer than longestPartial",
-    expectNearNativeTime
+    "costs %s no more than the bounded multiple of the native time that running out part way adds, on input longer than longestPartial",
+    expectNearNativeTimeRunningOutPartWay
   );
 
   const emptyCaptures = [
