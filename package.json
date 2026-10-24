@@ -106,7 +106,8 @@
     "test": "vitest run --config ./test/vitest.config.ts",
     "test:watch": "vitest --config ./test/vitest.config.ts",
     "test:coverage": "vitest run --config ./test/vitest.config.ts --coverage",
-    "test:backtracking": "vitest run --config ./test/vitest.backtracking.config.ts"
+    "test:backtracking": "vitest run --config ./test/vitest.backtracking.config.ts",
+    "docs:diagrams": "node docs/diagrams/backreferences.ts"
   },
   "simple-git-hooks": {
     "pre-commit": "node_modules/.bin/lint-staged"

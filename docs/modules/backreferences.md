@@ -120,6 +120,10 @@ Input:   "abc-ax"
 Result: null, since no more input can complete "abc-ax"
 ```
 
+![/^(abc)-\1/ step by step: on "abc-ab", the rest of the input is captured, the nearest occurrence of the capture is found looking back, and the rest starts it; on "abc-ax", the same steps find it doesn't, and the match fails](./backreferences.svg)
+
+[Open it in a browser to step through it](https://tomstrepsil.github.io/regex-partial-match/diagrams/backreferences.svg) with ◀ ▶ or the arrow keys.
+
 **Nothing left.** The input ends before the backreference starts:
 
 ```text
