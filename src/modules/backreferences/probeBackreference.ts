@@ -1,12 +1,12 @@
 import type { BackreferenceProbe } from "../../partialMatchRegExp/backreferenceHook.ts";
-import type { CompiledPartial } from "../../partialMatchRegExp/compilePartial/compiled.ts";
+import type { Compiled } from "../../partialMatchRegExp/compilePartial/compiled.ts";
 import { CompiledBackreferences } from "./compiledBackreferences.ts";
 import renderBackreference, {
   RUN_OUT_BRANCH_GROUPS
 } from "./renderBackreference.ts";
 
 export default function probeBackreference(
-  compiled: CompiledPartial,
+  compiled: Compiled,
   index: number
 ): BackreferenceProbe {
   const longest =

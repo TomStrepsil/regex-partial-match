@@ -3,6 +3,7 @@ import type { Hooks } from "../walk.ts";
 import type { RegexFeature } from "../regexFeatures.ts";
 import type { TruncationProbe } from "../../hitEnd/truncationProbe.ts";
 import type { RawLookarounds } from "../rawLookaroundInfo.ts";
+import execFrom from "../execFrom.ts";
 
 export class Compiled {
   features?: ReadonlySet<RegexFeature>;
@@ -18,10 +19,11 @@ export class Compiled {
   ) {
     this.honoursLastIndex = regex.global || regex.sticky;
   }
-}
 
-export interface CompiledWithOwnExec extends Compiled {
-  exec(partial: RegExp, input: string): RegExpExecArray | null;
+  exec(partial: RegExp, input: string): RegExpExecArray | null {
+    const { regex } = this;
+    const match = execFrom(regex, input, partial.lastIndex);
+    if (this.honoursLastIndex) partial.lastIndex = regex.lastIndex;
+    return match;
+  }
 }
-
-export type CompiledPartial = Compiled | CompiledWithOwnExec;

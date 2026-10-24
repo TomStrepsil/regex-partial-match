@@ -21,7 +21,7 @@ import {
   shiftForGroupOf
 } from "../partialMatchRegExp/groupNumbering.ts";
 import { roleOf } from "./partRole.ts";
-import type { CompiledPartial } from "../partialMatchRegExp/compilePartial/compiled.ts";
+import type { Compiled } from "../partialMatchRegExp/compilePartial/compiled.ts";
 
 export interface TruncationProbe {
   regex: RegExp;
@@ -94,7 +94,7 @@ function markersAddedBy(marking: Marking) {
 }
 
 export const buildTruncationProbe = (
-  compiled: CompiledPartial,
+  compiled: Compiled,
   flags: string
 ): TruncationProbe => {
   const { parts } = compiled;

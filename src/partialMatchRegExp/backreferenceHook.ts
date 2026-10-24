@@ -1,6 +1,6 @@
 import type { Backreference, Part } from "./part.ts";
 import type { Hooks } from "./walk.ts";
-import type { CompiledPartial } from "./compilePartial/compiled.ts";
+import type { Compiled } from "./compilePartial/compiled.ts";
 import type { RawLookarounds } from "./rawLookaroundInfo.ts";
 
 export interface BackreferenceRecorder {
@@ -36,6 +36,6 @@ export interface BackreferenceHook {
     hooks: Hooks,
     rawLookarounds: RawLookarounds,
     groupCount: number
-  ) => CompiledPartial;
-  probe: (compiled: CompiledPartial, index: number) => BackreferenceProbe;
+  ) => Compiled;
+  probe: (compiled: Compiled, index: number) => BackreferenceProbe;
 }

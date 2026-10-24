@@ -50,11 +50,12 @@
 
 import { bench, group } from "mitata";
 import compilePartial from "./compilePartial.ts";
+import { CompiledBackreferences } from "../../../lib/modules/backreferences/compiledBackreferences.js";
 import PartialMatchRegExp from "../../../lib/index.js";
 
 function emittedPartCount(pattern: RegExp) {
   const compiled = compilePartial(pattern);
-  if ("exec" in compiled) {
+  if (compiled instanceof CompiledBackreferences) {
     throw new Error(
       `${pattern.source} has no part count to equalise — it compiles to the backreference path`
     );

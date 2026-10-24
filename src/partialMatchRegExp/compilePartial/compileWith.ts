@@ -7,7 +7,7 @@ import { isBackreference } from "../part.ts";
 import groupShape from "./groupShape.ts";
 import toStatic from "./toStatic.ts";
 import type { BackreferenceHook } from "../backreferenceHook.ts";
-import type { CompiledPartial } from "./compiled.ts";
+import type { Compiled } from "./compiled.ts";
 
 function walkWithCaretRulesWhereNeeded(
   regex: RegExp,
@@ -40,7 +40,7 @@ function walkWithCaretRulesWhereNeeded(
 export default function compileWith(
   regex: RegExp,
   hooks: Hooks
-): CompiledPartial {
+): Compiled {
   const flags = regex.flags;
   const isUnicode = regex.unicode || regex.unicodeSets;
   const maybeHasBackreference = MAYBE_HAS_BACKREFERENCE_REGEX.test(

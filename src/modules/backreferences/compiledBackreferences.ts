@@ -1,7 +1,4 @@
-import {
-  Compiled,
-  type CompiledWithOwnExec
-} from "../../partialMatchRegExp/compilePartial/compiled.ts";
+import { Compiled } from "../../partialMatchRegExp/compilePartial/compiled.ts";
 import type { Part } from "../../partialMatchRegExp/part.ts";
 import type { Hooks } from "../../partialMatchRegExp/walk.ts";
 import { RUN_OUT_BRANCH_GROUPS } from "./renderBackreference.ts";
@@ -17,10 +14,7 @@ function withoutHiddenGroups(
   return match;
 }
 
-export class CompiledBackreferences
-  extends Compiled
-  implements CompiledWithOwnExec
-{
+export class CompiledBackreferences extends Compiled {
   constructor(
     regex: RegExp,
     readonly hiddenGroups: readonly number[],
@@ -34,7 +28,7 @@ export class CompiledBackreferences
     super(regex, parts, featureMask, hooks);
   }
 
-  exec(partial: RegExp, input: string) {
+  override exec(partial: RegExp, input: string) {
     const { regex, honoursLastIndex } = this;
     const start = honoursLastIndex ? partial.lastIndex : 0;
     regex.lastIndex = start;
