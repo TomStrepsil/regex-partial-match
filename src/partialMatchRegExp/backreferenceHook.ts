@@ -1,20 +1,41 @@
 import type { Backreference, Part } from "./part.ts";
 import type { Hooks } from "./walk.ts";
-import type { CompiledDynamic } from "./compilePartial/compiled.ts";
+import type { Compiled } from "./compilePartial/compiled.ts";
+import type { RawLookarounds } from "./rawLookaroundInfo.ts";
 
 export interface BackreferenceRecorder {
-  groupClosed(groupNumber: number, opening: string): void;
-  backreference(backreference: Backreference, scope: number): void;
+  groupClosed(
+    groupNumber: number,
+    opening: string,
+    body: readonly Part[],
+    scope: number
+  ): void;
+  backreference(
+    backreference: Backreference,
+    scope: number,
+    groupsBefore: number
+  ): void;
+}
+
+export interface ProbeGroups {
+  readonly marker: () => string;
+  readonly hidden: (count: number) => number;
+}
+
+export interface BackreferenceProbe {
+  readonly groups: number;
+  render(token: string, groups: ProbeGroups): string;
 }
 
 export interface BackreferenceHook {
   record: () => BackreferenceRecorder;
   compile: (
     parts: readonly Part[],
-    backreferences: readonly Backreference[],
     flags: string,
-    isUnicode: boolean,
     featureMask: number,
-    hooks: Hooks
-  ) => CompiledDynamic;
+    hooks: Hooks,
+    rawLookarounds: RawLookarounds,
+    groupCount: number
+  ) => Compiled;
+  probe: (compiled: Compiled, index: number) => BackreferenceProbe;
 }

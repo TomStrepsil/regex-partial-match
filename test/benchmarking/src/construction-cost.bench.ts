@@ -17,7 +17,9 @@
  * Patterns span the complexity range the walker branches on:
  *   - simple:  no groups, no character classes, no backreferences
  *   - phone:   several character classes and optional groups, no backreferences
- *   - HTML tag: capturing group + backreference, exercises the dynamic path
+ *   - HTML tag: capturing group + backreference, exercises the backreference path
+ *   - repeated character: a backreference to a one-character group, whose
+ *     longest capture is worked out so it needs no partial branch
  *   - legacy numeric escape: an out-of-range \N, classified from a native group pre-count
  *   - legacy named escape: a \k<name> naming no group, classified from the same pre-count
  */
@@ -29,6 +31,7 @@ import PartialMatchRegExp from "../../../lib/index.js";
 const simplePattern = /^hello+$/;
 const phonePattern = /^\+?1?\s?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/;
 const htmlTagPattern = /^<([a-zA-Z][\w-]*)(?:\s[^<>]*)?>[^<]+<\/\1>$/;
+const repeatedCharacterPattern = /(\w)\1{2,}/;
 // \7 is past the group count, so it's an Annex B legacy escape rather than a reference; the walk classifies it on the spot from a native pre-count of the pattern's groups.
 const legacyNumericEscapePattern = new RegExp("^(abc)\\7d$");
 // \k<none> names a group the pattern never declares; the same pre-count tells the walk no named group exists, so it's walked as the Annex B literal `k<none>`.
@@ -50,6 +53,14 @@ group("construction — HTML tag pattern (capturing group + backreference)", () 
   bench("native new RegExp()", () => new RegExp(htmlTagPattern));
   bench("compilePartial()", () => compilePartial(htmlTagPattern));
   bench("new PartialMatchRegExp()", () => new PartialMatchRegExp(htmlTagPattern));
+});
+
+group("construction — repeated character (backreference in a run)", () => {
+  bench("native new RegExp()", () => new RegExp(repeatedCharacterPattern));
+  bench("compilePartial()", () => compilePartial(repeatedCharacterPattern));
+  bench("new PartialMatchRegExp()", () =>
+    new PartialMatchRegExp(repeatedCharacterPattern)
+  );
 });
 
 group("construction — legacy numeric escape (\\N past the group count)", () => {

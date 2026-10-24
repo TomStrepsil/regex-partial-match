@@ -79,6 +79,12 @@ Ensure all tests pass:
 npm test
 ```
 
+A change to the transform should also keep its backtracking close to the native pattern's. This suite times both on inputs that backtrack catastrophically. It takes several seconds, so it runs separately, and CI runs it as its own job:
+
+```bash
+npm run test:backtracking
+```
+
 ### 4. Run Linter
 
 Check code quality:
@@ -116,6 +122,7 @@ git push origin {issue}_your-feature-name
 1. **Push your branch** to your fork on GitHub
 2. **Open a pull request** from your branch to `TomStrepsil/regex-partial-match:main`
 3. **Fill out the PR template** with:
+   - Issue number prefix (or `[NO ISSUE]`) in the title
    - Description of changes
    - Related issue number(s)
    - Testing performed

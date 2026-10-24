@@ -6,9 +6,9 @@ import {
   DOT_ALL,
   MULTILINE,
   UNICODE,
-  UNICODE_SETS,
-  flagsOf
+  UNICODE_SETS
 } from "../../partialMatchRegExp/scope.ts";
+import flagsOf from "./flagsOf.ts";
 
 const LINE_TERMINATORS = ["\n", "\r", " ", " "];
 

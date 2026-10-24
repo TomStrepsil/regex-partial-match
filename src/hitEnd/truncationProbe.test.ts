@@ -5,11 +5,8 @@ import { buildTruncationProbe } from "./truncationProbe.ts";
 import { hitEndOf } from "../../test/hitEndOf.ts";
 
 function probeOf(pattern: RegExp) {
-  const partial = new PartialMatchRegExp(pattern);
-  const compiled = compiledOf(partial);
   return buildTruncationProbe(
-    compiled.parts,
-    compiled.rawLookarounds ?? [],
+    compiledOf(new PartialMatchRegExp(pattern)),
     pattern.flags
   );
 }
@@ -64,14 +61,17 @@ describe("buildTruncationProbe", () => {
     /(-|\n)^/m,
     /(?-m:\n)^/m,
     /\W(?m:^)/,
-    /^(?i:AB)c/
+    /^(?i:AB)c/,
+    /(\w+)-\1(b+)\2(?!\1)/,
+    /(a(b))\2\1(?<=\1)c/,
+    /(?<n>\w\w)\k<n>x(y)/
   ])("numbers every marker group it emits in %s", (pattern) => {
     const { regex, markerGroups } = probeOf(pattern);
 
     expect(markerGroups).toEqual(emptyGroupNumbers(regex.source));
   });
 
-  it.each([/^abc/, /^ab\b/, /^(ab)\1?c/, /^x(a)b(?!\1)c/, /^(\w+) \1$/])(
+  it.each([/^abc/, /^ab\b/, /^x(a)b(?!\1)c/, /^(a)\1?c/])(
     "emits no ES2018 group syntax for the ES2015 pattern %s",
     (pattern) => {
       expect(probeOf(pattern).regex.source).not.toContain("(?<");
@@ -85,6 +85,37 @@ describe("buildTruncationProbe", () => {
     expect(probeOf(pattern).regex.source).toContain("(?!\\5)");
     expect(hitEndOf(partial, "abc")).toBe(true);
     expect(hitEndOf(partial, "abcd")).toBe(false);
+  });
+
+  it.each([/(a)\1?(\w+)-\2/, /(a)a?(\w+)-\2/])(
+    "renumbers a backreference after a greedy optional backreference or optional atom past no marker of the ?, in %s",
+    (pattern) => {
+      const partial = new PartialMatchRegExp(pattern);
+
+      expect(probeOf(pattern).regex.source).toContain("(?!\\4)");
+      expect(pattern.exec("ab-b")?.[0]).toBe("ab-b");
+      expect(hitEndOf(partial, "ab-")).toBe(true);
+      expect(hitEndOf(partial, "ab-b")).toBe(false);
+    }
+  );
+
+  it("counts the groups a second raw lookaround opens when numbering a backreference after it", () => {
+    const pattern = /(?<=a)b(?<=(b))(c+)-\2/;
+    const partial = new PartialMatchRegExp(pattern);
+
+    expect(pattern.exec("abcc-cc")?.[0]).toBe("bcc-cc");
+    expect(pattern.exec("abcc-ccz")?.[0]).toBe("bcc-cc");
+    expect(hitEndOf(partial, "abcc-c")).toBe(true);
+    expect(hitEndOf(partial, "abcc-cc")).toBe(false);
+  });
+
+  it("renumbers a raw lookaround's backreference after a greedy optional backreference past no marker of the ?", () => {
+    const pattern = /^(a)\1?(\w+)-(?!\2)c/;
+    const partial = new PartialMatchRegExp(pattern);
+
+    expect(probeOf(pattern).regex.source).toContain("(?!\\4)(?:c|");
+    expect(pattern.exec("ab-cz")?.[0]).toBe("ab-c");
+    expect(hitEndOf(partial, "ab-c")).toBe(false);
   });
 });
 

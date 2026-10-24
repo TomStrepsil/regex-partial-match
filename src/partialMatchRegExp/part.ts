@@ -1,13 +1,20 @@
-interface NumericBackreference {
-  ref: number;
-  forward?: boolean;
-  caseInsensitive?: boolean;
+export interface CaptureRead {
+  readonly groupsBefore: number;
+  readonly groupBodies: readonly (readonly Part[] | undefined)[];
+  readonly readsLookaheadCapture: boolean;
 }
 
-interface NamedBackreference {
-  ref: string;
-  forward?: boolean;
+interface BackreferenceStamps {
   caseInsensitive?: boolean;
+  capture?: CaptureRead;
+}
+
+interface NumericBackreference extends BackreferenceStamps {
+  ref: number;
+}
+
+interface NamedBackreference extends BackreferenceStamps {
+  ref: string;
 }
 
 export type Backreference = NumericBackreference | NamedBackreference;

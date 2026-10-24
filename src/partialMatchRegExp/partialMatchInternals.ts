@@ -1,14 +1,14 @@
-import type { CompiledPartial } from "./compilePartial/compiled.ts";
+import type { Compiled } from "./compilePartial/compiled.ts";
 
 export const compiledPartial = Symbol("compiledPartial");
 
 export const constructedPartials = new WeakSet<object>();
 
 interface PartialMatchInternals {
-  [compiledPartial]?: CompiledPartial;
+  [compiledPartial]?: Compiled;
 }
 
-export function compiledOf(partial: RegExp): CompiledPartial;
+export function compiledOf(partial: RegExp): Compiled;
 export function compiledOf(partial: RegExp & PartialMatchInternals) {
   return partial[compiledPartial];
 }

@@ -2,14 +2,13 @@ import {
   DISJUNCTION_TO_END_OF_INPUT,
   END_ANCHOR,
   GROUP_CLOSING,
-  ONLY_AT_END_OF_INPUT,
   OPTIONAL_ATOM_OPENING,
-  UNSATISFIABLE,
   asOptionalAtom,
   isOptionalAtom,
   isRawLookaround,
   isWordBoundaryAtom
 } from "../../partialMatchRegExp/atomSyntax.ts";
+import { ONLY_AT_END_OF_INPUT, UNSATISFIABLE } from "../atomSyntax.ts";
 import { caretFor, isCaret } from "./caretSyntax.ts";
 import canMatchLineTerminator from "./lineTerminator.ts";
 import { isBackreference, type Part } from "../../partialMatchRegExp/part.ts";
@@ -17,7 +16,7 @@ import {
   isQuantifier,
   quantifierEndingAt
 } from "../../partialMatchRegExp/quantifier.ts";
-import { minimumOf } from "./quantifierBounds.ts";
+import { minimumOf } from "../quantifierBounds.ts";
 
 export type LookaheadSpan = [open: number, close: number];
 

@@ -71,20 +71,15 @@ e.g.
 
 ## Backreferences
 
-`PartialMatchRegExp` supports partial matching of backreferences (`\1`, `\k<name>`) — see [How It Works](./how-it-works.md) and [docs/modules/backreferences.md](./modules/backreferences.md) for the algorithm. A backreference is inherently atomic — `\1` must match the complete captured text or fail — but the library resolves what each group captured from a partial input and expands the backreference into per-character partial form so matching can still proceed character-by-character in the common case.
+`PartialMatchRegExp` supports partial matching of backreferences (`\1`, `\k<name>`) — see [How It Works](./how-it-works.md) and [docs/modules/backreferences.md](./modules/backreferences.md) for the algorithm. A backreference is inherently atomic — `\1` must match the complete captured text or fail — but the library lets it match a prefix of its group's capture that runs to the end of the input, checked by the engine itself, in its own priority order.
 
 The following cases remain atomic (full native value or exactly at true end of input, no mid-value partial matching):
 
 - **Backreferences inside lookbehinds and negative lookarounds.** These are verbatim contexts — the value a lookbehind or negative lookahead requires must be fully present or fully absent, so there's no partial-prefix position to expand into.
-- **A backreference whose captured value can't be determined from a partial input.** This only affects the backreference site itself; it's strictly better than rejecting the input outright, and never accepts anything unsound.
-- **A forward reference, outside a lookbehind** — `\1` written before group 1 opens, or referencing it while it's still open (a self-reference inside the group's own body, e.g. `\1` in `/^(\1a)$/`). Its value can't come from the capture scan, which resolves it on a path it could never have taken, so it's left to the engine — which, per ECMAScript, always resolves it to empty there (it can't have participated yet, even on a later iteration of an enclosing quantifier). This costs nothing in practice: there's no real value being withheld. (Inside a lookbehind — already covered above — matching runs right-to-left, so a reference written first can still follow its own group's capture; that's exactly why the whole body stays atomic regardless of `forward`.)
+- **A forward reference** — `\1` written before group 1 opens, or referencing it while it's still open (a self-reference inside the group's own body, e.g. `\1` in `/^(\1a)$/`). Per ECMAScript the engine always resolves it to empty there (it can't have participated yet, even on a later iteration of an enclosing quantifier), so there's no real value being withheld.
+- **A prefix longer than [`longestPartial`](./modules/backreferences.md#longestpartial)** (64 characters in the `backreferences` module, or another limit set with `backreferencesWith()`). `/(\w+)-\1/` matches `"abcd-abc"` from index 0, but with `longestPartial` set to 2 only from index 5, where `"abc"` is a prefix of a full match on its own.
+- **Every backreference, on an engine without lookbehind.** The check of a prefix needs one, so such an engine gets atomic backreferences throughout.
 - **A `\k<name>` written before a later declaration of its duplicated name.** ECMAScript permits a duplicated name only across disjoint alternatives. This one is stricter than the rest — see [docs/modules/backreferences.md](./modules/backreferences.md#duplicate-named-groups) for why, and for the workaround.
-
- The case-folding a backreference's expansion agrees against tracks a locally-scoped `(?i:...)`/`(?-i:...)` [modifier](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Regular_expressions/Modifier) around that specific backreference, rather than only the pattern's own flags. This holds for a backreference the local scope makes *more* case-insensitive than the pattern is, or *less*. V8 versions before [the fix](https://issues.chromium.org/issues/447583670) released in Node.js 24.12 can still mishandle the locally-disabled case when the surrounding pattern has `i`; Chromium/Electron support depends on their bundled V8 version.
-
-A backreference pattern has one further limit, which costs completeness rather than soundness:
-
-- **A backreference whose viable index is not the scan's leftmost.** The capture scan resolves groups at *its* leftmost match, and a stand-in that accepts anything can put that earlier than any viable index. The expansion is then baked from the wrong text, and the match is found late or not at all: `/(?<g>[^]{2})\1/` on `"abbb"` matches at index 2 where `"bbb"` at index 1 is a prefix of `"bbbb"`. Sound, never accepting an invalid prefix, but incomplete; exact resolution would need a sticky scan at every candidate index.
 
 ### Captures on a partial match
 
@@ -103,28 +98,6 @@ A repeated group whose last iteration was cut short reports that partial iterati
 
 When [`hitEnd()`](../README.md#hitend) reports `false` for a match, its captures are final; when it reports `true`, they are the closest available. Two known shapes still report `undefined` where `""` is closer: a group nested inside a group a multiline caret follows (`/((\n))^/m` on `"a"` gives `m[2] === undefined`), and a quantified group not yet iterated at the end of the input (`/(?=(a))(a|b)*/` on `""` gives `m[2] === undefined`).
 
-### Prefix-ambiguous top-level alternation
-
-When a pattern uses top-level alternation where one branch is a strict prefix of another (e.g. `^(ab)\1|^(abc)\2`), the internal capture scan may select the shorter branch — because it uses `(?:[\s\S]*?)` which accepts zero characters — causing the final partial regex to fail for inputs that are valid prefixes of the longer branch. In such cases `exec` returns `null` even though the input is a valid partial match:
-
-```javascript
-const partial = new PartialMatchRegExp(/^(ab)\1|^(abc)\2/);
-
-partial.test("abca"); // false — but "abca" is a valid prefix of "abcabc" via the second branch
-```
-
-> [!TIP]
-> If alternate branches share a prefix, list the longer one first. The capture scan tries branches in order and stops at the first that accepts the partial input, so putting the longer branch first ensures it's the one selected:
->
-> ```javascript
-> const partial = new PartialMatchRegExp(/^(abc)\2|^(ab)\1/);
->
-> partial.test("abca"); // true
-> ```
-
-See [docs/modules/backreferences.md](./modules/backreferences.md) for why this happens (the internal capture scan resolving the wrong alternative first).
-
-
 ## Positive Lookbehinds
 
 Whilst forming a match, a positive lookbehind must match in entirety, for the pattern to match. This is inherent in the concept of non-matching groups, since they are not match-worthy themselves, but just qualify matching atoms.
@@ -141,10 +114,21 @@ e.g.
 
 ECMAScript lets a group name be declared more than once only in alternatives that can't both take part. Node.js 24 (V8 13.6), and likely earlier V8 versions that support duplicate names, also accept some patterns the specification rejects, where both groups can take part, such as `/(?<n>a)(?=x|(?<n>y))/`. This is a V8 defect, [fixed](https://chromium.googlesource.com/v8/v8/+/0be3260ffee08dc6e7278a1e8549d007036b4093) in V8 13.9 (Chrome 139, Node.js 25). `PartialMatchRegExp` constructs these patterns but doesn't support them:
 
-- `exec()` can accept input no completion would match, when the pattern has a `\k<name>` to the duplicated name. `/(?<n>a)(?:x|(?<n>y))\k<n>/` never matches through `y` natively, yet `exec("ayy")` returns `["ayy", "a", "y"]`.
+- `exec()` can accept input no completion would match, when the pattern has a `\k<name>` to the duplicated name. `/(?<n>a)(?:x|(?<n>y))\k<n>/` never matches through `y` natively, yet `exec("ay")` returns `["ay", "a", "y"]`.
 - [`hitEnd()`](../README.md#hitend) throws a `SyntaxError`, because its probe adds capturing groups, which V8 then rejects.
 
 Node.js 25 and later and JavaScriptCore (Safari, Bun) follow the specification and reject these patterns at construction. Renaming one of the groups avoids the problem.
+
+## Backtracking
+
+The transform keeps the original pattern's backtracking: a pattern that backtracks catastrophically on some input, such as `/^(a+)+$/` on `"aaaa…!"`, does so after the transform too, at the same rate, so a ReDoS checker such as [recheck](https://makenowjust-labs.github.io/recheck/) can be run on the original pattern. Otherwise the cost is up to about twice the original's, where a lookbehind or negative lookahead is judged at the end of the input. Some attack strings stop working: where the original fails only because the input ran out, the transform matches straight away.
+
+Two shapes cost more:
+
+- **A group of alternatives repeated a fixed minimum number of times**, where the input ends inside the repetition and an assertion then fails, as in `/(?:\d|[a-f]){24}(?<![a-f])/` on `"abc"`. Every alternative, a backreference included, can match the end of the input, so the engine tries every way to fill the repetitions the input can't, and the time doubles with each one. The original doesn't, so a ReDoS checker won't find it. Merging single-character alternatives into one class avoids it: `/[\da-f]{24}(?<![a-f])/`.
+- **A backreference retried many times near the end of the input**, as in `/(\w+)\1(?<=x)/` on a run of `a`. Each failing attempt reads up to [`longestPartial`](./modules/backreferences.md#longestpartial) characters ahead, and each that runs out part way reads back to the group's capture, so the cost is a multiple of the original's that grows with both. It stays polynomial. A lower `longestPartial` reduces it, and `0` removes it.
+
+A stream that re-runs a growing input repeats the cost on every call. Capping how much input it holds for one candidate match bounds it.
 
 ## Surrogate Pair Matching
 

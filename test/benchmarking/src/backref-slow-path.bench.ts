@@ -1,31 +1,27 @@
 /**
- * Scenario 4: backreference slow path — new RegExp construction per exec call
+ * Scenario 4: a backreference matched at run time
  *
- * When exec() is called on a partial input that contains backreferences, the
- * slow path builds a per-input RegExp on every call (capture scan → pattern
- * substitution → new RegExp()). This is the most expensive code path and the
- * most important to quantify.
+ * A backreference whose group can capture more than one character is
+ * compiled once into a regex that also matches it running out of input part
+ * way through its capture (see docs/modules/backreferences.md). The bench
+ * names come from an earlier design, which built a regex per call, and are
+ * kept so their history stays comparable.
  *
- * Single-call groups show the raw cost per exec invocation:
- *   - full match:      native fast path kicks in (super.exec succeeds early)
- *   - partial/pre-ref: slow path, backref atom not yet reached
- *   - partial/mid-ref: slow path, input ends inside the backreference
+ * Single-call groups show the cost per exec invocation:
+ *   - full match
+ *   - partial, before the backreference is reached
+ *   - partial, with the input ending inside the backreference
  *
  * The keystroke simulation group accumulates all prefix costs, modelling the
  * total work done while a user types a complete value.
  *
- * The leftmost bound check group covers a fourth case: a native complete
- * match at a *non-zero* index, where exec() must confirm no earlier partial
- * exists before trusting it (see docs/modules/backreferences.md — "Leftmost 
- * bound check"). preScan gives a cheap, sound lower bound: usually it rejects
- * outright and the native match wins for a small fixed cost, but it can also
- * be a loose bound, forcing the full slow-path pipeline to run anyway even
- * though the native match still wins in the end.
+ * The later-match group covers a match at a non-zero index, where every
+ * earlier start has to fail first.
  *
- * The capture agreement group guards a bound rather than a cost. Only the last
- * capture.length characters of the input can decide that check, so its two
- * benches differ solely in how much irrelevant text sits in front of the part
- * that does decide it.
+ * The long-input group guards how a failing backreference's cost grows: each
+ * reads ahead at most `longestPartial` characters, so the two benches differ
+ * only in how much irrelevant text sits in front of the part that decides the
+ * match.
  */
 
 import { bench, group } from "mitata";
@@ -69,12 +65,12 @@ group("backref — single exec, HTML tag pattern", () => {
   );
 });
 
-// Native match at index 3; preScan's bound is also index 3 (not earlier), so the native match wins without building the expanded regex.
+// A match at index 3, after three starts that fail at once.
 const laterMatchCheapReject = /(abc)x\1/;
 const laterMatchCheapRejectInput = "zzzabcxabc";
 const laterMatchCheapRejectPartial = new PartialMatchRegExp(laterMatchCheapReject);
 
-// Native match at index 3, but preScan's bound is a loose lower bound of index 0 — the full pipeline runs (capture scan, expand, new RegExp, exec) even though its result loses to the native match anyway.
+// A match at index 3, after a start at 0 that gets as far as the backreference.
 const laterMatchFallsThrough = /(ab|a)\1x/;
 const laterMatchFallsThroughInput = "abXaax";
 const laterMatchFallsThroughPartial = new PartialMatchRegExp(laterMatchFallsThrough);
@@ -88,7 +84,7 @@ group("backref — leftmost bound check (native match at a later index)", () => 
   );
 });
 
-// The capture-agreement check behind a backreference compares the captured text against the end of the input, so only the last capture.length characters of the input can change its answer. These two inputs differ only in how much irrelevant text precedes the part that decides the match: scanning the whole input instead of the reachable tail shows up as the second growing away from the first.
+// These two inputs differ only in how much irrelevant text precedes the part that decides the match: a cost that grows with the whole input, rather than with what a backreference can read ahead, shows up as the second growing away from the first.
 const agreementCheck = /([ab])\1([ab])\2$/;
 const agreementCheckPartial = new PartialMatchRegExp(agreementCheck);
 const decidingTail = "aaba";

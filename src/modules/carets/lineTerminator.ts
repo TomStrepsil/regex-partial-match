@@ -1,9 +1,6 @@
-import { optionalAtomTextOf } from "./caretSyntax.ts";
-import {
-  DOT_ALL,
-  UNICODE_SETS,
-  flagsOf
-} from "../../partialMatchRegExp/scope.ts";
+import { optionalAtomTextOf } from "../atomSyntax.ts";
+import { DOT_ALL, UNICODE_SETS } from "../../partialMatchRegExp/scope.ts";
+import flagsOf from "./flagsOf.ts";
 
 const LINE_TERMINATORS = "\n\r\u2028\u2029";
 

@@ -12,9 +12,6 @@ export function asOptionalAtom(text: string) {
   return OPTIONAL_ATOM_OPENING + text + DISJUNCTION_TO_END_OF_INPUT;
 }
 
-export const MULTILINE_CARET = "(?m:^)";
-export const UNSATISFIABLE = "[]";
-export const ONLY_AT_END_OF_INPUT = asOptionalAtom(UNSATISFIABLE);
 export const WORD_BOUNDARY_ATOMS = [
   asOptionalAtom("\\b"),
   asOptionalAtom("\\B")

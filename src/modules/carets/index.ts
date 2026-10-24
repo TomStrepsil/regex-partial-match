@@ -5,7 +5,7 @@ import {
 } from "../../partialMatchRegExp/moduleHooks.ts";
 import caretRecorder from "./caretRecorder.ts";
 import needsCaretRules from "./needsCaretRules.ts";
-import { scopeWithModifiers } from "../../partialMatchRegExp/scope.ts";
+import scopeWithModifiers from "../scopeWithModifiers.ts";
 
 /**
  * The carets module: the rules for a `^` inside a group or positive

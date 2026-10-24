@@ -19,11 +19,11 @@ export interface HooksOfModule extends Module {
   readonly [moduleHooks]: ModuleHooks;
 }
 
-export const definedModuleHooks = new Set<unknown>();
+export const definedModuleHooks = new Map<unknown, number>();
 
 export function defineModule(hooks: ModuleHooks): Module;
 export function defineModule(hooks: ModuleHooks): unknown {
-  definedModuleHooks.add(Object.freeze(hooks));
+  definedModuleHooks.set(Object.freeze(hooks), definedModuleHooks.size);
   return Object.freeze({
     [moduleHooks]: hooks
   });

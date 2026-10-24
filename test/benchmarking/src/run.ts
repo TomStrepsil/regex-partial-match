@@ -24,6 +24,7 @@ import "./backref-slow-path.bench.ts";
 import "./construction-cost.bench.ts";
 import "./hit-end.bench.ts";
 import "./feature-cost.bench.ts";
+import "./backtracking.bench.ts";
 import { run } from "mitata";
 
 const isJson = process.argv.includes("--json");

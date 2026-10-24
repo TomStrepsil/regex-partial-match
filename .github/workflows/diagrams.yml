@@ -1,0 +1,52 @@
+name: Diagrams
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "docs/diagrams/**"
+      - "src/**"
+  workflow_dispatch:
+
+concurrency:
+  group: diagrams
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    name: Publish diagrams to GitHub Pages
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Setup Node
+        uses: ./.github/actions/setup-node
+
+      - name: Generate diagrams
+        run: corepack npm run docs:diagrams
+
+      - name: Checkout gh-pages
+        uses: actions/checkout@v7
+        with:
+          ref: gh-pages
+          path: gh-pages
+
+      - name: Commit diagrams to gh-pages
+        working-directory: gh-pages
+        run: |
+          mkdir -p diagrams
+          cp ../docs/modules/backreferences.svg diagrams/
+          git add diagrams
+          git diff --cached --quiet && exit 0
+          git -c user.name=github-actions -c user.email=github-actions@github.com \
+            commit -m "Publish diagrams for ${GITHUB_SHA}"
+          for attempt in 1 2 3; do
+            git push && exit 0
+            git pull --rebase
+          done
+          exit 1

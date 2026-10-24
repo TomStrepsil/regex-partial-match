@@ -1,52 +1,29 @@
 import type { Part } from "../part.ts";
 import type { Hooks } from "../walk.ts";
 import type { RegexFeature } from "../regexFeatures.ts";
-import type { TruncationProbeCache } from "../../hitEnd/truncationProbeCache.ts";
+import type { TruncationProbe } from "../../hitEnd/truncationProbe.ts";
 import type { RawLookarounds } from "../rawLookaroundInfo.ts";
+import execFrom from "../execFrom.ts";
 
-export interface DynamicPath {
-  preScan: RegExp;
-  expand: (capture: RegExpExecArray) => Part[];
-  expansionFitsCaptures: (
-    expandedFrom: RegExpExecArray,
-    match: RegExpExecArray,
-    input: string
-  ) => boolean;
-}
-
-export abstract class Compiled {
+export class Compiled {
   features?: ReadonlySet<RegexFeature>;
-  probeCache?: TruncationProbeCache;
+  probe?: TruncationProbe;
   declare rawLookarounds?: RawLookarounds;
-
-  constructor(
-    readonly parts: readonly Part[],
-    readonly featureMask: number,
-    readonly hooks: Hooks
-  ) {}
-}
-
-export class CompiledStatic extends Compiled {
   readonly honoursLastIndex: boolean;
 
   constructor(
     readonly regex: RegExp,
-    parts: string[],
-    featureMask: number,
-    hooks: Hooks
+    readonly parts: readonly Part[],
+    readonly featureMask: number,
+    readonly hooks: Hooks
   ) {
-    super(parts, featureMask, hooks);
     this.honoursLastIndex = regex.global || regex.sticky;
   }
-}
 
-export interface CompiledDynamic extends Compiled {
-  readonly dynamic: DynamicPath;
-  readonly execDynamic: (
-    this: RegExp,
-    dynamic: DynamicPath,
-    input: string
-  ) => RegExpExecArray | null;
+  exec(partial: RegExp, input: string): RegExpExecArray | null {
+    const { regex } = this;
+    const match = execFrom(regex, input, partial.lastIndex);
+    if (this.honoursLastIndex) partial.lastIndex = regex.lastIndex;
+    return match;
+  }
 }
-
-export type CompiledPartial = CompiledStatic | CompiledDynamic;

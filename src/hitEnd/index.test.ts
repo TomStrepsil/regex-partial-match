@@ -3,7 +3,6 @@ import PartialMatchRegExp, { hitEnd } from "../index.ts";
 import CorePartialMatchRegExp from "../core/index.ts";
 import { hitEndOf } from "../../test/hitEndOf.ts";
 import { compiledOf } from "../partialMatchRegExp/partialMatchInternals.ts";
-import { EXPANDED_PROBES_KEPT } from "./matchHitEnd.ts";
 
 describe("hitEnd()", () => {
   describe("distinguishing a match that ran out of input from one that settled", () => {
@@ -144,18 +143,26 @@ describe("hitEnd()", () => {
       expect(hitEndOf(new PartialMatchRegExp(/^ab\b/), "ab-")).toBe(false);
     });
 
-    it("sees a higher-priority alternative run out of input behind a native match on the backreference path", () => {
+    it("prefers a higher-priority alternative that ran out of input to a native match on the backreference path, as /aab|a/ does", () => {
       const partial = new PartialMatchRegExp(/(a)\1b|a/);
 
-      expect(partial.exec("aa")).toMatchAt({ match: "a", index: 0 });
+      expect(partial.exec("aa")).toMatchAt({ match: "aa", index: 0 });
       expect(hitEndOf(partial, "aa")).toBe(true);
       expect(hitEndOf(partial, "aab")).toBe(false);
     });
 
-    it("sees a backreference in a higher-priority alternative run out part way through its captured text, behind a native match", () => {
+    it("prefers a higher-priority alternative that ran out of input part way through an unbounded capture to a native match", () => {
+      const partial = new PartialMatchRegExp(/(a+)-\1|a/);
+
+      expect(partial.exec("aa-a")).toMatchAt({ match: "aa-a", index: 0 });
+      expect(hitEndOf(partial, "aa-a")).toBe(true);
+      expect(partial.exec("aa-aa")).toMatchAt({ match: "aa-aa", index: 0 });
+    });
+
+    it("prefers a backreference in a higher-priority alternative that ran out part way through its captured text to a native match", () => {
       const partial = new PartialMatchRegExp(/(ab)\1|a/);
 
-      expect(partial.exec("aba")).toMatchAt({ match: "a", index: 0 });
+      expect(partial.exec("aba")).toMatchAt({ match: "aba", index: 0 });
       expect(hitEndOf(partial, "aba")).toBe(true);
       expect(partial.exec("abab")).toMatchAt({ match: "abab", index: 0 });
     });
@@ -163,7 +170,7 @@ describe("hitEnd()", () => {
     it("sees a longer backreference in a higher-priority alternative run out part way through its captured text", () => {
       const partial = new PartialMatchRegExp(/(abc)\1|a/);
 
-      expect(partial.exec("abcab")).toMatchAt({ match: "a", index: 0 });
+      expect(partial.exec("abcab")).toMatchAt({ match: "abcab", index: 0 });
       expect(hitEndOf(partial, "abcab")).toBe(true);
       expect(partial.exec("abcabc")).toMatchAt({ match: "abcabc", index: 0 });
     });
@@ -378,10 +385,10 @@ describe("hitEnd()", () => {
       }
     );
 
-    it("re-expands behind a native match whose captures the pre-scan did not predict", () => {
+    it("prefers the path whose group runs out of input to a native match that captures less", () => {
       const partial = new PartialMatchRegExp(/((\S{1,2})??)\B\1{1,}?/m);
 
-      expect(partial.exec("aaa")).toMatchAt({ match: "aa", index: 0 });
+      expect(partial.exec("aaa")).toMatchAt({ match: "aaa", index: 0 });
       expect(hitEndOf(partial, "aaa")).toBe(true);
       expect(partial.exec("aaaa")).toMatchAt({ match: "aaaa", index: 0 });
     });
@@ -640,7 +647,7 @@ describe("hitEnd()", () => {
       expect(hitEndOf(partial, "abab")).toBe(false);
     });
 
-    it("reports a backreference that ran out of input as incomplete, even where the capture scan settled on a shorter value than the match did", () => {
+    it("reports a backreference that ran out of input as incomplete, whichever alternative its group took", () => {
       const partial = new PartialMatchRegExp(/^(ab?|ac?)\1/);
 
       expect(hitEndOf(partial, "aca")).toBe(true);
@@ -660,7 +667,7 @@ describe("hitEnd()", () => {
       expect(hitEndOf(partial, "xxabab")).toBe(false);
     });
 
-    it("answers from the unexpanded probe when the capture scan cannot reproduce a native match, which a lookahead the scan resolves differently can cause", () => {
+    it("settles a match whose backreferences sit inside a lookahead", () => {
       const partial = new PartialMatchRegExp(/(x)(?=\1(y|.))(?!\2)/);
 
       expect(partial.exec("xxy")).toMatchAt({ match: "x", index: 0 });
@@ -688,12 +695,9 @@ describe("hitEnd()", () => {
       expect(hitEnd(partial, match)).toBe(true);
     });
 
-    it("answers for each capture when more distinct captures alternate than it keeps probes for", () => {
+    it("answers for each of many captures that alternate", () => {
       const partial = new PartialMatchRegExp(/^<(\w+)>[^<]*<\/\1>/);
-      const tags = Array.from(
-        { length: EXPANDED_PROBES_KEPT + 1 },
-        (_, index) => "t" + String(index)
-      );
+      const tags = Array.from({ length: 13 }, (_, index) => "t" + String(index));
 
       for (let round = 0; round < 2; round++) {
         for (const tag of tags) {
@@ -703,35 +707,48 @@ describe("hitEnd()", () => {
       }
     });
 
-    it("reuses the probe kept for each recent capture, replacing the oldest once full", () => {
+    it("builds one probe, whatever the captures", () => {
       const partial = new PartialMatchRegExp(/^<(\w+)>[^<]*<\/\1>/);
-      const keptAfter = (tags: readonly string[]) => {
-        for (const tag of tags) hitEndOf(partial, `<${tag}>x</${tag}>`);
-        return compiledOf(partial).probeCache?.expansions.map(
-          ({ probe }) => probe
-        );
-      };
-      const tags = Array.from(
-        { length: EXPANDED_PROBES_KEPT },
-        (_, index) => "t" + String(index)
-      );
-      const kept = keptAfter(tags);
-      const keptAfterRepeat = keptAfter(tags);
-      const keptAfterNewCapture = keptAfter(["other"]);
+      hitEndOf(partial, "<a>x</a>");
+      const probe = compiledOf(partial).probe;
+      hitEndOf(partial, "<b>x</b");
 
-      expect(kept).toHaveLength(EXPANDED_PROBES_KEPT);
-      kept?.forEach((probe, index) => {
-        expect(keptAfterRepeat?.[index]).toBe(probe);
-        if (index > 0) expect(keptAfterNewCapture?.[index]).toBe(probe);
-      });
-      expect(keptAfterNewCapture?.[0]).not.toBe(kept?.[0]);
+      expect(probe).toBeDefined();
+      expect(compiledOf(partial).probe).toBe(probe);
+    });
+
+    it("renumbers a reference in the second of two lookbehinds past the hidden groups", () => {
+      const partial = new PartialMatchRegExp(/(a+)\1(b+)c(?<=c)(?<!\2)d/);
+
+      expect(hitEndOf(partial, "aabbcd")).toBe(false);
+      expect(hitEndOf(partial, "aabbc")).toBe(true);
+    });
+
+    it("numbers the groups after backreferences that can and can't run out part way", () => {
+      const partial = new PartialMatchRegExp(/(a)\1(\w\w)\2(b)\3/);
+
+      expect(hitEndOf(partial, "aaxyxybb")).toBe(false);
+      expect(hitEndOf(partial, "aaxyxybbz")).toBe(false);
+      expect(hitEndOf(partial, "aaxyxyb")).toBe(true);
+      expect(hitEndOf(partial, "aaxyx")).toBe(true);
+    });
+
+    it("answers for a backreference running out part way through a capture of thousands of characters", () => {
+      expect(hitEndOf(new PartialMatchRegExp(/(\w+)\1x/), "ab".repeat(8000))).toBe(true);
     });
 
     it("returns null, with nothing to report, when no partial match exists", () => {
       expect(new PartialMatchRegExp(/^(ab)\1/).exec("z")).toBeNull();
       expect(
-        new PartialMatchRegExp(/^(ab)\1|^(abc)\2/).exec("abca")
+        new PartialMatchRegExp(/^(ab)\1|^(abc)\2/).exec("abcb")
       ).toBeNull();
+    });
+
+    it("finds a backreference in a later alternative running out part way through its captured text", () => {
+      const partial = new PartialMatchRegExp(/^(ab)\1|^(abc)\2/);
+
+      expect(partial.exec("abca")).toMatchAt({ match: "abca", index: 0 });
+      expect(hitEndOf(partial, "abca")).toBe(true);
     });
   });
 
@@ -837,7 +854,7 @@ describe("hitEnd()", () => {
       expect(hitEndOf(partial, "abc")).toBe(false);
     });
 
-    it("also renumbers correctly on the backreference (dynamic) path", () => {
+    it("also renumbers correctly on the backreference path", () => {
       const partial = new PartialMatchRegExp(/^(x)(a)b(?!\2)c\1/);
 
       expect(hitEndOf(partial, "xabc")).toBe(true);

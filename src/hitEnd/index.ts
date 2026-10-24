@@ -1,6 +1,6 @@
 import type PartialMatchRegExp from "../partialMatchRegExp/index.ts";
 import { compiledOf } from "../partialMatchRegExp/partialMatchInternals.ts";
-import matchHitEnd from "./matchHitEnd.ts";
+import { buildTruncationProbe, tookTruncationBranch } from "./truncationProbe.ts";
 
 /**
  * Whether the engine reached the end of the input while producing `match` —
@@ -50,16 +50,9 @@ export default function hitEnd(
   match: RegExpExecArray
 ): boolean {
   const compiled = compiledOf(partial);
-  return matchHitEnd(
-    compiled,
-    match,
-    (compiled.probeCache ??= {
-      rawLookarounds: compiled.rawLookarounds ?? [],
-      flags: partial.flags,
-      probe: undefined,
-      stickyPreScan: undefined,
-      expansions: [],
-      oldestExpansion: 0
-    })
+  return tookTruncationBranch(
+    (compiled.probe ??= buildTruncationProbe(compiled, partial.flags)),
+    match.input,
+    match.index
   );
 }

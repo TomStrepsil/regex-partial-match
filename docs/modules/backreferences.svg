@@ -1,0 +1,1007 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" width="960" height="540" role="img" aria-labelledby="title description">
+<title id="title">How a backreference runs out of input part way</title>
+<desc id="description">^(abc)-\1: \1 is rewritten as (?:\1|(?!\1)(?![\s\S]{3})(?=([\s\S]+))(?&lt;=(?=\1)([\s\S]*?))(?&lt;=(?=\H)\G)\H|$(?![\s\S])(?!\1)). On &quot;abc-ab&quot;, the rest of the input, &quot;ab&quot;, is captured, the nearest occurrence of &quot;abc&quot; before it is found at 0, and &quot;ab&quot; starts that occurrence, so the input matches partially. On &quot;abc-ax&quot;, the same steps find &quot;ax&quot; doesn't start it, the input hasn't ended, and the match fails.</desc>
+<style>
+.mono{font-family:ui-monospace,SFMono-Regular,&quot;SF Mono&quot;,Menlo,Consolas,&quot;Liberation Mono&quot;,monospace}
+.sans{font-family:-apple-system,BlinkMacSystemFont,&quot;Segoe UI&quot;,&quot;Noto Sans&quot;,Helvetica,Arial,sans-serif}
+.outline{fill:none}
+.dashed{stroke-dasharray:4 3}
+.bold{font-weight:600}
+.button{cursor:pointer}
+.button:hover .face{stroke-width:3}
+.pip-target{cursor:pointer;fill:transparent}
+.paper{fill:#ffffff}.paper-line{stroke:#ffffff}.paper-wash{fill:#ffffff;fill-opacity:0.16}
+.ink{fill:#1f2328}.ink-line{stroke:#1f2328}.ink-wash{fill:#1f2328;fill-opacity:0.16}
+.muted{fill:#59636e}.muted-line{stroke:#59636e}.muted-wash{fill:#59636e;fill-opacity:0.16}
+.rule{fill:#d1d9e0}.rule-line{stroke:#d1d9e0}.rule-wash{fill:#d1d9e0;fill-opacity:0.16}
+.focus{fill:#0969da}.focus-line{stroke:#0969da}.focus-wash{fill:#0969da;fill-opacity:0.16}
+.capture{fill:#8250df}.capture-line{stroke:#8250df}.capture-wash{fill:#8250df;fill-opacity:0.16}
+.rest{fill:#bc4c00}.rest-line{stroke:#bc4c00}.rest-wash{fill:#bc4c00;fill-opacity:0.16}
+.back{fill:#1b7c83}.back-line{stroke:#1b7c83}.back-wash{fill:#1b7c83;fill-opacity:0.16}
+.pass{fill:#1a7f37}.pass-line{stroke:#1a7f37}.pass-wash{fill:#1a7f37;fill-opacity:0.16}
+.fail{fill:#cf222e}.fail-line{stroke:#cf222e}.fail-wash{fill:#cf222e;fill-opacity:0.16}
+@media (prefers-color-scheme: dark){
+.paper{fill:#0d1117}.paper-line{stroke:#0d1117}.paper-wash{fill:#0d1117;fill-opacity:0.16}
+.ink{fill:#e6edf3}.ink-line{stroke:#e6edf3}.ink-wash{fill:#e6edf3;fill-opacity:0.16}
+.muted{fill:#9198a1}.muted-line{stroke:#9198a1}.muted-wash{fill:#9198a1;fill-opacity:0.16}
+.rule{fill:#3d444d}.rule-line{stroke:#3d444d}.rule-wash{fill:#3d444d;fill-opacity:0.16}
+.focus{fill:#4493f8}.focus-line{stroke:#4493f8}.focus-wash{fill:#4493f8;fill-opacity:0.16}
+.capture{fill:#ab7df8}.capture-line{stroke:#ab7df8}.capture-wash{fill:#ab7df8;fill-opacity:0.16}
+.rest{fill:#f0883e}.rest-line{stroke:#f0883e}.rest-wash{fill:#f0883e;fill-opacity:0.16}
+.back{fill:#39c5cf}.back-line{stroke:#39c5cf}.back-wash{fill:#39c5cf;fill-opacity:0.16}
+.pass{fill:#3fb950}.pass-line{stroke:#3fb950}.pass-wash{fill:#3fb950;fill-opacity:0.16}
+.fail{fill:#f85149}.fail-line{stroke:#f85149}.fail-wash{fill:#f85149;fill-opacity:0.16}
+}
+</style>
+<rect class="paper" width="960" height="540" rx="12"/>
+<rect class="rule-line outline" x="0.5" y="0.5" width="959" height="539" rx="12"/>
+<text class="sans ink bold" font-size="18" x="32" y="38">How a backreference runs out of input part way</text>
+<text class="sans muted" font-size="13" x="32" y="60">\1 is rewritten once, at construction. \H and \G are hidden groups, removed from each match.</text>
+<circle class="rule-line outline" stroke-width="1.5" cx="686" cy="58" r="4.5"/>
+<circle class="focus" cx="686" cy="58" r="4.5" opacity="1">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.002;0.998;1" values="0;1;1;0"/>
+</circle>
+<circle class="focus-line outline" stroke-width="2" cx="686" cy="58" r="7" opacity="0">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.002;0.057;0.06;1" values="0;1;1;0;0"/>
+</circle>
+<text class="sans ink bold" font-size="14" x="928" y="38" text-anchor="end" opacity="0">Step 1 of 17<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.002;0.057;0.06;1" values="0;1;1;0;0"/></text>
+<circle class="rule-line outline" stroke-width="1.5" cx="700" cy="58" r="4.5"/>
+<circle class="focus" cx="700" cy="58" r="4.5" opacity="1">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.06;0.062;0.998;1" values="0;0;1;1;0"/>
+</circle>
+<circle class="focus-line outline" stroke-width="2" cx="700" cy="58" r="7" opacity="0">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.06;0.062;0.105;0.107;1" values="0;0;1;1;0;0"/>
+</circle>
+<text class="sans ink bold" font-size="14" x="928" y="38" text-anchor="end" opacity="0">Step 2 of 17<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.06;0.062;0.105;0.107;1" values="0;0;1;1;0;0"/></text>
+<circle class="rule-line outline" stroke-width="1.5" cx="714" cy="58" r="4.5"/>
+<circle class="focus" cx="714" cy="58" r="4.5" opacity="1">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.107;0.11;0.998;1" values="0;0;1;1;0"/>
+</circle>
+<circle class="focus-line outline" stroke-width="2" cx="714" cy="58" r="7" opacity="0">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.107;0.11;0.146;0.149;1" values="0;0;1;1;0;0"/>
+</circle>
+<text class="sans ink bold" font-size="14" x="928" y="38" text-anchor="end" opacity="0">Step 3 of 17<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.107;0.11;0.146;0.149;1" values="0;0;1;1;0;0"/></text>
+<circle class="rule-line outline" stroke-width="1.5" cx="728" cy="58" r="4.5"/>
+<circle class="focus" cx="728" cy="58" r="4.5" opacity="1">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.149;0.151;0.998;1" values="0;0;1;1;0"/>
+</circle>
+<circle class="focus-line outline" stroke-width="2" cx="728" cy="58" r="7" opacity="0">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.149;0.151;0.2;0.202;1" values="0;0;1;1;0;0"/>
+</circle>
+<text class="sans ink bold" font-size="14" x="928" y="38" text-anchor="end" opacity="0">Step 4 of 17<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.149;0.151;0.2;0.202;1" values="0;0;1;1;0;0"/></text>
+<circle class="rule-line outline" stroke-width="1.5" cx="742" cy="58" r="4.5"/>
+<circle class="focus" cx="742" cy="58" r="4.5" opacity="1">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.202;0.205;0.998;1" values="0;0;1;1;0"/>
+</circle>
+<circle class="focus-line outline" stroke-width="2" cx="742" cy="58" r="7" opacity="0">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.202;0.205;0.254;0.256;1" values="0;0;1;1;0;0"/>
+</circle>
+<text class="sans ink bold" font-size="14" x="928" y="38" text-anchor="end" opacity="0">Step 5 of 17<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.202;0.205;0.254;0.256;1" values="0;0;1;1;0;0"/></text>
+<circle class="rule-line outline" stroke-width="1.5" cx="756" cy="58" r="4.5"/>
+<circle class="focus" cx="756" cy="58" r="4.5" opacity="1">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.256;0.258;0.998;1" values="0;0;1;1;0"/>
+</circle>
+<circle class="focus-line outline" stroke-width="2" cx="756" cy="58" r="7" opacity="0">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.256;0.258;0.349;0.351;1" values="0;0;1;1;0;0"/>
+</circle>
+<text class="sans ink bold" font-size="14" x="928" y="38" text-anchor="end" opacity="0">Step 6 of 17<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.256;0.258;0.349;0.351;1" values="0;0;1;1;0;0"/></text>
+<circle class="rule-line outline" stroke-width="1.5" cx="770" cy="58" r="4.5"/>
+<circle class="focus" cx="770" cy="58" r="4.5" opacity="1">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.351;0.354;0.998;1" values="0;0;1;1;0"/>
+</circle>
+<circle class="focus-line outline" stroke-width="2" cx="770" cy="58" r="7" opacity="0">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.351;0.354;0.402;0.405;1" values="0;0;1;1;0;0"/>
+</circle>
+<text class="sans ink bold" font-size="14" x="928" y="38" text-anchor="end" opacity="0">Step 7 of 17<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.351;0.354;0.402;0.405;1" values="0;0;1;1;0;0"/></text>
+<circle class="rule-line outline" stroke-width="1.5" cx="784" cy="58" r="4.5"/>
+<circle class="focus" cx="784" cy="58" r="4.5" opacity="1">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.405;0.407;0.998;1" values="0;0;1;1;0"/>
+</circle>
+<circle class="focus-line outline" stroke-width="2" cx="784" cy="58" r="7" opacity="0">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.405;0.407;0.444;0.446;1" values="0;0;1;1;0;0"/>
+</circle>
+<text class="sans ink bold" font-size="14" x="928" y="38" text-anchor="end" opacity="0">Step 8 of 17<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.405;0.407;0.444;0.446;1" values="0;0;1;1;0;0"/></text>
+<circle class="rule-line outline" stroke-width="1.5" cx="798" cy="58" r="4.5"/>
+<circle class="focus" cx="798" cy="58" r="4.5" opacity="1">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.446;0.449;0.998;1" values="0;0;1;1;0"/>
+</circle>
+<circle class="focus-line outline" stroke-width="2" cx="798" cy="58" r="7" opacity="1">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.446;0.449;0.504;0.506;1" values="0;0;1;1;0;0"/>
+</circle>
+<text class="sans ink bold" font-size="14" x="928" y="38" text-anchor="end" opacity="1">Step 9 of 17<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.446;0.449;0.504;0.506;1" values="0;0;1;1;0;0"/></text>
+<circle class="rule-line outline" stroke-width="1.5" cx="812" cy="58" r="4.5"/>
+<circle class="focus" cx="812" cy="58" r="4.5" opacity="0">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.506;0.508;0.998;1" values="0;0;1;1;0"/>
+</circle>
+<circle class="focus-line outline" stroke-width="2" cx="812" cy="58" r="7" opacity="0">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.506;0.508;0.545;0.548;1" values="0;0;1;1;0;0"/>
+</circle>
+<text class="sans ink bold" font-size="14" x="928" y="38" text-anchor="end" opacity="0">Step 10 of 17<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.506;0.508;0.545;0.548;1" values="0;0;1;1;0;0"/></text>
+<circle class="rule-line outline" stroke-width="1.5" cx="826" cy="58" r="4.5"/>
+<circle class="focus" cx="826" cy="58" r="4.5" opacity="0">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.548;0.55;0.998;1" values="0;0;1;1;0"/>
+</circle>
+<circle class="focus-line outline" stroke-width="2" cx="826" cy="58" r="7" opacity="0">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.548;0.55;0.617;0.619;1" values="0;0;1;1;0;0"/>
+</circle>
+<text class="sans ink bold" font-size="14" x="928" y="38" text-anchor="end" opacity="0">Step 11 of 17<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.548;0.55;0.617;0.619;1" values="0;0;1;1;0;0"/></text>
+<circle class="rule-line outline" stroke-width="1.5" cx="850" cy="58" r="4.5"/>
+<circle class="focus" cx="850" cy="58" r="4.5" opacity="0">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.619;0.621;0.998;1" values="0;0;1;1;0"/>
+</circle>
+<circle class="focus-line outline" stroke-width="2" cx="850" cy="58" r="7" opacity="0">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.619;0.621;0.676;0.679;1" values="0;0;1;1;0;0"/>
+</circle>
+<text class="sans ink bold" font-size="14" x="928" y="38" text-anchor="end" opacity="0">Step 12 of 17<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.619;0.621;0.676;0.679;1" values="0;0;1;1;0;0"/></text>
+<circle class="rule-line outline" stroke-width="1.5" cx="864" cy="58" r="4.5"/>
+<circle class="focus" cx="864" cy="58" r="4.5" opacity="0">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.679;0.681;0.998;1" values="0;0;1;1;0"/>
+</circle>
+<circle class="focus-line outline" stroke-width="2" cx="864" cy="58" r="7" opacity="0">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.679;0.681;0.765;0.768;1" values="0;0;1;1;0;0"/>
+</circle>
+<text class="sans ink bold" font-size="14" x="928" y="38" text-anchor="end" opacity="0">Step 13 of 17<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.679;0.681;0.765;0.768;1" values="0;0;1;1;0;0"/></text>
+<circle class="rule-line outline" stroke-width="1.5" cx="878" cy="58" r="4.5"/>
+<circle class="focus" cx="878" cy="58" r="4.5" opacity="0">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.768;0.77;0.998;1" values="0;0;1;1;0"/>
+</circle>
+<circle class="focus-line outline" stroke-width="2" cx="878" cy="58" r="7" opacity="0">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.768;0.77;0.807;0.81;1" values="0;0;1;1;0;0"/>
+</circle>
+<text class="sans ink bold" font-size="14" x="928" y="38" text-anchor="end" opacity="0">Step 14 of 17<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.768;0.77;0.807;0.81;1" values="0;0;1;1;0;0"/></text>
+<circle class="rule-line outline" stroke-width="1.5" cx="892" cy="58" r="4.5"/>
+<circle class="focus" cx="892" cy="58" r="4.5" opacity="0">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.81;0.812;0.998;1" values="0;0;1;1;0"/>
+</circle>
+<circle class="focus-line outline" stroke-width="2" cx="892" cy="58" r="7" opacity="0">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.81;0.812;0.867;0.869;1" values="0;0;1;1;0;0"/>
+</circle>
+<text class="sans ink bold" font-size="14" x="928" y="38" text-anchor="end" opacity="0">Step 15 of 17<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.81;0.812;0.867;0.869;1" values="0;0;1;1;0;0"/></text>
+<circle class="rule-line outline" stroke-width="1.5" cx="906" cy="58" r="4.5"/>
+<circle class="focus" cx="906" cy="58" r="4.5" opacity="0">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.869;0.871;0.998;1" values="0;0;1;1;0"/>
+</circle>
+<circle class="focus-line outline" stroke-width="2" cx="906" cy="58" r="7" opacity="0">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.869;0.871;0.926;0.929;1" values="0;0;1;1;0;0"/>
+</circle>
+<text class="sans ink bold" font-size="14" x="928" y="38" text-anchor="end" opacity="0">Step 16 of 17<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.869;0.871;0.926;0.929;1" values="0;0;1;1;0;0"/></text>
+<circle class="rule-line outline" stroke-width="1.5" cx="920" cy="58" r="4.5"/>
+<circle class="focus" cx="920" cy="58" r="4.5" opacity="0">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.929;0.931;0.998;1" values="0;0;1;1;0"/>
+</circle>
+<circle class="focus-line outline" stroke-width="2" cx="920" cy="58" r="7" opacity="0">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.929;0.931;0.998;1" values="0;0;1;1;0"/>
+</circle>
+<text class="sans ink bold" font-size="14" x="928" y="38" text-anchor="end" opacity="0">Step 17 of 17<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.929;0.931;0.998;1" values="0;0;1;1;0"/></text>
+<g opacity="0">
+<rect x="57" y="81" width="73.2" height="30" rx="5" class="focus-wash" style="fill-opacity:0.3"/>
+<rect x="57" y="81" width="73.2" height="30" rx="5" class="focus-line outline" stroke-width="2"/>
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.002;0.057;0.06;1" values="0;1;1;0;0"/>
+</g>
+<g opacity="0">
+<rect x="153" y="111" width="25.2" height="30" rx="5" class="focus-wash" style="fill-opacity:0.3"/>
+<rect x="153" y="111" width="25.2" height="30" rx="5" class="focus-line outline" stroke-width="2"/>
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.06;0.062;0.105;0.107;1" values="0;0;1;1;0;0"/>
+</g>
+<g opacity="0">
+<rect x="153" y="141" width="63.6" height="30" rx="5" class="focus-wash" style="fill-opacity:0.3"/>
+<rect x="153" y="141" width="63.6" height="30" rx="5" class="focus-line outline" stroke-width="2"/>
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.107;0.11;0.146;0.149;1" values="0;0;1;1;0;0"/>
+</g>
+<g opacity="0">
+<rect x="210.6" y="141" width="130.8" height="30" rx="5" class="focus-wash" style="fill-opacity:0.3"/>
+<rect x="210.6" y="141" width="130.8" height="30" rx="5" class="focus-line outline" stroke-width="2"/>
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.149;0.151;0.2;0.202;1" values="0;0;1;1;0;0"/>
+</g>
+<g opacity="0">
+<rect x="335.4" y="141" width="130.8" height="30" rx="5" class="focus-wash" style="fill-opacity:0.3"/>
+<rect x="335.4" y="141" width="130.8" height="30" rx="5" class="focus-line outline" stroke-width="2"/>
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.202;0.205;0.254;0.256;1" values="0;0;1;1;0;0"/>
+</g>
+<g opacity="0">
+<rect x="460.2" y="141" width="207.6" height="30" rx="5" class="focus-wash" style="fill-opacity:0.3"/>
+<rect x="460.2" y="141" width="207.6" height="30" rx="5" class="focus-line outline" stroke-width="2"/>
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.256;0.258;0.273;0.275;1" values="0;0;1;1;0;0"/>
+</g>
+<rect class="focus" x="559.2" y="165" width="96" height="3" rx="1.5" opacity="0">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.256;0.258;0.261;0.263;1" values="0;0;1;1;0;0"/>
+</rect>
+<rect class="focus" x="501.6" y="165" width="57.6" height="3" rx="1.5" opacity="0">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.263;0.265;0.273;0.275;1" values="0;0;1;1;0;0"/>
+</rect>
+<g opacity="0">
+<rect x="460.2" y="141" width="207.6" height="30" rx="5" class="focus-wash" style="fill-opacity:0.3"/>
+<rect x="460.2" y="141" width="207.6" height="30" rx="5" class="focus-line outline" stroke-width="2"/>
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.275;0.277;0.292;0.294;1" values="0;0;1;1;0;0"/>
+</g>
+<rect class="focus" x="559.2" y="165" width="96" height="3" rx="1.5" opacity="0">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.275;0.277;0.28;0.282;1" values="0;0;1;1;0;0"/>
+</rect>
+<rect class="focus" x="501.6" y="165" width="57.6" height="3" rx="1.5" opacity="0">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.282;0.285;0.292;0.294;1" values="0;0;1;1;0;0"/>
+</rect>
+<g opacity="0">
+<rect x="460.2" y="141" width="207.6" height="30" rx="5" class="focus-wash" style="fill-opacity:0.3"/>
+<rect x="460.2" y="141" width="207.6" height="30" rx="5" class="focus-line outline" stroke-width="2"/>
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.294;0.296;0.311;0.313;1" values="0;0;1;1;0;0"/>
+</g>
+<rect class="focus" x="559.2" y="165" width="96" height="3" rx="1.5" opacity="0">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.294;0.296;0.299;0.301;1" values="0;0;1;1;0;0"/>
+</rect>
+<rect class="focus" x="501.6" y="165" width="57.6" height="3" rx="1.5" opacity="0">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.301;0.304;0.311;0.313;1" values="0;0;1;1;0;0"/>
+</rect>
+<g opacity="0">
+<rect x="460.2" y="141" width="207.6" height="30" rx="5" class="focus-wash" style="fill-opacity:0.3"/>
+<rect x="460.2" y="141" width="207.6" height="30" rx="5" class="focus-line outline" stroke-width="2"/>
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.313;0.315;0.33;0.332;1" values="0;0;1;1;0;0"/>
+</g>
+<rect class="focus" x="559.2" y="165" width="96" height="3" rx="1.5" opacity="0">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.313;0.315;0.318;0.32;1" values="0;0;1;1;0;0"/>
+</rect>
+<rect class="focus" x="501.6" y="165" width="57.6" height="3" rx="1.5" opacity="0">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.32;0.323;0.33;0.332;1" values="0;0;1;1;0;0"/>
+</rect>
+<g opacity="0">
+<rect x="460.2" y="141" width="207.6" height="30" rx="5" class="focus-wash" style="fill-opacity:0.3"/>
+<rect x="460.2" y="141" width="207.6" height="30" rx="5" class="focus-line outline" stroke-width="2"/>
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.332;0.335;0.349;0.351;1" values="0;0;1;1;0;0"/>
+</g>
+<rect class="focus" x="559.2" y="165" width="96" height="3" rx="1.5" opacity="0">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.332;0.335;0.337;0.339;1" values="0;0;1;1;0;0"/>
+</rect>
+<rect class="focus" x="501.6" y="165" width="57.6" height="3" rx="1.5" opacity="0">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.339;0.342;0.349;0.351;1" values="0;0;1;1;0;0"/>
+</rect>
+<g opacity="0">
+<rect x="460.2" y="141" width="207.6" height="30" rx="5" class="focus-wash" style="fill-opacity:0.3"/>
+<rect x="460.2" y="141" width="207.6" height="30" rx="5" class="focus-line outline" stroke-width="2"/>
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.351;0.354;0.402;0.405;1" values="0;0;1;1;0;0"/>
+</g>
+<g opacity="0">
+<rect x="661.8" y="141" width="130.8" height="30" rx="5" class="focus-wash" style="fill-opacity:0.3"/>
+<rect x="661.8" y="141" width="130.8" height="30" rx="5" class="focus-line outline" stroke-width="2"/>
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.405;0.407;0.444;0.446;1" values="0;0;1;1;0;0"/>
+</g>
+<rect class="focus" x="760.8" y="165" width="19.2" height="3" rx="1.5" opacity="0">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.405;0.407;0.444;0.446;1" values="0;0;1;1;0;0"/>
+</rect>
+<rect class="back-wash back-line" stroke-width="1.5" x="557.2" y="142" width="100" height="26" rx="4" opacity="0">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.417;0.419;0.444;0.446;1" values="0;0;1;1;0;0"/>
+</rect>
+<g opacity="1">
+<rect x="661.8" y="141" width="130.8" height="30" rx="5" class="focus-wash" style="fill-opacity:0.3"/>
+<rect x="661.8" y="141" width="130.8" height="30" rx="5" class="focus-line outline" stroke-width="2"/>
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.446;0.449;0.504;0.506;1" values="0;0;1;1;0;0"/>
+</g>
+<rect class="focus" x="703.2" y="165" width="57.6" height="3" rx="1.5" opacity="1">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.446;0.449;0.504;0.506;1" values="0;0;1;1;0;0"/>
+</rect>
+<rect class="rest-wash rest-line" stroke-width="1.5" x="365.2" y="142" width="90.4" height="26" rx="4" opacity="1">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.458;0.461;0.504;0.506;1" values="0;0;1;1;0;0"/>
+</rect>
+<g opacity="0">
+<rect x="786.6" y="141" width="25.2" height="30" rx="5" class="focus-wash" style="fill-opacity:0.3"/>
+<rect x="786.6" y="141" width="25.2" height="30" rx="5" class="focus-line outline" stroke-width="2"/>
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.506;0.508;0.545;0.548;1" values="0;0;1;1;0;0"/>
+</g>
+<rect class="rest-wash rest-line" stroke-width="1.5" x="365.2" y="142" width="90.4" height="26" rx="4" opacity="0">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.518;0.52;0.545;0.548;1" values="0;0;1;1;0;0"/>
+</rect>
+<g opacity="0">
+<rect x="57" y="81" width="73.2" height="30" rx="5" class="focus-wash" style="fill-opacity:0.3"/>
+<rect x="57" y="81" width="73.2" height="30" rx="5" class="focus-line outline" stroke-width="2"/>
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.619;0.621;0.676;0.679;1" values="0;0;1;1;0;0"/>
+</g>
+<g opacity="0">
+<rect x="153" y="111" width="25.2" height="30" rx="5" class="focus-wash" style="fill-opacity:0.3"/>
+<rect x="153" y="111" width="25.2" height="30" rx="5" class="focus-line outline" stroke-width="2"/>
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.679;0.681;0.694;0.696;1" values="0;0;1;1;0;0"/>
+</g>
+<g opacity="0">
+<rect x="153" y="141" width="63.6" height="30" rx="5" class="focus-wash" style="fill-opacity:0.3"/>
+<rect x="153" y="141" width="63.6" height="30" rx="5" class="focus-line outline" stroke-width="2"/>
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.696;0.699;0.712;0.714;1" values="0;0;1;1;0;0"/>
+</g>
+<g opacity="0">
+<rect x="210.6" y="141" width="130.8" height="30" rx="5" class="focus-wash" style="fill-opacity:0.3"/>
+<rect x="210.6" y="141" width="130.8" height="30" rx="5" class="focus-line outline" stroke-width="2"/>
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.714;0.717;0.73;0.732;1" values="0;0;1;1;0;0"/>
+</g>
+<g opacity="0">
+<rect x="335.4" y="141" width="130.8" height="30" rx="5" class="focus-wash" style="fill-opacity:0.3"/>
+<rect x="335.4" y="141" width="130.8" height="30" rx="5" class="focus-line outline" stroke-width="2"/>
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.732;0.735;0.748;0.75;1" values="0;0;1;1;0;0"/>
+</g>
+<g opacity="0">
+<rect x="460.2" y="141" width="207.6" height="30" rx="5" class="focus-wash" style="fill-opacity:0.3"/>
+<rect x="460.2" y="141" width="207.6" height="30" rx="5" class="focus-line outline" stroke-width="2"/>
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.75;0.752;0.765;0.768;1" values="0;0;1;1;0;0"/>
+</g>
+<g opacity="0">
+<rect x="661.8" y="141" width="130.8" height="30" rx="5" class="focus-wash" style="fill-opacity:0.3"/>
+<rect x="661.8" y="141" width="130.8" height="30" rx="5" class="focus-line outline" stroke-width="2"/>
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.768;0.77;0.807;0.81;1" values="0;0;1;1;0;0"/>
+</g>
+<rect class="focus" x="760.8" y="165" width="19.2" height="3" rx="1.5" opacity="0">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.768;0.77;0.807;0.81;1" values="0;0;1;1;0;0"/>
+</rect>
+<rect class="back-wash back-line" stroke-width="1.5" x="557.2" y="142" width="100" height="26" rx="4" opacity="0">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.78;0.782;0.807;0.81;1" values="0;0;1;1;0;0"/>
+</rect>
+<g opacity="0">
+<rect x="661.8" y="141" width="130.8" height="30" rx="5" class="focus-wash" style="fill-opacity:0.3"/>
+<rect x="661.8" y="141" width="130.8" height="30" rx="5" class="focus-line outline" stroke-width="2"/>
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.81;0.812;0.867;0.869;1" values="0;0;1;1;0;0"/>
+</g>
+<rect class="focus" x="703.2" y="165" width="57.6" height="3" rx="1.5" opacity="0">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.81;0.812;0.867;0.869;1" values="0;0;1;1;0;0"/>
+</rect>
+<rect class="rest-wash rest-line" stroke-width="1.5" x="365.2" y="142" width="90.4" height="26" rx="4" opacity="0">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.821;0.824;0.867;0.869;1" values="0;0;1;1;0;0"/>
+</rect>
+<g opacity="0">
+<rect x="153" y="171" width="111.6" height="30" rx="5" class="focus-wash" style="fill-opacity:0.3"/>
+<rect x="153" y="171" width="111.6" height="30" rx="5" class="focus-line outline" stroke-width="2"/>
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.869;0.871;0.926;0.929;1" values="0;0;1;1;0;0"/>
+</g>
+<text class="mono" font-size="16" x="60" y="100" textLength="67.2" lengthAdjust="spacing"><tspan class="ink">^(abc)-</tspan></text>
+<text class="mono" font-size="16" x="127.2" y="130" textLength="48" lengthAdjust="spacing"><tspan class="ink">(?:</tspan><tspan class="capture">\1</tspan></text>
+<g>
+<circle class="rule-line outline" cx="30" cy="125" r="10"/>
+<text class="sans muted" font-size="12" x="30" y="129" text-anchor="middle">1</text>
+</g>
+<g opacity="0">
+<circle class="focus" cx="30" cy="125" r="11"/>
+<text class="sans paper bold" font-size="12" x="30" y="129" text-anchor="middle">1</text>
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.06;0.062;0.105;0.107;0.679;0.681;0.694;0.696;1" values="0;0;1;1;0;0;1;1;0;0"/>
+</g>
+<text class="mono" font-size="16" x="146.4" y="160" textLength="662.4" lengthAdjust="spacing"><tspan class="ink">|(?!</tspan><tspan class="capture">\1</tspan><tspan class="ink">)(?![\s\S]{3})(?=([\s\S]+))(?&lt;=(?=</tspan><tspan class="capture">\1</tspan><tspan class="ink">)([\s\S]*?))(?&lt;=(?=</tspan><tspan class="rest">\H</tspan><tspan class="ink">)</tspan><tspan class="back">\G</tspan><tspan class="ink">)</tspan><tspan class="rest">\H</tspan></text>
+<g>
+<circle class="rule-line outline" cx="30" cy="155" r="10"/>
+<text class="sans muted" font-size="12" x="30" y="159" text-anchor="middle">2</text>
+</g>
+<g opacity="1">
+<circle class="focus" cx="30" cy="155" r="11"/>
+<text class="sans paper bold" font-size="12" x="30" y="159" text-anchor="middle">2</text>
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.107;0.11;0.545;0.548;0.696;0.699;0.867;0.869;1" values="0;0;1;1;0;0;1;1;0;0"/>
+</g>
+<text class="mono" font-size="16" x="146.4" y="190" textLength="182.4" lengthAdjust="spacing"><tspan class="ink">|$(?![\s\S])(?!</tspan><tspan class="capture">\1</tspan><tspan class="ink">))</tspan></text>
+<g>
+<circle class="rule-line outline" cx="30" cy="185" r="10"/>
+<text class="sans muted" font-size="12" x="30" y="189" text-anchor="middle">3</text>
+</g>
+<g opacity="0">
+<circle class="focus" cx="30" cy="185" r="11"/>
+<text class="sans paper bold" font-size="12" x="30" y="189" text-anchor="middle">3</text>
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.869;0.871;0.926;0.929;1" values="0;0;1;1;0;0"/>
+</g>
+<text class="sans muted" font-size="12" x="828" y="100">matched before \1</text>
+<text class="sans muted" font-size="12" x="828" y="130">the whole capture</text>
+<text class="sans muted" font-size="12" x="828" y="160">run out part way</text>
+<text class="sans muted" font-size="12" x="828" y="190">the input has ended</text>
+<rect class="focus-wash" x="300" y="268" width="204" height="48" rx="6" opacity="0">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.002;0.057;0.06;1" values="0;1;1;0;0"/>
+</rect>
+<rect class="back-wash" x="456" y="268" width="48" height="48" rx="6" opacity="0">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.275;0.277;0.292;0.294;1" values="0;0;1;1;0;0"/>
+</rect>
+<rect class="back-wash" x="404" y="268" width="100" height="48" rx="6" opacity="0">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.294;0.296;0.311;0.313;1" values="0;0;1;1;0;0"/>
+</rect>
+<rect class="back-wash" x="352" y="268" width="152" height="48" rx="6" opacity="0">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.313;0.315;0.33;0.332;1" values="0;0;1;1;0;0"/>
+</rect>
+<rect class="back-wash" x="300" y="268" width="204" height="48" rx="6" opacity="0">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.332;0.335;0.349;0.351;1" values="0;0;1;1;0;0"/>
+</rect>
+<rect class="back-wash" x="300" y="268" width="204" height="48" rx="6" opacity="0">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.405;0.407;0.444;0.446;1" values="0;0;1;1;0;0"/>
+</rect>
+<rect class="pass-wash" x="300" y="268" width="308" height="48" rx="6" opacity="0">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.506;0.508;0.617;0.619;1" values="0;0;1;1;0;0"/>
+</rect>
+<rect class="focus-wash" x="300" y="268" width="204" height="48" rx="6" opacity="0">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.619;0.621;0.676;0.679;1" values="0;0;1;1;0;0"/>
+</rect>
+<rect class="back-wash" x="300" y="268" width="204" height="48" rx="6" opacity="0">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.75;0.752;0.765;0.768;1" values="0;0;1;1;0;0"/>
+</rect>
+<rect class="back-wash" x="300" y="268" width="204" height="48" rx="6" opacity="0">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.768;0.77;0.807;0.81;1" values="0;0;1;1;0;0"/>
+</rect>
+<rect class="fail-wash" x="508" y="268" width="100" height="48" rx="6" opacity="0">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.869;0.871;0.998;1" values="0;0;1;1;0"/>
+</rect>
+<g opacity="1">
+<rect class="rule-line outline" stroke-width="1.5" x="298" y="266" width="52" height="52"/>
+<text class="mono ink" font-size="24" x="324" y="300" text-anchor="middle">a</text>
+<text class="mono muted" font-size="12" x="324" y="336" text-anchor="middle">0</text>
+<rect class="rule-line outline" stroke-width="1.5" x="350" y="266" width="52" height="52"/>
+<text class="mono ink" font-size="24" x="376" y="300" text-anchor="middle">b</text>
+<text class="mono muted" font-size="12" x="376" y="336" text-anchor="middle">1</text>
+<rect class="rule-line outline" stroke-width="1.5" x="402" y="266" width="52" height="52"/>
+<text class="mono ink" font-size="24" x="428" y="300" text-anchor="middle">c</text>
+<text class="mono muted" font-size="12" x="428" y="336" text-anchor="middle">2</text>
+<rect class="rule-line outline" stroke-width="1.5" x="454" y="266" width="52" height="52"/>
+<text class="mono ink" font-size="24" x="480" y="300" text-anchor="middle">-</text>
+<text class="mono muted" font-size="12" x="480" y="336" text-anchor="middle">3</text>
+<rect class="rule-line outline" stroke-width="1.5" x="506" y="266" width="52" height="52"/>
+<text class="mono ink" font-size="24" x="532" y="300" text-anchor="middle">a</text>
+<text class="mono muted" font-size="12" x="532" y="336" text-anchor="middle">4</text>
+<rect class="rule-line outline" stroke-width="1.5" x="558" y="266" width="52" height="52"/>
+<text class="mono ink" font-size="24" x="584" y="300" text-anchor="middle">b</text>
+<text class="mono muted" font-size="12" x="584" y="336" text-anchor="middle">5</text>
+<rect class="muted" x="608.5" y="260" width="3" height="64"/>
+<text class="sans muted" font-size="12" x="618" y="336">end of input</text>
+<g>
+<path class="capture-line outline" stroke-width="2" d="M302 260V254H450V260"/>
+<text class="sans ink" font-size="13" x="376" y="246" text-anchor="middle"><tspan>group 1 = &quot;abc&quot;</tspan></text>
+</g>
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.002;0.617;0.619;1" values="0;1;1;0;0"/>
+</g>
+<g opacity="0">
+<rect class="rule-line outline" stroke-width="1.5" x="298" y="266" width="52" height="52"/>
+<text class="mono ink" font-size="24" x="324" y="300" text-anchor="middle">a</text>
+<text class="mono muted" font-size="12" x="324" y="336" text-anchor="middle">0</text>
+<rect class="rule-line outline" stroke-width="1.5" x="350" y="266" width="52" height="52"/>
+<text class="mono ink" font-size="24" x="376" y="300" text-anchor="middle">b</text>
+<text class="mono muted" font-size="12" x="376" y="336" text-anchor="middle">1</text>
+<rect class="rule-line outline" stroke-width="1.5" x="402" y="266" width="52" height="52"/>
+<text class="mono ink" font-size="24" x="428" y="300" text-anchor="middle">c</text>
+<text class="mono muted" font-size="12" x="428" y="336" text-anchor="middle">2</text>
+<rect class="rule-line outline" stroke-width="1.5" x="454" y="266" width="52" height="52"/>
+<text class="mono ink" font-size="24" x="480" y="300" text-anchor="middle">-</text>
+<text class="mono muted" font-size="12" x="480" y="336" text-anchor="middle">3</text>
+<rect class="rule-line outline" stroke-width="1.5" x="506" y="266" width="52" height="52"/>
+<text class="mono ink" font-size="24" x="532" y="300" text-anchor="middle">a</text>
+<text class="mono muted" font-size="12" x="532" y="336" text-anchor="middle">4</text>
+<rect class="rule-line outline" stroke-width="1.5" x="558" y="266" width="52" height="52"/>
+<text class="mono ink" font-size="24" x="584" y="300" text-anchor="middle">x</text>
+<text class="mono muted" font-size="12" x="584" y="336" text-anchor="middle">5</text>
+<rect class="muted" x="608.5" y="260" width="3" height="64"/>
+<text class="sans muted" font-size="12" x="618" y="336">end of input</text>
+<g>
+<path class="capture-line outline" stroke-width="2" d="M302 260V254H450V260"/>
+<text class="sans ink" font-size="13" x="376" y="246" text-anchor="middle"><tspan>group 1 = &quot;abc&quot;</tspan></text>
+</g>
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.619;0.621;0.998;1" values="0;0;1;1;0"/>
+</g>
+<text class="sans focus" font-size="13" x="506" y="240" text-anchor="middle" opacity="1">\1 at 4<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.002;0.508;0.511;1" values="0;1;1;0;0"/></text>
+<g opacity="1">
+<rect class="focus" x="504.5" y="252" width="3" height="76" rx="1.5"/>
+<path class="focus" d="M500 248h12l-6 7z"/>
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.002;0.617;0.619;1" values="0;1;1;0;0"/>
+<animateTransform attributeName="transform" type="translate" additive="sum" dur="84s" repeatCount="indefinite" keyTimes="0;0.511;0.525;1" values="0 0;0 0;104 0;104 0"/>
+</g>
+<g opacity="0">
+<text class="mono muted" font-size="13" x="498" y="417" text-anchor="end"><tspan class="capture">\1</tspan><tspan class="muted"> at 4</tspan></text>
+<g>
+<rect class="pass-wash" x="510" y="390" width="44" height="44" rx="6"/>
+<rect class="pass-line outline" stroke-width="1.5" x="510" y="390" width="44" height="44" rx="6"/>
+<text class="mono ink" font-size="20" x="532" y="419" text-anchor="middle">a</text>
+</g>
+<g>
+<rect class="pass-wash" x="562" y="390" width="44" height="44" rx="6"/>
+<rect class="pass-line outline" stroke-width="1.5" x="562" y="390" width="44" height="44" rx="6"/>
+<text class="mono ink" font-size="20" x="584" y="419" text-anchor="middle">b</text>
+</g>
+<g>
+<rect class="rule-line outline dashed" stroke-width="1.5" x="614" y="390" width="44" height="44" rx="6"/>
+<text class="mono muted" font-size="20" x="636" y="419" text-anchor="middle">c</text>
+</g>
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.06;0.062;0.105;0.107;1" values="0;0;1;1;0;0"/>
+</g>
+<g opacity="0">
+<text class="mono muted" font-size="13" x="498" y="417" text-anchor="end"><tspan class="muted">[\s\S]{3} at 4</tspan></text>
+<g>
+<rect class="focus-line outline" stroke-width="1.5" x="510" y="390" width="44" height="44" rx="6"/>
+<text class="mono ink" font-size="20" x="532" y="419" text-anchor="middle">a</text>
+</g>
+<g>
+<rect class="focus-line outline" stroke-width="1.5" x="562" y="390" width="44" height="44" rx="6"/>
+<text class="mono ink" font-size="20" x="584" y="419" text-anchor="middle">b</text>
+</g>
+<g>
+<rect class="rule-line outline dashed" stroke-width="1.5" x="614" y="390" width="44" height="44" rx="6"/>
+<text class="mono muted" font-size="20" x="636" y="419" text-anchor="middle">?</text>
+</g>
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.149;0.151;0.2;0.202;1" values="0;0;1;1;0;0"/>
+</g>
+<g opacity="1">
+<path class="rest-line outline" stroke-width="2" d="M510 344V350H606V344"/>
+<text class="sans ink" font-size="13" x="558" y="367" text-anchor="middle"><tspan class="mono"><tspan class="rest">\H</tspan></tspan><tspan> = &quot;ab&quot;</tspan></text>
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.202;0.205;0.617;0.619;1" values="0;0;1;1;0;0"/>
+</g>
+<g opacity="0">
+<text class="mono muted" font-size="13" x="498" y="417" text-anchor="end"><tspan class="capture">\1</tspan><tspan class="muted"> at 4</tspan></text>
+<g>
+<rect class="pass-wash" x="510" y="390" width="44" height="44" rx="6"/>
+<rect class="pass-line outline" stroke-width="1.5" x="510" y="390" width="44" height="44" rx="6"/>
+<text class="mono ink" font-size="20" x="532" y="419" text-anchor="middle">a</text>
+</g>
+<g>
+<rect class="pass-wash" x="562" y="390" width="44" height="44" rx="6"/>
+<rect class="pass-line outline" stroke-width="1.5" x="562" y="390" width="44" height="44" rx="6"/>
+<text class="mono ink" font-size="20" x="584" y="419" text-anchor="middle">b</text>
+</g>
+<g>
+<rect class="rule-line outline dashed" stroke-width="1.5" x="614" y="390" width="44" height="44" rx="6"/>
+<text class="mono muted" font-size="20" x="636" y="419" text-anchor="middle">c</text>
+</g>
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.263;0.265;0.273;0.275;1" values="0;0;1;1;0;0"/>
+</g>
+<g opacity="0">
+<text class="mono muted" font-size="13" x="446" y="417" text-anchor="end"><tspan class="capture">\1</tspan><tspan class="muted"> at 3</tspan></text>
+<g>
+<rect class="fail-wash" x="458" y="390" width="44" height="44" rx="6"/>
+<rect class="fail-line outline" stroke-width="1.5" x="458" y="390" width="44" height="44" rx="6"/>
+<text class="mono ink" font-size="20" x="480" y="419" text-anchor="middle">a</text>
+</g>
+<g>
+<rect class="fail-wash" x="510" y="390" width="44" height="44" rx="6"/>
+<rect class="fail-line outline" stroke-width="1.5" x="510" y="390" width="44" height="44" rx="6"/>
+<text class="mono ink" font-size="20" x="532" y="419" text-anchor="middle">b</text>
+</g>
+<g>
+<rect class="fail-wash" x="562" y="390" width="44" height="44" rx="6"/>
+<rect class="fail-line outline" stroke-width="1.5" x="562" y="390" width="44" height="44" rx="6"/>
+<text class="mono ink" font-size="20" x="584" y="419" text-anchor="middle">c</text>
+</g>
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.282;0.285;0.292;0.294;1" values="0;0;1;1;0;0"/>
+</g>
+<g opacity="0">
+<text class="mono muted" font-size="13" x="394" y="417" text-anchor="end"><tspan class="capture">\1</tspan><tspan class="muted"> at 2</tspan></text>
+<g>
+<rect class="fail-wash" x="406" y="390" width="44" height="44" rx="6"/>
+<rect class="fail-line outline" stroke-width="1.5" x="406" y="390" width="44" height="44" rx="6"/>
+<text class="mono ink" font-size="20" x="428" y="419" text-anchor="middle">a</text>
+</g>
+<g>
+<rect class="fail-wash" x="458" y="390" width="44" height="44" rx="6"/>
+<rect class="fail-line outline" stroke-width="1.5" x="458" y="390" width="44" height="44" rx="6"/>
+<text class="mono ink" font-size="20" x="480" y="419" text-anchor="middle">b</text>
+</g>
+<g>
+<rect class="fail-wash" x="510" y="390" width="44" height="44" rx="6"/>
+<rect class="fail-line outline" stroke-width="1.5" x="510" y="390" width="44" height="44" rx="6"/>
+<text class="mono ink" font-size="20" x="532" y="419" text-anchor="middle">c</text>
+</g>
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.301;0.304;0.311;0.313;1" values="0;0;1;1;0;0"/>
+</g>
+<g opacity="0">
+<text class="mono muted" font-size="13" x="342" y="417" text-anchor="end"><tspan class="capture">\1</tspan><tspan class="muted"> at 1</tspan></text>
+<g>
+<rect class="fail-wash" x="354" y="390" width="44" height="44" rx="6"/>
+<rect class="fail-line outline" stroke-width="1.5" x="354" y="390" width="44" height="44" rx="6"/>
+<text class="mono ink" font-size="20" x="376" y="419" text-anchor="middle">a</text>
+</g>
+<g>
+<rect class="fail-wash" x="406" y="390" width="44" height="44" rx="6"/>
+<rect class="fail-line outline" stroke-width="1.5" x="406" y="390" width="44" height="44" rx="6"/>
+<text class="mono ink" font-size="20" x="428" y="419" text-anchor="middle">b</text>
+</g>
+<g>
+<rect class="fail-wash" x="458" y="390" width="44" height="44" rx="6"/>
+<rect class="fail-line outline" stroke-width="1.5" x="458" y="390" width="44" height="44" rx="6"/>
+<text class="mono ink" font-size="20" x="480" y="419" text-anchor="middle">c</text>
+</g>
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.32;0.323;0.33;0.332;1" values="0;0;1;1;0;0"/>
+</g>
+<g opacity="0">
+<text class="mono muted" font-size="13" x="290" y="417" text-anchor="end"><tspan class="capture">\1</tspan><tspan class="muted"> at 0</tspan></text>
+<g>
+<rect class="pass-wash" x="302" y="390" width="44" height="44" rx="6"/>
+<rect class="pass-line outline" stroke-width="1.5" x="302" y="390" width="44" height="44" rx="6"/>
+<text class="mono ink" font-size="20" x="324" y="419" text-anchor="middle">a</text>
+</g>
+<g>
+<rect class="pass-wash" x="354" y="390" width="44" height="44" rx="6"/>
+<rect class="pass-line outline" stroke-width="1.5" x="354" y="390" width="44" height="44" rx="6"/>
+<text class="mono ink" font-size="20" x="376" y="419" text-anchor="middle">b</text>
+</g>
+<g>
+<rect class="pass-wash" x="406" y="390" width="44" height="44" rx="6"/>
+<rect class="pass-line outline" stroke-width="1.5" x="406" y="390" width="44" height="44" rx="6"/>
+<text class="mono ink" font-size="20" x="428" y="419" text-anchor="middle">c</text>
+</g>
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.339;0.342;0.349;0.351;1" values="0;0;1;1;0;0"/>
+</g>
+<g opacity="1">
+<path class="back-line outline" stroke-width="2" d="M302 344V350H502V344"/>
+<text class="sans ink" font-size="13" x="402" y="367" text-anchor="middle"><tspan class="mono"><tspan class="back">\G</tspan></tspan><tspan> = &quot;abc-&quot;</tspan></text>
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.351;0.354;0.617;0.619;1" values="0;0;1;1;0;0"/>
+</g>
+<path class="back-line outline" stroke-width="2" stroke-linecap="round" pathLength="1" stroke-dasharray="1" d="M770.4 140C770.4 104 607.2 104 607.2 132" opacity="0">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.405;0.407;0.444;0.446;1" values="0;0;1;1;0;0"/>
+<animate attributeName="stroke-dashoffset" dur="84s" repeatCount="indefinite" keyTimes="0;0.408;0.418;1" values="1;1;0;0"/>
+</path>
+<path class="back" d="M607.2 141l-5 -9h10z" opacity="0">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.417;0.419;0.444;0.446;1" values="0;0;1;1;0;0"/>
+</path>
+<path class="back" d="M506 349l12 -8v16z" opacity="0">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.405;0.407;0.444;0.446;1" values="0;0;1;1;0;0"/>
+<animateTransform attributeName="transform" type="translate" additive="sum" dur="84s" repeatCount="indefinite" keyTimes="0;0.411;0.44;1" values="0 0;0 0;-208 0;-208 0"/>
+</path>
+<g opacity="0">
+<text class="mono muted" font-size="13" x="498" y="417" text-anchor="end"/>
+<g>
+<rect class="rest-wash" x="510" y="390" width="44" height="44" rx="6"/>
+<rect class="rest-line outline" stroke-width="1.5" x="510" y="390" width="44" height="44" rx="6"/>
+<text class="mono ink" font-size="20" x="532" y="419" text-anchor="middle">a</text>
+</g>
+<g>
+<rect class="rest-wash" x="562" y="390" width="44" height="44" rx="6"/>
+<rect class="rest-line outline" stroke-width="1.5" x="562" y="390" width="44" height="44" rx="6"/>
+<text class="mono ink" font-size="20" x="584" y="419" text-anchor="middle">b</text>
+</g>
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.405;0.407;0.444;0.446;1" values="0;0;1;1;0;0"/>
+<animateTransform attributeName="transform" type="translate" additive="sum" dur="84s" repeatCount="indefinite" keyTimes="0;0.411;0.44;1" values="0 0;0 0;-208 0;-208 0"/>
+</g>
+<path class="rest-line outline" stroke-width="2" stroke-linecap="round" pathLength="1" stroke-dasharray="1" d="M741.6 140C741.6 104 410.4 104 410.4 132" opacity="1">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.446;0.449;0.504;0.506;1" values="0;0;1;1;0;0"/>
+<animate attributeName="stroke-dashoffset" dur="84s" repeatCount="indefinite" keyTimes="0;0.45;0.46;1" values="1;1;0;0"/>
+</path>
+<path class="rest" d="M410.4 141l-5 -9h10z" opacity="1">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.458;0.461;0.504;0.506;1" values="0;0;1;1;0;0"/>
+</path>
+<g opacity="1">
+<text class="mono muted" font-size="13" x="290" y="417" text-anchor="end"><tspan class="rest">\H</tspan><tspan class="muted"> at 0</tspan></text>
+<g>
+<rect class="pass-wash" x="302" y="390" width="44" height="44" rx="6"/>
+<rect class="pass-line outline" stroke-width="1.5" x="302" y="390" width="44" height="44" rx="6"/>
+<text class="mono ink" font-size="20" x="324" y="419" text-anchor="middle">a</text>
+</g>
+<g>
+<rect class="pass-wash" x="354" y="390" width="44" height="44" rx="6"/>
+<rect class="pass-line outline" stroke-width="1.5" x="354" y="390" width="44" height="44" rx="6"/>
+<text class="mono ink" font-size="20" x="376" y="419" text-anchor="middle">b</text>
+</g>
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.446;0.449;0.504;0.506;1" values="0;0;1;1;0;0"/>
+</g>
+<path class="rest-line outline" stroke-width="2" stroke-linecap="round" pathLength="1" stroke-dasharray="1" d="M799.2 140C799.2 104 410.4 104 410.4 132" opacity="0">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.506;0.508;0.545;0.548;1" values="0;0;1;1;0;0"/>
+<animate attributeName="stroke-dashoffset" dur="84s" repeatCount="indefinite" keyTimes="0;0.51;0.519;1" values="1;1;0;0"/>
+</path>
+<path class="rest" d="M410.4 141l-5 -9h10z" opacity="0">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.518;0.52;0.545;0.548;1" values="0;0;1;1;0;0"/>
+</path>
+<text class="sans focus" font-size="13" x="506" y="240" text-anchor="middle" opacity="0">\1 at 4<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.619;0.621;0.998;1" values="0;0;1;1;0"/></text>
+<g opacity="0">
+<rect class="focus" x="504.5" y="252" width="3" height="76" rx="1.5"/>
+<path class="focus" d="M500 248h12l-6 7z"/>
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.619;0.621;0.998;1" values="0;0;1;1;0"/>
+</g>
+<g opacity="0">
+<path class="rest-line outline" stroke-width="2" d="M510 344V350H606V344"/>
+<text class="sans ink" font-size="13" x="558" y="367" text-anchor="middle"><tspan class="mono"><tspan class="rest">\H</tspan></tspan><tspan> = &quot;ax&quot;</tspan></text>
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.732;0.735;0.998;1" values="0;0;1;1;0"/>
+</g>
+<g opacity="0">
+<path class="back-line outline" stroke-width="2" d="M302 344V350H502V344"/>
+<text class="sans ink" font-size="13" x="402" y="367" text-anchor="middle"><tspan class="mono"><tspan class="back">\G</tspan></tspan><tspan> = &quot;abc-&quot;</tspan></text>
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.75;0.752;0.998;1" values="0;0;1;1;0"/>
+</g>
+<path class="back-line outline" stroke-width="2" stroke-linecap="round" pathLength="1" stroke-dasharray="1" d="M770.4 140C770.4 104 607.2 104 607.2 132" opacity="0">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.768;0.77;0.807;0.81;1" values="0;0;1;1;0;0"/>
+<animate attributeName="stroke-dashoffset" dur="84s" repeatCount="indefinite" keyTimes="0;0.771;0.781;1" values="1;1;0;0"/>
+</path>
+<path class="back" d="M607.2 141l-5 -9h10z" opacity="0">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.78;0.782;0.807;0.81;1" values="0;0;1;1;0;0"/>
+</path>
+<path class="back" d="M506 349l12 -8v16z" opacity="0">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.768;0.77;0.807;0.81;1" values="0;0;1;1;0;0"/>
+<animateTransform attributeName="transform" type="translate" additive="sum" dur="84s" repeatCount="indefinite" keyTimes="0;0.774;0.804;1" values="0 0;0 0;-208 0;-208 0"/>
+</path>
+<g opacity="0">
+<text class="mono muted" font-size="13" x="498" y="417" text-anchor="end"/>
+<g>
+<rect class="rest-wash" x="510" y="390" width="44" height="44" rx="6"/>
+<rect class="rest-line outline" stroke-width="1.5" x="510" y="390" width="44" height="44" rx="6"/>
+<text class="mono ink" font-size="20" x="532" y="419" text-anchor="middle">a</text>
+</g>
+<g>
+<rect class="rest-wash" x="562" y="390" width="44" height="44" rx="6"/>
+<rect class="rest-line outline" stroke-width="1.5" x="562" y="390" width="44" height="44" rx="6"/>
+<text class="mono ink" font-size="20" x="584" y="419" text-anchor="middle">x</text>
+</g>
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.768;0.77;0.807;0.81;1" values="0;0;1;1;0;0"/>
+<animateTransform attributeName="transform" type="translate" additive="sum" dur="84s" repeatCount="indefinite" keyTimes="0;0.774;0.804;1" values="0 0;0 0;-208 0;-208 0"/>
+</g>
+<path class="rest-line outline" stroke-width="2" stroke-linecap="round" pathLength="1" stroke-dasharray="1" d="M741.6 140C741.6 104 410.4 104 410.4 132" opacity="0">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.81;0.812;0.867;0.869;1" values="0;0;1;1;0;0"/>
+<animate attributeName="stroke-dashoffset" dur="84s" repeatCount="indefinite" keyTimes="0;0.813;0.823;1" values="1;1;0;0"/>
+</path>
+<path class="rest" d="M410.4 141l-5 -9h10z" opacity="0">
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.821;0.824;0.867;0.869;1" values="0;0;1;1;0;0"/>
+</path>
+<g opacity="0">
+<text class="mono muted" font-size="13" x="290" y="417" text-anchor="end"><tspan class="rest">\H</tspan><tspan class="muted"> at 0</tspan></text>
+<g>
+<rect class="pass-wash" x="302" y="390" width="44" height="44" rx="6"/>
+<rect class="pass-line outline" stroke-width="1.5" x="302" y="390" width="44" height="44" rx="6"/>
+<text class="mono ink" font-size="20" x="324" y="419" text-anchor="middle">a</text>
+</g>
+<g>
+<rect class="fail-wash" x="354" y="390" width="44" height="44" rx="6"/>
+<rect class="fail-line outline" stroke-width="1.5" x="354" y="390" width="44" height="44" rx="6"/>
+<text class="mono ink" font-size="20" x="376" y="419" text-anchor="middle">x</text>
+</g>
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.81;0.812;0.867;0.869;1" values="0;0;1;1;0;0"/>
+</g>
+<g class="sans" opacity="0">
+<text class="ink bold" font-size="16" x="32" y="474"><tspan class="mono"><tspan class="ink">^(abc)-</tspan><tspan class="capture">\1</tspan></tspan><tspan> on &quot;abc-ab&quot;</tspan></text>
+<text class="ink" font-size="14" x="32" y="500"><tspan class="mono"><tspan class="ink">^(abc)-</tspan></tspan><tspan> has matched &quot;abc-&quot;, capturing &quot;abc&quot;. </tspan><tspan class="mono"><tspan class="capture">\1</tspan></tspan><tspan> is tried at 4, where only &quot;ab&quot; is left.</tspan></text>
+<text class="ink" font-size="14" x="32" y="521"><tspan>At construction, </tspan><tspan class="mono"><tspan class="capture">\1</tspan></tspan><tspan> was rewritten as the three choices above, tried in order. Nothing is built per input.</tspan></text>
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.002;0.057;0.06;1" values="0;1;1;0;0"/>
+</g>
+<g class="sans" opacity="0">
+<text class="ink bold" font-size="16" x="32" y="474"><tspan class="mono"><tspan class="capture">\1</tspan></tspan><tspan>: the whole capture</tspan><tspan class="fail">  ✗</tspan></text>
+<text class="ink" font-size="14" x="32" y="500"><tspan>Only &quot;ab&quot; is left, so &quot;abc&quot; can't match here.</tspan></text>
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.06;0.062;0.105;0.107;1" values="0;0;1;1;0;0"/>
+</g>
+<g class="sans" opacity="0">
+<text class="ink bold" font-size="16" x="32" y="474"><tspan class="mono"><tspan class="ink">(?!</tspan><tspan class="capture">\1</tspan><tspan class="ink">)</tspan></tspan><tspan>: the whole capture doesn't fit</tspan><tspan class="pass">  ✓</tspan></text>
+<text class="ink" font-size="14" x="32" y="500"><tspan>So the second choice may run out of input part way through the capture.</tspan></text>
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.107;0.11;0.146;0.149;1" values="0;0;1;1;0;0"/>
+</g>
+<g class="sans" opacity="0">
+<text class="ink bold" font-size="16" x="32" y="474"><tspan class="mono"><tspan class="ink">(?![\s\S]{3})</tspan></tspan><tspan>: at most L = 2 characters are left</tspan><tspan class="pass">  ✓</tspan></text>
+<text class="ink" font-size="14" x="32" y="500"><tspan>L is the smaller of </tspan><tspan class="mono"><tspan class="ink">longestPartial</tspan></tspan><tspan> (64) and the longest the group can capture, less one.</tspan></text>
+<text class="ink" font-size="14" x="32" y="521"><tspan class="mono"><tspan class="ink">(abc)</tspan></tspan><tspan> captures 3 at most, so L is 2, and 3 characters must not fit. 2 are left.</tspan></text>
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.149;0.151;0.2;0.202;1" values="0;0;1;1;0;0"/>
+</g>
+<g class="sans" opacity="0">
+<text class="ink bold" font-size="16" x="32" y="474"><tspan class="mono"><tspan class="ink">(?=([\s\S]+))</tspan></tspan><tspan>: capture the rest as </tspan><tspan class="mono"><tspan class="rest">\H</tspan></tspan></text>
+<text class="ink" font-size="14" x="32" y="500"><tspan class="mono"><tspan class="rest">\H</tspan></tspan><tspan> = &quot;ab&quot;. It's captured inside a lookahead, so the position stays at 4,</tspan></text>
+<text class="ink" font-size="14" x="32" y="521"><tspan>and both lookbehinds that follow look back from there.</tspan></text>
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.202;0.205;0.254;0.256;1" values="0;0;1;1;0;0"/>
+</g>
+<g class="sans" opacity="0">
+<text class="ink bold" font-size="16" x="32" y="474"><tspan class="mono"><tspan class="ink">(?&lt;=(?=</tspan><tspan class="capture">\1</tspan><tspan class="ink">)([\s\S]*?))</tspan></tspan><tspan>: find the nearest occurrence</tspan><tspan class="fail">  ✗</tspan></text>
+<text class="ink" font-size="14" x="32" y="500"><tspan>Read right to left, the lazy </tspan><tspan class="mono"><tspan class="ink">([\s\S]*?)</tspan></tspan><tspan> grows one character at a time, from 4.</tspan></text>
+<text class="ink" font-size="14" x="32" y="521"><tspan>After each, </tspan><tspan class="mono"><tspan class="ink">(?=</tspan><tspan class="capture">\1</tspan><tspan class="ink">)</tspan></tspan><tspan> reads forwards: does &quot;abc&quot; start at 4?</tspan></text>
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.256;0.258;0.273;0.275;1" values="0;0;1;1;0;0"/>
+</g>
+<g class="sans" opacity="0">
+<text class="ink bold" font-size="16" x="32" y="474"><tspan class="mono"><tspan class="ink">(?&lt;=(?=</tspan><tspan class="capture">\1</tspan><tspan class="ink">)([\s\S]*?))</tspan></tspan><tspan>: find the nearest occurrence</tspan><tspan class="fail">  ✗</tspan></text>
+<text class="ink" font-size="14" x="32" y="500"><tspan>Read right to left, the lazy </tspan><tspan class="mono"><tspan class="ink">([\s\S]*?)</tspan></tspan><tspan> grows one character at a time, from 4.</tspan></text>
+<text class="ink" font-size="14" x="32" y="521"><tspan>After each, </tspan><tspan class="mono"><tspan class="ink">(?=</tspan><tspan class="capture">\1</tspan><tspan class="ink">)</tspan></tspan><tspan> reads forwards: does &quot;abc&quot; start at 3?</tspan></text>
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.275;0.277;0.292;0.294;1" values="0;0;1;1;0;0"/>
+</g>
+<g class="sans" opacity="0">
+<text class="ink bold" font-size="16" x="32" y="474"><tspan class="mono"><tspan class="ink">(?&lt;=(?=</tspan><tspan class="capture">\1</tspan><tspan class="ink">)([\s\S]*?))</tspan></tspan><tspan>: find the nearest occurrence</tspan><tspan class="fail">  ✗</tspan></text>
+<text class="ink" font-size="14" x="32" y="500"><tspan>Read right to left, the lazy </tspan><tspan class="mono"><tspan class="ink">([\s\S]*?)</tspan></tspan><tspan> grows one character at a time, from 4.</tspan></text>
+<text class="ink" font-size="14" x="32" y="521"><tspan>After each, </tspan><tspan class="mono"><tspan class="ink">(?=</tspan><tspan class="capture">\1</tspan><tspan class="ink">)</tspan></tspan><tspan> reads forwards: does &quot;abc&quot; start at 2?</tspan></text>
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.294;0.296;0.311;0.313;1" values="0;0;1;1;0;0"/>
+</g>
+<g class="sans" opacity="0">
+<text class="ink bold" font-size="16" x="32" y="474"><tspan class="mono"><tspan class="ink">(?&lt;=(?=</tspan><tspan class="capture">\1</tspan><tspan class="ink">)([\s\S]*?))</tspan></tspan><tspan>: find the nearest occurrence</tspan><tspan class="fail">  ✗</tspan></text>
+<text class="ink" font-size="14" x="32" y="500"><tspan>Read right to left, the lazy </tspan><tspan class="mono"><tspan class="ink">([\s\S]*?)</tspan></tspan><tspan> grows one character at a time, from 4.</tspan></text>
+<text class="ink" font-size="14" x="32" y="521"><tspan>After each, </tspan><tspan class="mono"><tspan class="ink">(?=</tspan><tspan class="capture">\1</tspan><tspan class="ink">)</tspan></tspan><tspan> reads forwards: does &quot;abc&quot; start at 1?</tspan></text>
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.313;0.315;0.33;0.332;1" values="0;0;1;1;0;0"/>
+</g>
+<g class="sans" opacity="0">
+<text class="ink bold" font-size="16" x="32" y="474"><tspan class="mono"><tspan class="ink">(?&lt;=(?=</tspan><tspan class="capture">\1</tspan><tspan class="ink">)([\s\S]*?))</tspan></tspan><tspan>: find the nearest occurrence</tspan><tspan class="pass">  ✓</tspan></text>
+<text class="ink" font-size="14" x="32" y="500"><tspan>Read right to left, the lazy </tspan><tspan class="mono"><tspan class="ink">([\s\S]*?)</tspan></tspan><tspan> grows one character at a time, from 4.</tspan></text>
+<text class="ink" font-size="14" x="32" y="521"><tspan>After each, </tspan><tspan class="mono"><tspan class="ink">(?=</tspan><tspan class="capture">\1</tspan><tspan class="ink">)</tspan></tspan><tspan> reads forwards: does &quot;abc&quot; start at 0?</tspan></text>
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.332;0.335;0.349;0.351;1" values="0;0;1;1;0;0"/>
+</g>
+<g class="sans" opacity="0">
+<text class="ink bold" font-size="16" x="32" y="474"><tspan class="mono"><tspan class="ink">(?&lt;=(?=</tspan><tspan class="capture">\1</tspan><tspan class="ink">)([\s\S]*?))</tspan></tspan><tspan>: </tspan><tspan class="mono"><tspan class="back">\G</tspan></tspan><tspan> = &quot;abc-&quot;</tspan><tspan class="pass">  ✓</tspan></text>
+<text class="ink" font-size="14" x="32" y="500"><tspan>&quot;abc&quot; starts at 0, the nearest occurrence of the capture. </tspan><tspan class="mono"><tspan class="back">\G</tspan></tspan><tspan> holds the text from there to 4.</tspan></text>
+<text class="ink" font-size="14" x="32" y="521"><tspan>A lookbehind isn't re-entered once it holds, so the search never reads further back than this.</tspan></text>
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.351;0.354;0.402;0.405;1" values="0;0;1;1;0;0"/>
+</g>
+<g class="sans" opacity="0">
+<text class="ink bold" font-size="16" x="32" y="474"><tspan class="mono"><tspan class="ink">(?&lt;=(?=</tspan><tspan class="rest">\H</tspan><tspan class="ink">)</tspan><tspan class="back">\G</tspan><tspan class="ink">)</tspan></tspan><tspan>: step back over </tspan><tspan class="mono"><tspan class="back">\G</tspan></tspan></text>
+<text class="ink" font-size="14" x="32" y="500"><tspan>Read right to left, </tspan><tspan class="mono"><tspan class="back">\G</tspan></tspan><tspan> steps back over the same &quot;abc-&quot;, landing on the occurrence at 0.</tspan></text>
+<text class="ink" font-size="14" x="32" y="521"><tspan class="mono"><tspan class="rest">\H</tspan></tspan><tspan> is carried along, to be laid over the capture there.</tspan></text>
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.405;0.407;0.444;0.446;1" values="0;0;1;1;0;0"/>
+</g>
+<g class="sans" opacity="1">
+<text class="ink bold" font-size="16" x="32" y="474"><tspan class="mono"><tspan class="ink">(?&lt;=(?=</tspan><tspan class="rest">\H</tspan><tspan class="ink">)</tspan><tspan class="back">\G</tspan><tspan class="ink">)</tspan></tspan><tspan>: does the rest follow there?</tspan><tspan class="pass">  ✓</tspan></text>
+<text class="ink" font-size="14" x="32" y="500"><tspan class="mono"><tspan class="ink">(?=</tspan><tspan class="rest">\H</tspan><tspan class="ink">)</tspan></tspan><tspan> reads forwards from 0: &quot;ab&quot; follows. The occurrence holds the whole capture, and the rest</tspan></text>
+<text class="ink" font-size="14" x="32" y="521"><tspan>is shorter, so this holds exactly when the rest is the start of the capture.</tspan></text>
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.446;0.449;0.504;0.506;1" values="0;0;1;1;0;0"/>
+</g>
+<g class="sans" opacity="0">
+<text class="ink bold" font-size="16" x="32" y="474"><tspan class="mono"><tspan class="rest">\H</tspan></tspan><tspan>: consume the rest</tspan></text>
+<text class="ink" font-size="14" x="32" y="500"><tspan>The match moves to the end of the input. The third choice, </tspan><tspan class="mono"><tspan class="ink">$(?![\s\S])(?!</tspan><tspan class="capture">\1</tspan><tspan class="ink">)</tspan></tspan><tspan>,</tspan></text>
+<text class="ink" font-size="14" x="32" y="521"><tspan>is tried only when nothing is left at all.</tspan></text>
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.506;0.508;0.545;0.548;1" values="0;0;1;1;0;0"/>
+</g>
+<g class="sans" opacity="0">
+<text class="ink bold" font-size="16" x="32" y="474"><tspan>Result: &quot;abc-ab&quot;, a partial match</tspan></text>
+<text class="ink" font-size="14" x="32" y="500"><tspan class="mono"><tspan class="ink">m[0]</tspan></tspan><tspan> = &quot;abc-ab&quot;, </tspan><tspan class="mono"><tspan class="ink">m[1]</tspan></tspan><tspan> = &quot;abc&quot;. </tspan><tspan class="mono"><tspan class="ink">exec()</tspan></tspan><tspan> splices </tspan><tspan class="mono"><tspan class="rest">\H</tspan></tspan><tspan> and </tspan><tspan class="mono"><tspan class="back">\G</tspan></tspan><tspan> out of the match before returning it.</tspan></text>
+<text class="ink" font-size="14" x="32" y="521"><tspan>Next, the same steps on &quot;abc-ax&quot;.</tspan></text>
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.548;0.55;0.617;0.619;1" values="0;0;1;1;0;0"/>
+</g>
+<g class="sans" opacity="0">
+<text class="ink bold" font-size="16" x="32" y="474"><tspan class="mono"><tspan class="ink">^(abc)-</tspan><tspan class="capture">\1</tspan></tspan><tspan> on &quot;abc-ax&quot;</tspan></text>
+<text class="ink" font-size="14" x="32" y="500"><tspan>This time the input ends &quot;ax&quot;, which isn't how &quot;abc&quot; starts, so no more input can complete it.</tspan></text>
+<text class="ink" font-size="14" x="32" y="521"><tspan>The same three choices are tried, in the same order.</tspan></text>
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.619;0.621;0.676;0.679;1" values="0;0;1;1;0;0"/>
+</g>
+<g class="sans" opacity="0">
+<text class="ink bold" font-size="16" x="32" y="474"><tspan>The same steps, up to </tspan><tspan class="mono"><tspan class="back">\G</tspan></tspan></text>
+<text class="ink" font-size="14" x="32" y="500"><tspan class="mono"><tspan class="capture">\1</tspan></tspan><tspan> fails, </tspan><tspan class="mono"><tspan class="ink">(?!</tspan><tspan class="capture">\1</tspan><tspan class="ink">)</tspan></tspan><tspan> and </tspan><tspan class="mono"><tspan class="ink">(?![\s\S]{3})</tspan></tspan><tspan> hold, and </tspan><tspan class="mono"><tspan class="rest">\H</tspan></tspan><tspan> = &quot;ax&quot;.</tspan></text>
+<text class="ink" font-size="14" x="32" y="521"><tspan>The nearest occurrence of &quot;abc&quot; is again at 0, so </tspan><tspan class="mono"><tspan class="back">\G</tspan></tspan><tspan> = &quot;abc-&quot;.</tspan></text>
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.679;0.681;0.765;0.768;1" values="0;0;1;1;0;0"/>
+</g>
+<g class="sans" opacity="0">
+<text class="ink bold" font-size="16" x="32" y="474"><tspan class="mono"><tspan class="ink">(?&lt;=(?=</tspan><tspan class="rest">\H</tspan><tspan class="ink">)</tspan><tspan class="back">\G</tspan><tspan class="ink">)</tspan></tspan><tspan>: step back over </tspan><tspan class="mono"><tspan class="back">\G</tspan></tspan></text>
+<text class="ink" font-size="14" x="32" y="500"><tspan>Read right to left, </tspan><tspan class="mono"><tspan class="back">\G</tspan></tspan><tspan> steps back over the same &quot;abc-&quot;, landing on the occurrence at 0.</tspan></text>
+<text class="ink" font-size="14" x="32" y="521"><tspan class="mono"><tspan class="rest">\H</tspan></tspan><tspan> is carried along, to be laid over the capture there.</tspan></text>
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.768;0.77;0.807;0.81;1" values="0;0;1;1;0;0"/>
+</g>
+<g class="sans" opacity="0">
+<text class="ink bold" font-size="16" x="32" y="474"><tspan class="mono"><tspan class="ink">(?&lt;=(?=</tspan><tspan class="rest">\H</tspan><tspan class="ink">)</tspan><tspan class="back">\G</tspan><tspan class="ink">)</tspan></tspan><tspan>: does the rest follow there?</tspan><tspan class="fail">  ✗</tspan></text>
+<text class="ink" font-size="14" x="32" y="500"><tspan class="mono"><tspan class="ink">(?=</tspan><tspan class="rest">\H</tspan><tspan class="ink">)</tspan></tspan><tspan> reads forwards from 0: &quot;ab&quot; follows, not &quot;ax&quot;.</tspan></text>
+<text class="ink" font-size="14" x="32" y="521"><tspan>The rest isn't the start of the capture, so the second choice fails.</tspan></text>
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.81;0.812;0.867;0.869;1" values="0;0;1;1;0;0"/>
+</g>
+<g class="sans" opacity="0">
+<text class="ink bold" font-size="16" x="32" y="474"><tspan class="mono"><tspan class="ink">$(?![\s\S])</tspan></tspan><tspan>: has the input ended?</tspan><tspan class="fail">  ✗</tspan></text>
+<text class="ink" font-size="14" x="32" y="500"><tspan>No: &quot;ax&quot; is left at 4. The third choice fails too, so </tspan><tspan class="mono"><tspan class="capture">\1</tspan></tspan><tspan> can't match here,</tspan></text>
+<text class="ink" font-size="14" x="32" y="521"><tspan>and nothing before it can match another way.</tspan></text>
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.869;0.871;0.926;0.929;1" values="0;0;1;1;0;0"/>
+</g>
+<g class="sans" opacity="0">
+<text class="ink bold" font-size="16" x="32" y="474"><tspan>Result: </tspan><tspan class="mono"><tspan class="ink">null</tspan></tspan></text>
+<text class="ink" font-size="14" x="32" y="500"><tspan>No more input can make &quot;abc-ax&quot; match, so </tspan><tspan class="mono"><tspan class="ink">exec()</tspan></tspan><tspan> returns </tspan><tspan class="mono"><tspan class="ink">null</tspan></tspan><tspan>.</tspan></text>
+<text class="ink" font-size="14" x="32" y="521"><tspan>Both answers come from the one regex built at construction, each in a single </tspan><tspan class="mono"><tspan class="ink">exec()</tspan></tspan><tspan>.</tspan></text>
+<animate attributeName="opacity" dur="84s" repeatCount="indefinite" keyTimes="0;0.929;0.931;0.998;1" values="0;0;1;1;0"/>
+</g>
+<g id="controls" visibility="hidden">
+<g id="control-previous" class="button">
+<title>Previous step (←)</title>
+<circle class="face paper rule-line" stroke-width="1.5" cx="728" cy="33" r="12"/>
+<rect class="ink" x="720.75" y="27" width="2.5" height="12"/>
+<path class="ink" d="M733 27L724 33L733 39z"/>
+</g>
+<g id="control-toggle" class="button">
+<title>Play or pause (space)</title>
+<circle class="face paper rule-line" stroke-width="1.5" cx="756" cy="33" r="12"/>
+<g id="icon-play" visibility="hidden">
+<path class="ink" d="M752 27L761 33L752 39z"/>
+</g>
+<g id="icon-pause">
+<rect class="ink" x="751.75" y="27" width="2.5" height="12"/>
+<rect class="ink" x="757.75" y="27" width="2.5" height="12"/>
+</g>
+</g>
+<g id="control-next" class="button">
+<title>Next step (→)</title>
+<circle class="face paper rule-line" stroke-width="1.5" cx="784" cy="33" r="12"/>
+<path class="ink" d="M779 27L788 33L779 39z"/>
+<rect class="ink" x="788.75" y="27" width="2.5" height="12"/>
+</g>
+<circle class="pip-target" data-step="0" cx="686" cy="58" r="7">
+<title>Step 1</title>
+</circle>
+<circle class="pip-target" data-step="1" cx="700" cy="58" r="7">
+<title>Step 2</title>
+</circle>
+<circle class="pip-target" data-step="2" cx="714" cy="58" r="7">
+<title>Step 3</title>
+</circle>
+<circle class="pip-target" data-step="3" cx="728" cy="58" r="7">
+<title>Step 4</title>
+</circle>
+<circle class="pip-target" data-step="4" cx="742" cy="58" r="7">
+<title>Step 5</title>
+</circle>
+<circle class="pip-target" data-step="5" cx="756" cy="58" r="7">
+<title>Step 6</title>
+</circle>
+<circle class="pip-target" data-step="6" cx="770" cy="58" r="7">
+<title>Step 7</title>
+</circle>
+<circle class="pip-target" data-step="7" cx="784" cy="58" r="7">
+<title>Step 8</title>
+</circle>
+<circle class="pip-target" data-step="8" cx="798" cy="58" r="7">
+<title>Step 9</title>
+</circle>
+<circle class="pip-target" data-step="9" cx="812" cy="58" r="7">
+<title>Step 10</title>
+</circle>
+<circle class="pip-target" data-step="10" cx="826" cy="58" r="7">
+<title>Step 11</title>
+</circle>
+<circle class="pip-target" data-step="11" cx="850" cy="58" r="7">
+<title>Step 12</title>
+</circle>
+<circle class="pip-target" data-step="12" cx="864" cy="58" r="7">
+<title>Step 13</title>
+</circle>
+<circle class="pip-target" data-step="13" cx="878" cy="58" r="7">
+<title>Step 14</title>
+</circle>
+<circle class="pip-target" data-step="14" cx="892" cy="58" r="7">
+<title>Step 15</title>
+</circle>
+<circle class="pip-target" data-step="15" cx="906" cy="58" r="7">
+<title>Step 16</title>
+</circle>
+<circle class="pip-target" data-step="16" cx="920" cy="58" r="7">
+<title>Step 17</title>
+</circle>
+</g>
+<script>
+<![CDATA[
+(function controlSteps(
+  svg,
+  steps,
+  fade,
+  ids,
+  nextFrame
+) {
+  const duration = steps[steps.length - 1][1];
+  let holdAt;
+
+  function showToggle() {
+    const paused = svg.animationsPaused() || holdAt !== undefined;
+    svg.getElementById(ids.playIcon).setAttribute("visibility", paused ? "visible" : "hidden");
+    svg.getElementById(ids.pauseIcon).setAttribute("visibility", paused ? "hidden" : "visible");
+  }
+
+  function currentStep() {
+    const looped = svg.getCurrentTime() % duration;
+    const index = steps.findIndex(([from, to]) => from <= looped && looped < to);
+    return index === -1 ? steps.length - 1 : index;
+  }
+
+  function holdWhenDone() {
+    if (holdAt === undefined) return;
+    if (svg.getCurrentTime() < holdAt) {
+      nextFrame(holdWhenDone);
+      return;
+    }
+    svg.pauseAnimations();
+    svg.setCurrentTime(holdAt);
+    holdAt = undefined;
+    showToggle();
+  }
+
+  function playStep(index) {
+    const [from, to] = steps[(index + steps.length) % steps.length];
+    svg.setCurrentTime(from + fade);
+    holdAt = to - fade - 0.02;
+    svg.unpauseAnimations();
+    showToggle();
+    nextFrame(holdWhenDone);
+  }
+
+  function toggle() {
+    if (svg.animationsPaused()) svg.unpauseAnimations();
+    else svg.pauseAnimations();
+    holdAt = undefined;
+    showToggle();
+  }
+
+  svg.getElementById(ids.previous).addEventListener("click", () => {
+    playStep(currentStep() - 1);
+  });
+  svg.getElementById(ids.next).addEventListener("click", () => {
+    playStep(currentStep() + 1);
+  });
+  svg.getElementById(ids.toggle).addEventListener("click", toggle);
+  for (const pip of svg.querySelectorAll(`[${ids.stepAttribute}]`))
+    pip.addEventListener("click", () => {
+      playStep(Number(pip.getAttribute(ids.stepAttribute)));
+    });
+  svg.ownerDocument.addEventListener("keydown", (event) => {
+    if (event.key === "ArrowLeft") playStep(currentStep() - 1);
+    else if (event.key === "ArrowRight") playStep(currentStep() + 1);
+    else if (event.key === " ") toggle();
+    else return;
+    event.preventDefault();
+  });
+  svg.getElementById(ids.controls).setAttribute("visibility", "visible");
+  showToggle();
+})(document.querySelector("svg"), [[0,5],[5,9],[9,12.5],[12.5,17],[17,21.5],[21.5,29.5],[29.5,34],[34,37.5],[37.5,42.5],[42.5,46],[46,52],[52,57],[57,64.5],[64.5,68],[68,73],[73,78],[78,84]], 0.2, {"controls":"controls","previous":"control-previous","toggle":"control-toggle","next":"control-next","playIcon":"icon-play","pauseIcon":"icon-pause","stepAttribute":"data-step"}, requestAnimationFrame);
+]]>
+</script>
+</svg>

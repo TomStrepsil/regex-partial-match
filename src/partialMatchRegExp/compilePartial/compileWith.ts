@@ -7,7 +7,7 @@ import { isBackreference } from "../part.ts";
 import groupShape from "./groupShape.ts";
 import toStatic from "./toStatic.ts";
 import type { BackreferenceHook } from "../backreferenceHook.ts";
-import type { CompiledPartial } from "./compiled.ts";
+import type { Compiled } from "./compiled.ts";
 
 function walkWithCaretRulesWhereNeeded(
   regex: RegExp,
@@ -40,7 +40,7 @@ function walkWithCaretRulesWhereNeeded(
 export default function compileWith(
   regex: RegExp,
   hooks: Hooks
-): CompiledPartial {
+): Compiled {
   const flags = regex.flags;
   const isUnicode = regex.unicode || regex.unicodeSets;
   const maybeHasBackreference = MAYBE_HAS_BACKREFERENCE_REGEX.test(
@@ -53,7 +53,7 @@ export default function compileWith(
   const backreferenceHook = maybeHasBackreference
     ? hooks.backreference
     : undefined;
-  const { parts, featureMask, needs, rawLookarounds } =
+  const { parts, featureMask, needs, rawLookarounds, groupCount } =
     walkWithCaretRulesWhereNeeded(
       regex,
       declaresNamedGroup,
@@ -64,19 +64,16 @@ export default function compileWith(
     );
   if (needs) throw new TypeError("Needs the " + MODULES_NAMED_BY_MASK[needs]);
 
-  const backreferences = backreferenceHook
-    ? parts.filter(isBackreference)
-    : [];
   const compiled =
-    backreferenceHook === undefined || backreferences.length === 0
+    backreferenceHook === undefined || !parts.some(isBackreference)
       ? toStatic(parts as string[], flags, featureMask, hooks)
       : backreferenceHook.compile(
           parts,
-          backreferences,
           flags,
-          isUnicode,
           featureMask,
-          hooks
+          hooks,
+          rawLookarounds ?? [],
+          groupCount
         );
   if (rawLookarounds) compiled.rawLookarounds = rawLookarounds;
   return compiled;

@@ -4,23 +4,19 @@ import type { Backreference } from "../partialMatchRegExp/part.ts";
 import {
   DISJUNCTION_TO_END_OF_INPUT,
   GROUP_CLOSING,
-  MULTILINE_CARET,
-  ONLY_AT_END_OF_INPUT,
   OPTIONAL_ATOM_OPENING,
   START_ANCHOR,
-  UNSATISFIABLE,
   WORD_BOUNDARY_ATOMS,
   asOptionalAtom,
   isWordBoundaryAtom
 } from "../partialMatchRegExp/atomSyntax.ts";
+import { MULTILINE_CARET } from "../modules/carets/caretSyntax.ts";
+import { ONLY_AT_END_OF_INPUT, UNSATISFIABLE } from "../modules/atomSyntax.ts";
 
 describe("roleOf (pins the exact Part shapes walk() renders, so a future rendering change fails here rather than silently desyncing truncationProbe.ts)", () => {
-  it("classifies an unnamed capturing group open", () => {
-    expect(roleOf("(")).toBe("groupOpen");
-  });
-
-  it("classifies a named capturing group open", () => {
-    expect(roleOf("(?<name>")).toBe("groupOpen");
+  it("classifies a group open as plain", () => {
+    expect(roleOf("(")).toBe("plain");
+    expect(roleOf("(?<name>")).toBe("plain");
   });
 
   it("classifies a non-capturing group open as plain", () => {

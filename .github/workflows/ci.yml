@@ -26,6 +26,11 @@ jobs:
       - name: Run linter
         run: corepack npm run lint
 
+      - name: Check diagrams match their source
+        run: |
+          corepack npm run docs:diagrams
+          git diff --exit-code -- docs/modules/backreferences.svg
+
   typecheck:
     name: Type Check
     runs-on: ubuntu-latest
@@ -62,6 +67,22 @@ jobs:
 
       - name: Smoke test built output
         run: corepack npm run ci:smoke-test-built-package
+
+  backtracking:
+    name: Backtracking
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Setup Node
+        uses: ./.github/actions/setup-node
+
+      - name: Run backtracking tests
+        timeout-minutes: 1
+        run: corepack npm run test:backtracking
 
   changelog-and-semver-check:
     name: CHANGELOG and Semver Check

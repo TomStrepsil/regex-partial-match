@@ -47,7 +47,7 @@ Each group compares native `test` (always returns `false` for incomplete input),
 
 ### 4. Backreference path (`backref-slow-path.bench.ts`)
 
-When `exec()` is called on a partial input that contains backreferences, the path constructs a per-input `RegExp` on every call (capture scan → pattern substitution → `new RegExp()`). This is the most expensive code path.
+A pattern whose backreference is matched at run time is compiled, at construction, to a regex where each backreference can also run out of input part way through its capture. `exec()` runs that regex, and the native pattern too where it finds nothing at the start. The bench names below are kept from the capture scan this path replaced, so their history stays comparable.
 
 Two patterns are used to cover different positions within a backreference:
 
@@ -58,9 +58,9 @@ Two patterns are used to cover different positions within a backreference:
 
 Each pattern is measured at three stages — full match (native fast path), partial input before the backreference atom is reached, and partial input mid-backreference — plus an accumulated keystroke simulation that sums the cost over all prefixes.
 
-A fourth group covers a native complete match at a *non-zero* index, where `exec()` must confirm no earlier partial exists before trusting it (see [docs/modules/backreferences.md](../../docs/modules/backreferences.md) — "Leftmost bound check"): once when the cheap `preScan` bound rejects outright (native wins, pipeline skipped), and once when the bound is loose enough that the full slow-path pipeline still has to run even though the native match wins in the end.
+A fourth group covers a native complete match at a *non-zero* index, which the compiled regex finds itself, before the native pattern is run, in two inputs that once took different paths.
 
-A fifth group guards a bound rather than a cost. When a backreference's captured text has to be checked against the input, only the last `capture.length` characters of the input can decide the answer, so the two benches in it differ solely in how much irrelevant text precedes the part that does. They are read together: if that check ever goes back to scanning the whole input, the long one grows away from the short one while everything else here holds still.
+A fifth group guards a bound rather than a cost. A backreference running out of input reads only the rest of the input and back to its capture, so the two benches in it differ solely in how much irrelevant text precedes the match. They are read together: if that check ever goes back to scanning the whole input, the long one grows away from the short one while everything else here holds still.
 
 ### 5. Construction cost (`construction-cost.bench.ts`)
 
@@ -78,21 +78,17 @@ Three patterns span the complexity range the walker branches on:
 | --------------------- | ---------------------------------------------------------------- |
 | Simple (`/^hello+$/`) | No groups, no character classes, no backreferences               |
 | Phone number          | Several character classes and optional groups, no backreferences |
-| HTML tag              | Capturing group + backreference — exercises the dynamic path     |
+| HTML tag              | Capturing group + backreference — exercises the backreference path |
+| Repeated character    | `/(\w)\1{2,}/` — a backreference to a one-character group, whose longest capture is worked out so it needs no partial branch |
 | Legacy escape         | `\7` and `\k<none>` — exercises the Annex B classification       |
 
 ### 6. `hitEnd()` (`hit-end.bench.ts`)
 
 `hitEnd()` re-runs a twin of the compiled pattern to recover whether a match took a truncation branch. The twin is built lazily, so the cost splits in two and both halves are tracked: the one-off probe build and the steady-state cost of one anchored `exec` per call thereafter. In each group the probe build is the delta between the first two benches, which differ only by the `hitEnd()` call.
 
-The two paths cache the probe at different granularities, which is why they are measured separately:
+Both paths build the probe once per instance, so every later call on that instance is steady state. On the backreference path the probe is rendered from the same regex `exec()` runs, so it serves every match whatever its captures.
 
-| Path          | Probe cached on                   | Consequence                                                                                         |
-| ------------- | ---------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| Static        | The instance                       | Every later call on that instance is steady state                                                    |
-| Backreference | The instance, keyed by expansion   | Fresh matches whose captures expand alike share the same probe; a capture that differs rebuilds it   |
-
-The last three benches in the backreference group are that difference, and are the ones to watch: asking about the same match repeatedly is cheap, a fresh match with the same capture is just as cheap since it reuses the cached expansion probe, and only a fresh match with a *different* capture pays to rebuild — roughly an order of magnitude more expensive. A further group covers a raw lookaround, the one case where probe construction does more than splice a marker into each truncation branch — the backreferences inside it have to be renumbered past every marker added before them.
+The last three benches in the backreference group keep the names they had when that path cached a probe per expansion, so their history stays comparable. The alternating-capture bench rebuilt the probe on every match then; it should now cost what the other two do, and is the one to watch for that cache coming back. A further group covers a raw lookaround, the one case where probe construction does more than splice a marker into each truncation branch — the backreferences inside it have to be renumbered past every marker added before them.
 
 Three more groups cover marking kinds this scenario's predecessor (`isComplete()`) never had a probe for: a word boundary at a truncation point, which splices in two markers instead of one; a greedy open-ended quantifier or a trailing `$` reading the end on its own, with no backreference or exact-count atom behind it; and an optional atom right at the end, spliced in by rewriting the previous probed segment rather than appending a marker. All three are cheap, single-instance, static-path probes, so each is measured the same way as the ISO date group above.
 
@@ -102,7 +98,7 @@ Scenario 5 tracks whole realistic patterns end to end; this one isolates *which 
 
 Every pattern in the first group is the same shape — an anchor, the construct under test, a literal tail — and the tail is padded with plain literal characters until every pattern compiles to the same emitted part count. Construction cost tracks that part count as closely as it tracks source length, so leaving it uncontrolled would rank patterns by how few parts their construct collapses into rather than by what the construct costs: a character class or property escape would read as cheaper than a plain literal purely because it leaves fewer parts behind. Equalising part count removes that confound, though not every variable — source length past the padding, and flags like `u`/`v`, still differ between benches. It does reclassify raw lookaheads and lookbehinds as the most expensive constructs in the group rather than the mid-pack result their part count alone suggests: like a positive lookahead, the walker recurses into the body to find its extent and count the capturing groups inside it, but then discards that recursive work and copies the same span again as a single source slice, rather than reusing it the way a lookahead does.
 
-Two further groups cover the constructs that decide which compiled path a pattern lands on. A backreference forces the dynamic path; a legacy escape (`\7` past the group count, or `\k<name>` in a pattern declaring no named group) is an Annex B literal and must not. That distinction costs something at construction (a native group pre-count taken once per instance, shared by both spellings) but is worth better than an order of magnitude at `exec()`, since the dynamic path rebuilds a `RegExp` per call. So it is measured at both.
+Two further groups cover the constructs that decide which compiled path a pattern lands on. A backreference puts a pattern on the backreference path; a legacy escape (`\7` past the group count, or `\k<name>` in a pattern declaring no named group) is an Annex B literal and must not. That distinction costs something at construction (a native group pre-count taken once per instance, shared by both spellings) but is worth better than an order of magnitude at `exec()`, since the backreference path compiles a larger regex and post-processes every match. So it is measured at both.
 
 ### 8. Calibration (`calibration.bench.ts`)
 
@@ -113,6 +109,10 @@ Every published number is a ratio to these two, so changing either workload — 
 The two duplicate the native baselines in `dispatch-overhead.bench.ts` and `construction-cost.bench.ts` on purpose: those are scenario benches and stay free to change, while these have to hold still.
 
 Two workloads rather than one because the suite spans exec-bound benches and construction-bound benches, and runners do not scale the two identically; blending the two swings less than either alone.
+
+### 9. Backtracking (`backtracking.bench.ts`)
+
+A quantifier over a backreference, followed by a lookbehind that fails at the end of the input, once made `exec()` try exponentially many splits of a run of `a`. Each group times native and partial `exec()` on 12 `a`s for one such shape: a quantified backreference, a group holding only backreferences, a bounded count, and a capture nothing reads, each over `(a+)`, and once over a one-character group. Each should cost about what native does; before, they cost milliseconds to a quarter of a second, so a regression shows by orders of magnitude.
 
 ## 🤖 CI integration
 

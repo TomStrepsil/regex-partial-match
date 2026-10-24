@@ -1,5 +1,4 @@
 import {
-  NAMED_GROUP_OPENING,
   endsAtTruncationBranch,
   isRawLookaround
 } from "../partialMatchRegExp/atomSyntax.ts";
@@ -8,21 +7,12 @@ import { isBackreference, type Part } from "../partialMatchRegExp/part.ts";
 export type PartRole =
   | "backreference"
   | "rawLookaround"
-  | "groupOpen"
   | "truncationEnd"
   | "plain";
-
-function isGroupOpen(part: string) {
-  return (
-    part === "(" ||
-    (part.startsWith(NAMED_GROUP_OPENING) && !isRawLookaround(part))
-  );
-}
 
 export function roleOf(part: Part): PartRole {
   if (isBackreference(part)) return "backreference";
   if (isRawLookaround(part)) return "rawLookaround";
-  if (isGroupOpen(part)) return "groupOpen";
   if (endsAtTruncationBranch(part)) return "truncationEnd";
   return "plain";
 }

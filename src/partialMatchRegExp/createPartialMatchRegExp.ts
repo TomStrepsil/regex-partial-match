@@ -1,10 +1,9 @@
 import compileWith from "./compilePartial/compileWith.ts";
-import type { CompiledPartial } from "./compilePartial/compiled.ts";
+import type { Compiled } from "./compilePartial/compiled.ts";
 import {
   compiledPartial,
   constructedPartials
 } from "./partialMatchInternals.ts";
-import execFrom from "./execFrom.ts";
 import type { Hooks } from "./walk.ts";
 import type { PartialMatchRegExpConstructor } from "./index.ts";
 
@@ -13,7 +12,7 @@ export default function createPartialMatchRegExp(
 ): PartialMatchRegExpConstructor;
 export default function createPartialMatchRegExp(hooks: Hooks): unknown {
   return class PartialMatchRegExp extends RegExp {
-    declare [compiledPartial]: CompiledPartial;
+    declare [compiledPartial]: Compiled;
 
     constructor(pattern: RegExp | string, flags?: string) {
       super(pattern, flags);
@@ -22,14 +21,7 @@ export default function createPartialMatchRegExp(hooks: Hooks): unknown {
     }
 
     override exec(input: string) {
-      const compiled = this[compiledPartial];
-      if ("dynamic" in compiled)
-        return compiled.execDynamic.call(this, compiled.dynamic, input);
-
-      const { regex } = compiled;
-      const match = execFrom(regex, input, this.lastIndex);
-      if (compiled.honoursLastIndex) this.lastIndex = regex.lastIndex;
-      return match;
+      return this[compiledPartial].exec(this, input);
     }
   };
 }
