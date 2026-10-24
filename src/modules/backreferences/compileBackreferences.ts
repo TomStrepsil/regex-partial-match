@@ -11,7 +11,7 @@ import renderBackreference, {
   RUN_OUT_BRANCH_GROUPS
 } from "./renderBackreference.ts";
 import { CompiledBackreferences } from "./compiledBackreferences.ts";
-import { CompiledStatic } from "../../partialMatchRegExp/compilePartial/compiled.ts";
+import { Compiled } from "../../partialMatchRegExp/compilePartial/compiled.ts";
 
 let lookbehindSupported: boolean | undefined;
 
@@ -81,13 +81,18 @@ export default function compilerWith(longestPartial: number) {
     const regex = new RegExp(source, flags);
     const nativeMayStartEarlier =
       (featureMask & Feature.lookaroundCapture) !== 0;
+    const nativeWinsAtSameStart = parts.some(
+      (part) =>
+        isBackreference(part) && part.capture?.readsLookaheadCapture === true
+    );
     return hiddenGroups.length === 0 && !nativeMayStartEarlier
-      ? new CompiledStatic(regex, parts, featureMask, hooks)
+      ? new Compiled(regex, parts, featureMask, hooks)
       : new CompiledBackreferences(
           regex,
           hiddenGroups,
           partialLengths,
           nativeMayStartEarlier,
+          nativeWinsAtSameStart,
           parts,
           featureMask,
           hooks

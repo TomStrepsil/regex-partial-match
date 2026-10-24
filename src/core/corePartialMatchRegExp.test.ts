@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import PartialMatchRegExp from "./corePartialMatchRegExp.ts";
 import FullPartialMatchRegExp from "../partialMatchRegExp/index.ts";
 import { compiledOf } from "../partialMatchRegExp/partialMatchInternals.ts";
-import { CompiledStatic } from "../partialMatchRegExp/compilePartial/compiled.ts";
+import { Compiled } from "../partialMatchRegExp/compilePartial/compiled.ts";
 import withModules from "../partialMatchRegExp/withModules.ts";
 import features from "../features/index.ts";
 import backreferences from "../modules/backreferences/index.ts";
@@ -165,7 +165,7 @@ describe("PartialMatchRegExp from ./core refuses a pattern exactly when a backre
     (source) => {
       const pattern = new RegExp(source);
       const lean = renderedOf(new PartialMatchRegExp(pattern));
-      expect(lean.constructor).toBe(CompiledStatic);
+      expect(lean.constructor).toBe(Compiled);
       expect(lean).toEqual(renderedOf(new FullPartialMatchRegExp(pattern)));
     }
   );

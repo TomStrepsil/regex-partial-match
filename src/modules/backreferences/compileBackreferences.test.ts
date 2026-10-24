@@ -5,6 +5,7 @@ import { compiledOf } from "../../partialMatchRegExp/partialMatchInternals.ts";
 import carets from "../carets/index.ts";
 import backreferences, { backreferencesWith } from "./index.ts";
 import { CompiledBackreferences } from "./compiledBackreferences.ts";
+import hitEnd from "../../hitEnd/index.ts";
 
 const resultOf = (match: RegExpExecArray | null) =>
   match && [match.index, ...match];
@@ -57,8 +58,12 @@ describe("a backreference running out of input part way through its capture", ()
     expect(resultOf(new PartialMatchRegExp(/^(?=(a|-b){1,2})\1/).exec("a-"))).toEqual([0, "a", "a"]);
   });
 
-  it("keeps the regex's match over a native one at the same index", () => {
-    expect(resultOf(new PartialMatchRegExp(/(?=(x))\1ab|x/).exec("-xa"))).toEqual([1, "xa", "x"]);
+  it("keeps the regex's match over a native one at the same index where no backreference reads a lookahead's capture", () => {
+    expect(resultOf(new PartialMatchRegExp(/(?=(x))xab|(x)\2?/).exec("-xa"))).toEqual([1, "xa", "x", undefined]);
+  });
+
+  it("prefers the native match at the same index where a backreference reads a lookahead's capture", () => {
+    expect(resultOf(new PartialMatchRegExp(/(?=(x))\1ab|x/).exec("-xa"))).toEqual([1, "x", undefined]);
   });
 
   it("finds nothing where neither the regex nor the native pattern can match", () => {
@@ -66,10 +71,36 @@ describe("a backreference running out of input part way through its capture", ()
   });
 
   it.each([
+    [/(?=(ba)+)\1/, "bab", [0, "ba", "ba"]],
+    [/(?=(ba)+)\1/i, "BAb", [0, "BA", "BA"]],
+    [/(?=(?<n>ba)+)\k<n>/, "bab", [0, "ba", "ba"]],
+    [/a?(?=(ba)+)\1/, "abab", [0, "aba", "ba"]],
+    [/(?=(ab)*)\1/, "aba", [0, "ab", "ab"]],
+    [/(?=\w*(ab))\1/, "abab", [0, "ab", "ab"]],
+    [/(?=(ba)+)\w\1|/, "b", [0, "", undefined]]
+  ])("doesn't read %s's capture a lookahead cut short at the end of %j as the whole capture", (pattern, input, expected) => {
+    expect(resultOf(new PartialMatchRegExp(pattern).exec(input))).toEqual(expected);
+  });
+
+  it("prefers the native match at the same index to a lower-priority alternative a cut-short lookahead capture left the regex", () => {
+    const partial = new PartialMatchRegExp(/(?=(ba)*)\1b|/);
+    const match = partial.exec("bab");
+    expect(resultOf(match)).toEqual([0, "bab", "ba"]);
+    expect(match && hitEnd(partial, match)).toBe(false);
+  });
+
+  it("follows lastIndex to the native match it prefers under the g flag", () => {
+    const partial = new PartialMatchRegExp(/(?=(ba)+)\1/g);
+    expect(resultOf(partial.exec("-bab"))).toEqual([1, "ba", "ba"]);
+    expect(partial.lastIndex).toBe(3);
+  });
+
+  it.each([
     [/(\w\w)\1/, "abxcdc", false],
-    [/(?=(a|-b){1,2})\1/, "a", false],
-    [/(?=(a|-b){1,2})\1/, "a-", true]
-  ])("runs the native pattern for %s on %j only where a lookaround captures and the regex finds nothing at the start: %s", (pattern, input, runsNative) => {
+    [/(?=(x))xab|(x)\2?/, "xa", false],
+    [/(?=(x))xab|(x)\2?/, "-xa", true],
+    [/(?=(a|-b){1,2})\1/, "a", true]
+  ])("runs the native pattern for %s on %j only where a lookaround captures and the regex finds nothing at the start, or a backreference reads a lookahead's capture: %s", (pattern, input, runsNative) => {
     const partial = new PartialMatchRegExp(pattern);
     const exec = vi.spyOn(RegExp.prototype, "exec");
     try {
@@ -173,6 +204,68 @@ describe("the hidden groups", () => {
     sticky.lastIndex = 5;
     expect(sticky.exec("ab-ab cd-c")).toBeNull();
     expect(sticky.lastIndex).toBe(0);
+  });
+});
+
+describe("groups that hold or read other backreferences", () => {
+  it.each([
+    [/(ab)(\1c)\2/, "ababcab", [0, "ababcab", "ab", "abc"]],
+    [/(ab)(\1c)(\2d)\3/, "ababcabcdab", [0, "ababcabcdab", "ab", "abc", "abcd"]],
+    [/(ab)\1(cd)\2(ef)\3/, "ababcdcdefe", [0, "ababcdcdefe", "ab", "cd", "ef"]],
+    [/(ab)\1(cd)\2(ef)(\3g)\4/, "ababcdcdefefgef", [0, "ababcdcdefefgef", "ab", "cd", "ef", "efg"]],
+    [/(ab)(\1c)\2/i, "abABcAb", [0, "abABcAb", "ab", "ABc"]],
+    [/(\w+)(-\1)\2/, "ab-ab-a", [0, "ab-ab-a", "ab", "-ab"]],
+    [/((ab)\2)-\1/, "abab-aba", [0, "abab-aba", "abab", "ab"]],
+    [/((a)\2)(\w\w)\3\1/, "aabcbca", [0, "aabcbca", "aa", "a", "bc"]],
+    [/((\w)\w)\1\2/, "xyxy", [0, "xyxy", "xy", "x"]],
+    [/((\w)\w)\2\1/, "xyxx", [0, "xyxx", "xy", "x"]],
+    [/(a\1b)\1/, "aba", [0, "aba", "ab"]],
+    [/\2(ab)(cd)\1\2/, "abcdabc", [0, "abcdabc", "ab", "cd"]],
+    [/(ab)(\1-)+\2/, "abab-ab-ab", [0, "abab-ab-ab", "ab", "ab"]],
+    [/(?:(a+)\1-)+\1/, "aa-aaaa-a", [0, "aa-aaaa-a", "a"]],
+    [/(ab)(?=(\1c))\2/, "abab", [0, "abab", "ab", "ab"]]
+  ])("resolves %s in %j", (pattern, input, expected) => {
+    const partial = new PartialMatchRegExp(pattern);
+    const match = partial.exec(input);
+    expect(resultOf(match)).toEqual(expected);
+    expect(match && hitEnd(partial, match)).toBe(true);
+  });
+
+  it.each([
+    [/(?<x>ab)(?<y>\k<x>c)\k<y>/, "ababcab", [0, "ababcab", "ab", "abc"], { x: "ab", y: "abc" }],
+    [/(?<x>ab)\1\k<x>/, "ababa", [0, "ababa", "ab"], { x: "ab" }],
+    [/(?<o>(?<i>ab)\k<i>)-\k<o>/, "abab-aba", [0, "abab-aba", "abab", "ab"], { o: "abab", i: "ab" }],
+    [/(?<a>(?<b>\w)\k<b>)\k<a>\k<b>/, "xxx", [0, "xxx", "xx", "x"], { a: "xx", b: "x" }],
+    [/(?:(?<x>ab)|c)+\k<x>/, "abca", [0, "abca", "a"], { x: "a" }],
+    [/(?:(?<x>ab)|c)+\k<x>/, "abcaba", [0, "abcaba", "a"], { x: "a" }]
+  ])("resolves %s in %j by name", (pattern, input, expected, groups) => {
+    const partial = new PartialMatchRegExp(pattern);
+    const match = partial.exec(input);
+    expect(resultOf(match)).toEqual(expected);
+    expect(match?.groups).toEqual(groups);
+    expect(match && hitEnd(partial, match)).toBe(true);
+  });
+
+  it("keeps indices of groups after a chain of hidden groups as the pattern numbers them", () => {
+    const match = new PartialMatchRegExp(
+      /(?<x>ab)(?<y>\k<x>c)\k<y>(?<z>d)/d
+    ).exec("ababcab");
+    expect(resultOf(match)).toEqual([0, "ababcab", "ab", "abc", ""]);
+    expect(match?.indices).toEqual(
+      Object.assign([[0, 7], [0, 2], [2, 5], [7, 7]], {
+        groups: { x: [0, 2], y: [2, 5], z: [7, 7] }
+      })
+    );
+  });
+
+  it.each([
+    [/(?:(?<x>ab)|(?<x>cd))(\k<x>!)\2/, "cdcd!cd", [0, "cdcd!cd", undefined, "cd", "cd!"]],
+    [/(\w+)(-\1)\2/, "ab-ab-ab-a", [0, "ab-ab-ab", "ab", "-ab"]]
+  ])("settles %s in %j where no continuation changes the match", (pattern, input, expected) => {
+    const partial = new PartialMatchRegExp(pattern);
+    const match = partial.exec(input);
+    expect(resultOf(match)).toEqual(expected);
+    expect(match && hitEnd(partial, match)).toBe(false);
   });
 });
 

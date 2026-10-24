@@ -52,6 +52,24 @@ describe("backreferenceRecorder, through the walk", () => {
   });
 
   it.each([
+    [/(a)\1/, [false]],
+    [/(?=(a))\1/, [true]],
+    [/(?=a(?:(b)|c))\1/, [true]],
+    [/(?=(a)\1)/, [true]],
+    [/(?<=(a))\1/, [false]],
+    [/(?!(a))\1/, [false]],
+    [/(?=(?<x>a))\k<x>/, [true]],
+    [/(?:(?=(?<x>a))|(?<x>b))\k<x>/, [true]],
+    [/(?=(a))(b)\2\1/, [false, true]]
+  ])("stamps each backward reference in %s as reading a group captured inside a positive lookahead %j", (pattern, readsLookaheadCapture) => {
+    expect(
+      compiledOf(new PartialMatchRegExp(pattern))
+        .parts.filter(isBackreference)
+        .map((backreference) => backreference.capture?.readsLookaheadCapture)
+    ).toEqual(readsLookaheadCapture);
+  });
+
+  it.each([
     [/(a)\1(b)\2/, [1, 2]],
     [/((a)\2)\1/, [2, 2]],
     [/(?:a)(?<x>b)\k<x>/, [1]],

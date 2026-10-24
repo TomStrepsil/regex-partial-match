@@ -1,6 +1,7 @@
 export interface CaptureRead {
   readonly groupsBefore: number;
   readonly groupBodies: readonly (readonly Part[] | undefined)[];
+  readonly readsLookaheadCapture: boolean;
 }
 
 interface BackreferenceStamps {

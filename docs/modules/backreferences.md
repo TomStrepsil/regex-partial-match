@@ -172,7 +172,7 @@ Two kinds of backreference stay native:
 
 ## ⚙️ `exec()` on the backreference path
 
-`exec()` runs the compiled regex from `start`, so the engine tries alternatives in the pattern's own priority order, as it does for every other atom: `/(a)\1b|a/` on `"aa"` returns `"aa"`, as `/aab|a/` does. Where a lookaround holds a capturing group and the regex finds nothing at `start`, the native pattern is run too, and returned if it starts earlier: a lookahead keeps the first capture it makes, so a partial capture inside one can hide a start the native pattern finds, as in `/(?=(a|-b){1,2})\1/` on `"a-"`. Without such a group, nothing can hide a start, so the native pattern isn't run. `lastIndex` is written only for `g` and `y`, as native does.
+`exec()` runs the compiled regex from `start`, so the engine tries alternatives in the pattern's own priority order, as it does for every other atom: `/(a)\1b|a/` on `"aa"` returns `"aa"`, as `/aab|a/` does. Where a lookaround holds a capturing group and the regex finds nothing at `start`, the native pattern is run too, and returned if it starts earlier: a lookahead keeps the first capture it makes, so a partial capture inside one can hide a start the native pattern finds, as in `/(?=(a|-b){1,2})\1/` on `"a-"`. Where a backreference reads a group captured inside a positive lookahead, the native pattern is run on every `exec()`, and returned if it starts no later than the regex's match. A lookahead cut short at the end of the input leaves only part of its capture, and the regex reads that part as the whole: `/(?=(ba)+)\1/` on `"bab"` would match `"b"`, which no continuation makes the pattern match, where the native pattern matches `"ba"`. Without such a group, nothing can hide a start, so the native pattern isn't run. `lastIndex` is written only for `g` and `y`, as native does.
 
 Only `exec` is overridden. `test`, `match` and `matchAll` reach it through the standard protocol.
 
@@ -189,19 +189,19 @@ const LongTails = withModules(carets, backreferencesWith({ longestPartial: 256 }
 
 A backreference that runs out of input more than `longestPartial` characters into its capture isn't matched part way: `/(\w+)-\1/` on `"abcd-abc"` matches at 0 with the `backreferences` module, but at 5 with `longestPartial: 2`. `0` makes every backreference match only in full or at the end of the input. It must be a whole number up to `Number.MAX_SAFE_INTEGER`. The same options return the same module, so `withModules` returns the same class for them, and a class can bind only one backreferences module.
 
-A backreference that fails to match reads up to `longestPartial` characters ahead before it gives up, and one that runs out part way checks its capture against what's left, so the cost grows with the limit on long input where backreferences often fail, or where the engine backtracks through many places they run out. Over an unbounded group, a pattern that backtracks heavily near the end of the input costs a multiple of the native pattern, about nine times at 64 in the third column, and more where the group's capture is far back, since each check reads back to it: `/(a+b)[^]*\1(?<=#)/` on 3,200 characters is about sixty times native. Input that matches early, a stream of short inputs and construction (about 1.9 µs for `/(\w+)-\1/`) don't change. Node 24.20, one `exec()`, median of five:
+A backreference that fails to match reads up to `longestPartial` characters ahead before it gives up, and one that runs out part way checks its capture against what's left, so the cost grows with the limit on long input where backreferences often fail, or where the engine backtracks through many places they run out. Over an unbounded group, a pattern that backtracks heavily near the end of the input costs a multiple of the native pattern, about nine times at 64 in the third column, and more where the group's capture is far back, since each check reads back to it: `/(a+b)[^]*\1(?<=#)/` on 3,200 characters is about sixty times native. Input that matches early, a stream of short inputs and construction (about 1.9 µs for `/(\w+)-\1/`) don't change. Node 24.20, one `exec()`, median of five, then of three runs:
 
-| `longestPartial` | `/(\w+)-\1/` on 32,000 characters of `"foo-bar "` | `/(a\|bb+)\1-/` on 24,000 characters of `"abb"` | `/(\w+)\1(?<=x)/` on 800 `a`s (7.7 ms native) | `/^(.+)\n\1/` on a 2,000-character line and its first half | `/^<([a-zA-Z][\w:-]*)>[^<]*?<\/\1>/` per keystroke of a 259-character element |
+| `longestPartial` | `/(\w+)-\1/` on 32,000 characters of `"foo-bar "` | `/(a\|bb+)\1-/` on 24,000 characters of `"abb"` | `/(\w+)\1(?<=x)/` on 800 `a`s (8.1 ms native) | `/^(.+)\n\1/` on a 2,000-character line and its first half | `/^<([a-zA-Z][\w:-]*)>[^<]*?<\/\1>/` per keystroke of a 259-character element |
 | --: | --: | --: | --: | --: | --: |
-| 0 | 0.19 ms | 0.09 ms | 8.94 ms | < 0.01 ms | 0.31 µs |
-| 8 | 0.40 ms | 0.39 ms | 25.51 ms | < 0.01 ms | 0.37 µs |
-| 16 | 0.47 ms | 0.53 ms | 31.49 ms | < 0.01 ms | 0.33 µs |
-| 32 | 0.76 ms | 0.91 ms | 46.07 ms | < 0.01 ms | 0.33 µs |
-| **64** | **1.27 ms** | **1.49 ms** | **66.58 ms** | **< 0.01 ms** | **0.28 µs** |
-| 128 | 1.68 ms | 2.16 ms | 111.86 ms | < 0.01 ms | 0.29 µs |
-| 256 | 3.80 ms | 3.84 ms | 156.12 ms | < 0.01 ms | 0.25 µs |
-| 512 | 7.35 ms | 9.63 ms | 174.77 ms | < 0.01 ms | 0.22 µs |
-| 1024 | 11.35 ms | 18.47 ms | 177.44 ms | 0.51 ms | 0.26 µs |
+| 0 | 0.17 ms | 0.09 ms | 8.09 ms | < 0.01 ms | 0.25 µs |
+| 8 | 0.34 ms | 0.34 ms | 23.34 ms | < 0.01 ms | 0.28 µs |
+| 16 | 0.43 ms | 0.48 ms | 31.05 ms | < 0.01 ms | 0.24 µs |
+| 32 | 0.72 ms | 0.90 ms | 44.23 ms | < 0.01 ms | 0.32 µs |
+| **64** | **1.17 ms** | **1.49 ms** | **69.27 ms** | **< 0.01 ms** | **0.24 µs** |
+| 128 | 2.05 ms | 2.65 ms | 113.97 ms | < 0.01 ms | 0.24 µs |
+| 256 | 3.19 ms | 5.12 ms | 166.14 ms | < 0.01 ms | 0.30 µs |
+| 512 | 6.14 ms | 9.37 ms | 182.81 ms | < 0.01 ms | 0.29 µs |
+| 1024 | 14.50 ms | 19.52 ms | 178.70 ms | 0.44 ms | 0.22 µs |
 
 The first two never match before the end of the input, so every backreference fails once per start. The third backtracks through every place `\1` runs out near the end of the input, so it grows with the limit until the limit passes the longest capture that can run out there. The fourth runs out 1,000 characters into its capture, so it's matched there only from a limit of 1,000, where checking that the capture starts with what's left costs about the distance back to the capture.
 

@@ -22,28 +22,34 @@ export class CompiledBackreferences
   implements CompiledWithOwnExec
 {
   constructor(
-    readonly regex: RegExp,
+    regex: RegExp,
     readonly hiddenGroups: readonly number[],
     readonly partialLengths: readonly number[],
     readonly nativeMayStartEarlier: boolean,
+    readonly nativeWinsAtSameStart: boolean,
     parts: readonly Part[],
     featureMask: number,
     hooks: Hooks
   ) {
-    super(parts, featureMask, hooks);
+    super(regex, parts, featureMask, hooks);
   }
 
   exec(partial: RegExp, input: string) {
-    const { regex } = this;
-    const honoursLastIndex = partial.global || partial.sticky;
+    const { regex, honoursLastIndex } = this;
     const start = honoursLastIndex ? partial.lastIndex : 0;
     regex.lastIndex = start;
     const match = regex.exec(input);
-    if (this.nativeMayStartEarlier && (match === null || match.index > start)) {
+    const { nativeWinsAtSameStart, nativeMayStartEarlier } = this;
+    if (
+      nativeMayStartEarlier &&
+      (match === null || match.index > start || nativeWinsAtSameStart)
+    ) {
       const nativeMatch = RegExp.prototype.exec.call(partial, input);
       if (
         nativeMatch !== null &&
-        (match === null || nativeMatch.index < match.index)
+        (match === null ||
+          nativeMatch.index < match.index ||
+          (nativeWinsAtSameStart && nativeMatch.index === match.index))
       )
         return nativeMatch;
     }

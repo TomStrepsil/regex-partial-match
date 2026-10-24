@@ -1,5 +1,5 @@
 import type { Hooks } from "../walk.ts";
-import { CompiledStatic } from "./compiled.ts";
+import { Compiled } from "./compiled.ts";
 
 export default function toStatic(
   parts: string[],
@@ -7,7 +7,7 @@ export default function toStatic(
   featureMask: number,
   hooks: Hooks
 ) {
-  return new CompiledStatic(
+  return new Compiled(
     new RegExp(parts.join(""), flags),
     parts,
     featureMask,
