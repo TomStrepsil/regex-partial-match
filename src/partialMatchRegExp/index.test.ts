@@ -2144,6 +2144,11 @@ c`)
         expect(new PartialMatchRegExp(/a(b\k^)/).exec("a")).toBeNull();
       });
 
+      it("counts a lookahead opening a body as able to run out, where its own body can", () => {
+        expect(new PartialMatchRegExp(/a((?=b)c^)/).exec("a")).toBeNull();
+        expect(new PartialMatchRegExp(/(?:(?=^a)b|^c)/).exec("a")).toBeNull();
+      });
+
       it("keeps such a body skippable where a continuation can still complete it", () => {
         expect(new PartialMatchRegExp(/^(a)(\1b)/).exec("a")).toMatchAt({
           match: "a",
@@ -2956,7 +2961,6 @@ c`)
           it.each([
             [/^(a)\1^b/m, "aa"],
             [/(a)\1^/m, "a"],
-            [/(a)+^b/m, "a"],
             [/(?s:.)+^b/m, "a"],
             [/\W(?:a|(b))^/m, "-"],
             [/\W((a))^/m, "-"],
@@ -2972,6 +2976,17 @@ c`)
               });
             }
           );
+
+          it("refuses a caret after a group repeated at least once whose body can't end a line", () => {
+            expect(new PartialMatchRegExp(/(a)+^b/m).exec("a")).toBeNull();
+            expect(new PartialMatchRegExp(/(?:a|b){2}^/m).exec("b")).toBeNull();
+            expect(new PartialMatchRegExp(/(?:(?=a)a|b){1,2}?^/m).exec("a")).toBeNull();
+            expect(/(?:a|\n){2}^/m.exec("a\n")?.index).toBe(0);
+            expect(new PartialMatchRegExp(/(?:a|\n){2}^/m).exec("a")).toMatchAt({
+              match: "a",
+              index: 0
+            });
+          });
 
           it("does not refuse a caret after a backreference to a group that may not have participated", () => {
             expect(new PartialMatchRegExp(/\n(a)?\1^/m).exec("\n")).toMatchAt({

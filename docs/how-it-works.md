@@ -29,6 +29,7 @@ A group gets a truncation branch of its own only if its body cannot run out by i
 
 - an atom that has a truncation branch (a backreference, a lookbehind and a negative lookahead count, since they are given one too)
 - a group that can run out by itself
+- a positive lookahead whose body can run out by itself
 - nothing but carets
 
 A body that nothing can complete is then not skipped at the end of the input: `/a(b^)/` on `"a"` and `/((a)^)/m` on `""` are `null`.

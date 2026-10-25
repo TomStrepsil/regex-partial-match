@@ -94,6 +94,19 @@ describe("backtracking against the native pattern", () => {
     }
   );
 
+  it.each([
+    [/(?:(?=a)b|c){16}^/, /(?:a|c){16}^/],
+    [/(?:(?=a|b)b|(?=c)c){16}^/, /(?:b|c){16}^/]
+  ])(
+    "costs %s on \"c\" no more than a small multiple of %s, since a lookahead opening an alternative runs out like an atom",
+    (lookaheadLed, atomLed) => {
+      const { partial } = timesOf(lookaheadLed, "c");
+      expect(partial).toBeLessThanOrEqual(
+        timesOf(atomLed, "c").partial * TOLERATED_RATIO + TOLERATED_SLACK_MS
+      );
+    }
+  );
+
   it("matches /(a+)+b/ straight away where the native pattern fails only because the input ran out", () => {
     const { native, partial } = timesOf(/(a+)+b/, "a".repeat(22));
     expect(partial).toBeLessThan(native);

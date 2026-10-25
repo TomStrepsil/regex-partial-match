@@ -31,12 +31,12 @@ import {
   type CaretRecorder
 } from "../../partialMatchRegExp/caretHook.ts";
 import appendMultilineCaret, {
+  NO_ALTERNATIVES,
   canEndLine,
   type LookaheadSpan
 } from "./appendMultilineCaret.ts";
 import { isQuantifierAhead, quantifierAhead } from "./quantifierAhead.ts";
 
-const NO_ALTERNATIVES: readonly number[] = [0];
 const NO_LOOKAHEAD_SPANS: readonly LookaheadSpan[] = [];
 const GROUP_OPENING = /^\((?:\?(?:<[^=!][^>]*>|[a-z-]*:))?$/;
 

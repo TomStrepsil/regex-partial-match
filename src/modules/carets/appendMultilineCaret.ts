@@ -21,6 +21,7 @@ import { minimumOf } from "../quantifierBounds.ts";
 export type LookaheadSpan = [open: number, close: number];
 
 export const CANNOT_END_LINE = -2;
+export const NO_ALTERNATIVES: readonly number[] = [0];
 const NO_LOOKAHEAD = -1;
 
 const isTransparentToCaret = (part: Part) =>
@@ -282,7 +283,18 @@ function appendMultilineCaret(
       );
     }
   }
-  if (anchor === CANNOT_END_LINE) {
+  if (
+    anchor === CANNOT_END_LINE ||
+    (isQuantifier(result[anchor]) &&
+      quantifierEndingAt(result, anchor) === lastGroupClose + 1 &&
+      minimumOf(result[lastGroupClose + 1] as string) > 0 &&
+      !canEndLine(
+        result.slice(lastGroupOpen + 1, lastGroupClose),
+        lastGroupAlternativeStarts ?? NO_ALTERNATIVES,
+        lastGroupScope,
+        lastGroupLookaheadSpans
+      ))
+  ) {
     result.push(UNSATISFIABLE);
     return lastGroupClose;
   }
