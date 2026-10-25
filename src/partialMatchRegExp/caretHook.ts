@@ -21,8 +21,7 @@ export interface CaretFrame {
     groupScope: number,
     source: string,
     i: number,
-    closing: string,
-    containsRawLookaround: boolean
+    closing: string
   ): { closing: string; forced: boolean; stays: boolean };
 }
 

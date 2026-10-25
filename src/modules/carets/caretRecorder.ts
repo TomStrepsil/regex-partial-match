@@ -31,12 +31,12 @@ import {
   type CaretRecorder
 } from "../../partialMatchRegExp/caretHook.ts";
 import appendMultilineCaret, {
+  NO_ALTERNATIVES,
   canEndLine,
   type LookaheadSpan
 } from "./appendMultilineCaret.ts";
 import { isQuantifierAhead, quantifierAhead } from "./quantifierAhead.ts";
 
-const NO_ALTERNATIVES: readonly number[] = [0];
 const NO_LOOKAHEAD_SPANS: readonly LookaheadSpan[] = [];
 const GROUP_OPENING = /^\((?:\?(?:<[^=!][^>]*>|[a-z-]*:))?$/;
 
@@ -100,7 +100,8 @@ function unwrapStarredAtoms(parts: Part[]) {
   for (let index = 1; index < parts.length; index++) {
     if (parts[index] === KLEENE_STAR) {
       const atom = parts[index - 1];
-      if (isOptionalAtom(atom)) parts[index - 1] = optionalAtomTextOf(atom);
+      if (isOptionalAtom(atom) && !isRawLookaround(atom))
+        parts[index - 1] = optionalAtomTextOf(atom);
     }
   }
 }
@@ -132,8 +133,7 @@ export default function caretRecorder(): CaretRecorder {
       groupScope,
       source,
       i,
-      closing,
-      containsRawLookaround
+      closing
     ) => {
       if (event === ON_CARET) {
         caretsSeen++;
@@ -230,7 +230,7 @@ export default function caretRecorder(): CaretRecorder {
                 ? UNSATISFIABLE
                 : asOptionalAtom(START_ANCHOR);
             for (const caret of carets) body[caret] = repeatedCaret;
-          } else if (!containsRawLookaround) closing = GROUP_CLOSING;
+          } else closing = GROUP_CLOSING;
         }
         let forced = false;
         if (

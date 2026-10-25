@@ -42,6 +42,13 @@ describe("a backreference running out of input part way through its capture", ()
     );
   });
 
+  it("doesn't run a backreference out over more input than its capture, where the input after an earlier occurrence starts with that input", () => {
+    expect(/(a+)-\1c/.exec("a-a-ac")?.index).toBe(2);
+    expect(
+      resultOf(new PartialMatchRegExp(/(a+)-\1c/).exec("a-a-"))
+    ).toEqual([2, "a-", "a"]);
+  });
+
   it.each([
     [/(a)\1b|a/, "aa", [0, "aa", "a"]],
     [/(a+)\1b|a/, "aa", [0, "aa", "aa"]],

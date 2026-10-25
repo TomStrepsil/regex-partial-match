@@ -5,7 +5,8 @@ import {
   GROUP_CLOSING,
   LOOKAHEAD_OPENING,
   START_ANCHOR,
-  isOptionalAtom
+  isOptionalAtom,
+  isRawLookaround
 } from "../../partialMatchRegExp/atomSyntax.ts";
 import {
   LAZY_MARK,
@@ -41,7 +42,8 @@ const MAY_MATCH_A_STRING = /\\[pq]\{/;
 const consumesNothing = (part: string) =>
   part === START_ANCHOR ||
   part === END_ANCHOR ||
-  (part[0] === "(" && !isOptionalAtom(part));
+  (part[0] === "(" && !isOptionalAtom(part)) ||
+  isRawLookaround(part);
 
 export default function longestCaptureOf(
   unicodeSets: boolean

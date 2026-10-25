@@ -7,6 +7,7 @@ export const LOOKAHEAD_OPENING = "(?=";
 export const DISJUNCTION_TO_END_OF_INPUT = "|$(?![\\s\\S]))";
 export const OPTIONAL_ATOM_OPENING = "(?:";
 export const NAMED_GROUP_OPENING = "(?<";
+export const LOOKBEHIND_MARKS = "=!";
 
 export function asOptionalAtom(text: string) {
   return OPTIONAL_ATOM_OPENING + text + DISJUNCTION_TO_END_OF_INPUT;
@@ -25,11 +26,16 @@ export const isOptionalAtom = (part: Part | undefined): part is string =>
   part.startsWith(OPTIONAL_ATOM_OPENING) &&
   part.endsWith(DISJUNCTION_TO_END_OF_INPUT);
 
+export const RAW_LOOKAROUND_OFFSET = OPTIONAL_ATOM_OPENING.length;
+
 export function isRawLookaround(part: string) {
   return (
-    part.startsWith("(?!") ||
-    (part.startsWith(NAMED_GROUP_OPENING) &&
-      "=!".includes(part[NAMED_GROUP_OPENING.length]))
+    part.startsWith(OPTIONAL_ATOM_OPENING) &&
+    (part.startsWith("(?!", RAW_LOOKAROUND_OFFSET) ||
+      (part.startsWith(NAMED_GROUP_OPENING, RAW_LOOKAROUND_OFFSET) &&
+        LOOKBEHIND_MARKS.includes(
+          part[RAW_LOOKAROUND_OFFSET + NAMED_GROUP_OPENING.length]
+        )))
   );
 }
 

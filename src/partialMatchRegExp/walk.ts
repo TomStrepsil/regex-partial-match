@@ -82,7 +82,6 @@ export function walk(
   let groupCount = 0;
   let featureMask = 0;
   let needs = 0;
-  let rawLookaroundCount = 0;
   let outermostRawLookaroundCount = 0;
   let rawLookarounds: RawLookaroundInfo[] | undefined;
   let rawReferences: RawReference[] | undefined;
@@ -103,6 +102,7 @@ export function walk(
     let lastOptionalAtom = "";
 
     function appendAtom(atom: string) {
+      if (result.length === alternativeStart) alternativeRunsOut = true;
       lastAtom = atom;
       lastOptionalAtom = asOptionalAtom(atom);
       result.push(lastOptionalAtom);
@@ -110,7 +110,6 @@ export function walk(
     }
 
     function appendOptional(length: number) {
-      if (result.length === alternativeStart) alternativeRunsOut = true;
       appendAtom(extractSlice(length));
     }
 
@@ -128,6 +127,7 @@ export function walk(
     }
 
     function appendBackreference(backreference: Backreference) {
+      if (result.length === alternativeStart) alternativeRunsOut = true;
       if (backreferenceRecorder)
         backreferenceRecorder.backreference(backreference, scope, groupCount);
       else if (!(scope & WITHIN_RAW_LOOKAROUND)) needs |= BACKREFERENCES_MODULE;
@@ -135,13 +135,13 @@ export function walk(
     }
 
     function appendDigitRun(forcedRef?: number) {
-      if (result.length === alternativeStart) alternativeRunsOut = true;
       featureMask |= Feature.backreference;
       NOT_NUMBERS_REGEX.lastIndex = i + 1;
       const nextNonDigit = NOT_NUMBERS_REGEX.exec(source);
       const start = i;
       const end = nextNonDigit ? nextNonDigit.index : source.length;
-      const ref = forcedRef ?? Number(source.slice(start + 1, end));
+      const digits = source.slice(start + 1, end);
+      const ref = forcedRef ?? Number(digits);
       i = end;
       if (scope & WITHIN_RAW_LOOKAROUND)
         (rawReferences ??= []).push({ ref, start, end });
@@ -149,16 +149,16 @@ export function walk(
         appendBackreference({ ref });
         return;
       }
-      for (const atom of legacyEscapeAtoms(source.slice(start + 1, end))) {
+      for (const atom of legacyEscapeAtoms(digits)) {
         appendAtom(atom);
       }
     }
 
     function appendRawLookaround(prefixLength: number) {
+      if (result.length === alternativeStart) alternativeRunsOut = true;
       const start = i;
       i += prefixLength;
       const groupCountBefore = groupCount;
-      rawLookaroundCount++;
       process(scope | WITHIN_LOOKAROUND | WITHIN_RAW_LOOKAROUND);
       if (!(scope & WITHIN_RAW_LOOKAROUND)) {
         const capturingGroupsOpened = groupCount - groupCountBefore;
@@ -172,10 +172,10 @@ export function walk(
         }
         outermostRawLookaroundCount++;
       }
-      result.push(source.slice(start, i));
+      result.push(asOptionalAtom(source.slice(start, i)));
     }
 
-    while (i < source.length) {
+    while (i < source.length && source[i] !== ")") {
       switch (source[i]) {
         case "\\":
           switch (source[i + 1]) {
@@ -186,8 +186,6 @@ export function walk(
               } else {
                 featureMask |= Feature.otherEscape;
                 i++;
-                if (result.length === alternativeStart)
-                  alternativeRunsOut = true;
                 appendAtom(LITERAL_BACKSLASH);
               }
               break;
@@ -198,13 +196,9 @@ export function walk(
                 featureMask |= Feature.namedBackreference;
                 const ref = source.slice(i + 3, referenceEnd);
                 i = referenceEnd + 1;
-                if (result.length === alternativeStart)
-                  alternativeRunsOut = true;
                 appendBackreference({ ref });
               } else {
                 i += 2;
-                if (result.length === alternativeStart)
-                  alternativeRunsOut = true;
                 appendAtom(LITERAL_K);
               }
               break;
@@ -313,19 +307,15 @@ export function walk(
                 depth--;
                 break;
               case "&":
-                if (
-                  scope & UNICODE_SETS &&
-                  previousSetOperatorCharacter === "&"
-                ) {
-                  featureMask |= Feature.classIntersection;
-                }
-                break;
               case "-":
                 if (
                   scope & UNICODE_SETS &&
-                  previousSetOperatorCharacter === "-"
+                  previousSetOperatorCharacter === character
                 ) {
-                  featureMask |= Feature.classSubtraction;
+                  featureMask |=
+                    character === "&"
+                      ? Feature.classIntersection
+                      : Feature.classSubtraction;
                 }
                 break;
             }
@@ -379,10 +369,9 @@ export function walk(
           break;
         case "{": {
           OCCURRENCES_REGEX.lastIndex = i;
-          const regExpExecArray = OCCURRENCES_REGEX.exec(source);
-          if (regExpExecArray) {
+          const occurrences = OCCURRENCES_REGEX.exec(source)?.[0];
+          if (occurrences) {
             featureMask |= Feature.quantifier;
-            const occurrences = regExpExecArray[0];
             if (result.length === atomEnd && occurrences.endsWith(",}")) {
               appendLoop(
                 parseInt(occurrences.slice(1), 10),
@@ -400,7 +389,7 @@ export function walk(
           let groupScope = scope;
           let closing = DISJUNCTION_TO_END_OF_INPUT;
           let groupNumber = 0;
-          if (source[i + 1] == "?") {
+          if (source[i + 1] === "?") {
             switch (source[i + 2]) {
               case ":":
                 featureMask |= Feature.nonCapturingGroup;
@@ -410,6 +399,8 @@ export function walk(
                 featureMask |= Feature.lookahead;
                 i += 3;
                 const body = process(scope | WITHIN_LOOKAROUND);
+                if (lastBodyRunsOut && result.length === alternativeStart)
+                  alternativeRunsOut = true;
                 caretFrame?.(ON_LOOKAHEAD, body, scope, source, i);
                 result.push(LOOKAHEAD_OPENING, ...body, GROUP_CLOSING);
                 break;
@@ -447,9 +438,6 @@ export function walk(
                     break;
                   default:
                     featureMask |= Feature.namedGroup;
-                    featureMask |= Feature.capturingGroup;
-                    if (scope & WITHIN_LOOKAROUND)
-                      featureMask |= Feature.lookaroundCapture;
                     groupNumber = ++groupCount;
                     opening = extractSlice(source.indexOf(">", i) - i + 1);
                     break;
@@ -457,47 +445,36 @@ export function walk(
                 break;
             }
           } else {
-            featureMask |= Feature.capturingGroup;
-            if (scope & WITHIN_LOOKAROUND)
-              featureMask |= Feature.lookaroundCapture;
             groupNumber = ++groupCount;
             opening = extractSlice(1);
           }
           if (opening === undefined) break;
+          if (groupNumber) {
+            featureMask |= Feature.capturingGroup;
+            if (scope & WITHIN_LOOKAROUND)
+              featureMask |= Feature.lookaroundCapture;
+          }
           const opensAlternative = result.length === alternativeStart;
-          const rawLookaroundsBefore = rawLookaroundCount;
           const body = process(groupScope | WITHIN_GROUP);
-          const runsOut = lastBodyRunsOut;
-          const containsRawLookaround =
-            rawLookaroundCount !== rawLookaroundsBefore;
           const caretGroup = caretFrame?.(
             ON_GROUP,
             body,
             groupScope,
             source,
             i,
-            closing,
-            containsRawLookaround
+            closing
           );
           if (caretGroup) closing = caretGroup.closing;
-          if (!containsRawLookaround && runsOut && !caretGroup?.forced) {
+          if (lastBodyRunsOut && !caretGroup?.forced) {
             closing = GROUP_CLOSING;
             if (opensAlternative && !caretGroup?.stays)
               alternativeRunsOut = true;
-          } else if (containsRawLookaround)
-            closing = DISJUNCTION_TO_END_OF_INPUT;
+          }
           result.push(opening, ...body, closing);
           if (groupNumber)
             backreferenceRecorder?.groupClosed(groupNumber, opening, body, scope);
           break;
         }
-        case ")":
-          ++i;
-          caretFrame?.(ON_END);
-          lastBodyRunsOut =
-            everyAlternativeRunsOut &&
-            (alternativeRunsOut || result.length === alternativeStart);
-          return result;
         default:
           featureMask |= Feature.patternCharacter;
           appendOptional(
@@ -507,6 +484,7 @@ export function walk(
           break;
       }
     }
+    i++;
     caretFrame?.(ON_END);
     lastBodyRunsOut =
       everyAlternativeRunsOut &&

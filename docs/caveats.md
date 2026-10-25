@@ -108,7 +108,7 @@ e.g.
 /(?<=foo)bar/;
 ```
 
-"f" through "foo" is not a match, but "foob" is.
+"f" through "foo" match only the empty string at the end of the input, but "foob" matches "b".
 
 ## Duplicate Group Names V8 Accepts
 
@@ -121,12 +121,12 @@ Node.js 25 and later and JavaScriptCore (Safari, Bun) follow the specification a
 
 ## Backtracking
 
-The transform keeps the original pattern's backtracking: a pattern that backtracks catastrophically on some input, such as `/^(a+)+$/` on `"aaaa…!"`, does so after the transform too, at the same rate, so a ReDoS checker such as [recheck](https://makenowjust-labs.github.io/recheck/) can be run on the original pattern. Otherwise the cost is up to about twice the original's, where a lookbehind or negative lookahead is judged at the end of the input. Some attack strings stop working: where the original fails only because the input ran out, the transform matches straight away.
+The transform keeps the original pattern's backtracking: a pattern that backtracks catastrophically on some input, such as `/^(a+)+$/` on `"aaaa…!"`, does so after the transform too, at the same rate, so a ReDoS checker such as [recheck](https://makenowjust-labs.github.io/recheck/) can be run on the original pattern. Some attack strings stop working: where the original fails only because the input ran out, the transform matches straight away.
 
 Two shapes cost more:
 
-- **A group of alternatives repeated a fixed minimum number of times**, where the input ends inside the repetition and an assertion then fails, as in `/(?:\d|[a-f]){24}(?<![a-f])/` on `"abc"`. Every alternative, a backreference included, can match the end of the input, so the engine tries every way to fill the repetitions the input can't, and the time doubles with each one. The original doesn't, so a ReDoS checker won't find it. Merging single-character alternatives into one class avoids it: `/[\da-f]{24}(?<![a-f])/`.
-- **A backreference retried many times near the end of the input**, as in `/(\w+)\1(?<=x)/` on a run of `a`. Each failing attempt reads up to [`longestPartial`](./modules/backreferences.md#longestpartial) characters ahead, and each that runs out part way reads back to the group's capture, so the cost is a multiple of the original's that grows with both. It stays polynomial. A lower `longestPartial` reduces it, and `0` removes it.
+- **A caret that can't hold after a group of alternatives repeated a fixed minimum number of times**, where the input ends inside the repetition, as in `/(?:a|b){24}^/` or `/(?:\d|[a-f]){24}(?=^)/` on `"a"`. Every alternative can match the end of the input, so the engine tries every way to fill the repetitions the input can't before the caret fails, and the time doubles with each one. Outside multiline scope, which `(?-m:^)` restores under the `m` flag, such a pattern matches only where the repetitions match nothing. A caret under `m` costs nothing extra. Merging single-character alternatives into one class avoids it: `/[ab]{24}^/`.
+- **A backreference retried many times**, as in `/(\w+)\1(?<=x)/` on a run of `a` followed by `!`. Each failing attempt reads up to [`longestPartial`](./modules/backreferences.md#longestpartial) characters ahead, so the cost is a multiple of the original's that grows with it. It stays polynomial. A lower `longestPartial` reduces it, and `0` removes it.
 
 A stream that re-runs a growing input repeats the cost on every call. Capping how much input it holds for one candidate match bounds it.
 

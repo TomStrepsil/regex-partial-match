@@ -27,17 +27,16 @@ The library has been stress-tested with various regular expression features in i
 
 A group gets a truncation branch of its own only if its body cannot run out by itself. It does without one when every alternative of the body starts with one of:
 
-- an atom that has a truncation branch (a backreference counts, since it is given one too)
+- an atom that has a truncation branch (a backreference, a lookbehind and a negative lookahead count, since they are given one too)
 - a group that can run out by itself
+- a positive lookahead whose body can run out by itself
 - nothing but carets
 
 A body that nothing can complete is then not skipped at the end of the input: `/a(b^)/` on `"a"` and `/((a)^)/m` on `""` are `null`.
 
-A body containing a lookbehind keeps the branch, because a lookbehind judged at the end of the input can fail where a continuation would satisfy it: `/(a(?<=a))b/` on `"b"` still matches `""` at index 1.
-
 ```javascript
 /(ab)/      → /((?:a|$(?![\s\S]))(?:b|$(?![\s\S])))/
-/(a(?<=a))/ → /((?:a|$(?![\s\S]))(?<=a)|$(?![\s\S]))/
+/(a(?<=a))/ → /((?:a|$(?![\s\S]))(?:(?<=a)|$(?![\s\S])))/
 ```
 
 ### Quantified atoms
@@ -66,16 +65,25 @@ A shorter option, `(?-m:$)` (disabling multiline locally so `$` means strict end
 
 ## ⚖️ Assertions at the end of the input
 
-The transform answers a two-valued question: does the input match the wrapped pattern? for what is really a three-valued one, could *some* continuation make the original match? The two agree except in one situation. An assertion evaluated where the input runs out — `\b`, `\B`, a mid-pattern `$`, or a lookaround body — sees the end of the input as a fixed fact rather than an unknown continuation. `\b` after a word character at end of input is true; `$` there is true; a lookahead body is accepted once it runs out. When the rest of the pattern then requires something those assertions have just ruled out, the input is accepted although no continuation can complete it:
+The transform answers a two-valued question: does the input match the wrapped pattern? for what is really a three-valued one, could *some* continuation make the original match? The two agree except in one situation. An assertion evaluated where the input runs out — `\b`, `\B`, a mid-pattern `$`, or a lookaround — sees the end of the input as a fixed fact rather than an unknown continuation. `\b` after a word character at end of input is true; `$` there is true; a lookahead body is accepted once it runs out; a lookbehind or negative lookahead holds there. When the rest of the pattern then requires something those assertions have just ruled out, the input is accepted although no continuation can complete it:
 
 - `/^\b$/` accepts `""` — `\b` wants a word character next, `$` wants none
 - `/$[^a]/` accepts `""` — `$` wants the end, `[^a]` wants a character
 - `/(?=-)+a+/` accepts `""` — the next character would have to be both `-` and `a`
 - `/[]/` accepts `""` — an atom that can never match still gets a truncation branch
+- `/abc(?<!c)/` accepts `"abc"` — the lookbehind is given a truncation branch, so it holds at the end of the input even though no continuation changes what it reads
+- `/a(?!b)b/` accepts `"a"` — `(?!b)` holds at the end of the input, then `b` wants what it ruled out
 
-The over-acceptance only arises on a path that is contradictory at that point, and it is always in the safe direction for a validator: keep buffering. It has one visible side effect — a contradictory *branch* can win an earlier index than a later, viable one, as in `/^b\ba|a/` on `"b"`. Nothing short of a full matcher can decide the three-valued question, so this is stated as a limit rather than patched case by case.
+A lookbehind or negative lookahead holds at the end of the input because, wherever the input ran out before it, a continuation decides it: `/(?:\d|[a-f]){24}(?<![a-f])/` on `"abc"` matches, since 21 more digits complete it. Judging it against the input instead would reject that, and a failure there would send the engine back through every way of reaching the end of the input, once per alternative for each repetition the input can't fill.
 
-A lookbehind body judged at a truncated end is the remaining case that runs the other way, and is covered under [Positive Lookbehinds](./caveats.md#positive-lookbehinds).
+The over-acceptance only arises on a path that is contradictory at that point, and it is always in the safe direction for a validator: keep buffering. The truncation branch of a lookbehind or negative lookahead accepts wrongly only where no continuation could make the assertion hold: a lookbehind that fails on characters already read, or a negative lookahead whose body matches there whatever follows, as in `/a(?!a?)/`. A negative lookahead that holds at the end of the input by itself is like `\b` or `$`: the rest of the pattern can contradict it, as in `/a(?!b)b/`. Each pattern above is contradictory on every path, so it can never match at all. A pattern that can match may still have a contradictory path, and that path can win over a viable one, with [`hitEnd()`](../README.md#hitend) `true`:
+
+- at an earlier index: `/^b\ba|a/` on `"b"` returns `"b"` at 0
+- at the same index, where a greedy quantifier tries it first: `/[ab]+(?<!a)/` on `"ba"` returns `"ba"`, where the native pattern matches `"b"`, and on `"bac"` it returns `"b"`
+
+Nothing short of a full matcher can decide the three-valued question, so this is stated as a limit rather than patched case by case.
+
+Away from the end of the input, a lookbehind is judged as written, so a positive lookbehind must match in full before a match can start after it. See [Positive Lookbehinds](./caveats.md#positive-lookbehinds).
 
 ## ⚓ A caret whose position is fixed
 

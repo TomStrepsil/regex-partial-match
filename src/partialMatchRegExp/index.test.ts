@@ -1146,6 +1146,29 @@ describe("PartialMatchRegExp", () => {
       expect(partial).toMatchPartially({ characters: "cat".split("") });
       expect(partial).toMatchPartially({ characters: "dog".split("") });
     });
+
+    it.each([
+      [/(?:(a)|(b)){3}/, "ab", "aba", ["ab", "", undefined]],
+      [/(?:(a)|(b)c){2}/, "ab", "abc", ["ab", undefined, "b"]],
+      [/x(?:a|c*b)/, "xcc", "xccb", ["xcc"]],
+      [/x(?:a|c{2}b)/, "xc", "xccb", ["xc"]],
+      [/(?:(?<=x)a|b)c/, "z", "zbc", [""]],
+      [/^a|b/, "x", "xb", [""]],
+      [/(y)(?:a|\1b)/, "yy", "yyb", ["yy", "y"]],
+      [/(?:a|bc)d/, "b", "bcd", ["b"]],
+      [/(?:a|(b)|)c/, "b", "bc", ["b", "b"]],
+      [/(a(?<=a)|c)b/, "b", "bcb", ["", ""]]
+    ])(
+      "matches %s on %j where %j completes it, through a later alternative of a group",
+      (pattern, input, completion, expected) => {
+        const partial = new PartialMatchRegExp(pattern);
+        const match = partial.exec(input);
+
+        expect(match?.index).toBe(pattern.exec(completion)?.index);
+        expect(match && [...match]).toEqual(expected);
+        expect(match && hitEnd(partial, match)).toBe(true);
+      }
+    );
   });
 
   // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions/Quantifiers
@@ -1922,6 +1945,30 @@ c`)
       expect(partial.exec("foob")).toNotMatch();
     });
 
+    it("should hold a lookbehind or negative lookahead at the end of the input, where a continuation decides it", () => {
+      const pattern = /(?:\d|[a-f]){24}(?<![a-f])/;
+      const partial = new PartialMatchRegExp(pattern);
+      const match = partial.exec("abc");
+
+      expect(pattern.exec("abc" + "0".repeat(21))?.index).toBe(0);
+      expect(match).toMatchAt({ match: "abc", index: 0 });
+      expect(match && hitEnd(partial, match)).toBe(true);
+      expect(/a(?!$)/.exec("ab")?.index).toBe(0);
+      expect(new PartialMatchRegExp(/a(?!$)/).exec("a")).toMatchAt({
+        match: "a",
+        index: 0
+      });
+    });
+
+    it("should hold a lookbehind at the end of the input even where no continuation can satisfy it, and report that it read the end", () => {
+      const partial = new PartialMatchRegExp(/abc(?<!c)/);
+      const match = partial.exec("abc");
+
+      expect(/abc(?<!c)/.exec("abcx")).toBeNull();
+      expect(match).toMatchAt({ match: "abc", index: 0 });
+      expect(match && hitEnd(partial, match)).toBe(true);
+    });
+
     it("should support partial matching of lookbehind assertions with lookahead assertions (with caveat that the lookbehind is not partially matched whilst forming)", () => {
       const input = /(?<=foo)bar(?=baz)/;
       const partial = new PartialMatchRegExp(input);
@@ -2095,6 +2142,11 @@ c`)
         expect(new PartialMatchRegExp(new RegExp("a(\\8^)")).exec("a")).toBeNull();
         expect(new PartialMatchRegExp(/a(\k^)/).exec("a")).toBeNull();
         expect(new PartialMatchRegExp(/a(b\k^)/).exec("a")).toBeNull();
+      });
+
+      it("counts a lookahead opening a body as able to run out, where its own body can", () => {
+        expect(new PartialMatchRegExp(/a((?=b)c^)/).exec("a")).toBeNull();
+        expect(new PartialMatchRegExp(/(?:(?=^a)b|^c)/).exec("a")).toBeNull();
       });
 
       it("keeps such a body skippable where a continuation can still complete it", () => {
@@ -2909,7 +2961,6 @@ c`)
           it.each([
             [/^(a)\1^b/m, "aa"],
             [/(a)\1^/m, "a"],
-            [/(a)+^b/m, "a"],
             [/(?s:.)+^b/m, "a"],
             [/\W(?:a|(b))^/m, "-"],
             [/\W((a))^/m, "-"],
@@ -2925,6 +2976,17 @@ c`)
               });
             }
           );
+
+          it("refuses a caret after a group repeated at least once whose body can't end a line", () => {
+            expect(new PartialMatchRegExp(/(a)+^b/m).exec("a")).toBeNull();
+            expect(new PartialMatchRegExp(/(?:a|b){2}^/m).exec("b")).toBeNull();
+            expect(new PartialMatchRegExp(/(?:(?=a)a|b){1,2}?^/m).exec("a")).toBeNull();
+            expect(/(?:a|\n){2}^/m.exec("a\n")?.index).toBe(0);
+            expect(new PartialMatchRegExp(/(?:a|\n){2}^/m).exec("a")).toMatchAt({
+              match: "a",
+              index: 0
+            });
+          });
 
           it("does not refuse a caret after a backreference to a group that may not have participated", () => {
             expect(new PartialMatchRegExp(/\n(a)?\1^/m).exec("\n")).toMatchAt({

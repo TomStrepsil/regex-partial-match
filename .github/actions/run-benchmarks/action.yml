@@ -24,7 +24,7 @@ runs:
 
     - name: Check out benchmark history
       if: inputs.auto-push == 'true'
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
       with:
         ref: gh-pages
         path: gh-pages

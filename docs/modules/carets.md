@@ -45,6 +45,8 @@ A caret holds only after a line terminator. If the part before it can't end with
 
 A refused path stays refused for every later caret on it, so `/(a|b|c)^^x/m` is `null` just as `/(a|b|c)^x/m` is.
 
+A group repeated at least once is refused the same way when no alternative of its body can end a line, since its last repetition ends the part before the caret: `/(a|b){2}^/m` on `"b"` and `/(a)+^b/m` on `"a"` are `null`.
+
 An atom that can't end a line, under a quantifier that allows zero repetitions, can only satisfy the caret by repeating zero times. So the caret is judged against the part before it: `/\na*^/m` on `"\na"` matches `"\n"`. The atom keeps its quantifier for later carets, so `/(?:\s*a?|b)^^/m` on `"a"` matches at index 0, like `/(?:\s*a?|b)^/m`.
 
 ### Groups
@@ -76,12 +78,12 @@ A caret leading an unquantified lookahead body is judged against the part before
 After a quantifier on an atom that can end a line, or after a backreference, the position really can move, so the caret takes its own branch, `(?:^|$(?![\s\S]))`. That branch, and the wrap where the rule can't see the end of a group's body, accept too much in some cases. That is the safe direction. They are:
 - a bounded quantifier saturated at the end;
 - a backreference;
-- a quantified or nested group;
+- a nested group, or a quantified group whose body can end a line or which can repeat zero times;
 - an alternative that ends in one of those, or consumes nothing;
 - a group that consumes nothing, behind another group;
 - a later repetition of a group whose body can end a line and which its caret leads.
 
-So `/(a)+^b/m` keeps `"a"`, and `/(^a\s){2}/m` keeps `"a "`.
+So `/(a)*^b/m` keeps `"a"`, and `/(^a\s){2}/m` keeps `"a "`.
 
 Where nothing consuming precedes the caret on its path, its position is fixed and it stays as written; see [How It Works](../how-it-works.md#-a-caret-whose-position-is-fixed).
 

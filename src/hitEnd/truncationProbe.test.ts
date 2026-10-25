@@ -113,7 +113,7 @@ describe("buildTruncationProbe", () => {
     const pattern = /^(a)\1?(\w+)-(?!\2)c/;
     const partial = new PartialMatchRegExp(pattern);
 
-    expect(probeOf(pattern).regex.source).toContain("(?!\\4)(?:c|");
+    expect(probeOf(pattern).regex.source).toContain("(?!\\4)|");
     expect(pattern.exec("ab-cz")?.[0]).toBe("ab-c");
     expect(hitEndOf(partial, "ab-c")).toBe(false);
   });

@@ -18,14 +18,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `exec()` and `hitEnd()` no longer throw `SyntaxError` (`Stack overflow`) when a group a backreference reads has captured several thousand characters
 - `hitEnd()` reports `false` for more matches that settled before the end of the input with a backreference, as `/(a|b)\1?/` on `"aa"`
 - `hitEnd()` no longer backtracks exponentially over optional atoms repeated at the end of the input, as `/(?:a?-?){10}(?<=b)|c/` did on `""`
+- `exec()` and `hitEnd()` no longer backtrack exponentially over a repeated group of alternatives that the input ends inside, as `/(?:\d|[a-f]){24}(?<![a-f])/` did on `"abc"`
+- `exec()` no longer accepts input no continuation completes where a `^` under `m` follows a group repeated at least once whose body can't end a line, as `/(a|b){2}^/m` did on `"b"`
 - `exec()` finds partial matches it missed or found late where a backreference runs out part way through its capture, as `/(\w\w)\1/` did on `"abxcdc"`, `/(\w+)-\1/` on `"ab-xbc-b"` and `/^(a+b)\1|^(a+bc)\2/` on `"abca"`
 
 ### Changed
 
 - `exec()` prefers a higher-priority alternative that ran out of input to a native match on a pattern with backreferences, as it does without them: `/(a)\1b|a/` on `"aa"` returns `"aa"`, not `"a"`
+- A lookbehind or negative lookahead reached at the end of the input holds, even on a path no continuation completes: `/abc(?<!c)/` accepts `"abc"`, with `hitEnd()` `true`
 - A backreference runs out of input part way only within the first 64 characters of its capture, or the limit `backreferencesWith()` sets, and on an engine without lookbehind it matches only in full or at the end of the input
 - `README.md`:
   - adds "Very long repetitions" to Caveats, covering the repetitions that can still overflow
+  - adds "Assertions at the end of the input" to Caveats
   - lists backtracking among the caveats
   - documents `backreferencesWith()`
   - states that a backreference matches part way only where the engine supports lookbehind
