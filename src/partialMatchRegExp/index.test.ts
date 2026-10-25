@@ -1146,6 +1146,29 @@ describe("PartialMatchRegExp", () => {
       expect(partial).toMatchPartially({ characters: "cat".split("") });
       expect(partial).toMatchPartially({ characters: "dog".split("") });
     });
+
+    it.each([
+      [/(?:(a)|(b)){3}/, "ab", "aba", ["ab", "", undefined]],
+      [/(?:(a)|(b)c){2}/, "ab", "abc", ["ab", undefined, "b"]],
+      [/x(?:a|c*b)/, "xcc", "xccb", ["xcc"]],
+      [/x(?:a|c{2}b)/, "xc", "xccb", ["xc"]],
+      [/(?:(?<=x)a|b)c/, "z", "zbc", [""]],
+      [/^a|b/, "x", "xb", [""]],
+      [/(y)(?:a|\1b)/, "yy", "yyb", ["yy", "y"]],
+      [/(?:a|bc)d/, "b", "bcd", ["b"]],
+      [/(?:a|(b)|)c/, "b", "bc", ["b", "b"]],
+      [/(a(?<=a)|c)b/, "b", "bcb", ["", ""]]
+    ])(
+      "matches %s on %j where %j completes it, through a later alternative of a group",
+      (pattern, input, completion, expected) => {
+        const partial = new PartialMatchRegExp(pattern);
+        const match = partial.exec(input);
+
+        expect(match?.index).toBe(pattern.exec(completion)?.index);
+        expect(match && [...match]).toEqual(expected);
+        expect(match && hitEnd(partial, match)).toBe(true);
+      }
+    );
   });
 
   // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions/Quantifiers
@@ -1920,6 +1943,30 @@ c`)
       expect(partial.exec("fo")).toNotMatch();
       expect(partial.exec("foo")).toNotMatch();
       expect(partial.exec("foob")).toNotMatch();
+    });
+
+    it("should hold a lookbehind or negative lookahead at the end of the input, where a continuation decides it", () => {
+      const pattern = /(?:\d|[a-f]){24}(?<![a-f])/;
+      const partial = new PartialMatchRegExp(pattern);
+      const match = partial.exec("abc");
+
+      expect(pattern.exec("abc" + "0".repeat(21))?.index).toBe(0);
+      expect(match).toMatchAt({ match: "abc", index: 0 });
+      expect(match && hitEnd(partial, match)).toBe(true);
+      expect(/a(?!$)/.exec("ab")?.index).toBe(0);
+      expect(new PartialMatchRegExp(/a(?!$)/).exec("a")).toMatchAt({
+        match: "a",
+        index: 0
+      });
+    });
+
+    it("should hold a lookbehind at the end of the input even where no continuation can satisfy it, and report that it read the end", () => {
+      const partial = new PartialMatchRegExp(/abc(?<!c)/);
+      const match = partial.exec("abc");
+
+      expect(/abc(?<!c)/.exec("abcx")).toBeNull();
+      expect(match).toMatchAt({ match: "abc", index: 0 });
+      expect(match && hitEnd(partial, match)).toBe(true);
     });
 
     it("should support partial matching of lookbehind assertions with lookahead assertions (with caveat that the lookbehind is not partially matched whilst forming)", () => {

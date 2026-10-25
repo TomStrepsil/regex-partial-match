@@ -83,7 +83,6 @@ const markingsOf = (parts: readonly Part[]) =>
 function markersAddedBy(marking: Marking) {
   switch (marking) {
     case MARKING.none:
-    case MARKING.rawLookaround:
     case MARKING.optionalAtEnd:
       return 0;
     case MARKING.wordBoundary:
@@ -150,14 +149,13 @@ export const buildTruncationProbe = (
     switch (markings[index]) {
       case MARKING.rawLookaround: {
         const rawLookaround = rawLookarounds[rawLookaroundIndex++];
+        const renumbered = rawLookaround
+          ? renumberRawBackreferences(part, rawLookaround, shiftForGroup)
+          : part;
+        groupsOpened = groupsBefore[index + 1];
         probed.push(
-          rawLookaround
-            ? renumberRawBackreferences(
-                part,
-                rawLookaround,
-                shiftForGroup
-              )
-            : part
+          renumbered.slice(0, -DISJUNCTION_TO_END_OF_INPUT.length) +
+            truncationBranch()
         );
         break;
       }

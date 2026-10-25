@@ -78,6 +78,22 @@ describe("backtracking against the native pattern", () => {
     expectNearNativeTime
   );
 
+  it.each([
+    [/(?:\d|[a-f]){24}(?<![a-f])/, "abc"],
+    [/(?:[a-z]|-){24}(?<!-)/, "my-"],
+    [/(?:a|b|c){24}(?<=x)/, ""],
+    [new RegExp("(?:a|b)".repeat(24) + "(?<=x)"), ""],
+    [/(?:(?<=x)a|b|c){24}(?<=x)/, ""],
+    [/(x)(?:a|(?:b)|c?|\1|\bd|){24}(?<=y)/, "x"],
+    [/(?:(a)|(b)c){24}(?!$)/, "bc"],
+    [/(?:a|b|c){24}\^(?<=x)/, ""]
+  ])(
+    "costs %s on %j, where the input ends inside a repeated group of alternatives, no more than a small multiple of the native time, with hitEnd()",
+    (pattern, input) => {
+      expectNearNativeTimeWith(PartialMatchRegExp, pattern, input);
+    }
+  );
+
   it("matches /(a+)+b/ straight away where the native pattern fails only because the input ran out", () => {
     const { native, partial } = timesOf(/(a+)+b/, "a".repeat(22));
     expect(partial).toBeLessThan(native);
@@ -120,7 +136,9 @@ describe("backtracking against the native pattern", () => {
     [/(a*)-\1{22}(?<=b)/, "a-"],
     [new RegExp("(a?)" + "\\1".repeat(22) + "(?<=b)"), "c"],
     [/()(?:\1\1){16}(?<=b)/, "c"],
-    [/c(a?)\1{22}(?<=b)|c/, "c"]
+    [/c(a?)\1{22}(?<=b)|c/, "c"],
+    [/c(a?)\1{22}^/, "c"],
+    [/c()(?:\1\1){16}^/, "c"]
   ] as const;
 
   it.each(emptyCaptures)(

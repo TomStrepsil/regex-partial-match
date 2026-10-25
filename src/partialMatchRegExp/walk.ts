@@ -82,7 +82,6 @@ export function walk(
   let groupCount = 0;
   let featureMask = 0;
   let needs = 0;
-  let rawLookaroundCount = 0;
   let outermostRawLookaroundCount = 0;
   let rawLookarounds: RawLookaroundInfo[] | undefined;
   let rawReferences: RawReference[] | undefined;
@@ -155,10 +154,10 @@ export function walk(
     }
 
     function appendRawLookaround(prefixLength: number) {
+      if (result.length === alternativeStart) alternativeRunsOut = true;
       const start = i;
       i += prefixLength;
       const groupCountBefore = groupCount;
-      rawLookaroundCount++;
       process(scope | WITHIN_LOOKAROUND | WITHIN_RAW_LOOKAROUND);
       if (!(scope & WITHIN_RAW_LOOKAROUND)) {
         const capturingGroupsOpened = groupCount - groupCountBefore;
@@ -172,7 +171,7 @@ export function walk(
         }
         outermostRawLookaroundCount++;
       }
-      result.push(source.slice(start, i));
+      result.push(asOptionalAtom(source.slice(start, i)));
     }
 
     while (i < source.length) {
@@ -465,27 +464,22 @@ export function walk(
           }
           if (opening === undefined) break;
           const opensAlternative = result.length === alternativeStart;
-          const rawLookaroundsBefore = rawLookaroundCount;
           const body = process(groupScope | WITHIN_GROUP);
           const runsOut = lastBodyRunsOut;
-          const containsRawLookaround =
-            rawLookaroundCount !== rawLookaroundsBefore;
           const caretGroup = caretFrame?.(
             ON_GROUP,
             body,
             groupScope,
             source,
             i,
-            closing,
-            containsRawLookaround
+            closing
           );
           if (caretGroup) closing = caretGroup.closing;
-          if (!containsRawLookaround && runsOut && !caretGroup?.forced) {
+          if (runsOut && !caretGroup?.forced) {
             closing = GROUP_CLOSING;
             if (opensAlternative && !caretGroup?.stays)
               alternativeRunsOut = true;
-          } else if (containsRawLookaround)
-            closing = DISJUNCTION_TO_END_OF_INPUT;
+          }
           result.push(opening, ...body, closing);
           if (groupNumber)
             backreferenceRecorder?.groupClosed(groupNumber, opening, body, scope);

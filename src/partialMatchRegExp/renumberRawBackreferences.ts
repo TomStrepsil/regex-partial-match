@@ -1,3 +1,4 @@
+import { RAW_LOOKAROUND_OFFSET } from "./atomSyntax.ts";
 import { legacyEscapeAsLiteral } from "./legacyEscape.ts";
 import { isNumericBackreference, type Backreference } from "./part.ts";
 import type {
@@ -21,9 +22,10 @@ export default function renumberRawBackreferences(
 ) {
   let renumbered = "";
   let cursor = 0;
+  const partStart = info.sourceStart - RAW_LOOKAROUND_OFFSET;
   for (const reference of info.references) {
-    const relativeStart = reference.start - info.sourceStart;
-    const relativeEnd = reference.end - info.sourceStart;
+    const relativeStart = reference.start - partStart;
+    const relativeEnd = reference.end - partStart;
     renumbered +=
       part.slice(cursor, relativeStart) +
       rawReferenceReplacement(

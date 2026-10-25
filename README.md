@@ -203,10 +203,11 @@ Each of these applies only when the _original_ pattern uses the feature — ever
 See [Caveats](./docs/caveats.md) for details, examples and workarounds.
 
 - [**`.test()` and empty matches at the end of the input**](./docs/caveats.md#test-behaviour-and-non-matching-results-from-exec-and-match): an unanchored pattern always matches `""` at the end of the input; anchor with `^`, or ask [`hitEnd()`](#hitend)
+- [**Assertions at the end of the input**](./docs/how-it-works.md#-assertions-at-the-end-of-the-input): a path that contradicts itself can still be accepted there
 - [**Backreferences**](./docs/caveats.md#backreferences): some backreferences stay atomic
   - [Captures on a partial match](./docs/caveats.md#captures-on-a-partial-match)
 - [**Positive lookbehinds**](./docs/caveats.md#positive-lookbehinds): must match in their entirety
-- [**Backtracking**](./docs/caveats.md#backtracking): costs about what the original pattern costs, except for repeated alternatives that the input ends inside, and backreferences retried many times
+- [**Backtracking**](./docs/caveats.md#backtracking): costs about what the original pattern costs, except for backreferences retried many times, and a caret that can't hold after repeated alternatives
 - [**Surrogate pair matching**](./docs/caveats.md#surrogate-pair-matching): only whole astral characters match
 - [**Sticky flag (`y`)**](./docs/caveats.md#sticky-flag-y): not suited to progressive input validation
 - [**"String properties"**](./docs/caveats.md#string-properties): match atomically
@@ -364,7 +365,7 @@ See [How It Works](./docs/how-it-works.md#why-the-question-cant-be-answered-from
 #### What it cannot see
 
 - **A read of the end inside a lookahead in an earlier iteration of a quantified group.** The probe's [markers](./docs/how-it-works.md#recording-a-read-of-the-end) are capturing groups, and [`RepeatMatcher`](https://tc39.es/ecma262/#sec-runtime-semantics-repeatmatcher-abstract-operation) resets a quantified group's captures at the start of every iteration. `/(?:a(?=bcd)|b)+/` on `"abc"` reads the end inside `(?=bcd)` in its first iteration, matches `b` in its second, and reports `false` — although `"abcx"` changes the match to `"b"` at index 1. Nothing placed inside the repeated atom survives the reset, so this is a limit of the marker approach rather than an oversight, and it is pinned by a test.
-- **A read of the end inside a raw lookaround.** Negative lookaheads and both lookbehinds are kept verbatim (see [Caveats](./docs/caveats.md)), so a read of the end inside them leaves no marker: `/^a(?!b)/` on `"a"` reports `false`, although `"ab"` invalidates the match. A scanner whose output must not depend on where its input was chunked should refuse or buffer patterns that use them.
+- **A read of the end inside a raw lookaround.** The bodies of negative lookaheads and both lookbehinds are kept verbatim (see [Caveats](./docs/caveats.md)), so a read of the end inside them leaves no marker: `/^a(?!b)/` on `"a"` reports `false`, although `"ab"` invalidates the match. A scanner whose output must not depend on where its input was chunked should refuse or buffer patterns that use them.
 - **A high surrogate ending the input under `u` or `v`.** Only whole astral characters are supported (see [Surrogate Pair Matching](./docs/caveats.md#surrogate-pair-matching)), so a match whose last code unit is a lone high surrogate reports `false`, although a following low surrogate would pair with it and change the match's text: `/./u` on `"\ud83d"` matches `"\ud83d"`, but `"😄"` matches `"😄"`. [^3]
 
 ### `features()`

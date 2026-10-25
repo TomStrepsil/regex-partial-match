@@ -24,15 +24,15 @@ describe("roleOf (pins the exact Part shapes walk() renders, so a future renderi
   });
 
   it("classifies a lookbehind as a raw lookaround", () => {
-    expect(roleOf("(?<=foo)")).toBe("rawLookaround");
+    expect(roleOf(asOptionalAtom("(?<=foo)"))).toBe("rawLookaround");
   });
 
   it("classifies a negative lookbehind as a raw lookaround", () => {
-    expect(roleOf("(?<!foo)")).toBe("rawLookaround");
+    expect(roleOf(asOptionalAtom("(?<!foo)"))).toBe("rawLookaround");
   });
 
   it("classifies a negative lookahead as a raw lookaround", () => {
-    expect(roleOf("(?!foo)")).toBe("rawLookaround");
+    expect(roleOf(asOptionalAtom("(?!foo)"))).toBe("rawLookaround");
   });
 
   it("does not mistake a positive lookahead's plain closing paren for a raw lookaround", () => {

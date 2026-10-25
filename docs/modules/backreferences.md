@@ -49,13 +49,20 @@ A pattern with no backreference left compiles to the static transform. Otherwise
 
 A lookbehind `(?<=X)` holds where `X` matches text that ends at the current position, and the engine matches `X` from right to left to find it. Inside `X`, a lookahead still reads forwards from wherever the right-to-left match has reached. Once a lookbehind holds, the engine doesn't go back into it to try another way.
 
-- **`(?<=(?=\N)([\s\S]*?))`** — the lazy `[\s\S]*?` takes as few characters as it can, so it grows leftwards one character at a time. After each, `(?=\N)` checks, reading forwards, whether the capture starts there. The first place it does is the nearest occurrence of the capture before the backreference, and `([\s\S]*?)` has captured the text from there to here: that is `\G`. Because the lookbehind doesn't go back into itself, it stops at that nearest occurrence and never reads further back.
+- **`(?<=(?=\N)([\s\S]*?))`** — the lazy `[\s\S]*?` takes as few characters as it can, so it grows leftwards one character at a time, starting from none. After each, `(?=\N)` checks, reading forwards, whether the capture starts there. It can't start at the current position itself, which `(?!\N)` has ruled out, so the first place it does is the nearest occurrence of the capture before the backreference, and `([\s\S]*?)` has captured the text from there to here: that is `\G`. Because the lookbehind doesn't go back into itself, it stops at that nearest occurrence and never reads further back.
 
-- **`(?<=(?=\H)\G)`** — read right to left, `\G` steps back over the same text, landing on that occurrence. Then `(?=\H)` checks, reading forwards from there, that the rest of the input follows. The occurrence holds the whole capture and the rest is shorter, so this holds exactly when the rest is the start of the capture.
+- **`(?<=(?=\H)\G)`** — read right to left, `\G` steps back over the same text, landing on that occurrence. Then `(?=\H)` checks, reading forwards from there, that the rest of the input follows. The occurrence holds the whole capture, and `(?!\N)` makes the rest shorter than it (see below), so this holds exactly when the rest is the start of the capture.
 
 Every occurrence of the capture holds the same text, so the nearest one gives the same answer as any other, and finding it first keeps the read short. Only a group a lookahead captured further on has no occurrence before this point. Its capture can't start with the rest, so the first lookbehind rightly fails.
 
 The rest is captured inside a lookahead, `(?=([\s\S]+))`, rather than consumed outright, so the position doesn't move and both lookbehinds look back from where the backreference starts. The engine doesn't go back into a lookahead either, so `\H` is always the whole of the remaining input, never a shorter piece. `\H` then consumes it.
+
+### Why the second choice checks `(?!\N)`
+
+The choices are tried in order, so the second is first reached only where `\N` has failed, and `(?!\N)` holds anyway. But where `\N` matches and something later in the pattern fails, the engine comes back and tries the second choice at the same position. There `(?!\N)` keeps the second choice right in two ways:
+
+- **The occurrence is before the current position.** The first lookbehind tries the current position first. Without `(?!\N)`, wherever the capture starts here the lookbehind would stop here, the second would hold for any rest, and the choice would consume the whole rest of the input, however long: `/(a|b+)\1(a|b)\2a/` would match `"aaba"` at 0, where its earliest partial match is `"a"` at 3.
+- **The rest is shorter than the capture.** The second lookbehind checks that the input at the occurrence starts with the rest, which means the rest starts the capture only if the rest is the shorter. A rest as long as the capture or longer would itself start with the capture, so `\N` would match here. Without `(?!\N)`, `/(a+)-\1c/` would match `"a-a-"` at 0: the rest there, `"a-"`, is longer than the capture `"a"`, but the input at the earlier `"a"` also reads `"a-"`. Its earliest partial match is `"a-"` at 2. `(?![\s\S]{L+1})` can't stand in for this: `L` comes from the longest the group could capture, not from what it captured this time.
 
 ### Walking through the three choices
 
@@ -163,7 +170,7 @@ Input:   "-"
 Result: "-", m[1] = ""
 ```
 
-With one backreference, two ways to match give the same result. Repeated, as in `/(a?)\1{22}(?<=b)/` on `"c"`, each repetition would double the paths the engine tries before the lookbehind fails, so `(?!\N)` keeps that to one.
+With one backreference, two ways to match give the same result. Repeated, as in `/c(a?)\1{22}^/` on `"c"`, each repetition would double the paths the engine tries before the caret fails, so `(?!\N)` keeps that to one.
 
 `L` is the smaller of `longestPartial` (64 in the `backreferences` module) and the longest text the group can capture, less one. A group that captures one character at most, as `(\w)` does, needs no second branch, so its backreference stays `(?:\N|$(?![\s\S])(?!\N))`. The longest capture is read from the walk: a quantifier without a maximum, or a group holding a forward reference, makes it unbounded, and so do a group inside a lookbehind or negative lookahead and, under `v`, a class or property escape that can match a string (`[\q{abc}]`, `\p{RGI_Emoji}`).
 
@@ -193,21 +200,21 @@ const LongTails = withModules(carets, backreferencesWith({ longestPartial: 256 }
 
 A backreference that runs out of input more than `longestPartial` characters into its capture isn't matched part way: `/(\w+)-\1/` on `"abcd-abc"` matches at 0 with the `backreferences` module, but at 5 with `longestPartial: 2`. `0` makes every backreference match only in full or at the end of the input. It must be a whole number up to `Number.MAX_SAFE_INTEGER`. The same options return the same module, so `withModules` returns the same class for them, and a class can bind only one backreferences module.
 
-A backreference that fails to match reads up to `longestPartial` characters ahead before it gives up, and one that runs out part way checks its capture against what's left, so the cost grows with the limit on long input where backreferences often fail, or where the engine backtracks through many places they run out. Over an unbounded group, a pattern that backtracks heavily near the end of the input costs a multiple of the native pattern, about nine times at 64 in the third column, and more where the group's capture is far back, since each check reads back to it: `/(a+b)[^]*\1(?<=#)/` on 3,200 characters is about sixty times native. Input that matches early, a stream of short inputs and construction (about 1.9 µs for `/(\w+)-\1/`) don't change. Node 24.20, one `exec()`, median of five, then of three runs:
+A backreference that fails to match reads up to `longestPartial` characters ahead before it gives up, and one that runs out part way checks its capture against what's left, so the cost grows with the limit on long input where backreferences often fail, or where the engine backtracks through many places they run out. Over an unbounded group, a pattern that retries a backreference at every length of the group from every start costs a multiple of the native pattern, about nine times at 64 in the third column. Input that matches early, a stream of short inputs and construction (about 1.9 µs for `/(\w+)-\1/`) don't change. Node 24.20, one `exec()`, median of five, then of three runs:
 
-| `longestPartial` | `/(\w+)-\1/` on 32,000 characters of `"foo-bar "` | `/(a\|bb+)\1-/` on 24,000 characters of `"abb"` | `/(\w+)\1(?<=x)/` on 800 `a`s (8.1 ms native) | `/^(.+)\n\1/` on a 2,000-character line and its first half | `/^<([a-zA-Z][\w:-]*)>[^<]*?<\/\1>/` per keystroke of a 259-character element |
+| `longestPartial` | `/(\w+)-\1/` on 32,000 characters of `"foo-bar "` | `/(a\|bb+)\1-/` on 24,000 characters of `"abb"` | `/(\w+)\1(?<=x)/` on 800 `a`s and a `!` (7.1 ms native) | `/^(.+)\n\1/` on a 2,000-character line and its first half | `/^<([a-zA-Z][\w:-]*)>[^<]*?<\/\1>/` per keystroke of a 259-character element |
 | --: | --: | --: | --: | --: | --: |
-| 0 | 0.17 ms | 0.09 ms | 8.09 ms | < 0.01 ms | 0.25 µs |
-| 8 | 0.34 ms | 0.34 ms | 23.34 ms | < 0.01 ms | 0.28 µs |
-| 16 | 0.43 ms | 0.48 ms | 31.05 ms | < 0.01 ms | 0.24 µs |
-| 32 | 0.72 ms | 0.90 ms | 44.23 ms | < 0.01 ms | 0.32 µs |
-| **64** | **1.17 ms** | **1.49 ms** | **69.27 ms** | **< 0.01 ms** | **0.24 µs** |
-| 128 | 2.05 ms | 2.65 ms | 113.97 ms | < 0.01 ms | 0.24 µs |
-| 256 | 3.19 ms | 5.12 ms | 166.14 ms | < 0.01 ms | 0.30 µs |
-| 512 | 6.14 ms | 9.37 ms | 182.81 ms | < 0.01 ms | 0.29 µs |
-| 1024 | 14.50 ms | 19.52 ms | 178.70 ms | 0.44 ms | 0.22 µs |
+| 0 | 0.17 ms | 0.09 ms | 7.46 ms | < 0.01 ms | 0.25 µs |
+| 8 | 0.34 ms | 0.34 ms | 22.65 ms | < 0.01 ms | 0.28 µs |
+| 16 | 0.43 ms | 0.48 ms | 29.77 ms | < 0.01 ms | 0.24 µs |
+| 32 | 0.72 ms | 0.90 ms | 44.39 ms | < 0.01 ms | 0.32 µs |
+| **64** | **1.17 ms** | **1.49 ms** | **67.19 ms** | **< 0.01 ms** | **0.24 µs** |
+| 128 | 2.05 ms | 2.65 ms | 106.67 ms | < 0.01 ms | 0.24 µs |
+| 256 | 3.19 ms | 5.12 ms | 168.46 ms | < 0.01 ms | 0.30 µs |
+| 512 | 6.14 ms | 9.37 ms | 189.40 ms | < 0.01 ms | 0.29 µs |
+| 1024 | 14.50 ms | 19.52 ms | 187.50 ms | 0.44 ms | 0.22 µs |
 
-The first two never match before the end of the input, so every backreference fails once per start. The third backtracks through every place `\1` runs out near the end of the input, so it grows with the limit until the limit passes the longest capture that can run out there. The fourth runs out 1,000 characters into its capture, so it's matched there only from a limit of 1,000, where checking that the capture starts with what's left costs about the distance back to the capture.
+The first two never match before the end of the input, so every backreference fails once per start. The third never matches before the end of the input either, and it tries `\1` after every length of the group from every start, so it grows with the limit until the limit passes the longest the group captures. The fourth runs out 1,000 characters into its capture, so it's matched there only from a limit of 1,000, where checking that the capture starts with what's left costs about the distance back to the capture.
 
 ## Limits
 

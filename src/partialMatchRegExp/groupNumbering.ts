@@ -1,10 +1,11 @@
-import { NAMED_GROUP_OPENING, isRawLookaround } from "./atomSyntax.ts";
+import { NAMED_GROUP_OPENING, isRawLookaround, LOOKBEHIND_MARKS } from "./atomSyntax.ts";
 import { isBackreference, type Part } from "./part.ts";
 import type { RawLookarounds } from "./rawLookaroundInfo.ts";
 
 export const isCapturingGroupOpening = (part: string) =>
   part === "(" ||
-  (part.startsWith(NAMED_GROUP_OPENING) && !isRawLookaround(part));
+  (part.startsWith(NAMED_GROUP_OPENING) &&
+    !LOOKBEHIND_MARKS.includes(part[NAMED_GROUP_OPENING.length]));
 
 export function groupsOpenedBefore(
   parts: readonly Part[],
