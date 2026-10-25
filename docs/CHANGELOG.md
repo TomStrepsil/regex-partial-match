@@ -25,7 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - `exec()` prefers a higher-priority alternative that ran out of input to a native match on a pattern with backreferences, as it does without them: `/(a)\1b|a/` on `"aa"` returns `"aa"`, not `"a"`
-- A lookbehind or negative lookahead reached at the end of the input holds, so `/abc(?<!c)/` accepts `"abc"`, with `hitEnd()` `true`
+- A lookbehind or negative lookahead reached at the end of the input holds, even on a path no continuation completes: `/abc(?<!c)/` accepts `"abc"`, with `hitEnd()` `true`
 - A backreference runs out of input part way only within the first 64 characters of its capture, or the limit `backreferencesWith()` sets, and on an engine without lookbehind it matches only in full or at the end of the input
 - `README.md`:
   - adds "Very long repetitions" to Caveats, covering the repetitions that can still overflow
