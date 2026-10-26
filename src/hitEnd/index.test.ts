@@ -184,6 +184,48 @@ describe("hitEnd()", () => {
     });
   });
 
+  describe("an earlier repetition that ran out of input, before one a lookbehind or negative lookahead ends at the end", () => {
+    it.each([
+      /(?:(?<=b)|[^a]{3}){2}/,
+      /(?:(?![-b])|[^a]{3}){2}/,
+      /(?:(?<=b)|[^a]{3}){10}/,
+      /(?:(?<=b)|[^a]{3}){2,3}?/,
+      /(?:(?<=b)|[^a]{3}){02,}?/,
+      /(?:(?<=b)|[^a]{3}|$){2}/,
+      /(?:(?<=b)(?:)|[^a]{3}){2}/,
+      /(?:(?:(?<=b)|[^a]{3})){2}/
+    ])("sees %s run out of input on \"-b\", which the native pattern doesn't match", (pattern) => {
+      const partial = new PartialMatchRegExp(pattern);
+
+      expect(partial.exec("-b")).toMatchAt({ match: "-b", index: 0 });
+      expect(hitEndOf(partial, "-b")).toBe(true);
+      expect(new RegExp(pattern.source, "y").exec("-b")).toBeNull();
+    });
+
+    it("sees a lookbehind on a digit end the repetition after one ran out", () => {
+      expect(hitEndOf(new PartialMatchRegExp(/(?:(?<=\d)|\d{4}){2}/), "12")).toBe(true);
+    });
+
+    it("sees a negative lookahead repeated directly, without a group, read the end", () => {
+      expect(hitEndOf(new PartialMatchRegExp(/a(?!b){2}/), "a")).toBe(true);
+      expect(/a(?!b){2}/.exec("ab")).toBeNull();
+    });
+
+    it.each([
+      [/(?:ab){2}/, "abab"],
+      [/(?<!x)(?:ab){2}/, "abab"],
+      [/(a)(?:\1b){2}/, "aabab"],
+      [/((?:(?<=b)|b))/, "b"],
+      [/(?:(?<=b)|b){1}/, "b"],
+      [/(?:(?<=b)|b){01}/, "b"],
+      [/(?:b(?<=b)){2,3}?/, "bbb"],
+      [/(?:(?<=b)|b)[{2]*/, "b-"],
+      [/(?:(?<=b)|b)2*/, "b-"]
+    ])("settles %s on %j", (pattern, input) => {
+      expect(hitEndOf(new PartialMatchRegExp(pattern), input)).toBe(false);
+    });
+  });
+
   describe("what hitEnd() cannot see", () => {
     it("cannot see a truncation inside a lookahead in an earlier iteration of a quantified group, whose captures the engine resets each iteration", () => {
       const partial = new PartialMatchRegExp(/(?:a(?=bcd)|b)+/);

@@ -1,12 +1,12 @@
 import { ALTERNATION } from "./constants.ts";
 import {
-  DISJUNCTION_TO_END_OF_INPUT,
   END_ANCHOR,
-  GROUP_CLOSING,
   LOOKAHEAD_OPENING,
   START_ANCHOR,
+  closesGroup,
   isOptionalAtom,
-  isRawLookaround
+  isRawLookaround,
+  opensGroup
 } from "../../partialMatchRegExp/atomSyntax.ts";
 import {
   LAZY_MARK,
@@ -30,12 +30,6 @@ const groupOpenedBy = (opening: string): Group => ({
   longest: 0,
   alternative: 0
 });
-
-const opensGroup = (part: string) =>
-  part[0] === "(" && part[part.length - 1] !== GROUP_CLOSING;
-
-const closesGroup = (part: string) =>
-  part[0] === GROUP_CLOSING || part === DISJUNCTION_TO_END_OF_INPUT;
 
 const MAY_MATCH_A_STRING = /\\[pq]\{/;
 

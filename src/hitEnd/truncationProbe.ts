@@ -6,10 +6,17 @@ import {
   DISJUNCTION_TO_END_OF_INPUT,
   END_ANCHOR,
   OPTIONAL_ATOM_OPENING,
+  closesGroup,
   isOptionalAtom,
-  isWordBoundaryAtom
+  isRawLookaround,
+  isWordBoundaryAtom,
+  opensGroup
 } from "../partialMatchRegExp/atomSyntax.ts";
-import { isQuantifier, quantifierEndingAt } from "../partialMatchRegExp/quantifier.ts";
+import {
+  LAZY_MARK,
+  isQuantifier,
+  quantifierEndingAt
+} from "../partialMatchRegExp/quantifier.ts";
 import { isBackreference, type Part } from "../partialMatchRegExp/part.ts";
 import type {
   BackreferenceHook,
@@ -31,6 +38,7 @@ export interface TruncationProbe {
 const END_OF_INPUT = DISJUNCTION_TO_END_OF_INPUT.slice(1, -1);
 const OPTIONAL_QUANTIFIER = "?";
 const EXACT_QUANTIFIER = /^\{0*([1-9]\d*|0)(?:,0*\1)?\}$/;
+const AT_LEAST_TWICE = /^\{0*(?:[2-9]|[1-9]\d)/;
 
 const MARKING = {
   none: 0,
@@ -54,6 +62,24 @@ function isGreedyReadAtEnd(parts: readonly Part[], index: number) {
   );
 }
 
+function repeatsRawLookaround(parts: readonly Part[], index: number) {
+  let start = quantifierEndingAt(parts, index);
+  if (
+    !AT_LEAST_TWICE.test(parts[start] as string) ||
+    parts[index + 1] === LAZY_MARK
+  )
+    return false;
+  let depth = 0;
+  do {
+    const part = parts[--start];
+    if (isBackreference(part)) continue;
+    if (isRawLookaround(part)) return true;
+    if (closesGroup(part)) depth++;
+    else if (opensGroup(part)) depth--;
+  } while (depth > 0);
+  return false;
+}
+
 function markingOf(parts: readonly Part[], index: number): Marking {
   const part = parts[index];
   switch (roleOf(part)) {
@@ -67,6 +93,7 @@ function markingOf(parts: readonly Part[], index: number): Marking {
         : MARKING.truncationBranch;
     case "plain": {
       if (part === END_ANCHOR) return MARKING.endAnchor;
+      if (repeatsRawLookaround(parts, index)) return MARKING.readAtEnd;
       if (!isGreedyReadAtEnd(parts, index)) return MARKING.none;
       const previous = parts[index - 1];
       return part === OPTIONAL_QUANTIFIER &&
