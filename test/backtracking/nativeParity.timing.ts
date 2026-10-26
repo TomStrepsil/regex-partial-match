@@ -2,11 +2,16 @@ import { describe, it, expect } from "vitest";
 import PartialMatchRegExp, { hitEnd } from "../../src/index.ts";
 import { withModules } from "../../src/core/index.ts";
 import { backreferencesWith, carets } from "../../src/modules/index.ts";
+import { compiledOf } from "../../src/partialMatchRegExp/partialMatchInternals.ts";
+import { buildTruncationProbe } from "../../src/hitEnd/truncationProbe.ts";
 
 const RUNS = 5;
 const TOLERATED_RATIO = 5;
 const TOLERATED_RATIO_RUNNING_OUT_PART_WAY = 20;
 const TOLERATED_SLACK_MS = 5;
+const DEPTH_GROWTH = 4;
+const TOLERATED_GROWTH = 8;
+const TOLERATED_GROWTH_SLACK_MS = 1;
 
 function elapsedMs(run: () => unknown) {
   const start = performance.now();
@@ -184,5 +189,27 @@ describe("backtracking against the native pattern", () => {
 
   it("costs a backreference running out no more than a small multiple of the native time, however far into the input the search starts", () => {
     expectNearNativeTime(/(abc)\1/y, "x".repeat(4_000_000) + "abcab", 4_000_000);
+  });
+});
+
+describe("hitEnd()'s probe construction", () => {
+  const nested = (depth: number) =>
+    new RegExp("(?:".repeat(depth) + "(?<=b)|a" + "){2}".repeat(depth));
+
+  function probeBuildMs(depth: number) {
+    const compiled = compiledOf(new PartialMatchRegExp(nested(depth)));
+    const times: number[] = [];
+    for (let attempt = 0; attempt < RUNS; attempt++)
+      times.push(elapsedMs(() => buildTruncationProbe(compiled, "")));
+    return median(times);
+  }
+
+  it("builds the probe for repeated groups nested four times as deep in no more than twice the linear share of time, rather than rescanning each body", () => {
+    const shallow = 500;
+    probeBuildMs(shallow);
+    const shallowMs = probeBuildMs(shallow);
+    expect(probeBuildMs(shallow * DEPTH_GROWTH)).toBeLessThanOrEqual(
+      shallowMs * TOLERATED_GROWTH + TOLERATED_GROWTH_SLACK_MS
+    );
   });
 });

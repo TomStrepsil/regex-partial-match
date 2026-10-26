@@ -28,10 +28,13 @@ import { buildTruncationProbe, tookTruncationBranch } from "./truncationProbe.ts
  * settled short of it
  *
  * @remarks
- * Conservative where the JDK is exact in one place: a bounded greedy
+ * Conservative where the JDK is exact in two places: a bounded greedy
  * quantifier (`?`, `{n,m}`) fully taken at the end of the input reports
  * `true` — on a group, and the same way for an unequal-bound `{n,m}`
- * directly on a single atom once it's saturated at its maximum. Cannot see
+ * directly on a single atom once it's saturated at its maximum — and so
+ * does a group with a minimum count of two or more that holds a lookbehind
+ * or negative lookahead, or a negative lookahead repeated directly that
+ * way, whenever its repetitions end there. Cannot see
  * a read of the end inside a raw lookaround, or inside a lookahead in an
  * earlier iteration of a quantified group.
  *

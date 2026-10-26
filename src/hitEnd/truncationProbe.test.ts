@@ -64,7 +64,8 @@ describe("buildTruncationProbe", () => {
     /^(?i:AB)c/,
     /(\w+)-\1(b+)\2(?!\1)/,
     /(a(b))\2\1(?<=\1)c/,
-    /(?<n>\w\w)\k<n>x(y)/
+    /(?<n>\w\w)\k<n>x(y)/,
+    /(?:(?<=a)|b){2}(c)\1/
   ])("numbers every marker group it emits in %s", (pattern) => {
     const { regex, markerGroups } = probeOf(pattern);
 

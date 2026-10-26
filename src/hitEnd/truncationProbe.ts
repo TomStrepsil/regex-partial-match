@@ -6,10 +6,17 @@ import {
   DISJUNCTION_TO_END_OF_INPUT,
   END_ANCHOR,
   OPTIONAL_ATOM_OPENING,
+  closesGroup,
   isOptionalAtom,
-  isWordBoundaryAtom
+  isRawLookaround,
+  isWordBoundaryAtom,
+  opensGroup
 } from "../partialMatchRegExp/atomSyntax.ts";
-import { isQuantifier, quantifierEndingAt } from "../partialMatchRegExp/quantifier.ts";
+import {
+  LAZY_MARK,
+  isQuantifier,
+  quantifierEndingAt
+} from "../partialMatchRegExp/quantifier.ts";
 import { isBackreference, type Part } from "../partialMatchRegExp/part.ts";
 import type {
   BackreferenceHook,
@@ -31,6 +38,7 @@ export interface TruncationProbe {
 const END_OF_INPUT = DISJUNCTION_TO_END_OF_INPUT.slice(1, -1);
 const OPTIONAL_QUANTIFIER = "?";
 const EXACT_QUANTIFIER = /^\{0*([1-9]\d*|0)(?:,0*\1)?\}$/;
+const AT_LEAST_TWICE = /^\{0*(?:[2-9]|[1-9]\d)/;
 
 const MARKING = {
   none: 0,
@@ -54,7 +62,40 @@ function isGreedyReadAtEnd(parts: readonly Part[], index: number) {
   );
 }
 
-function markingOf(parts: readonly Part[], index: number): Marking {
+function rawLookaroundHoldersOf(parts: readonly Part[]) {
+  const holders = new Set<number>();
+  const openings: number[] = [];
+  let lastRawLookaround = -1;
+  parts.forEach((part, index) => {
+    if (isBackreference(part)) return;
+    if (isRawLookaround(part)) {
+      holders.add(index);
+      lastRawLookaround = index;
+    } else if (opensGroup(part)) openings.push(index);
+    else if (closesGroup(part) && (openings.pop() as number) < lastRawLookaround)
+      holders.add(index);
+  });
+  return holders;
+}
+
+function repeatsRawLookaround(
+  parts: readonly Part[],
+  index: number,
+  rawLookaroundHolders: ReadonlySet<number>
+) {
+  const quantifierIndex = quantifierEndingAt(parts, index);
+  return (
+    AT_LEAST_TWICE.test(parts[quantifierIndex] as string) &&
+    parts[index + 1] !== LAZY_MARK &&
+    rawLookaroundHolders.has(quantifierIndex - 1)
+  );
+}
+
+function markingOf(
+  parts: readonly Part[],
+  index: number,
+  rawLookaroundHolders: ReadonlySet<number>
+): Marking {
   const part = parts[index];
   switch (roleOf(part)) {
     case "backreference":
@@ -67,6 +108,8 @@ function markingOf(parts: readonly Part[], index: number): Marking {
         : MARKING.truncationBranch;
     case "plain": {
       if (part === END_ANCHOR) return MARKING.endAnchor;
+      if (repeatsRawLookaround(parts, index, rawLookaroundHolders))
+        return MARKING.readAtEnd;
       if (!isGreedyReadAtEnd(parts, index)) return MARKING.none;
       const previous = parts[index - 1];
       return part === OPTIONAL_QUANTIFIER &&
@@ -77,8 +120,10 @@ function markingOf(parts: readonly Part[], index: number): Marking {
   }
 }
 
-const markingsOf = (parts: readonly Part[]) =>
-  parts.map((_, index) => markingOf(parts, index));
+function markingsOf(parts: readonly Part[]) {
+  const rawLookaroundHolders = rawLookaroundHoldersOf(parts);
+  return parts.map((_, index) => markingOf(parts, index, rawLookaroundHolders));
+}
 
 function markersAddedBy(marking: Marking) {
   switch (marking) {

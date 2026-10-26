@@ -41,3 +41,9 @@ export function isRawLookaround(part: string) {
 
 export const endsAtTruncationBranch = (part: string) =>
   part === DISJUNCTION_TO_END_OF_INPUT || isOptionalAtom(part);
+
+export const opensGroup = (part: string) =>
+  part[0] === "(" && part[part.length - 1] !== GROUP_CLOSING;
+
+export const closesGroup = (part: string) =>
+  part[0] === GROUP_CLOSING || part === DISJUNCTION_TO_END_OF_INPUT;

@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `hitEnd()` no longer backtracks exponentially over optional atoms repeated at the end of the input, as `/(?:a?-?){10}(?<=b)|c/` did on `""`
 - `exec()` and `hitEnd()` no longer backtrack exponentially over a repeated group of alternatives that the input ends inside, as `/(?:\d|[a-f]){24}(?<![a-f])/` did on `"abc"`
 - `exec()` no longer accepts input no continuation completes where a `^` under `m` follows a group repeated at least once whose body can't end a line, as `/(a|b){2}^/m` did on `"b"`
+- `hitEnd()` no longer reports `false` where a repeated group ran out of input and a later repetition matched nothing through a lookbehind or negative lookahead, as `/(?:(?<=b)|[^a]{3}){2}/` did on `"-b"`
 - `exec()` finds partial matches it missed or found late where a backreference runs out part way through its capture, as `/(\w\w)\1/` did on `"abxcdc"`, `/(\w+)-\1/` on `"ab-xbc-b"` and `/^(a+b)\1|^(a+bc)\2/` on `"abca"`
 
 ### Changed
@@ -35,6 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - states that a backreference matches part way only where the engine supports lookbehind
   - states that `isPartialMatchRegExp()` recognises only instances from the same evaluated copy of the library, in the same realm
   - links the carets module footnote to the module's source
+  - states that `hitEnd()` reports `true` once a group repeated at least twice that holds a lookbehind or negative lookahead, or a negative lookahead repeated directly, ends at the end of the input
 
 ## [2.1.0] - 2026-10-11
 
