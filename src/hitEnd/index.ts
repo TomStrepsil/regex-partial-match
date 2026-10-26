@@ -33,7 +33,8 @@ import { buildTruncationProbe, tookTruncationBranch } from "./truncationProbe.ts
  * `true` — on a group, and the same way for an unequal-bound `{n,m}`
  * directly on a single atom once it's saturated at its maximum — and so
  * does a group with a minimum count of two or more that holds a lookbehind
- * or negative lookahead, whenever its repetitions end there. Cannot see
+ * or negative lookahead, or a negative lookahead repeated directly that
+ * way, whenever its repetitions end there. Cannot see
  * a read of the end inside a raw lookaround, or inside a lookahead in an
  * earlier iteration of a quantified group.
  *
