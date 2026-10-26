@@ -193,7 +193,8 @@ describe("hitEnd()", () => {
       /(?:(?<=b)|[^a]{3}){02,}?/,
       /(?:(?<=b)|[^a]{3}|$){2}/,
       /(?:(?<=b)(?:)|[^a]{3}){2}/,
-      /(?:(?:(?<=b)|[^a]{3})){2}/
+      /(?:(?:(?<=b)|[^a]{3})){2}/,
+      /()(?:(?<=b)\1|[^a]{3}){2}/
     ])("sees %s run out of input on \"-b\", which the native pattern doesn't match", (pattern) => {
       const partial = new PartialMatchRegExp(pattern);
 
@@ -214,16 +215,24 @@ describe("hitEnd()", () => {
     it.each([
       [/(?:ab){2}/, "abab"],
       [/(?<!x)(?:ab){2}/, "abab"],
+      [/(?:(?<=-)|x)(?:ab){2}/, "-abab"],
+      [/(?:(?<=-)(?:ab){2})/, "-abab"],
+      [/(?:(?:ab){2}(?<=b))/, "abab"],
       [/(?<=-)a{2}/, "-aa"],
       [/(a)(?:\1b){2}/, "aabab"],
       [/((?:(?<=b)|b))/, "b"],
       [/(?:(?<=b)|b){1}/, "b"],
       [/(?:(?<=b)|b){01}/, "b"],
+      [/(?:b(?<=b)){1,3}?/, "b"],
       [/(?:b(?<=b)){2,3}?/, "bbb"],
       [/(?:(?<=b)|b)[{2]*/, "b-"],
       [/(?:(?<=b)|b)2*/, "b-"]
-    ])("settles %s on %j", (pattern, input) => {
+    ])("settles %s on %j, which no continuation changes", (pattern, input) => {
+      const match = new PartialMatchRegExp(pattern).exec(input)!;
+
       expect(hitEndOf(new PartialMatchRegExp(pattern), input)).toBe(false);
+      for (const continuation of ["a", "b", "-"])
+        expect(pattern.exec(input + continuation)).toMatchAt({ match: match[0], index: match.index });
     });
 
     it("still reports a repetition that ended exactly at the end as conservative, since the reset leaves no record of whether an earlier one ran out", () => {

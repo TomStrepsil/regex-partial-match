@@ -62,25 +62,40 @@ function isGreedyReadAtEnd(parts: readonly Part[], index: number) {
   );
 }
 
-function repeatsRawLookaround(parts: readonly Part[], index: number) {
-  let start = quantifierEndingAt(parts, index);
-  if (
-    !AT_LEAST_TWICE.test(parts[start] as string) ||
-    parts[index + 1] === LAZY_MARK
-  )
-    return false;
-  let depth = 0;
-  do {
-    const part = parts[--start];
-    if (isBackreference(part)) continue;
-    if (isRawLookaround(part)) return true;
-    if (closesGroup(part)) depth++;
-    else if (opensGroup(part)) depth--;
-  } while (depth > 0);
-  return false;
+function rawLookaroundHoldersOf(parts: readonly Part[]) {
+  const holders = new Set<number>();
+  const openings: number[] = [];
+  let lastRawLookaround = -1;
+  parts.forEach((part, index) => {
+    if (isBackreference(part)) return;
+    if (isRawLookaround(part)) {
+      holders.add(index);
+      lastRawLookaround = index;
+    } else if (opensGroup(part)) openings.push(index);
+    else if (closesGroup(part) && (openings.pop() as number) < lastRawLookaround)
+      holders.add(index);
+  });
+  return holders;
 }
 
-function markingOf(parts: readonly Part[], index: number): Marking {
+function repeatsRawLookaround(
+  parts: readonly Part[],
+  index: number,
+  rawLookaroundHolders: ReadonlySet<number>
+) {
+  const quantifierIndex = quantifierEndingAt(parts, index);
+  return (
+    AT_LEAST_TWICE.test(parts[quantifierIndex] as string) &&
+    parts[index + 1] !== LAZY_MARK &&
+    rawLookaroundHolders.has(quantifierIndex - 1)
+  );
+}
+
+function markingOf(
+  parts: readonly Part[],
+  index: number,
+  rawLookaroundHolders: ReadonlySet<number>
+): Marking {
   const part = parts[index];
   switch (roleOf(part)) {
     case "backreference":
@@ -93,7 +108,8 @@ function markingOf(parts: readonly Part[], index: number): Marking {
         : MARKING.truncationBranch;
     case "plain": {
       if (part === END_ANCHOR) return MARKING.endAnchor;
-      if (repeatsRawLookaround(parts, index)) return MARKING.readAtEnd;
+      if (repeatsRawLookaround(parts, index, rawLookaroundHolders))
+        return MARKING.readAtEnd;
       if (!isGreedyReadAtEnd(parts, index)) return MARKING.none;
       const previous = parts[index - 1];
       return part === OPTIONAL_QUANTIFIER &&
@@ -104,8 +120,10 @@ function markingOf(parts: readonly Part[], index: number): Marking {
   }
 }
 
-const markingsOf = (parts: readonly Part[]) =>
-  parts.map((_, index) => markingOf(parts, index));
+function markingsOf(parts: readonly Part[]) {
+  const rawLookaroundHolders = rawLookaroundHoldersOf(parts);
+  return parts.map((_, index) => markingOf(parts, index, rawLookaroundHolders));
+}
 
 function markersAddedBy(marking: Marking) {
   switch (marking) {
