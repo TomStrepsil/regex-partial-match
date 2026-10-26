@@ -224,6 +224,15 @@ describe("hitEnd()", () => {
     ])("settles %s on %j", (pattern, input) => {
       expect(hitEndOf(new PartialMatchRegExp(pattern), input)).toBe(false);
     });
+
+    it("still reports a repetition that ended exactly at the end as conservative, since the reset leaves no record of whether an earlier one ran out", () => {
+      const partial = new PartialMatchRegExp(/(?:(?<=b)|a){2}/);
+
+      expect(hitEndOf(partial, "aa")).toBe(true);
+      expect(hitEndOf(partial, "aab")).toBe(false);
+      for (const continuation of ["a", "b", "-"])
+        expect(/(?:(?<=b)|a){2}/.exec("aa" + continuation)).toMatchAt({ match: "aa", index: 0 });
+    });
   });
 
   describe("what hitEnd() cannot see", () => {
