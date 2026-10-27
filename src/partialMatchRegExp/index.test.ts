@@ -2769,7 +2769,11 @@ c`)
           [/(?:b|(-)+)^/m, "-"],
           [/(?:b|(a|-)+)^/m, "a"],
           [/((a|-)+)^/m, "-"],
-          [/-(?:b|(a(?=\n)))^/m, "-a"]
+          [/-(?:b|(a(?=\n)))^/m, "-a"],
+          [/((a(?=b))+)^/m, "a"],
+          [/((?:b|a(?=b))+)^/m, "a"],
+          [/-((a(?=b)){2})^/m, "-a"],
+          [/(((?:b|(a(?=b))+)))^/m, "a"]
         ])(
           "refuses a caret after a group whose body cannot end a line: %s on %j",
           (pattern, input) => {

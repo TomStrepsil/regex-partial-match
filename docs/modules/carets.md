@@ -85,11 +85,12 @@ After a quantifier on an atom that can end a line, or after a backreference, the
 - a backreference;
 - a group whose flags name `m` or `s`, nested in the group before the caret;
 - a quantified group whose body can end a line or which can repeat zero times;
+- a group repeated at least once whose body ends in a nested group, which the check doesn't look inside;
 - an alternative that consumes nothing, behind anything but an atom that can't end a line;
 - a group that consumes nothing, behind another group;
 - a later repetition of a group whose body can end a line and which its caret leads.
 
-So `/(a)*^b/m` keeps `"a"`, `/(a)(-|)^/m` keeps `"a"`, and `/(^a\s){2}/m` keeps `"a "`.
+So `/(a)*^b/m` keeps `"a"`, `/(a)(-|)^/m` keeps `"a"`, `/((a)){2}^/m` keeps `"aa"`, and `/(^a\s){2}/m` keeps `"a "`.
 
 Where nothing consuming precedes the caret on its path, its position is fixed and it stays as written; see [How It Works](../how-it-works.md#-a-caret-whose-position-is-fixed).
 

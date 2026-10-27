@@ -244,6 +244,11 @@ export default function caretRecorder(): CaretRecorder {
         lastGroupScope = groupScope;
         lastGroupAlternativeStarts = lastBodyAlternativeStarts;
         lastGroupLookaheadSpans = lastBodyLookaheadSpans;
+        for (const span of lastBodyLookaheadSpans ?? NO_LOOKAHEAD_SPANS)
+          (lookaheadSpans ??= []).push([
+            span[0] + lastGroupOpen + 1,
+            span[1] + lastGroupOpen + 1
+          ]);
         return { closing, forced, stays: hoistedCaretStays };
       } else {
         lastBodyAlternativeStarts = alternativeStarts;

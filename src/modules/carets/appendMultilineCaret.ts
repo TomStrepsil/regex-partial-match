@@ -98,7 +98,8 @@ export function canEndLine(
   body: Part[],
   starts: readonly number[],
   scope: number,
-  lookaheadSpans: LookaheadSpan[] | undefined
+  lookaheadSpans: LookaheadSpan[] | undefined,
+  spanOffset = 0
 ) {
   const scanned = body.slice();
   let end = body.length;
@@ -111,7 +112,7 @@ export function canEndLine(
         start - 1,
         scope,
         lookaheadSpans,
-        0
+        spanOffset
       ) !== CANNOT_END_LINE
     )
       return true;
@@ -197,7 +198,8 @@ function followsAtomThatCannotEndLine(
 function repeatsGroupThatCannotEndLine(
   result: Part[],
   index: number,
-  scope: number
+  scope: number,
+  lookaheadSpans: LookaheadSpan[] | undefined
 ) {
   const quantifierIndex = quantifierEndingAt(result, index);
   const close = quantifierIndex - 1;
@@ -215,7 +217,13 @@ function repeatsGroupThatCannotEndLine(
     return false;
   const starts = [0];
   for (let k = alternations.length; k--; ) starts.push(alternations[k] - open);
-  return !canEndLine(result.slice(open + 1, close), starts, scope, undefined);
+  return !canEndLine(
+    result.slice(open + 1, close),
+    starts,
+    scope,
+    lookaheadSpans,
+    -(open + 1)
+  );
 }
 
 function placeCaret(
@@ -223,7 +231,8 @@ function placeCaret(
   end: number,
   floor: number,
   scope: number,
-  insert: (at: number, part: string) => number
+  insert: (at: number, part: string) => number,
+  lookaheadSpans: LookaheadSpan[] | undefined
 ) {
   const caret = caretFor(scope);
   for (;;) {
@@ -241,7 +250,12 @@ function placeCaret(
       (anchor === floor
         ? followsAtomThatCannotEndLine(result, floor, scope)
         : isQuantifier(part) &&
-          repeatsGroupThatCannotEndLine(result, anchor, scope))
+          repeatsGroupThatCannotEndLine(
+            result,
+            anchor,
+            scope,
+            lookaheadSpans
+          ))
     )
       return insert(floor + 1, UNSATISFIABLE);
     if (isOptionalAtom(part)) {
@@ -260,7 +274,14 @@ function placeCaret(
       if (opening === LOOKAHEAD_OPENING) end = open;
       else if (alternations.length) {
         for (const alternativeFloor of alternations.concat(open)) {
-          placeCaret(result, end, alternativeFloor, scope, insert);
+          placeCaret(
+            result,
+            end,
+            alternativeFloor,
+            scope,
+            insert,
+            lookaheadSpans
+          );
           end = alternativeFloor;
         }
         return;
@@ -287,7 +308,7 @@ function appendCaretToAlternatives(
   let end = close;
   for (let k = starts.length; k--; ) {
     const floor = open + starts[k];
-    placeCaret(result, end, floor, scope, insert);
+    placeCaret(result, end, floor, scope, insert, lookaheadSpans);
     end = floor;
   }
   return close + inserted;
