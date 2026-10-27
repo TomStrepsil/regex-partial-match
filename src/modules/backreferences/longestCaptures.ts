@@ -1,5 +1,5 @@
-import { ALTERNATION } from "./constants.ts";
 import {
+  ALTERNATION,
   END_ANCHOR,
   LOOKAHEAD_OPENING,
   START_ANCHOR,

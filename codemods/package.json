@@ -10,7 +10,7 @@
     "test": "vitest run"
   },
   "devDependencies": {
-    "jscodeshift": "^17.3.0",
-    "vitest": "^4.0.15"
+    "jscodeshift": "^17.4.0",
+    "vitest": "^5.0.5"
   }
 }

@@ -3,6 +3,7 @@ import type { Part } from "./part.ts";
 export const START_ANCHOR = "^";
 export const END_ANCHOR = "$";
 export const GROUP_CLOSING = ")";
+export const ALTERNATION = "|";
 export const LOOKAHEAD_OPENING = "(?=";
 export const DISJUNCTION_TO_END_OF_INPUT = "|$(?![\\s\\S]))";
 export const OPTIONAL_ATOM_OPENING = "(?:";
