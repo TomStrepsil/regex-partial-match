@@ -2274,6 +2274,7 @@ c`)
 
       it("should refuse a caret no continuation can reach once the multiline flag is absent", () => {
         expect(new PartialMatchRegExp(/\W^/).exec("a")).toBeNull();
+        expect(new PartialMatchRegExp(/\n(?=^b)/).exec("\nb")).toBeNull();
       });
 
       it("should hold the start-anchor mitigation for a caret opening a later alternative, where nothing on its own branch consumed first", () => {
@@ -2327,7 +2328,8 @@ c`)
           ["a capturing group", /(-|\n)^/m],
           ["a named group", /(?<t>-|\n)^/m],
           ["a modifier group", /(?i:-|\n)^/m],
-          ["a group with an alternative that runs out inside it", /(?:-x|\n)^/m]
+          ["a group with an alternative that runs out inside it", /(?:-x|\n)^/m],
+          ["a group whose alternative ends in an atom that can end a line", /(?:b|\W)^/m]
         ];
 
         it.each(consumingParts)(
@@ -2515,6 +2517,103 @@ c`)
           });
         });
 
+        describe("a group the input runs out inside, whose body ends in a nested group or can match nothing", () => {
+          it.each([
+            [/((a\n))^/m, "a", "a", 0],
+            [/(a(\n))^/m, "a", "a", 0],
+            [/(a(\n|b))^/m, "a", "a", 0],
+            [/(?:(?:a\n))^/m, "a", "a", 0],
+            [/(a\n|)^/m, "a", "a", 0],
+            [/(a\n|)$^/m, "a", "a", 0],
+            [/(\W{2}|)^b/m, "-", "-", 0],
+            [/(?:b|((a)\n))^/m, "a", "a", 0],
+            [/(?:b|((a|-)\n))^/m, "a", "a", 0],
+            [/(?:b|(?i:a\n))^/m, "a", "a", 0],
+            [/(?:b|(?s:(a).))^/m, "a", "a", 0],
+            [/\n\b(-|)^/m, "\n", "\n", 0],
+            [/-(?:b|(\n(?=a)))^a/m, "-", "-", 0],
+            [/a(?:b|(\n)+)^/m, "a\n", "a\n", 0],
+            [/a(?:b|(\n|-)+)^/m, "a\n", "a\n", 0],
+            [/(?:b|a\n+)^/m, "a", "a", 0],
+            [/(?:b|a\n{1,2})^/m, "a", "a", 0],
+            [/(|a)^(?=^)\n/m, "", "", 0],
+            [/a(?:\n|)(?=a)^^/m, "a", "a", 0]
+          ])(
+            "keeps the prefix a continuation completes, at the index it completes from: %s on %j",
+            (pattern, input, match, index) => {
+              const partial = new PartialMatchRegExp(pattern);
+              const result = partial.exec(input);
+
+              expect(result).toMatchAt({ match, index });
+              expect(result && hitEnd(partial, result)).toBe(true);
+            }
+          );
+
+          it.each([
+            [/((?:a|\n)-*|a())^b/m, "\nb"],
+            [/(?:|\n+|)^^-/m, "-"],
+            [/((\n|-))^/m, "\n"],
+            [/(?:x|\n(?=b|-))^b/m, "\nb"],
+            [/(a?())^-/m, "-"]
+          ])(
+            "matches in full where the input already completes the match: %s on %j",
+            (pattern, input) => {
+              const partial = new PartialMatchRegExp(pattern);
+              const result = partial.exec(input);
+
+              expect(result).toMatchAt({ match: input, index: 0 });
+              expect(result && hitEnd(partial, result)).toBe(false);
+            }
+          );
+
+          it("judges an alternative that matches nothing where nothing precedes the group as written", () => {
+            const partial = new PartialMatchRegExp(/a|(\n|)^/m);
+            const result = partial.exec("b");
+
+            expect(result).toMatchAt({ match: "", index: 0 });
+            expect(result && hitEnd(partial, result)).toBe(false);
+          });
+
+          it.each([/(?:A?|b\n)^/my, /(?:A*|b\s?)^/my, /(?:|b\s?)^/my])(
+            "keeps a sticky prefix viable after an earlier alternative that can match nothing, in %s",
+            (pattern) => {
+              const partial = new PartialMatchRegExp(pattern);
+              partial.lastIndex = 1;
+              const result = partial.exec("ab");
+
+              expect(result).toMatchAt({ match: "b", index: 1 });
+              expect(result && hitEnd(partial, result)).toBe(true);
+            }
+          );
+
+          it("keeps the captures of the nested groups the input ran out in", () => {
+            expect([...(new PartialMatchRegExp(/((a\n))^/m).exec("a") ?? [])]).toEqual(["a", "a", "a"]);
+            expect(new PartialMatchRegExp(/(a(\n))^/m).exec("a")?.[2]).toBe("");
+            expect([...(new PartialMatchRegExp(/((\n))^/m).exec("a") ?? [])]).toEqual(["", "", ""]);
+          });
+
+          it("leaves a nested group unmatched where its alternative can't end a line", () => {
+            const result = new PartialMatchRegExp(/((a)|)^/m).exec("");
+
+            expect(result).toMatchAt({ match: "", index: 0 });
+            expect(result?.[1]).toBe("");
+            expect(result?.[2]).toBeUndefined();
+            expect(new PartialMatchRegExp(/(($-)|)^a/m).exec("")?.[2]).toBeUndefined();
+          });
+
+          it.each([
+            [/a(|-)^/m, "a"],
+            [/a(-|)^/m, "a"],
+            [/a\b(-|)^/m, "a"],
+            [/a((|-))^/m, "a"]
+          ])(
+            "refuses an alternative that matches nothing after an atom that can't end a line: %s on %j",
+            (pattern, input) => {
+              expect(new PartialMatchRegExp(pattern).exec(input)).toBeNull();
+            }
+          );
+        });
+
         it.each([
           ["a star", /\W*^/m],
           ["a plus", /\W+^/m]
@@ -2582,6 +2681,14 @@ c`)
           });
           expect(new PartialMatchRegExp(/(?-m:\n)^x/m).exec("\n")).toMatchAt({
             match: "\n",
+            index: 0
+          });
+          expect(new PartialMatchRegExp(/-(?:b|(?-m:a\n))^/m).exec("-a\n")).toMatchAt({
+            match: "-a\n",
+            index: 0
+          });
+          expect(new PartialMatchRegExp(/-(?:b|(?-m:a\n))^b/m).exec("-a\nb")).toMatchAt({
+            match: "-a\nb",
             index: 0
           });
         });
@@ -2652,7 +2759,17 @@ c`)
           [/(a)^/m, "a"],
           [/a*(a)^/m, "a"],
           [/\W(a+)^/m, "-"],
-          [/\W(a{2,})^/m, "-a"]
+          [/\W(a{2,})^/m, "-a"],
+          [/\W((a))^/m, "-"],
+          [/\W(?:a|(b))^/m, "-"],
+          [/\W(?:a|(?i:b))^/m, "-"],
+          [/a((\b))^/m, "a"],
+          [/(?s:b())^/m, "b"],
+          [/(?:b|((a)\1-))^/m, "a"],
+          [/(?:b|(-)+)^/m, "-"],
+          [/(?:b|(a|-)+)^/m, "a"],
+          [/((a|-)+)^/m, "-"],
+          [/-(?:b|(a(?=\n)))^/m, "-a"]
         ])(
           "refuses a caret after a group whose body cannot end a line: %s on %j",
           (pattern, input) => {
@@ -2723,6 +2840,10 @@ c`)
           expect(new PartialMatchRegExp(/\W(\b)^/m).exec("\n")).toMatchAt({
             match: "\n",
             index: 0
+          });
+          expect(new PartialMatchRegExp(/\W((?=\n))^/m).exec("-")).toMatchAt({
+            match: "",
+            index: 1
           });
           expect(new PartialMatchRegExp(/\W(?-m:^)^/m).exec("-")).toBeNull();
           expect(new PartialMatchRegExp(/\W*(\b)^/m).exec("-")).toMatchAt({
@@ -2937,6 +3058,13 @@ c`)
             expect(partial.exec("\n")?.[1]).toBe("");
           });
 
+          it("leaves the group unmatched where what follows the caret it leads can never hold", () => {
+            const result = new PartialMatchRegExp(/(?:a\n(?:(^(?=a)$)^))?a/m).exec("a");
+
+            expect(result).toMatchAt({ match: "a", index: 0 });
+            expect(result?.[1]).toBeUndefined();
+          });
+
           it("refuses a caret hoisted out of a group nested in a quantified modifier group, after an atom that cannot end a line", () => {
             expect(new PartialMatchRegExp(/a(?i:(^a))+/m).exec("a")).toBeNull();
           });
@@ -2962,13 +3090,19 @@ c`)
             [/^(a)\1^b/m, "aa"],
             [/(a)\1^/m, "a"],
             [/(?s:.)+^b/m, "a"],
-            [/\W(?:a|(b))^/m, "-"],
-            [/\W((a))^/m, "-"],
+            [/(a)(?:b|\1+)^/m, "aa"],
+            [/a(?:b|(-)*)^/m, "a-"],
+            [/a(?:b|(?s:-)+)^/m, "a-"],
+            [/a(?:b|(?=a)+)^/m, "a"],
+            [/\W(?:a|(?s:b))^/m, "-"],
             [/(b)(?-m:^)^/m, "b"],
             [/(?i:b)(\b)^/m, "b"],
-            [/(\W)\1(\b)^/m, "--"]
+            [/(\W)\1(\b)^/m, "--"],
+            [/(a)(-|)^/m, "a"],
+            [/(a)\1(-|)^/m, "aa"],
+            [/a(?s:-|)^/m, "a"]
           ])(
-            "accepts in the safe direction after a backreference, a quantified or alternating or nested group, or a zero-width group behind another group: %s on %j",
+            "accepts in the safe direction after a backreference, a quantified group, a group that turns m or s on or off, or a group or alternative that consumes nothing behind anything but an atom: %s on %j",
             (pattern, input) => {
               expect(new PartialMatchRegExp(pattern).exec(input)).toMatchAt({
                 match: input,
@@ -3004,6 +3138,21 @@ c`)
               match: "",
               index: 1
             });
+          });
+        });
+
+        it("looks through a quantified negative lookahead, which consumes nothing, keeping the groups inside it", () => {
+          expect(new PartialMatchRegExp(/a(?!b)?^c/m).exec("a")).toBeNull();
+          expect(new PartialMatchRegExp(/\n(?!b)?^c/m).exec("a")).toMatchAt({
+            match: "",
+            index: 1
+          });
+          expect([
+            ...(new PartialMatchRegExp(/(?!((?<g0>)))?^((?<g>)\k<g0>)/im).exec("a") ?? [])
+          ]).toEqual(["", undefined, undefined, "", ""]);
+          expect(new PartialMatchRegExp(/(?!(?<g0>))?^\k<g0>/m).exec("k<g0>")).toMatchAt({
+            match: "",
+            index: 0
           });
         });
 
@@ -3134,6 +3283,29 @@ c`)
               new PartialMatchRegExp(/\W(?=(?=^y))/m).exec("-")
             ).toMatchAt({ match: "", index: 1 });
           });
+
+          it.each([
+            [/\n(?= *^)/m, "a", "", 1],
+            [/-\n(?= *^)/m, "a-", "-", 1],
+            [/-\n(?=x?^)/m, "a-", "-", 1],
+            [/-\n(?=x*^)/m, "a-", "-", 1],
+            [/-\n(?=x{0,2}^)/m, "a-", "-", 1],
+            [/[^a]\n+(?= *^A*)/m, "a b--", "-", 4],
+            [/\W(?=\B^-)/m, "-", "", 1],
+            [/\W(?=()^-)/m, "-", "", 1],
+            [/\n(?=^^)/m, "a", "", 1],
+            [/\n(?=^ *^)/m, "a", "", 1],
+            [/\n(?=(?=^)^)/m, "a", "", 1]
+          ])(
+            "is judged against the part before the lookahead where it leads the body behind assertions or atoms that can only repeat zero times: %s on %j",
+            (pattern, input, match, index) => {
+              const partial = new PartialMatchRegExp(pattern);
+              const result = partial.exec(input);
+
+              expect(result).toMatchAt({ match, index });
+              expect(result && hitEnd(partial, result)).toBe(true);
+            }
+          );
 
           it("still holds the start-anchor mitigation when nothing precedes the lookahead", () => {
             expect(new PartialMatchRegExp(/(?=^y)/m).test("a\nb")).toBe(false);

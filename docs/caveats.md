@@ -96,7 +96,7 @@ partial.exec("abcy"); // ["abcy", undefined, "abc"    ] — branch 2, complete
 
 A repeated group whose last iteration was cut short reports that partial iteration — `/(abc)+\1/` on `"abcab"` gives `m[1] === "ab"` — and `"abcabc"` then gives `"abc"`.
 
-When [`hitEnd()`](../README.md#hitend) reports `false` for a match, its captures are final; when it reports `true`, they are the closest available. Two known shapes still report `undefined` where `""` is closer: a group nested inside a group a multiline caret follows (`/((\n))^/m` on `"a"` gives `m[2] === undefined`), and a quantified group not yet iterated at the end of the input (`/(?=(a))(a|b)*/` on `""` gives `m[2] === undefined`).
+When [`hitEnd()`](../README.md#hitend) reports `false` for a match, its captures are final; when it reports `true`, they are the closest available. One known shape still reports `undefined` where `""` is closer: a quantified group not yet iterated at the end of the input (`/(?=(a))(a|b)*/` on `""` gives `m[2] === undefined`).
 
 ## Positive Lookbehinds
 

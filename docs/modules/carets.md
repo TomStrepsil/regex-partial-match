@@ -51,18 +51,23 @@ An atom that can't end a line, under a quantifier that allows zero repetitions, 
 
 ### Groups
 
-A group is judged by the end of its body. A body that consumes nothing, such as `(\b)`, is looked through. How the caret is placed depends on how the body ends:
+A group is judged by the end of its body, alternative by alternative. A body that consumes nothing, such as `(\b)`, is looked through. How the caret is placed in an alternative depends on how it ends:
 
 - **an atom:** the caret is folded into it;
 - **a quantifier or a backreference:** the caret takes its own branch after it;
-- **anything else:** the caret wraps the whole body.
+- **a group repeated at least once, none of whose alternatives can end a line:** the alternative is refused;
+- **a nested group:** the caret is placed in it by these same rules, except in a group whose flags name `m` or `s`, after which it takes its own branch;
+- **nothing it consumed:** the alternative is refused after an atom that can't end a line, and otherwise the caret takes its own branch.
 
-An alternating body is judged alternative by alternative, and wrapped if any alternative ends in something else or consumes nothing. The caret stays inside the group, spelled `(?m:^)` where the group turns `m` off, so a group the input ran out in front of, or inside, still captures what it has:
+The caret stays inside the group, spelled `(?m:^)` where the group turns `m` off, so a group the input ran out in front of, or inside, still captures what it has:
 
 ```javascript
-/(a\n)^/m  → /((?:a|$(?![\s\S]))(?:\n^|$(?![\s\S])))/
-/(a\n?)^/m → /((?:a|$(?![\s\S]))(?:\n|$(?![\s\S]))?(?:^|$(?![\s\S])))/
-/(a|\n)^/m → /((?:a|$(?![\s\S]))[]|(?:\n^|$(?![\s\S])))/
+/(a\n)^/m   → /((?:a|$(?![\s\S]))(?:\n^|$(?![\s\S])))/
+/(a\n?)^/m  → /((?:a|$(?![\s\S]))(?:\n|$(?![\s\S]))?(?:^|$(?![\s\S])))/
+/(a|\n)^/m  → /([](?:a|$(?![\s\S]))|(?:\n^|$(?![\s\S])))/
+/((a\n))^/m → /(((?:a|$(?![\s\S]))(?:\n^|$(?![\s\S]))))/
+/(a\n|)^/m  → /((?:a|$(?![\s\S]))(?:\n^|$(?![\s\S]))|(?:^|$(?![\s\S])))/
+/a(\n|)^/m  → /(?:a|$(?![\s\S]))((?:\n^|$(?![\s\S]))|[])/
 ```
 
 A caret with nothing consuming before it inside the group is judged where the group starts. Where it leads every alternative it moves in front of the group, as [above](#-a-start-anchor-leading-a-group): `/\W(\S*^)/m` on `"-"` matches `""` at index 1. Otherwise the group keeps its truncation branch, a modifier group included, except in two cases:
@@ -71,19 +76,20 @@ A caret with nothing consuming before it inside the group is judged where the gr
 
 So `/((?-m:^x))/m` and `/a(b^(?-m:^x))/m` on `"a"` are both `null`.
 
-A caret leading an unquantified lookahead body is judged against the part before the lookahead. That doesn't apply where the body alternates at its top level, since there the caret guards every alternative and stays as written, as it does at the start of any later alternative.
+A caret leading an unquantified lookahead body, behind the same parts it can lead a group body behind, is judged against the part before the lookahead, together with any further carets leading it: `/\n(?= *^)/m` on `"a"` matches `""` at index 1. The lookahead then [holds at the end of the input](../how-it-works.md#-assertions-at-the-end-of-the-input) like any other, so `/-\n(?=x?^\n)(?=b)/m` accepts `"-"` although its lookaheads contradict each other. That doesn't apply where the body alternates at its top level, since there the caret guards every alternative and stays as written, as it does at the start of any later alternative.
 
 ### Where the position can move
 
-After a quantifier on an atom that can end a line, or after a backreference, the position really can move, so the caret takes its own branch, `(?:^|$(?![\s\S]))`. That branch, and the wrap where the rule can't see the end of a group's body, accept too much in some cases. That is the safe direction. They are:
+After a quantifier on an atom that can end a line, or after a backreference, the position really can move, so the caret takes its own branch, `(?:^|$(?![\s\S]))`. That branch accepts too much in some cases, as does a wrap of the whole body where a group that consumes nothing follows another group. That is the safe direction. They are:
 - a bounded quantifier saturated at the end;
 - a backreference;
-- a nested group, or a quantified group whose body can end a line or which can repeat zero times;
-- an alternative that ends in one of those, or consumes nothing;
+- a group whose flags name `m` or `s`, nested in the group before the caret;
+- a quantified group whose body can end a line or which can repeat zero times;
+- an alternative that consumes nothing, behind anything but an atom that can't end a line;
 - a group that consumes nothing, behind another group;
 - a later repetition of a group whose body can end a line and which its caret leads.
 
-So `/(a)*^b/m` keeps `"a"`, and `/(^a\s){2}/m` keeps `"a "`.
+So `/(a)*^b/m` keeps `"a"`, `/(a)(-|)^/m` keeps `"a"`, and `/(^a\s){2}/m` keeps `"a "`.
 
 Where nothing consuming precedes the caret on its path, its position is fixed and it stays as written; see [How It Works](../how-it-works.md#-a-caret-whose-position-is-fixed).
 

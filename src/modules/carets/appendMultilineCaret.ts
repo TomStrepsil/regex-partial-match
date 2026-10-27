@@ -1,12 +1,16 @@
 import {
+  ALTERNATION,
   DISJUNCTION_TO_END_OF_INPUT,
   END_ANCHOR,
   GROUP_CLOSING,
+  LOOKAHEAD_OPENING,
   OPTIONAL_ATOM_OPENING,
   asOptionalAtom,
+  closesGroup,
   isOptionalAtom,
   isRawLookaround,
-  isWordBoundaryAtom
+  isWordBoundaryAtom,
+  opensGroup
 } from "../../partialMatchRegExp/atomSyntax.ts";
 import { ONLY_AT_END_OF_INPUT, UNSATISFIABLE } from "../atomSyntax.ts";
 import { caretFor, isCaret } from "./caretSyntax.ts";
@@ -74,6 +78,10 @@ export function partDecidingCaret(
       return result[index] === UNSATISFIABLE ? CANNOT_END_LINE : index;
     const quantifierIndex = quantifierEndingAt(result, index);
     const atom = result[quantifierIndex - 1];
+    if (isTransparentToCaret(atom)) {
+      index = quantifierIndex - 2;
+      continue;
+    }
     if (!isOptionalAtom(atom) || canMatchLineTerminator(atom, scope)) {
       return index;
     }
@@ -112,7 +120,7 @@ export function canEndLine(
   return false;
 }
 
-function shiftSpans(
+export function shiftSpans(
   lookaheadSpans: LookaheadSpan[] | undefined,
   after: number,
   by: number
@@ -155,57 +163,132 @@ function wrapGroup(
   return close + 2;
 }
 
+function openingOf(result: Part[], close: number, alternations: number[]) {
+  let depth = 0;
+  for (let index = close - 1; index >= 0; index--) {
+    const part = result[index];
+    if (isBackreference(part)) continue;
+    if (opensGroup(part)) {
+      if (!depth) return index;
+      depth--;
+    } else if (closesGroup(part)) depth++;
+    else if (part === ALTERNATION && !depth) alternations.push(index);
+  }
+  return -1;
+}
+
+const MODIFIES_LINE_SCOPE = /^\(\?[i-]*[ms]/;
+
+function followsAtomThatCannotEndLine(
+  result: Part[],
+  index: number,
+  scope: number
+) {
+  for (;; index--) {
+    if (result[index] === ALTERNATION) index = openingOf(result, index, []);
+    const part = result[index];
+    if (typeof part !== "string") return false;
+    if (isTransparentToCaret(part)) continue;
+    if (isOptionalAtom(part)) return !canMatchLineTerminator(part, scope);
+    if (!opensGroup(part) || MODIFIES_LINE_SCOPE.test(part)) return false;
+  }
+}
+
+function repeatsGroupThatCannotEndLine(
+  result: Part[],
+  index: number,
+  scope: number
+) {
+  const quantifierIndex = quantifierEndingAt(result, index);
+  const close = quantifierIndex - 1;
+  const closing = result[close];
+  if (
+    isBackreference(closing) ||
+    !closesGroup(closing) ||
+    minimumOf(result[quantifierIndex] as string) === 0
+  )
+    return false;
+  const alternations: number[] = [];
+  const open = openingOf(result, close, alternations);
+  const opening = result[open] as string;
+  if (opening === LOOKAHEAD_OPENING || MODIFIES_LINE_SCOPE.test(opening))
+    return false;
+  const starts = [0];
+  for (let k = alternations.length; k--; ) starts.push(alternations[k] - open);
+  return !canEndLine(result.slice(open + 1, close), starts, scope, undefined);
+}
+
+function placeCaret(
+  result: Part[],
+  end: number,
+  floor: number,
+  scope: number,
+  insert: (at: number, part: string) => number
+) {
+  const caret = caretFor(scope);
+  for (;;) {
+    const anchor = partDecidingCaret(
+      result,
+      end - 1,
+      floor,
+      scope,
+      undefined,
+      0
+    );
+    const part = result[anchor];
+    if (
+      anchor === CANNOT_END_LINE ||
+      (anchor === floor
+        ? followsAtomThatCannotEndLine(result, floor, scope)
+        : isQuantifier(part) &&
+          repeatsGroupThatCannotEndLine(result, anchor, scope))
+    )
+      return insert(floor + 1, UNSATISFIABLE);
+    if (isOptionalAtom(part)) {
+      foldCaret(result, anchor, caret);
+      return;
+    }
+    if (anchor === floor || isPositionUncertain(part))
+      return insert(anchor + 1, asOptionalAtom(caret));
+    end = anchor;
+    if (!opensGroup(part)) {
+      const alternations: number[] = [];
+      const open = openingOf(result, anchor, alternations);
+      const opening = result[open] as string;
+      if (MODIFIES_LINE_SCOPE.test(opening))
+        return insert(anchor + 1, asOptionalAtom(caret));
+      if (opening === LOOKAHEAD_OPENING) end = open;
+      else if (alternations.length) {
+        for (const alternativeFloor of alternations.concat(open)) {
+          placeCaret(result, end, alternativeFloor, scope, insert);
+          end = alternativeFloor;
+        }
+        return;
+      }
+    }
+  }
+}
+
 function appendCaretToAlternatives(
   result: Part[],
   open: number,
   close: number,
   scope: number,
   starts: number[],
-  bodySpans: LookaheadSpan[] | undefined,
   lookaheadSpans: LookaheadSpan[] | undefined
 ) {
-  const anchors: number[] = [];
-  const ends: number[] = [];
+  let inserted = 0;
+  const insert = (at: number, part: string) => {
+    result.splice(at, 0, part);
+    shiftSpans(lookaheadSpans, at - 1, 1);
+    for (let k = starts.length; k--; ) if (open + starts[k] >= at) starts[k]++;
+    return ++inserted;
+  };
   let end = close;
   for (let k = starts.length; k--; ) {
     const floor = open + starts[k];
-    const anchor = partDecidingCaret(
-      result,
-      end - 1,
-      floor,
-      scope,
-      bodySpans,
-      open + 1
-    );
-    if (
-      anchor === floor ||
-      (anchor !== CANNOT_END_LINE &&
-        !isOptionalAtom(result[anchor]) &&
-        !isPositionUncertain(result[anchor]))
-    )
-      return wrapGroup(result, open, close, scope, lookaheadSpans);
-    anchors.push(anchor);
-    ends.push(end);
+    placeCaret(result, end, floor, scope, insert);
     end = floor;
-  }
-  const caret = caretFor(scope);
-  let inserted = 0;
-  for (let n = 0; n < anchors.length; n++) {
-    const anchor = anchors[n];
-    if (anchor !== CANNOT_END_LINE && isOptionalAtom(result[anchor])) {
-      foldCaret(result, anchor, caret);
-      continue;
-    }
-    const at = anchor === CANNOT_END_LINE ? ends[n] : anchor + 1;
-    result.splice(
-      at,
-      0,
-      anchor === CANNOT_END_LINE ? UNSATISFIABLE : asOptionalAtom(caret)
-    );
-    shiftSpans(lookaheadSpans, at - 1, 1);
-    shiftSpans(bodySpans, at - open - 2, 1);
-    for (let k = starts.length; k--; ) if (open + starts[k] >= at) starts[k]++;
-    inserted++;
   }
   return close + inserted;
 }
@@ -238,7 +321,6 @@ function appendMultilineCaret(
         lastGroupClose,
         lastGroupScope,
         lastGroupAlternativeStarts,
-        lastGroupLookaheadSpans,
         lookaheadSpans
       );
     const bodyAnchor = partDecidingCaret(
@@ -264,21 +346,13 @@ function appendMultilineCaret(
     } else if (isOptionalAtom(result[bodyAnchor])) {
       foldCaret(result, bodyAnchor, caretFor(lastGroupScope));
       return lastGroupClose;
-    } else if (isPositionUncertain(result[bodyAnchor])) {
-      result.splice(
-        bodyAnchor + 1,
-        0,
-        asOptionalAtom(caretFor(lastGroupScope))
-      );
-      shiftSpans(lookaheadSpans, bodyAnchor, 1);
-      shiftSpans(lastGroupLookaheadSpans, bodyAnchor - lastGroupOpen - 1, 1);
-      return lastGroupClose + 1;
     } else {
-      return wrapGroup(
+      return appendCaretToAlternatives(
         result,
         lastGroupOpen,
         lastGroupClose,
         lastGroupScope,
+        [0],
         lookaheadSpans
       );
     }
@@ -307,8 +381,7 @@ function appendMultilineCaret(
     foldCaret(result, anchor, caret);
     return lastGroupClose;
   }
-  const positionUncertain =
-    isBackreference(previous) || isQuantifier(previous);
+  const positionUncertain = isPositionUncertain(previous);
   if (
     lookedThroughGroup &&
     (positionUncertain ||

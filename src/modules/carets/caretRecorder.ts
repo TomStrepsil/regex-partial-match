@@ -33,6 +33,7 @@ import {
 import appendMultilineCaret, {
   NO_ALTERNATIVES,
   canEndLine,
+  shiftSpans,
   type LookaheadSpan
 } from "./appendMultilineCaret.ts";
 import { isQuantifierAhead, quantifierAhead } from "./quantifierAhead.ts";
@@ -156,13 +157,16 @@ export default function caretRecorder(): CaretRecorder {
       } else if (event === ON_ALTERNATIVE) {
         (alternativeStarts ??= [0]).push(result.length + 1);
       } else if (event === ON_LOOKAHEAD) {
-        if (
-          scope & MULTILINE &&
-          body[0] === START_ANCHOR &&
-          !lastBodyAlternativeStarts &&
-          !isQuantifierAhead(source, i)
-        ) {
-          body.shift();
+        const spans = lastBodyLookaheadSpans ?? NO_LOOKAHEAD_SPANS;
+        let caret =
+          scope & MULTILINE && !lastBodyAlternativeStarts
+            ? leadingCaret(body, 0, spans)
+            : -1;
+        if (caret !== -1 && !isQuantifierAhead(source, i)) {
+          do {
+            body.splice(caret, 1);
+            shiftSpans(lastBodyLookaheadSpans, caret, -1);
+          } while ((caret = leadingCaret(body, caret, spans)) !== -1);
           lastGroupClose = appendMultilineCaret(
             result,
             lastGroupOpen,
@@ -212,13 +216,7 @@ export default function caretRecorder(): CaretRecorder {
           if (quantifier === undefined) {
             for (let k = carets.length; k--; ) {
               body.splice(carets[k], 1);
-              if (lastBodyLookaheadSpans)
-                for (const span of lastBodyLookaheadSpans) {
-                  if (span[0] > carets[k]) {
-                    span[0]--;
-                    span[1]--;
-                  }
-                }
+              shiftSpans(lastBodyLookaheadSpans, carets[k], -1);
             }
             if (lastBodyAlternativeStarts)
               for (let k = starts.length; k--; )

@@ -19,7 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `hitEnd()` reports `false` for more matches that settled before the end of the input with a backreference, as `/(a|b)\1?/` on `"aa"`
 - `hitEnd()` no longer backtracks exponentially over optional atoms repeated at the end of the input, as `/(?:a?-?){10}(?<=b)|c/` did on `""`
 - `exec()` and `hitEnd()` no longer backtrack exponentially over a repeated group of alternatives that the input ends inside, as `/(?:\d|[a-f]){24}(?<![a-f])/` did on `"abc"`
-- `exec()` no longer accepts input no continuation completes where a `^` under `m` follows a group repeated at least once whose body can't end a line, as `/(a|b){2}^/m` did on `"b"`
+- `exec()` finds partial matches it missed or found late where a `^` under `m` follows a group whose body ends in a nested group or can match nothing, or leads a lookahead body behind another `^` or an atom that can match nothing, as `/((a\n))^/m` did on `"a"`
+- `exec()` no longer accepts input no continuation completes where a `^` under `m` follows a quantified negative lookahead, or a group whose body can't end a line that is repeated or ends in a nested group, as `/(a|b){2}^/m` did on `"b"`
 - `hitEnd()` no longer reports `false` where a repeated group ran out of input and a later repetition matched nothing through a lookbehind or negative lookahead, as `/(?:(?<=b)|[^a]{3}){2}/` did on `"-b"`
 - `exec()` finds partial matches it missed or found late where a backreference runs out part way through its capture, as `/(\w\w)\1/` did on `"abxcdc"`, `/(\w+)-\1/` on `"ab-xbc-b"` and `/^(a+b)\1|^(a+bc)\2/` on `"abca"`
 
