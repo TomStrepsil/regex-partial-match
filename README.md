@@ -88,7 +88,7 @@ The one most people meet: an unanchored pattern always matches `""` at the end o
 ```javascript
 import PartialMatchRegExp, { hitEnd } from "regex-partial-match";
 
-const partial = new PartialMatchRegExp(/\{"[^"]+":"[^"]+"\}/);
+const partial = new PartialMatchRegExp(/\{"[^"]+":(?:"[^"]*"|\d+)\}/);
 let buffer = "";
 
 function processChunk(chunk) {
@@ -109,7 +109,7 @@ function processChunk(chunk) {
 processChunk('{"na'); // [] - buffer: '{"na'
 processChunk('me":"Jo'); // [] - buffer: '{"name":"Jo'
 processChunk('hn"}{"age":'); // ['{"name":"John"}'] - buffer: '{"age":'
-processChunk('25}{"ok'); // [] - '{"age":25}' can't match, buffer: '{"ok'
+processChunk('25}{"ok'); // ['{"age":25}'] - buffer: '{"ok'
 processChunk('":"yes"}'); // ['{"ok":"yes"}'] - buffer: ''
 ```
 
