@@ -76,7 +76,7 @@ The transform answers a two-valued question: does the input match the wrapped pa
 
 A lookbehind or negative lookahead holds at the end of the input because, wherever the input ran out before it, a continuation decides it: `/(?:\d|[a-f]){24}(?<![a-f])/` on `"abc"` matches, since 21 more digits complete it. Judging it against the input instead would reject that, and a failure there would send the engine back through every way of reaching the end of the input, once per alternative for each repetition the input can't fill.
 
-The over-acceptance only arises on a path that is contradictory at that point, and it is always in the safe direction for a validator: keep buffering. The truncation branch of a lookbehind or negative lookahead accepts wrongly only where no continuation could make the assertion hold: a lookbehind that fails on characters already read, or a negative lookahead whose body matches there whatever follows, as in `/a(?!a?)/`. A negative lookahead that holds at the end of the input by itself is like `\b` or `$`: the rest of the pattern can contradict it, as in `/a(?!b)b/`. Each pattern above is contradictory on every path, so it can never match at all. A pattern that can match may still have a contradictory path, and that path can win over a viable one, with [`hitEnd()`](../README.md#hitend) `true`:
+The over-acceptance only arises on a path that is contradictory at that point, and it is always in the safe direction for a validator: keep buffering. The truncation branch of a lookbehind or negative lookahead accepts wrongly only where no continuation could make the assertion hold: a lookbehind that fails on characters already read, or a negative lookahead whose body matches there whatever follows, as in `/a(?!a?)/`. A negative lookahead that holds at the end of the input by itself is like `\b` or `$`: the rest of the pattern can contradict it, as in `/a(?!b)b/`. Each pattern above is contradictory on every path, so it can never match at all. A pattern that can match may still have a contradictory path, and that path can win over a viable one, with [`hitEnd()`](./api.md#hitend) `true`:
 
 - at an earlier index: `/^b\ba|a/` on `"b"` returns `"b"` at 0
 - at the same index, where a greedy quantifier tries it first: `/[ab]+(?<!a)/` on `"ba"` returns `"ba"`, where the native pattern matches `"b"`, and on `"bac"` it returns `"b"`
@@ -97,7 +97,7 @@ Any other caret needs the carets module, whose rules are in [Carets](./modules/c
 
 Backreferences cannot be handled by the `|$(?![\s\S])` transform alone because they are atomic — `\1` must match the entire captured string or fail, and its length is only known at runtime.
 
-Each backreference that can run out part way through its group's capture gets a second alternative, built once with the pattern. It captures the rest of the input into a hidden group, provided that rest is no longer than [`longestPartial`](./modules/backreferences.md#longestpartial) characters, and lookbehinds check that the nearest occurrence of the capture starts with it. The engine therefore resolves partial backreferences in its own priority order, as it does every other atom. The hidden groups are removed from the match before it's returned. See [Backreferences](./modules/backreferences.md) for the full algorithm.
+Each backreference that can run out part way through its group's capture gets a second alternative, built once with the pattern. It captures the rest of the input into a hidden group, provided that rest is no longer than [`longestPartial`](./modules/backreferences.md#%EF%B8%8F-longestpartial) characters, and lookbehinds check that the nearest occurrence of the capture starts with it. The engine therefore resolves partial backreferences in its own priority order, as it does every other atom. The hidden groups are removed from the match before it's returned. See [Backreferences](./modules/backreferences.md) for the full algorithm.
 
 This path belongs to the backreferences module. `regex-partial-match/core` without it throws `TypeError: Needs the backreferences module` when a pattern needs the path, and compiles a pattern whose escapes resolve statically, such as `/x\8y/`, with the transform above.
 
@@ -109,7 +109,7 @@ This path belongs to the backreferences module. `regex-partial-match/core` witho
 
 ## 🎯 `hitEnd()`
 
-[`hitEnd()`](../README.md#hitend) reports whether a match read the end of the input, so more input could still change it.
+[`hitEnd()`](./api.md#hitend) reports whether a match read the end of the input, so more input could still change it.
 
 ### Why the question can't be answered from the outside
 

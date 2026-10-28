@@ -1,6 +1,6 @@
 # 👇 Carets
 
-_The carets module, `regex-partial-match/modules/carets`. To bind it, and to see which carets `core` accepts without it, see [the lean entry](../../README.md#the-lean-entry-regex-partial-matchcore)._
+_The carets module, `regex-partial-match/modules/carets`. To bind it, and to see which carets `core` accepts without it, see [the lean entry](../entry-points.md#the-lean-entry-regex-partial-matchcore)._
 
 ## ⏱️ When the rules run
 
@@ -76,7 +76,7 @@ A caret with nothing consuming before it inside the group is judged where the gr
 
 So `/((?-m:^x))/m` and `/a(b^(?-m:^x))/m` on `"a"` are both `null`.
 
-A caret leading an unquantified lookahead body, behind the same parts it can lead a group body behind, is judged against the part before the lookahead, together with any further carets leading it: `/\n(?= *^)/m` on `"a"` matches `""` at index 1. The lookahead then [holds at the end of the input](../how-it-works.md#-assertions-at-the-end-of-the-input) like any other, so `/-\n(?=x?^\n)(?=b)/m` accepts `"-"` although its lookaheads contradict each other. That doesn't apply where the body alternates at its top level, since there the caret guards every alternative and stays as written, as it does at the start of any later alternative.
+A caret leading an unquantified lookahead body, behind the same parts it can lead a group body behind, is judged against the part before the lookahead, together with any further carets leading it: `/\n(?= *^)/m` on `"a"` matches `""` at index 1. The lookahead then [holds at the end of the input](../how-it-works.md#%EF%B8%8F-assertions-at-the-end-of-the-input) like any other, so `/-\n(?=x?^\n)(?=b)/m` accepts `"-"` although its lookaheads contradict each other. That doesn't apply where the body alternates at its top level, since there the caret guards every alternative and stays as written, as it does at the start of any later alternative.
 
 ### Where the position can move
 

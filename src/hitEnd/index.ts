@@ -3,40 +3,28 @@ import { compiledOf } from "../partialMatchRegExp/partialMatchInternals.ts";
 import { buildTruncationProbe, tookTruncationBranch } from "./truncationProbe.ts";
 
 /**
- * Whether the engine reached the end of the input while producing `match` —
- * a match `partial` produced — so that more input could change it.
- *
- * The contract is that of the JDK's `Matcher.hitEnd()`: when this returns
- * `false`, no continuation of the input changes the match's index or text,
- * and its captures are the ones the original pattern produces, except for
- * the two limits noted under `@remarks` below, where `false` is reported
- * despite a read of the end. `true` means the match read the end of the
- * input — an atom ran out of input, a greedy quantifier stopped there with
- * nothing left to read, or `$`, `\b` or `\B` held there — so more input
- * could extend it, change which alternative wins, or invalidate it, and
- * its captures are the closest to what a full match would report rather
- * than final.
+ * Whether the engine read the end of the input while producing `match`, so
+ * that more input could change it, as the JDK's `Matcher.hitEnd()` reports.
  *
  * `false` is not "is a match": `/hello \w+/` matches `"hello world"` in full
- * and still reports `true`, since `\w+` read the end looking for more. An
- * exact-length match that consumed the last character without reading past
- * it reports `false`.
+ * and reports `true`, since `\w+` read the end looking for more.
  *
  * @param partial - The `PartialMatchRegExp` instance that produced `match`
  * @param match - A match returned by `partial.exec()`
- * @returns `true` when the match read the end of the input, `false` when it
- * settled short of it
+ * @returns `true` when the match read the end of the input, so its captures
+ * are the closest available rather than final; `false` when it didn't, so,
+ * outside the limits under `@remarks`, no continuation changes its index or
+ * text. A match that consumes the last character without reading past it is
+ * `false`.
  *
  * @remarks
- * Conservative where the JDK is exact in two places: a bounded greedy
- * quantifier (`?`, `{n,m}`) fully taken at the end of the input reports
- * `true` — on a group, and the same way for an unequal-bound `{n,m}`
- * directly on a single atom once it's saturated at its maximum — and so
- * does a group with a minimum count of two or more that holds a lookbehind
- * or negative lookahead, or a negative lookahead repeated directly that
- * way, whenever its repetitions end there. Cannot see
- * a read of the end inside a raw lookaround, or inside a lookahead in an
- * earlier iteration of a quantified group.
+ * Some bounded or repeated quantifiers that end at the end of the input
+ * report `true` without reading it. A read of the end inside a raw
+ * lookaround, or inside a lookahead in an earlier iteration of a quantified
+ * group, reports `false`, as does a lone high surrogate ending the input
+ * under `u` or `v`.
+ *
+ * @see {@link https://github.com/TomStrepsil/regex-partial-match/blob/main/docs/api.md#hitend | Documentation}
  *
  * @example
  * ```typescript

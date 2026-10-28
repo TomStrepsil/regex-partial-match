@@ -41,7 +41,7 @@ isComplete(anchored, anchored.exec("abc")); // true  (v1)
 !hitEnd(anchored, anchored.exec("abc")); // false (v2): $ read the end
 ```
 
-The codemod fixes the call shape. It cannot tell you whether this widened case matters to your caller, so check each rewritten site against your patterns. The [`hitEnd()` section of the README](../../../README.md#hitend) has the contract.
+The codemod fixes the call shape. It cannot tell you whether this widened case matters to your caller, so check each rewritten site against your patterns. The [`hitEnd()` API reference](../../../docs/api.md#hitend) has the contract.
 
 ### Usage
 

@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- `README.md`:
+  - fixes the Stream Processing example, which never discarded input that couldn't match
+  - moves the API reference, entry points and supported syntax to `docs/`, and drops the Form Validation and Autocomplete examples
+- `hitEnd()`'s TSDoc is shorter, and links to the API reference for its limits
+
 ## [2.2.0] - 2026-10-27
 
 ### Added

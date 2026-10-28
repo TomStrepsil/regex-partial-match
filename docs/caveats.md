@@ -1,5 +1,16 @@
 # Caveats
 
+- [**`.test()` and empty matches at the end of the input**](#test-behaviour-and-non-matching-results-from-exec-and-match): an unanchored pattern always matches `""` at the end of the input; anchor with `^`, or ask [`hitEnd()`](./api.md#hitend)
+- [**Assertions at the end of the input**](./how-it-works.md#%EF%B8%8F-assertions-at-the-end-of-the-input): a path that contradicts itself can still be accepted there
+- [**Backreferences**](#backreferences): some backreferences stay atomic
+  - [Captures on a partial match](#captures-on-a-partial-match)
+- [**Positive lookbehinds**](#positive-lookbehinds): must match in their entirety
+- [**Backtracking**](#backtracking): costs about what the original pattern costs, except for backreferences retried many times, and a caret that can't hold after repeated alternatives
+- [**Surrogate pair matching**](#surrogate-pair-matching): only whole astral characters match
+- [**Sticky flag (`y`)**](#sticky-flag-y): not suited to progressive input validation
+- [**"String properties"**](#string-properties): match atomically
+- [**Very long repetitions**](#very-long-repetitions): a multi-character group repeated over a few MiB can overflow V8's stack
+
 ## [`.test()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/test) behaviour and non-matching results from [`.exec()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/exec) and [`.match()`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/match)
 
 For unanchored patterns (no `^` and not using the `y` flag), the library produces an expression that always matches an empty string at the true end of the input — see [How It Works](./how-it-works.md). Feasibly, this is the start of a new partial match.
@@ -51,7 +62,7 @@ e.g.
 ```
 
 > [!TIP]
-> [`hitEnd()`](../README.md#hitend) answers this without a length check, and covers more than one: it reports `true` for the empty end-of-input match, since it exists only because the input ran out, and equally for a non-empty prefix like `"hello"` against `/hello world/`, which a length check would wave through.
+> [`hitEnd()`](./api.md#hitend) answers this without a length check, and covers more than one: it reports `true` for the empty end-of-input match, since it exists only because the input ran out, and equally for a non-empty prefix like `"hello"` against `/hello world/`, which a length check would wave through.
 >
 > It describes a match, so ask it from `exec()` rather than `test()`:
 >
@@ -71,13 +82,13 @@ e.g.
 
 ## Backreferences
 
-`PartialMatchRegExp` supports partial matching of backreferences (`\1`, `\k<name>`) — see [How It Works](./how-it-works.md) and [docs/modules/backreferences.md](./modules/backreferences.md) for the algorithm. A backreference is inherently atomic — `\1` must match the complete captured text or fail — but the library lets it match a prefix of its group's capture that runs to the end of the input, checked by the engine itself, in its own priority order.
+`PartialMatchRegExp` supports partial matching of backreferences (`\1`, `\k<name>`) — see [How It Works](./how-it-works.md) and [Backreferences](./modules/backreferences.md) for the algorithm. A backreference is inherently atomic — `\1` must match the complete captured text or fail — but the library lets it match a prefix of its group's capture that runs to the end of the input, checked by the engine itself, in its own priority order.
 
 The following cases remain atomic (full native value or exactly at true end of input, no mid-value partial matching):
 
 - **Backreferences inside lookbehinds and negative lookarounds.** These are verbatim contexts — the value a lookbehind or negative lookahead requires must be fully present or fully absent, so there's no partial-prefix position to expand into.
 - **A forward reference** — `\1` written before group 1 opens, or referencing it while it's still open (a self-reference inside the group's own body, e.g. `\1` in `/^(\1a)$/`). Per ECMAScript the engine always resolves it to empty there (it can't have participated yet, even on a later iteration of an enclosing quantifier), so there's no real value being withheld.
-- **A prefix longer than [`longestPartial`](./modules/backreferences.md#longestpartial)** (64 characters in the `backreferences` module, or another limit set with `backreferencesWith()`). `/(\w+)-\1/` matches `"abcd-abc"` from index 0, but with `longestPartial` set to 2 only from index 5, where `"abc"` is a prefix of a full match on its own.
+- **A prefix longer than [`longestPartial`](./modules/backreferences.md#%EF%B8%8F-longestpartial)** (64 characters in the `backreferences` module, or another limit set with `backreferencesWith()`). `/(\w+)-\1/` matches `"abcd-abc"` from index 0, but with `longestPartial` set to 2 only from index 5, where `"abc"` is a prefix of a full match on its own.
 - **Every backreference, on an engine without lookbehind.** The check of a prefix needs one, so such an engine gets atomic backreferences throughout.
 - **A `\k<name>` written before a later declaration of its duplicated name.** ECMAScript permits a duplicated name only across disjoint alternatives. This one is stricter than the rest — see [docs/modules/backreferences.md](./modules/backreferences.md#duplicate-named-groups) for why, and for the workaround.
 
@@ -96,7 +107,7 @@ partial.exec("abcy"); // ["abcy", undefined, "abc"    ] — branch 2, complete
 
 A repeated group whose last iteration was cut short reports that partial iteration — `/(abc)+\1/` on `"abcab"` gives `m[1] === "ab"` — and `"abcabc"` then gives `"abc"`.
 
-When [`hitEnd()`](../README.md#hitend) reports `false` for a match, its captures are final; when it reports `true`, they are the closest available. One known shape still reports `undefined` where `""` is closer: a quantified group not yet iterated at the end of the input (`/(?=(a))(a|b)*/` on `""` gives `m[2] === undefined`).
+When [`hitEnd()`](./api.md#hitend) reports `false` for a match, its captures are final; when it reports `true`, they are the closest available. One known shape still reports `undefined` where `""` is closer: a quantified group not yet iterated at the end of the input (`/(?=(a))(a|b)*/` on `""` gives `m[2] === undefined`).
 
 ## Positive Lookbehinds
 
@@ -115,7 +126,7 @@ e.g.
 ECMAScript lets a group name be declared more than once only in alternatives that can't both take part. Node.js 24 (V8 13.6), and likely earlier V8 versions that support duplicate names, also accept some patterns the specification rejects, where both groups can take part, such as `/(?<n>a)(?=x|(?<n>y))/`. This is a V8 defect, [fixed](https://chromium.googlesource.com/v8/v8/+/0be3260ffee08dc6e7278a1e8549d007036b4093) in V8 13.9 (Chrome 139, Node.js 25). `PartialMatchRegExp` constructs these patterns but doesn't support them:
 
 - `exec()` can accept input no completion would match, when the pattern has a `\k<name>` to the duplicated name. `/(?<n>a)(?:x|(?<n>y))\k<n>/` never matches through `y` natively, yet `exec("ay")` returns `["ay", "a", "y"]`.
-- [`hitEnd()`](../README.md#hitend) throws a `SyntaxError`, because its probe adds capturing groups, which V8 then rejects.
+- [`hitEnd()`](./api.md#hitend) throws a `SyntaxError`, because its probe adds capturing groups, which V8 then rejects.
 
 Node.js 25 and later and JavaScriptCore (Safari, Bun) follow the specification and reject these patterns at construction. Renaming one of the groups avoids the problem.
 
@@ -126,7 +137,7 @@ The transform keeps the original pattern's backtracking: a pattern that backtrac
 Two shapes cost more:
 
 - **A caret that can't hold after a group of alternatives repeated a fixed minimum number of times**, where the input ends inside the repetition, as in `/(?:a|b){24}^/` or `/(?:\d|[a-f]){24}(?=^)/` on `"a"`. Every alternative can match the end of the input, so the engine tries every way to fill the repetitions the input can't before the caret fails, and the time doubles with each one. Outside multiline scope, which `(?-m:^)` restores under the `m` flag, such a pattern matches only where the repetitions match nothing. A caret under `m` costs nothing extra. Merging single-character alternatives into one class avoids it: `/[ab]{24}^/`.
-- **A backreference retried many times**, as in `/(\w+)\1(?<=x)/` on a run of `a` followed by `!`. Each failing attempt reads up to [`longestPartial`](./modules/backreferences.md#longestpartial) characters ahead, so the cost is a multiple of the original's that grows with it. It stays polynomial. A lower `longestPartial` reduces it, and `0` removes it.
+- **A backreference retried many times**, as in `/(\w+)\1(?<=x)/` on a run of `a` followed by `!`. Each failing attempt reads up to [`longestPartial`](./modules/backreferences.md#%EF%B8%8F-longestpartial) characters ahead, so the cost is a multiple of the original's that grows with it. It stays polynomial. A lower `longestPartial` reduces it, and `0` removes it.
 
 A stream that re-runs a growing input repeats the cost on every call. Capping how much input it holds for one candidate match bounds it.
 
