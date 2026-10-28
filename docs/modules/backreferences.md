@@ -285,10 +285,11 @@ state(partial, "he said");         // "invalid": not a quoted string
 ### Fences of variable length
 
 `````js
-const partial = new PartialMatchRegExp(/^(`{3,})\n[\s\S]*?\n\1/);
+const partial = new PartialMatchRegExp(/^(`{3,})\n[\s\S]*?\n\1`*/);
 
-state(partial, "````\ncode\n```");  // "incomplete": a 4-backtick fence needs a 4th to close
-state(partial, "```\ncode\n```");   // "complete"
-state(partial, "```\ncode\n````");  // "complete": a longer run closes it too, as in CommonMark, leaving extraneous "`" after match
-state(partial, "``\ncode");         // "invalid": two backticks don't open a fence
+state(partial, "````\ncode\n```");   // "incomplete": a 4-backtick fence needs a 4th to close
+state(partial, "```\ncode\n```");    // "incomplete": the closing run could still grow
+state(partial, "```\ncode\n```\n");  // "complete"
+state(partial, "```\ncode\n````\n"); // "complete": a longer run closes it too, as in CommonMark
+state(partial, "``\ncode");          // "invalid": two backticks don't open a fence
 `````
