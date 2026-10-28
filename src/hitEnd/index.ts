@@ -11,9 +11,11 @@ import { buildTruncationProbe, tookTruncationBranch } from "./truncationProbe.ts
  *
  * @param partial - The `PartialMatchRegExp` instance that produced `match`
  * @param match - A match returned by `partial.exec()`
- * @returns `true` when the match read the end of the input, and its captures
- * are the closest available rather than final; `false` when it settled short
- * of the end, and no continuation changes its index or text
+ * @returns `true` when the match read the end of the input, so its captures
+ * are the closest available rather than final; `false` when it didn't, so,
+ * outside the limits under `@remarks`, no continuation changes its index or
+ * text. A match that consumes the last character without reading past it is
+ * `false`.
  *
  * @remarks
  * Some bounded or repeated quantifiers that end at the end of the input
