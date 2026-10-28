@@ -1,6 +1,6 @@
 # 🔙 Backreferences
 
-_The backreferences module, `regex-partial-match/modules/backreferences`. To bind it, and to see what `core` refuses without it, see [the lean entry](../../README.md#the-lean-entry-regex-partial-matchcore)._
+_The backreferences module, `regex-partial-match/modules/backreferences`. To bind it, and to see what `core` refuses without it, see [the lean entry](../entry-points.md#the-lean-entry-regex-partial-matchcore)._
 
 ## 🧩 The problem
 
@@ -232,17 +232,27 @@ A `\k<name>` written before a later declaration of its name is treated as a forw
 
 ## 👨‍🍳 Recipes
 
-A backreference that ties a closing token to something captured earlier. Run the plain pattern in a loop to take complete matches off a buffer, and the partial one on what's left to decide whether to keep buffering. See [Stream Processing](../../README.md#stream-processing).
+A backreference that ties a closing token to something captured earlier. Each recipe tells the three states apart with `exec()` and `hitEnd()`, as in [Stream Processing](../../README.md#stream-processing): `null` can't recover, `hitEnd()` is `true` for a match that may still be arriving, and `false` for one that's complete.
+
+```js
+import PartialMatchRegExp, { hitEnd } from "regex-partial-match";
+
+function state(partial, input) {
+  const match = partial.exec(input);
+  if (match === null) return "invalid";
+  return hitEnd(partial, match) ? "incomplete" : "complete";
+}
+```
 
 ### Matched tags
 
 ```js
-const pattern = /^<([a-zA-Z][\w:-]*)>[^<]*?<\/\1>/;
-const partial = new PartialMatchRegExp(pattern);
+const partial = new PartialMatchRegExp(/^<([a-zA-Z][\w:-]*)>[^<]*?<\/\1>/);
 
-partial.test("<esi:include");                   // true: opening tag in progress
-partial.test("<esi:include>body</esi:include"); // true: closing tag in progress
-partial.test("<esi:include>body</wrong>");      // false: can't recover
+state(partial, "<esi:include");                    // "incomplete": opening tag in progress
+state(partial, "<esi:include>body</esi:include");  // "incomplete": closing tag in progress
+state(partial, "<esi:include>body</esi:include>"); // "complete"
+state(partial, "<esi:include>body</wrong>");       // "invalid": can't recover
 ```
 
 `[^<]*?` makes the first `<` start the closing tag, so a wrong close is rejected outright. `.+?` would leave almost anything a viable prefix.
@@ -250,10 +260,13 @@ partial.test("<esi:include>body</wrong>");      // false: can't recover
 ### Tags that allow other tags inside
 
 ```js
-const pattern =
-  /^<([a-zA-Z][\w:-]*)>(?:[^<]|<(?!\/?\1\b)\/?[a-zA-Z][\w:-]*(?:\s[^<>]*)?>)*?<\/\1>/;
+const partial = new PartialMatchRegExp(
+  /^<([a-zA-Z][\w:-]*)>(?:[^<]|<(?!\/?\1\b)\/?[a-zA-Z][\w:-]*(?:\s[^<>]*)?>)*?<\/\1>/
+);
 
-pattern.exec("<div><b>bold</b> text</div>tail")[0]; // "<div><b>bold</b> text</div>"
+state(partial, "<div><b>bold</b> text</div>tail"); // "complete": matches "<div><b>bold</b> text</div>"
+state(partial, "<div><b>bold</b> text</wro");      // "incomplete": could still be another tag
+state(partial, "<div>a < b");                      // "invalid": a bare < isn't a tag
 ```
 
 The negative lookahead admits any tag except the one captured, so nesting is allowed and the match stops at the first close of the outer tag. The cost is that a diverging close such as `</wro` can still read as some other tag, so it isn't rejected early.
@@ -261,18 +274,21 @@ The negative lookahead admits any tag except the one captured, so nesting is all
 ### Quote-agnostic strings
 
 ```js
-const pattern = /^(['"`])(?:\\.|(?!\1)[^\\])*?\1/;
-const partial = new PartialMatchRegExp(pattern);
+const partial = new PartialMatchRegExp(/^(['"`])(?:\\.|(?!\1)[^\\])*?\1/);
 
-partial.test('"he said \\"hi'); // true: an escaped quote doesn't close it
-partial.test("\"a'b");          // true: other quotes are content
+state(partial, '"he said \\"hi');  // "incomplete": an escaped quote doesn't close it
+state(partial, '"he said \\"hi"'); // "complete"
+state(partial, "\"a'b");           // "incomplete": other quotes are content
+state(partial, "he said");         // "invalid": not a quoted string
 ```
 
 ### Fences of variable length
 
 `````js
-const pattern = /^(`{3,})\n[\s\S]*?\n\1(?!`)/;
-const partial = new PartialMatchRegExp(pattern);
+const partial = new PartialMatchRegExp(/^(`{3,})\n[\s\S]*?\n\1/);
 
-partial.test("````\ncode\n```"); // true: a 4-backtick fence needs a 4th to close
+state(partial, "````\ncode\n```");  // "incomplete": a 4-backtick fence needs a 4th to close
+state(partial, "```\ncode\n```");   // "complete"
+state(partial, "```\ncode\n````");  // "complete": a longer run closes it too, as in CommonMark, leaving extraneous "`" after match
+state(partial, "``\ncode");         // "invalid": two backticks don't open a fence
 `````

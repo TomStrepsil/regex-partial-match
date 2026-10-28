@@ -40,6 +40,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - states that `isPartialMatchRegExp()` recognises only instances from the same evaluated copy of the library, in the same realm
   - links the carets module footnote to the module's source
   - states that `hitEnd()` reports `true` once a group repeated at least twice that holds a lookbehind or negative lookahead, or a negative lookahead repeated directly, ends at the end of the input
+  - fixes the Stream Processing example, which never discarded input that couldn't match
+  - moves the API reference, entry points and supported syntax to `docs/`, and drops the Form Validation and Autocomplete examples
 
 ## [2.1.0] - 2026-10-11
 
