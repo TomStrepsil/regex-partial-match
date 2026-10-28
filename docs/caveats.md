@@ -82,7 +82,7 @@ e.g.
 
 ## Backreferences
 
-`PartialMatchRegExp` supports partial matching of backreferences (`\1`, `\k<name>`) — see [How It Works](./how-it-works.md) and [docs/modules/backreferences.md](./modules/backreferences.md) for the algorithm. A backreference is inherently atomic — `\1` must match the complete captured text or fail — but the library lets it match a prefix of its group's capture that runs to the end of the input, checked by the engine itself, in its own priority order.
+`PartialMatchRegExp` supports partial matching of backreferences (`\1`, `\k<name>`) — see [How It Works](./how-it-works.md) and [Backreferences](./modules/backreferences.md) for the algorithm. A backreference is inherently atomic — `\1` must match the complete captured text or fail — but the library lets it match a prefix of its group's capture that runs to the end of the input, checked by the engine itself, in its own priority order.
 
 The following cases remain atomic (full native value or exactly at true end of input, no mid-value partial matching):
 

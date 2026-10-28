@@ -44,7 +44,7 @@ const WithBoth = withModules(carets, backreferences);
 new WithBoth(/(a|b)\1/).test("a"); // true
 ```
 
-The `backreferences` module, and so the default `PartialMatchRegExp`, lets a backreference stop part way through its group's capture only within 64 characters of the end of the input. Past that, the backreference matches in full or not at all. `backreferencesWith({ longestPartial })`, also exported from `regex-partial-match/modules/backreferences`, returns the module with another limit. See [docs/modules/backreferences.md](./modules/backreferences.md#%EF%B8%8F-longestpartial) for what the value costs.
+The `backreferences` module, and so the default `PartialMatchRegExp`, lets a backreference stop part way through its group's capture only within 64 characters of the end of the input. Past that, the backreference matches in full or not at all. `backreferencesWith({ longestPartial })`, also exported from `regex-partial-match/modules/backreferences`, returns the module with another limit. See [Backreferences](./modules/backreferences.md#%EF%B8%8F-longestpartial) for what the value costs.
 
 ```javascript
 import { backreferencesWith } from "regex-partial-match/modules/backreferences";
